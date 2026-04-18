@@ -1,2 +1,2 @@
-# umanexDS
-umanex Design System
+# umanex
+Root
