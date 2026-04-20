@@ -24,6 +24,5 @@ apps/*/build
 !.vscode/settings.json
 
 # tokens.json is committed — Tokens Studio GitHub sync target
-# packages/tokens/build contains generated files — keep the folder tracked
-packages/tokens/build/*
-!packages/tokens/build/.gitkeep
+# packages/tokens/build: generated output is committed, intermediate file is not
+packages/tokens/build/_merged.json
