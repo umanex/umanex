@@ -8,13 +8,17 @@ import type { MonthData } from '../lib/cashflow/types';
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
-    useCashflowStore.persist.rehydrate();
+    try {
+      useCashflowStore.persist.rehydrate();
+    } catch {
+      // localStorage niet beschikbaar of corrupte state — negeer en ga door
+    }
     setHydrated(true);
   }, []);
   return hydrated;
 }
 
-export function useMonths(count = 12): MonthData[] {
+export function useMonths(count = 3): MonthData[] {
   const anchorMonth = useCashflowStore((s) => s.anchorMonth);
   const startBalance = useCashflowStore((s) => s.startBalance);
   const items = useCashflowStore((s) => s.items);

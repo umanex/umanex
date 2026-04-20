@@ -11,7 +11,7 @@ import { RecurringTriggerButton } from '../components/cashflow/RecurringTriggerB
 
 export default function Page() {
   const hydrated = useHydrated();
-  const months = useMonths(12);
+  const months = useMonths(3);
   const [sidepanelOpen, setSidepanelOpen] = useState(false);
 
   if (!hydrated) {
