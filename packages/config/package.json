@@ -9,5 +9,9 @@
     "./eslint/next": "./eslint/next.js",
     "./eslint/react-library": "./eslint/react-library.js",
     "./tailwind/preset": "./tailwind/preset.ts"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3",
+    "typescript": "^5"
   }
 }
