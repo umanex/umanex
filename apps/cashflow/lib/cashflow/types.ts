@@ -1,29 +1,20 @@
 export type MonthKey = string; // 'YYYY-MM'
 
-export type TransactionType = 'income' | 'expense';
-
-export type RecurringFrequency = 'monthly' | 'yearly';
+export interface IncomeItem {
+  id: string;
+  monthKey: MonthKey;
+  label: string;
+  amount: number;
+  received: boolean;
+}
 
 export interface RecurringItem {
   id: string;
   label: string;
   amount: number;
-  type: TransactionType;
-  frequency: RecurringFrequency;
-  /** ISO month string when this item starts recurring, e.g. '2026-01' */
+  type: 'expense';
+  frequency: 'monthly' | 'yearly';
   startMonth: MonthKey;
-  /** ISO month string when this item stops (inclusive), undefined = open-ended */
-  endMonth?: MonthKey;
-}
-
-export interface BtwPayment {
-  id: string;
-  /** Quarter label, e.g. 'Q1 2026' */
-  label: string;
-  amount: number;
-  /** Month in which the BTW is due, e.g. '2026-04' */
-  dueMonth: MonthKey;
-  paid: boolean;
 }
 
 export interface ReservationItem {
@@ -37,10 +28,17 @@ export interface ReservationPayment {
   id: string;
   reservationId: string;
   monthKey: MonthKey;
+  label: string;
   invoiceAmount: number;
   fromReservation: number;
   fromCash: number;
-  label: string;
+}
+
+export interface BtwPayment {
+  id: string;
+  monthKey: MonthKey;
+  amount: number;
+  paid: boolean;
 }
 
 export interface ReservationPotBalance {
@@ -48,6 +46,7 @@ export interface ReservationPotBalance {
   label: string;
   monthlyAmount: number;
   potBalance: number;
+  paymentsThisMonth: ReservationPayment[];
 }
 
 export interface MonthData {
@@ -55,40 +54,44 @@ export interface MonthData {
   startBalance: number;
   endBalance: number;
   totalIncome: number;
-  totalExpenses: number;
-  yearlyReservation: number;
-  btwAmount: number;
-  reservationDeductions: number;
-  reservationPaymentsCash: number;
+  totalRecurring: number;
+  totalReservationDeductions: number;
+  totalReservationCashPayments: number;
+  totalBtw: number;
+  incomeItems: IncomeItem[];
+  recurringItems: RecurringItem[];
+  btwPayment: BtwPayment | null;
   reservationPots: ReservationPotBalance[];
-  incomeItems: RecurringItem[];
-  expenseItems: RecurringItem[];
-  yearlyItems: RecurringItem[];
-  btwPayments: BtwPayment[];
-}
-
-export interface CashflowState {
-  anchorMonth: MonthKey;
-  startBalance: number;
-  items: RecurringItem[];
-  btwPayments: BtwPayment[];
-  reservations: ReservationItem[];
   reservationPayments: ReservationPayment[];
 }
 
-export interface CashflowStore extends CashflowState {
+export interface CashflowStore {
+  startBalance: number;
+  anchorMonth: MonthKey;
+  incomeItems: IncomeItem[];
+  recurringItems: RecurringItem[];
+  reservations: ReservationItem[];
+  reservationPayments: ReservationPayment[];
+  btwPayments: BtwPayment[];
+
   setStartBalance: (balance: number) => void;
-  addItem: (item: RecurringItem) => void;
-  updateItem: (id: string, patch: Partial<RecurringItem>) => void;
-  removeItem: (id: string) => void;
-  addBtwPayment: (payment: BtwPayment) => void;
-  updateBtwPayment: (id: string, patch: Partial<BtwPayment>) => void;
-  removeBtwPayment: (id: string) => void;
   setAnchorMonth: (month: MonthKey) => void;
+
+  addIncomeItem: (item: IncomeItem) => void;
+  updateIncomeItem: (id: string, patch: Partial<IncomeItem>) => void;
+  removeIncomeItem: (id: string) => void;
+
+  addRecurringItem: (item: RecurringItem) => void;
+  updateRecurringItem: (id: string, patch: Partial<RecurringItem>) => void;
+  removeRecurringItem: (id: string) => void;
+
   addReservation: (item: ReservationItem) => void;
   updateReservation: (id: string, patch: Partial<ReservationItem>) => void;
   removeReservation: (id: string) => void;
+
   addReservationPayment: (payment: ReservationPayment) => void;
   updateReservationPayment: (id: string, patch: Partial<ReservationPayment>) => void;
   removeReservationPayment: (id: string) => void;
+
+  upsertBtwPayment: (monthKey: MonthKey, amount: number, paid: boolean) => void;
 }

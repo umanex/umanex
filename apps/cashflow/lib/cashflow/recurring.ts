@@ -8,7 +8,8 @@ export function getCurrentMonthKey(): MonthKey {
 export function getMonthLabel(monthKey: MonthKey): string {
   const parts = monthKey.split('-');
   const date = new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, 1);
-  return date.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' });
+  const label = date.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 export function addMonth(monthKey: MonthKey, count = 1): MonthKey {
