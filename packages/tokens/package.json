@@ -1,0 +1,16 @@
+{
+  "name": "@umanex/tokens",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./variables.css": "./build/variables.css",
+    "./tailwind": "./build/tailwind.js"
+  },
+  "scripts": {
+    "build": "echo 'tokens build placeholder — style-dictionary wiring volgt in aparte prompt'"
+  },
+  "devDependencies": {
+    "style-dictionary": "latest",
+    "typescript": "^5"
+  }
+}
