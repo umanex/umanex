@@ -3,7 +3,7 @@
 import { useCashflowStore } from '../../store/cashflow';
 import { useCashflowActions } from '../../hooks/useCashflow';
 import { generateId, getCurrentMonthKey, formatCurrency } from '../../lib/cashflow/recurring';
-import type { RecurringItem, RecurringFrequency, TransactionType } from '../../lib/cashflow/types';
+import type { RecurringItem } from '../../lib/cashflow/types';
 
 interface RecurringSidepanelProps {
   open: boolean;
@@ -17,9 +17,10 @@ interface ItemEditRowProps {
 }
 
 function ItemEditRow({ item, onUpdate, onRemove }: ItemEditRowProps) {
-  const monthlyHint = item.frequency === 'yearly' && item.amount > 0
-    ? `≈ ${formatCurrency(Math.round(item.amount / 12))}/maand`
-    : null;
+  const monthlyHint =
+    item.frequency === 'yearly' && item.amount > 0
+      ? `≈ ${formatCurrency(Math.round(item.amount / 12))}/maand`
+      : null;
 
   return (
     <div className="flex flex-col gap-1.5 p-2.5 rounded-lg border border-border bg-muted/30">
@@ -51,7 +52,9 @@ function ItemEditRow({ item, onUpdate, onRemove }: ItemEditRowProps) {
         />
         <select
           value={item.frequency}
-          onChange={(e) => onUpdate({ frequency: e.target.value as RecurringFrequency })}
+          onChange={(e) =>
+            onUpdate({ frequency: e.target.value as 'monthly' | 'yearly' })
+          }
           className="h-8 px-2 rounded border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="monthly">Maandelijks</option>
@@ -66,18 +69,17 @@ function ItemEditRow({ item, onUpdate, onRemove }: ItemEditRowProps) {
 }
 
 export function RecurringSidepanel({ open, onClose }: RecurringSidepanelProps) {
-  const items = useCashflowStore((s) => s.items);
-  const { addItem, updateItem, removeItem } = useCashflowActions();
+  const items = useCashflowStore((s) => s.recurringItems);
+  const { addRecurringItem, updateRecurringItem, removeRecurringItem } = useCashflowActions();
 
-  const incomeItems = [...items].filter((i) => i.type === 'income').reverse();
-  const expenseItems = [...items].filter((i) => i.type === 'expense').reverse();
+  const expenseItems = [...items].reverse();
 
-  function handleAdd(type: TransactionType) {
-    addItem({
+  function handleAdd() {
+    addRecurringItem({
       id: generateId(),
       label: '',
       amount: 0,
-      type,
+      type: 'expense',
       frequency: 'monthly',
       startMonth: getCurrentMonthKey(),
     });
@@ -93,11 +95,11 @@ export function RecurringSidepanel({ open, onClose }: RecurringSidepanelProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Terugkerende posten beheren"
+        aria-label="Vaste uitgaven beheren"
         className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-background border-l border-border shadow-xl z-50 flex flex-col transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <header className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
-          <h2 className="text-base font-semibold">Terugkerende posten</h2>
+          <h2 className="text-base font-semibold">Vaste uitgaven</h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-muted transition-colors"
@@ -107,56 +109,26 @@ export function RecurringSidepanel({ open, onClose }: RecurringSidepanelProps) {
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-7">
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                Inkomsten
-              </h3>
-              <button
-                onClick={() => handleAdd('income')}
-                className="text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-              >
-                + Toevoegen
-              </button>
-            </div>
-            {incomeItems.length === 0 && (
-              <p className="text-xs text-muted-foreground py-1">Nog geen inkomsten toegevoegd.</p>
-            )}
-            {incomeItems.map((item) => (
-              <ItemEditRow
-                key={item.id}
-                item={item}
-                onUpdate={(patch) => updateItem(item.id, patch)}
-                onRemove={() => removeItem(item.id)}
-              />
-            ))}
-          </section>
-
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                Uitgaven
-              </h3>
-              <button
-                onClick={() => handleAdd('expense')}
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                + Toevoegen
-              </button>
-            </div>
-            {expenseItems.length === 0 && (
-              <p className="text-xs text-muted-foreground py-1">Nog geen uitgaven toegevoegd.</p>
-            )}
-            {expenseItems.map((item) => (
-              <ItemEditRow
-                key={item.id}
-                item={item}
-                onUpdate={(patch) => updateItem(item.id, patch)}
-                onRemove={() => removeItem(item.id)}
-              />
-            ))}
-          </section>
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
+          {expenseItems.length === 0 && (
+            <p className="text-xs text-muted-foreground py-1">
+              Nog geen vaste uitgaven toegevoegd.
+            </p>
+          )}
+          {expenseItems.map((item) => (
+            <ItemEditRow
+              key={item.id}
+              item={item}
+              onUpdate={(patch) => updateRecurringItem(item.id, patch)}
+              onRemove={() => removeRecurringItem(item.id)}
+            />
+          ))}
+          <button
+            onClick={handleAdd}
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            + Toevoegen
+          </button>
         </div>
       </div>
     </>
