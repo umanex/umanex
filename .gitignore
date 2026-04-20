@@ -5,7 +5,7 @@ node_modules
 .next
 .turbo
 dist
-build
+apps/*/build
 
 # Environment
 .env
@@ -24,6 +24,6 @@ build
 !.vscode/settings.json
 
 # tokens.json is committed — Tokens Studio GitHub sync target
-# packages/tokens/build is generated — excluded per-package
+# packages/tokens/build contains generated files — keep the folder tracked
 packages/tokens/build/*
 !packages/tokens/build/.gitkeep
