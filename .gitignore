@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+.turbo
+dist
+apps/*/build
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# tokens.json is committed — Tokens Studio GitHub sync target
+# packages/tokens/build contains generated files — keep the folder tracked
+packages/tokens/build/*
+!packages/tokens/build/.gitkeep
