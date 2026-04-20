@@ -5,7 +5,8 @@ const config: Config = {
   presets: [preset],
   content: [
     "./app/**/*.{ts,tsx}",
-    "../../packages/ui/**/*.{ts,tsx}",
+    "../../packages/ui/components/**/*.{ts,tsx}",
+    "../../packages/ui/lib/**/*.{ts,tsx}",
   ],
 };
 
