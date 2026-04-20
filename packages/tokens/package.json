@@ -2,15 +2,17 @@
   "name": "@umanex/tokens",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "exports": {
     "./variables.css": "./build/variables.css",
     "./tailwind": "./build/tailwind.js"
   },
   "scripts": {
-    "build": "echo 'tokens build placeholder — style-dictionary wiring volgt in aparte prompt'"
+    "build": "node build.mjs"
   },
   "devDependencies": {
-    "style-dictionary": "latest",
+    "@tokens-studio/sd-transforms": "^1.2.0",
+    "style-dictionary": "^4.0.0",
     "typescript": "^5"
   }
 }
