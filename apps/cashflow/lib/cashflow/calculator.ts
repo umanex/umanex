@@ -1,6 +1,7 @@
 import type {
   MonthKey,
   MonthData,
+  IncomeItem,
   RecurringItem,
   BtwPayment,
   ReservationItem,
@@ -8,12 +9,6 @@ import type {
   ReservationPotBalance,
 } from './types';
 import { addMonths, format, parseISO, differenceInMonths } from 'date-fns';
-
-function isActiveInMonth(item: RecurringItem, monthKey: MonthKey): boolean {
-  if (item.startMonth > monthKey) return false;
-  if (item.endMonth && item.endMonth < monthKey) return false;
-  return true;
-}
 
 function getMonthsInRange(anchorMonth: MonthKey, count: number): MonthKey[] {
   const base = parseISO(`${anchorMonth}-01`);
@@ -41,91 +36,87 @@ export function calcPotBalance(
 export function calculateMonths(
   anchorMonth: MonthKey,
   startBalance: number,
-  items: RecurringItem[],
+  incomeItems: IncomeItem[],
+  recurringItems: RecurringItem[],
+  reservations: ReservationItem[],
+  reservationPayments: ReservationPayment[],
   btwPayments: BtwPayment[],
-  monthCount = 12,
-  reservations: ReservationItem[] = [],
-  reservationPayments: ReservationPayment[] = [],
+  count = 3,
 ): MonthData[] {
-  const months = getMonthsInRange(anchorMonth, monthCount);
+  const months = getMonthsInRange(anchorMonth, count);
   const result: MonthData[] = [];
   let runningBalance = startBalance;
 
-  // Cumulative pot balances tracked across months
   const potBalanceMap = new Map<string, number>();
 
   for (const monthKey of months) {
-    const incomeItems = items.filter(
-      (i) => i.type === 'income' && i.frequency === 'monthly' && isActiveInMonth(i, monthKey),
-    );
-    const expenseItems = items.filter(
-      (i) => i.type === 'expense' && i.frequency === 'monthly' && isActiveInMonth(i, monthKey),
-    );
-    const yearlyItems = items.filter(
-      (i) => i.frequency === 'yearly' && isActiveInMonth(i, monthKey),
-    );
+    const monthIncomeItems = incomeItems.filter((i) => i.monthKey === monthKey);
+    const monthRecurringItems = recurringItems.filter((i) => i.startMonth <= monthKey);
 
-    const totalIncome = incomeItems.reduce((s, i) => s + i.amount, 0);
-    const totalExpenses = expenseItems.reduce((s, i) => s + i.amount, 0);
-    const yearlyReservation = yearlyItems.reduce((s, i) => s + i.amount / 12, 0);
+    const totalIncome = monthIncomeItems.reduce((s, i) => s + i.amount, 0);
 
-    const monthBtwPayments = btwPayments.filter((p) => p.dueMonth === monthKey && !p.paid);
-    const btwAmount = monthBtwPayments.reduce((s, p) => s + p.amount, 0);
+    const totalRecurring = monthRecurringItems.reduce((s, i) => {
+      return s + (i.frequency === 'yearly' ? i.amount / 12 : i.amount);
+    }, 0);
 
-    // Active reservations this month
     const activeReservations = reservations.filter((r) => r.startMonth <= monthKey);
 
-    // Add monthly contributions to each active pot
     for (const res of activeReservations) {
       potBalanceMap.set(res.id, (potBalanceMap.get(res.id) ?? 0) + res.monthlyAmount);
     }
 
-    // Subtract reservation payments from pots
-    for (const payment of reservationPayments) {
-      if (payment.monthKey === monthKey) {
-        potBalanceMap.set(
-          payment.reservationId,
-          (potBalanceMap.get(payment.reservationId) ?? 0) - payment.fromReservation,
-        );
-      }
+    const monthReservationPayments = reservationPayments.filter((p) => p.monthKey === monthKey);
+
+    for (const payment of monthReservationPayments) {
+      potBalanceMap.set(
+        payment.reservationId,
+        (potBalanceMap.get(payment.reservationId) ?? 0) - payment.fromReservation,
+      );
     }
 
-    const reservationDeductions = activeReservations.reduce((s, r) => s + r.monthlyAmount, 0);
-    const reservationPaymentsCash = reservationPayments
-      .filter((p) => p.monthKey === monthKey)
-      .reduce((s, p) => s + p.fromCash, 0);
+    const totalReservationDeductions = activeReservations.reduce(
+      (s, r) => s + r.monthlyAmount,
+      0,
+    );
+
+    const totalReservationCashPayments = monthReservationPayments.reduce(
+      (s, p) => s + p.fromCash,
+      0,
+    );
+
+    const btwPayment = btwPayments.find((p) => p.monthKey === monthKey && !p.paid) ?? null;
+    const totalBtw = btwPayment?.amount ?? 0;
 
     const reservationPots: ReservationPotBalance[] = activeReservations.map((r) => ({
       reservationId: r.id,
       label: r.label,
       monthlyAmount: r.monthlyAmount,
       potBalance: potBalanceMap.get(r.id) ?? 0,
+      paymentsThisMonth: monthReservationPayments.filter((p) => p.reservationId === r.id),
     }));
 
     const endBalance =
       runningBalance +
       totalIncome -
-      totalExpenses -
-      yearlyReservation -
-      btwAmount -
-      reservationDeductions -
-      reservationPaymentsCash;
+      totalRecurring -
+      totalReservationDeductions -
+      totalReservationCashPayments -
+      totalBtw;
 
     result.push({
       monthKey,
       startBalance: runningBalance,
       endBalance,
       totalIncome,
-      totalExpenses,
-      yearlyReservation,
-      btwAmount,
-      reservationDeductions,
-      reservationPaymentsCash,
+      totalRecurring,
+      totalReservationDeductions,
+      totalReservationCashPayments,
+      totalBtw,
+      incomeItems: monthIncomeItems,
+      recurringItems: monthRecurringItems,
+      btwPayment,
       reservationPots,
-      incomeItems,
-      expenseItems,
-      yearlyItems,
-      btwPayments: monthBtwPayments,
+      reservationPayments: monthReservationPayments,
     });
 
     runningBalance = endBalance;
