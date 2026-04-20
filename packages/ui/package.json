@@ -3,22 +3,36 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
   "exports": {
     "./lib/utils": "./lib/utils.ts",
-    "./styles.css": "./styles.css"
+    "./globals.css": "./globals.css",
+    "./components/ui/button": "./components/ui/button.tsx",
+    "./components/ui/input": "./components/ui/input.tsx",
+    "./components/ui/checkbox": "./components/ui/checkbox.tsx",
+    "./components/ui/card": "./components/ui/card.tsx",
+    "./components/ui/separator": "./components/ui/separator.tsx",
+    "./components/ui/label": "./components/ui/label.tsx"
   },
   "peerDependencies": {
     "react": "^18",
     "react-dom": "^18"
   },
+  "dependencies": {
+    "@radix-ui/react-checkbox": "^1.1.0",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-separator": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "lucide-react": "^0.400.0"
+  },
   "devDependencies": {
     "@umanex/config": "workspace:*",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "typescript": "^5"
-  },
-  "dependencies": {
     "clsx": "^2",
-    "tailwind-merge": "^2"
+    "tailwind-merge": "^2",
+    "typescript": "^5"
   }
 }

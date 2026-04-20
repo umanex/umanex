@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand */
+    --background: 0 0% 100%;
+    --foreground: 215 13% 27%;       /* Neutral.700 #344054 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 13% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 13% 27%;
+
+    /* Primary = umanex rood */
+    --primary: 0 85% 64%;            /* Primary.500 #F05454 */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary = umanex donkergrijs */
+    --secondary: 218 12% 27%;        /* Secondary.500 #393E46 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 96%;            /* Neutral.100 #F2F4F7 */
+    --muted-foreground: 216 15% 52%; /* Neutral.500 #667085 */
+
+    --accent: 0 93% 94%;             /* Primary.50 #FEECEC */
+    --accent-foreground: 0 59% 42%;  /* Primary.700 #C43737 */
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 20% 87%;           /* Neutral.300 #D0D5DD */
+    --input: 216 20% 87%;
+    --ring: 0 85% 64%;               /* Primary.500 */
+
+    --radius: 0.5rem;                /* 8px = Radius.Small */
+  }
+
+  .dark {
+    --background: 218 12% 10%;
+    --foreground: 210 20% 96%;
+    --card: 218 12% 14%;
+    --card-foreground: 210 20% 96%;
+    --popover: 218 12% 14%;
+    --popover-foreground: 210 20% 96%;
+    --primary: 0 85% 64%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 218 12% 27%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 218 12% 20%;
+    --muted-foreground: 216 12% 65%;
+    --accent: 0 30% 20%;
+    --accent-foreground: 0 93% 90%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 12% 25%;
+    --input: 218 12% 25%;
+    --ring: 0 85% 64%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}

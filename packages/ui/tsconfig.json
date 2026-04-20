@@ -1,5 +1,5 @@
 {
   "extends": "@umanex/config/tsconfig/react-library.json",
-  "include": ["lib/**", "components/**"],
+  "include": ["lib/**/*.ts", "lib/**/*.tsx", "components/**/*.ts", "components/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
 }
