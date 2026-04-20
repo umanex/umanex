@@ -1,0 +1,13 @@
+{
+  "name": "@umanex/config",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/nextjs.json": "./tsconfig/nextjs.json",
+    "./tsconfig/react-library.json": "./tsconfig/react-library.json",
+    "./eslint/next": "./eslint/next.js",
+    "./eslint/react-library": "./eslint/react-library.js",
+    "./tailwind/preset": "./tailwind/preset.ts"
+  }
+}
