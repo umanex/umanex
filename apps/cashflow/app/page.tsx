@@ -13,7 +13,7 @@ import { ReservationTriggerButton } from '../components/cashflow/ReservationTrig
 
 export default function Page() {
   const hydrated = useHydrated();
-  const months = useMonths(12);
+  const months = useMonths(3);
   const [recurringOpen, setRecurringOpen] = useState(false);
   const [reservationOpen, setReservationOpen] = useState(false);
 

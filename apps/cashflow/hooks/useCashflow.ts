@@ -18,7 +18,7 @@ export function useHydrated(): boolean {
   return hydrated;
 }
 
-export function useMonths(count = 12): MonthData[] {
+export function useMonths(count = 3): MonthData[] {
   const anchorMonth = useCashflowStore((s) => s.anchorMonth);
   const startBalance = useCashflowStore((s) => s.startBalance);
   const items = useCashflowStore((s) => s.items);
