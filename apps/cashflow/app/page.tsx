@@ -1,17 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import { useHydrated, useMonths } from '../hooks/useCashflow';
-import { CashflowDndContext } from '../components/cashflow/CashflowDndContext';
 import { MonthCard } from '../components/cashflow/MonthCard';
-import { AddItemForm } from '../components/cashflow/AddItemForm';
 import { AddBtwForm } from '../components/cashflow/AddBtwForm';
 import { StartBalanceInput } from '../components/cashflow/StartBalanceInput';
-import { ItemList } from '../components/cashflow/ItemList';
 import { BtwList } from '../components/cashflow/BtwList';
+import { RecurringSidepanel } from '../components/cashflow/RecurringSidepanel';
+import { RecurringTriggerButton } from '../components/cashflow/RecurringTriggerButton';
 
 export default function Page() {
   const hydrated = useHydrated();
   const months = useMonths(12);
+  const [sidepanelOpen, setSidepanelOpen] = useState(false);
 
   if (!hydrated) {
     return (
@@ -23,16 +24,13 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Cashflow prognose</h1>
-        <StartBalanceInput />
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Cashflow prognose</h1>
+          <StartBalanceInput />
+        </div>
+        <RecurringTriggerButton onClick={() => setSidepanelOpen(true)} />
       </header>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Terugkerende posten</h2>
-        <ItemList />
-        <AddItemForm />
-      </section>
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">BTW betalingen</h2>
@@ -42,14 +40,17 @@ export default function Page() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Maandoverzicht</h2>
-        <CashflowDndContext>
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            {months.map((month) => (
-              <MonthCard key={month.monthKey} month={month} />
-            ))}
-          </div>
-        </CashflowDndContext>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {months.map((month) => (
+            <MonthCard key={month.monthKey} month={month} />
+          ))}
+        </div>
       </section>
+
+      <RecurringSidepanel
+        open={sidepanelOpen}
+        onClose={() => setSidepanelOpen(false)}
+      />
     </main>
   );
 }
