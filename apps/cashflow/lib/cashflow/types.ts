@@ -26,6 +26,30 @@ export interface BtwPayment {
   paid: boolean;
 }
 
+export interface ReservationItem {
+  id: string;
+  label: string;
+  monthlyAmount: number;
+  startMonth: MonthKey;
+}
+
+export interface ReservationPayment {
+  id: string;
+  reservationId: string;
+  monthKey: MonthKey;
+  invoiceAmount: number;
+  fromReservation: number;
+  fromCash: number;
+  label: string;
+}
+
+export interface ReservationPotBalance {
+  reservationId: string;
+  label: string;
+  monthlyAmount: number;
+  potBalance: number;
+}
+
 export interface MonthData {
   monthKey: MonthKey;
   startBalance: number;
@@ -34,6 +58,9 @@ export interface MonthData {
   totalExpenses: number;
   yearlyReservation: number;
   btwAmount: number;
+  reservationDeductions: number;
+  reservationPaymentsCash: number;
+  reservationPots: ReservationPotBalance[];
   incomeItems: RecurringItem[];
   expenseItems: RecurringItem[];
   yearlyItems: RecurringItem[];
@@ -45,6 +72,8 @@ export interface CashflowState {
   startBalance: number;
   items: RecurringItem[];
   btwPayments: BtwPayment[];
+  reservations: ReservationItem[];
+  reservationPayments: ReservationPayment[];
 }
 
 export interface CashflowStore extends CashflowState {
@@ -56,4 +85,10 @@ export interface CashflowStore extends CashflowState {
   updateBtwPayment: (id: string, patch: Partial<BtwPayment>) => void;
   removeBtwPayment: (id: string) => void;
   setAnchorMonth: (month: MonthKey) => void;
+  addReservation: (item: ReservationItem) => void;
+  updateReservation: (id: string, patch: Partial<ReservationItem>) => void;
+  removeReservation: (id: string) => void;
+  addReservationPayment: (payment: ReservationPayment) => void;
+  updateReservationPayment: (id: string, patch: Partial<ReservationPayment>) => void;
+  removeReservationPayment: (id: string) => void;
 }

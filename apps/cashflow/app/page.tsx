@@ -8,11 +8,14 @@ import { StartBalanceInput } from '../components/cashflow/StartBalanceInput';
 import { BtwList } from '../components/cashflow/BtwList';
 import { RecurringSidepanel } from '../components/cashflow/RecurringSidepanel';
 import { RecurringTriggerButton } from '../components/cashflow/RecurringTriggerButton';
+import { ReservationSidepanel } from '../components/cashflow/ReservationSidepanel';
+import { ReservationTriggerButton } from '../components/cashflow/ReservationTriggerButton';
 
 export default function Page() {
   const hydrated = useHydrated();
-  const months = useMonths(12);
-  const [sidepanelOpen, setSidepanelOpen] = useState(false);
+  const months = useMonths(3);
+  const [recurringOpen, setRecurringOpen] = useState(false);
+  const [reservationOpen, setReservationOpen] = useState(false);
 
   if (!hydrated) {
     return (
@@ -29,7 +32,10 @@ export default function Page() {
           <h1 className="text-2xl font-bold tracking-tight">Cashflow prognose</h1>
           <StartBalanceInput />
         </div>
-        <RecurringTriggerButton onClick={() => setSidepanelOpen(true)} />
+        <div className="flex items-center gap-2 flex-wrap">
+          <RecurringTriggerButton onClick={() => setRecurringOpen(true)} />
+          <ReservationTriggerButton onClick={() => setReservationOpen(true)} />
+        </div>
       </header>
 
       <section className="space-y-3">
@@ -48,8 +54,12 @@ export default function Page() {
       </section>
 
       <RecurringSidepanel
-        open={sidepanelOpen}
-        onClose={() => setSidepanelOpen(false)}
+        open={recurringOpen}
+        onClose={() => setRecurringOpen(false)}
+      />
+      <ReservationSidepanel
+        open={reservationOpen}
+        onClose={() => setReservationOpen(false)}
       />
     </main>
   );
