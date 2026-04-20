@@ -1,21 +1,49 @@
 'use client';
 
 import { useState } from 'react';
-import { useHydrated, useMonths } from '../hooks/useCashflow';
+import { useHydrated, useMonths, useCashflowActions } from '../hooks/useCashflow';
+import { useCashflowStore } from '../store/cashflow';
 import { MonthCard } from '../components/cashflow/MonthCard';
-import { AddBtwForm } from '../components/cashflow/AddBtwForm';
-import { StartBalanceInput } from '../components/cashflow/StartBalanceInput';
-import { BtwList } from '../components/cashflow/BtwList';
 import { RecurringSidepanel } from '../components/cashflow/RecurringSidepanel';
-import { RecurringTriggerButton } from '../components/cashflow/RecurringTriggerButton';
 import { ReservationSidepanel } from '../components/cashflow/ReservationSidepanel';
-import { ReservationTriggerButton } from '../components/cashflow/ReservationTriggerButton';
+import { ReservationPaymentModal } from '../components/cashflow/ReservationPaymentModal';
+import { formatCurrency } from '../lib/cashflow/recurring';
+import type { MonthKey } from '../lib/cashflow/types';
+
+function StartBalanceInput() {
+  const startBalance = useCashflowStore((s) => s.startBalance);
+  const { setStartBalance } = useCashflowActions();
+  const [value, setValue] = useState(String(startBalance));
+
+  function handleBlur() {
+    const parsed = parseFloat(value.replace(',', '.'));
+    if (!isNaN(parsed)) setStartBalance(parsed);
+    else setValue(String(startBalance));
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">Beginsaldo</span>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={handleBlur}
+        className="w-32 h-8 px-3 rounded-md border border-input bg-background text-sm tabular-nums text-right focus:outline-none focus:ring-2 focus:ring-ring"
+        aria-label="Beginsaldo"
+      />
+      <span className="text-sm text-muted-foreground">{formatCurrency(startBalance)}</span>
+    </div>
+  );
+}
 
 export default function Page() {
   const hydrated = useHydrated();
   const months = useMonths(3);
   const [recurringOpen, setRecurringOpen] = useState(false);
   const [reservationOpen, setReservationOpen] = useState(false);
+  const [paymentMonth, setPaymentMonth] = useState<MonthKey | null>(null);
 
   if (!hydrated) {
     return (
@@ -27,40 +55,47 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 space-y-8">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Cashflow prognose</h1>
           <StartBalanceInput />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <RecurringTriggerButton onClick={() => setRecurringOpen(true)} />
-          <ReservationTriggerButton onClick={() => setReservationOpen(true)} />
+          <button
+            onClick={() => setRecurringOpen(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-input bg-background text-sm font-medium hover:bg-muted transition-colors"
+          >
+            Vaste uitgaven
+          </button>
+          <button
+            onClick={() => setReservationOpen(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-input bg-background text-sm font-medium hover:bg-muted transition-colors"
+          >
+            Spaarpotten
+          </button>
         </div>
       </header>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">BTW betalingen</h2>
-        <BtwList />
-        <AddBtwForm />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Maandoverzicht</h2>
-        <div className="flex gap-4 overflow-x-auto pb-4">
+      <section>
+        <div className="flex gap-5 overflow-x-auto pb-4">
           {months.map((month) => (
-            <MonthCard key={month.monthKey} month={month} />
+            <MonthCard
+              key={month.monthKey}
+              monthData={month}
+              onRegisterPayment={() => setPaymentMonth(month.monthKey)}
+            />
           ))}
         </div>
       </section>
 
-      <RecurringSidepanel
-        open={recurringOpen}
-        onClose={() => setRecurringOpen(false)}
-      />
-      <ReservationSidepanel
-        open={reservationOpen}
-        onClose={() => setReservationOpen(false)}
-      />
+      <RecurringSidepanel open={recurringOpen} onClose={() => setRecurringOpen(false)} />
+      <ReservationSidepanel open={reservationOpen} onClose={() => setReservationOpen(false)} />
+      {paymentMonth && (
+        <ReservationPaymentModal
+          monthKey={paymentMonth}
+          onClose={() => setPaymentMonth(null)}
+        />
+      )}
     </main>
   );
 }

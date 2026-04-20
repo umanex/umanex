@@ -13,11 +13,17 @@ export function isBtwMonth(monthKey: MonthKey): boolean {
   return (BTW_PAYMENT_MONTHS as readonly number[]).includes(month);
 }
 
+export const isBtwPaymentMonth = isBtwMonth;
+
 export function getBtwQuarterLabel(dueMonth: MonthKey): string {
   const [yearNum, month] = parseMonthKey(dueMonth);
   const quarterMap: Record<number, string> = { 1: 'Q4', 4: 'Q1', 7: 'Q2', 10: 'Q3' };
   const prevYear = month === 1 ? yearNum - 1 : yearNum;
   return `${quarterMap[month] ?? '?'} ${prevYear}`;
+}
+
+export function getBtwLabel(monthKey: MonthKey): string {
+  return `BTW ${getBtwQuarterLabel(monthKey)}`;
 }
 
 export function btwDueMonthsInRange(

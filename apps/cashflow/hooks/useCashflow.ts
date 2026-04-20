@@ -11,7 +11,7 @@ export function useHydrated(): boolean {
     try {
       useCashflowStore.persist.rehydrate();
     } catch {
-      // localStorage niet beschikbaar of corrupte state — negeer en ga door
+      // localStorage not available or corrupt state — ignore and continue
     }
     setHydrated(true);
   }, []);
@@ -21,32 +21,35 @@ export function useHydrated(): boolean {
 export function useMonths(count = 3): MonthData[] {
   const anchorMonth = useCashflowStore((s) => s.anchorMonth);
   const startBalance = useCashflowStore((s) => s.startBalance);
-  const items = useCashflowStore((s) => s.items);
-  const btwPayments = useCashflowStore((s) => s.btwPayments);
+  const incomeItems = useCashflowStore((s) => s.incomeItems);
+  const recurringItems = useCashflowStore((s) => s.recurringItems);
   const reservations = useCashflowStore((s) => s.reservations);
   const reservationPayments = useCashflowStore((s) => s.reservationPayments);
+  const btwPayments = useCashflowStore((s) => s.btwPayments);
 
   return calculateMonths(
     anchorMonth,
     startBalance,
-    items,
-    btwPayments,
-    count,
+    incomeItems,
+    recurringItems,
     reservations,
     reservationPayments,
+    btwPayments,
+    count,
   );
 }
 
 export function useCashflowActions() {
   return {
     setStartBalance: useCashflowStore((s) => s.setStartBalance),
-    addItem: useCashflowStore((s) => s.addItem),
-    updateItem: useCashflowStore((s) => s.updateItem),
-    removeItem: useCashflowStore((s) => s.removeItem),
-    addBtwPayment: useCashflowStore((s) => s.addBtwPayment),
-    updateBtwPayment: useCashflowStore((s) => s.updateBtwPayment),
-    removeBtwPayment: useCashflowStore((s) => s.removeBtwPayment),
     setAnchorMonth: useCashflowStore((s) => s.setAnchorMonth),
+    addIncomeItem: useCashflowStore((s) => s.addIncomeItem),
+    updateIncomeItem: useCashflowStore((s) => s.updateIncomeItem),
+    removeIncomeItem: useCashflowStore((s) => s.removeIncomeItem),
+    addRecurringItem: useCashflowStore((s) => s.addRecurringItem),
+    updateRecurringItem: useCashflowStore((s) => s.updateRecurringItem),
+    removeRecurringItem: useCashflowStore((s) => s.removeRecurringItem),
+    upsertBtwPayment: useCashflowStore((s) => s.upsertBtwPayment),
   };
 }
 
