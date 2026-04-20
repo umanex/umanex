@@ -1,5 +1,6 @@
 'use client';
 
+import { useDroppable } from '@dnd-kit/core';
 import type { MonthData } from '../../lib/cashflow/types';
 import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
 import { IncomeSection } from './IncomeSection';
@@ -14,7 +15,7 @@ interface MonthCardProps {
 }
 
 export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
-  const { addIncomeItem, updateIncomeItem, removeIncomeItem, upsertBtwPayment } =
+  const { addIncomeItem, updateIncomeItem, removeIncomeItem, upsertBtwPayment, removeRecurringDefer } =
     useCashflowActions();
 
   const {
@@ -25,12 +26,23 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     recurringItems,
     reservationPots,
     btwPayment,
+    deferredItems,
   } = monthData;
+
+  const { setNodeRef, isOver } = useDroppable({
+    id: `month-${monthKey}`,
+    data: { monthKey },
+  });
 
   const balanceColor = endBalance >= 0 ? 'text-emerald-600' : 'text-destructive';
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 space-y-4 w-full max-w-sm flex-shrink-0">
+    <div
+      ref={setNodeRef}
+      className={`rounded-xl border bg-card p-5 space-y-4 w-full max-w-sm flex-shrink-0 transition-colors ${
+        isOver ? 'border-primary ring-2 ring-primary/30' : 'border-border'
+      }`}
+    >
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-base">{getMonthLabel(monthKey)}</h2>
         <span className="text-xs text-muted-foreground tabular-nums">
@@ -46,7 +58,12 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         onRemove={removeIncomeItem}
       />
 
-      <RecurringSection items={recurringItems} />
+      <RecurringSection
+        items={recurringItems}
+        monthKey={monthKey}
+        deferredItems={deferredItems}
+        onRemoveDefer={removeRecurringDefer}
+      />
 
       <ReservationSection pots={reservationPots} onRegisterPayment={onRegisterPayment} />
 

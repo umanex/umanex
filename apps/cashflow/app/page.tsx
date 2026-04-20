@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useHydrated, useMonths, useCashflowActions } from '../hooks/useCashflow';
 import { useCashflowStore } from '../store/cashflow';
 import { MonthCard } from '../components/cashflow/MonthCard';
+import { CashflowDndContext } from '../components/cashflow/CashflowDndContext';
 import { RecurringSidepanel } from '../components/cashflow/RecurringSidepanel';
 import { ReservationSidepanel } from '../components/cashflow/ReservationSidepanel';
 import { ReservationPaymentModal } from '../components/cashflow/ReservationPaymentModal';
@@ -77,15 +78,17 @@ export default function Page() {
       </header>
 
       <section>
-        <div className="flex gap-5 overflow-x-auto pb-4">
-          {months.map((month) => (
-            <MonthCard
-              key={month.monthKey}
-              monthData={month}
-              onRegisterPayment={() => setPaymentMonth(month.monthKey)}
-            />
-          ))}
-        </div>
+        <CashflowDndContext>
+          <div className="flex gap-5 overflow-x-auto pb-4">
+            {months.map((month) => (
+              <MonthCard
+                key={month.monthKey}
+                monthData={month}
+                onRegisterPayment={() => setPaymentMonth(month.monthKey)}
+              />
+            ))}
+          </div>
+        </CashflowDndContext>
       </section>
 
       <RecurringSidepanel open={recurringOpen} onClose={() => setRecurringOpen(false)} />
