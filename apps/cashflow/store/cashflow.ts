@@ -186,7 +186,7 @@ export const useCashflowStore = create<CashflowStore>()(
         }),
     })),
     {
-      name: 'cashflow-store-v4',
+      name: 'cashflow-store-v3',
       version: STORE_VERSION,
       migrate: (persisted: unknown) => {
         const s = (persisted ?? {}) as Record<string, unknown>;
