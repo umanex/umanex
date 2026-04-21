@@ -53,7 +53,6 @@ export function calculateMonths(
 ): MonthData[] {
   const months = getMonthsInRange(anchorMonth, count);
   const result: MonthData[] = [];
-  let runningBalance = startBalance;
   const potBalanceMap = new Map<string, number>();
 
   for (const monthKey of months) {
@@ -144,7 +143,7 @@ export function calculateMonths(
 
     const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
 
-    const availableBudget = runningBalance + totalIncome;
+    const availableBudget = startBalance + totalIncome;
 
     // Berekening 1: openstaande kosten (display tile) — enkel onbetaalde recurring
     const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
@@ -167,7 +166,7 @@ export function calculateMonths(
 
     result.push({
       monthKey,
-      startBalance: runningBalance,
+      startBalance,
       endBalance,
       totalIncome,
       totalRecurring,
@@ -190,7 +189,6 @@ export function calculateMonths(
       recurringSettlements: monthSettlements,
     });
 
-    runningBalance = endBalance;
   }
 
   return result;
