@@ -14,8 +14,14 @@ interface MonthCardProps {
 }
 
 export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
-  const { addIncomeItem, updateIncomeItem, removeIncomeItem, upsertBtwPayment } =
-    useCashflowActions();
+  const {
+    addIncomeItem,
+    updateIncomeItem,
+    removeIncomeItem,
+    upsertBtwPayment,
+    removeRecurringDefer,
+    upsertRecurringSettlement,
+  } = useCashflowActions();
 
   const {
     monthKey,
@@ -25,6 +31,8 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     recurringItems,
     reservationPots,
     btwPayment,
+    deferredItems,
+    recurringSettlements,
   } = monthData;
 
   const balanceColor = endBalance >= 0 ? 'text-emerald-600' : 'text-destructive';
@@ -46,7 +54,16 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         onRemove={removeIncomeItem}
       />
 
-      <RecurringSection items={recurringItems} />
+      <RecurringSection
+        items={recurringItems}
+        monthKey={monthKey}
+        deferredItems={deferredItems}
+        settlements={recurringSettlements ?? []}
+        onRemoveDefer={removeRecurringDefer}
+        onSettle={(recurringId, paid, actualAmount) =>
+          upsertRecurringSettlement(recurringId, monthKey, paid, actualAmount)
+        }
+      />
 
       <ReservationSection pots={reservationPots} onRegisterPayment={onRegisterPayment} />
 

@@ -17,6 +17,21 @@ export interface RecurringItem {
   startMonth: MonthKey;
 }
 
+export interface RecurringDefer {
+  id: string;
+  recurringId: string;
+  fromMonth: MonthKey;
+  toMonth: MonthKey;
+}
+
+export interface RecurringSettlement {
+  id: string;
+  recurringId: string;
+  monthKey: MonthKey;
+  paid: boolean;
+  actualAmount: number;
+}
+
 export interface ReservationItem {
   id: string;
   label: string;
@@ -63,6 +78,15 @@ export interface MonthData {
   btwPayment: BtwPayment | null;
   reservationPots: ReservationPotBalance[];
   reservationPayments: ReservationPayment[];
+  deferredRecurringAmount: number;
+  deferredItems: Array<{
+    deferId: string;
+    recurringId: string;
+    label: string;
+    amount: number;
+    fromMonth: MonthKey;
+  }>;
+  recurringSettlements: RecurringSettlement[];
 }
 
 export interface CashflowStore {
@@ -73,6 +97,8 @@ export interface CashflowStore {
   reservations: ReservationItem[];
   reservationPayments: ReservationPayment[];
   btwPayments: BtwPayment[];
+  recurringDefers: RecurringDefer[];
+  recurringSettlements: RecurringSettlement[];
 
   setStartBalance: (balance: number) => void;
   setAnchorMonth: (month: MonthKey) => void;
@@ -94,4 +120,15 @@ export interface CashflowStore {
   removeReservationPayment: (id: string) => void;
 
   upsertBtwPayment: (monthKey: MonthKey, amount: number, paid: boolean) => void;
+
+  addRecurringDefer: (defer: RecurringDefer) => void;
+  removeRecurringDefer: (id: string) => void;
+
+  upsertRecurringSettlement: (
+    recurringId: string,
+    monthKey: MonthKey,
+    paid: boolean,
+    actualAmount: number,
+  ) => void;
+  removeRecurringSettlement: (recurringId: string, monthKey: MonthKey) => void;
 }

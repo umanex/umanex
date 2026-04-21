@@ -3,6 +3,8 @@ import type {
   MonthData,
   IncomeItem,
   RecurringItem,
+  RecurringDefer,
+  RecurringSettlement,
   BtwPayment,
   ReservationItem,
   ReservationPayment,
@@ -41,6 +43,8 @@ export function calculateMonths(
   reservations: ReservationItem[],
   reservationPayments: ReservationPayment[],
   btwPayments: BtwPayment[],
+  recurringDefers: RecurringDefer[],
+  recurringSettlements: RecurringSettlement[],
   count = 3,
 ): MonthData[] {
   const months = getMonthsInRange(anchorMonth, count);
@@ -51,13 +55,40 @@ export function calculateMonths(
 
   for (const monthKey of months) {
     const monthIncomeItems = incomeItems.filter((i) => i.monthKey === monthKey);
-    const monthRecurringItems = recurringItems.filter((i) => i.startMonth <= monthKey);
+    const allActiveRecurring = recurringItems.filter((i) => i.startMonth <= monthKey);
+
+    const departingDeferIds = new Set(
+      recurringDefers
+        .filter((d) => d.fromMonth === monthKey)
+        .map((d) => d.recurringId),
+    );
+
+    const monthRecurringItems = allActiveRecurring.filter((i) => !departingDeferIds.has(i.id));
+
+    const arrivingDefers = recurringDefers.filter((d) => d.toMonth === monthKey);
+    const deferredItems = arrivingDefers.flatMap((d) => {
+      const recurringItem = recurringItems.find(
+        (i) => i.id === d.recurringId && i.startMonth <= d.fromMonth,
+      );
+      if (!recurringItem) return [];
+      const amount =
+        recurringItem.frequency === 'yearly' ? recurringItem.amount / 12 : recurringItem.amount;
+      return [{ deferId: d.id, recurringId: d.recurringId, label: recurringItem.label, amount, fromMonth: d.fromMonth }];
+    });
 
     const totalIncome = monthIncomeItems.reduce((s, i) => s + i.amount, 0);
 
-    const totalRecurring = monthRecurringItems.reduce((s, i) => {
-      return s + (i.frequency === 'yearly' ? i.amount / 12 : i.amount);
+    const totalNormalRecurring = monthRecurringItems.reduce((s, item) => {
+      const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      const effective = settlement?.paid ? settlement.actualAmount : budgeted;
+      return s + effective;
     }, 0);
+
+    const deferredRecurringAmount = deferredItems.reduce((s, d) => s + d.amount, 0);
+    const totalRecurring = totalNormalRecurring + deferredRecurringAmount;
 
     const activeReservations = reservations.filter((r) => r.startMonth <= monthKey);
 
@@ -95,6 +126,8 @@ export function calculateMonths(
       paymentsThisMonth: monthReservationPayments.filter((p) => p.reservationId === r.id),
     }));
 
+    const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
+
     const endBalance =
       runningBalance +
       totalIncome -
@@ -117,6 +150,9 @@ export function calculateMonths(
       btwPayment,
       reservationPots,
       reservationPayments: monthReservationPayments,
+      deferredRecurringAmount,
+      deferredItems,
+      recurringSettlements: monthSettlements,
     });
 
     runningBalance = endBalance;
