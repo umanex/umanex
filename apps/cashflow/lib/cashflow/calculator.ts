@@ -84,6 +84,13 @@ export function calculateMonths(
     const deferredRecurringAmount = deferredItems.reduce((s, d) => s + d.amount, 0);
     const totalRecurring = totalNormalRecurring + deferredRecurringAmount;
 
+    const paidRecurringAmount = monthRecurringItems.reduce((s, item) => {
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      return s + (settlement?.paid ? settlement.actualAmount : 0);
+    }, 0);
+
     const activeReservations = reservations.filter((r) => r.startMonth <= monthKey);
 
     const departingReservationDeferIds = new Set(
@@ -142,15 +149,15 @@ export function calculateMonths(
     // Beschikbaar budget = startsaldo + inkomsten
     const availableBudget = runningBalance + totalIncome;
 
-    // Totale kosten = alles wat van het saldo afgetrokken wordt (betaald + onbetaald)
-    // zodat: eindsaldo = beschikbaar - totalOutstandingCosts
+    // Totale kosten = onbetaalde posten (wat nog betaald moet worden)
+    // Eindsaldo trekt ook al betaalde recurring af zodat de cashflow correct blijft
     const totalOutstandingCosts =
-      totalRecurring +
+      (totalRecurring - paidRecurringAmount) +
       totalReservationDeductions +
       totalReservationCashPayments +
       totalBtw;
 
-    const endBalance = availableBudget - totalOutstandingCosts;
+    const endBalance = availableBudget - totalOutstandingCosts - paidRecurringAmount;
 
     result.push({
       monthKey,
