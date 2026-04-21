@@ -135,15 +135,12 @@ function DraggablePotRow({
         </button>
         <span className="flex-1 text-sm truncate">{pot.label}</span>
         <span
-          className={`text-xs tabular-nums ${
-            pot.potBalance < 0 ? 'text-destructive font-medium' : 'text-muted-foreground'
+          className={`text-sm font-medium tabular-nums ${
+            pot.potBalance < 0 ? 'text-destructive' : 'text-muted-foreground'
           }`}
         >
-          saldo {formatCurrency(pot.potBalance)}
+          {formatCurrency(pot.potBalance)}
           {pot.potBalance < 0 && ' ⚠'}
-        </span>
-        <span className="text-sm font-medium text-amber-600 tabular-nums">
-          -{formatCurrency(pot.monthlyAmount)}/m
         </span>
       </div>
       {pot.paymentsThisMonth.map((payment) => (
