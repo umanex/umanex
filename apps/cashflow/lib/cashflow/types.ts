@@ -8,6 +8,14 @@ export interface IncomeItem {
   received: boolean;
 }
 
+export interface ExpenseItem {
+  id: string;
+  monthKey: MonthKey;
+  label: string;
+  amount: number;
+  paid: boolean;
+}
+
 export interface RecurringItem {
   id: string;
   label: string;
@@ -89,11 +97,14 @@ export interface MonthData {
     amount: number;
     fromMonth: MonthKey;
   }>;
+  expenseItems: ExpenseItem[];
+  totalExpenses: number;
 }
 
 export interface CashflowStore {
   startBalance: number;
   anchorMonth: MonthKey;
+  expenseItems: ExpenseItem[];
   incomeItems: IncomeItem[];
   recurringItems: RecurringItem[];
   recurringSettlements: RecurringSettlement[];
@@ -120,6 +131,10 @@ export interface CashflowStore {
   addReservationPayment: (payment: ReservationPayment) => void;
   updateReservationPayment: (id: string, patch: Partial<ReservationPayment>) => void;
   removeReservationPayment: (id: string) => void;
+
+  addExpenseItem: (item: ExpenseItem) => void;
+  updateExpenseItem: (id: string, patch: Partial<ExpenseItem>) => void;
+  removeExpenseItem: (id: string) => void;
 
   upsertBtwPayment: (monthKey: MonthKey, amount: number, paid: boolean) => void;
 
