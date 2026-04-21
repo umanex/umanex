@@ -1,4 +1,4 @@
-export type MonthKey = string; // 'YYYY-MM'
+export type MonthKey = string;
 
 export interface IncomeItem {
   id: string;
@@ -73,6 +73,8 @@ export interface MonthData {
   totalReservationDeductions: number;
   totalReservationCashPayments: number;
   totalBtw: number;
+  availableBudget: number;
+  totalOutstandingCosts: number;
   incomeItems: IncomeItem[];
   recurringItems: RecurringItem[];
   recurringSettlements: RecurringSettlement[];
