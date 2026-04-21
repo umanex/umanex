@@ -65,6 +65,7 @@ function DraggablePayment({
       )}
       <button
         onClick={() => onMove(payment.id, nextMonthKey(currentMonthKey))}
+        onPointerDown={(e) => e.stopPropagation()}
         className="text-muted-foreground hover:text-primary transition-colors leading-none"
         title="Verplaats naar volgende maand"
         aria-label="Verplaats naar volgende maand"
@@ -73,6 +74,7 @@ function DraggablePayment({
       </button>
       <button
         onClick={() => onRemove(payment.id)}
+        onPointerDown={(e) => e.stopPropagation()}
         className="text-muted-foreground hover:text-destructive transition-colors leading-none"
         aria-label="Verwijder betaling"
       >
