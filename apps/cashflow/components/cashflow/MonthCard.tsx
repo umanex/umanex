@@ -15,8 +15,14 @@ interface MonthCardProps {
 }
 
 export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
-  const { addIncomeItem, updateIncomeItem, removeIncomeItem, upsertBtwPayment, removeRecurringDefer } =
-    useCashflowActions();
+  const {
+    addIncomeItem,
+    updateIncomeItem,
+    removeIncomeItem,
+    upsertBtwPayment,
+    removeRecurringDefer,
+    upsertRecurringSettlement,
+  } = useCashflowActions();
 
   const {
     monthKey,
@@ -27,6 +33,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     reservationPots,
     btwPayment,
     deferredItems,
+    recurringSettlements,
   } = monthData;
 
   const { setNodeRef, isOver } = useDroppable({
@@ -62,7 +69,11 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         items={recurringItems}
         monthKey={monthKey}
         deferredItems={deferredItems}
+        settlements={recurringSettlements ?? []}
         onRemoveDefer={removeRecurringDefer}
+        onSettle={(recurringId, paid, actualAmount) =>
+          upsertRecurringSettlement(recurringId, monthKey, paid, actualAmount)
+        }
       />
 
       <ReservationSection pots={reservationPots} onRegisterPayment={onRegisterPayment} />

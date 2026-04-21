@@ -7,6 +7,7 @@ import type {
   IncomeItem,
   RecurringItem,
   RecurringDefer,
+  RecurringSettlement,
   ReservationItem,
   ReservationPayment,
   MonthKey,
@@ -23,6 +24,7 @@ export const useCashflowStore = create<CashflowStore>()(
       reservationPayments: [] as ReservationPayment[],
       btwPayments: [],
       recurringDefers: [] as RecurringDefer[],
+      recurringSettlements: [] as RecurringSettlement[],
 
       setStartBalance: (balance) =>
         set((state) => { state.startBalance = balance; }),
@@ -55,6 +57,7 @@ export const useCashflowStore = create<CashflowStore>()(
         set((state) => {
           state.recurringItems = state.recurringItems.filter((i) => i.id !== id);
           state.recurringDefers = state.recurringDefers.filter((d) => d.recurringId !== id);
+          state.recurringSettlements = state.recurringSettlements.filter((s) => s.recurringId !== id);
         }),
 
       addReservation: (item) =>
@@ -105,6 +108,32 @@ export const useCashflowStore = create<CashflowStore>()(
       removeRecurringDefer: (id) =>
         set((state) => {
           state.recurringDefers = state.recurringDefers.filter((d) => d.id !== id);
+        }),
+
+      upsertRecurringSettlement: (recurringId, monthKey, paid, actualAmount) =>
+        set((state) => {
+          const existing = state.recurringSettlements.find(
+            (s) => s.recurringId === recurringId && s.monthKey === monthKey,
+          );
+          if (existing) {
+            existing.paid = paid;
+            existing.actualAmount = actualAmount;
+          } else {
+            state.recurringSettlements.push({
+              id: crypto.randomUUID(),
+              recurringId,
+              monthKey,
+              paid,
+              actualAmount,
+            });
+          }
+        }),
+
+      removeRecurringSettlement: (recurringId, monthKey) =>
+        set((state) => {
+          state.recurringSettlements = state.recurringSettlements.filter(
+            (s) => !(s.recurringId === recurringId && s.monthKey === monthKey),
+          );
         }),
     })),
     {
