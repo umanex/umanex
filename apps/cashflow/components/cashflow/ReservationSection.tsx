@@ -56,9 +56,7 @@ function DraggablePayment({
   return (
     <div
       ref={setNodeRef}
-      className={`flex items-center gap-1.5 pl-5 py-0.5 text-xs text-muted-foreground ${
-        isDragging ? 'opacity-30' : ''
-      }`}
+      className={`flex items-center gap-1.5 text-xs text-muted-foreground ${isDragging ? 'opacity-30' : ''}`}
     >
       <button
         {...listeners}
@@ -68,17 +66,7 @@ function DraggablePayment({
       >
         ⠿
       </button>
-      <span className="flex-1 truncate">{payment.label}</span>
-      {payment.fromReservation > 0 && (
-        <span className="tabular-nums flex-shrink-0">
-          pot: -{formatCurrency(payment.fromReservation)}
-        </span>
-      )}
-      {payment.fromCash > 0 && (
-        <span className="tabular-nums flex-shrink-0">
-          cash: -{formatCurrency(payment.fromCash)}
-        </span>
-      )}
+      <span className="flex-1 truncate font-medium text-foreground">{payment.label}</span>
       <button
         onClick={() => onMove(payment.id, nextMonthKey(currentMonthKey))}
         onPointerDown={(e) => e.stopPropagation()}
@@ -123,7 +111,8 @@ function DraggablePotRow({
   });
 
   return (
-    <div ref={setNodeRef} className={`space-y-0.5 ${isDragging ? 'opacity-30' : ''}`}>
+    <div ref={setNodeRef} className={`space-y-1 ${isDragging ? 'opacity-30' : ''}`}>
+      {/* Rij 1: label + maandelijkse storting */}
       <div className="flex items-center gap-2">
         <button
           {...listeners}
@@ -133,24 +122,57 @@ function DraggablePotRow({
         >
           ⠿
         </button>
-        <span className="flex-1 text-sm truncate">{pot.label}</span>
+        <span className="flex-1 text-sm font-medium truncate">{pot.label}</span>
+        <span className="text-sm font-medium text-amber-600 tabular-nums flex-shrink-0">
+          -{formatCurrency(pot.monthlyAmount)}/m
+        </span>
+      </div>
+
+      {/* Rij 2: provisie saldo */}
+      <div className="pl-5 flex items-center gap-1">
+        <span className="text-xs text-muted-foreground">Provisie:</span>
         <span
-          className={`text-sm font-medium tabular-nums ${
-            pot.potBalance < 0 ? 'text-destructive' : 'text-muted-foreground'
+          className={`text-xs font-medium tabular-nums ${
+            pot.potBalance < 0 ? 'text-destructive' : 'text-emerald-600'
           }`}
         >
           {formatCurrency(pot.potBalance)}
           {pot.potBalance < 0 && ' ⚠'}
         </span>
       </div>
+
+      {/* Betalingen deze maand */}
       {pot.paymentsThisMonth.map((payment) => (
-        <DraggablePayment
-          key={payment.id}
-          payment={payment}
-          currentMonthKey={monthKey}
-          onRemove={onRemovePayment}
-          onMove={onMovePayment}
-        />
+        <div key={payment.id} className="pl-5 space-y-0.5">
+          <DraggablePayment
+            payment={payment}
+            currentMonthKey={monthKey}
+            onRemove={onRemovePayment}
+            onMove={onMovePayment}
+          />
+          <div className="pl-6 flex items-center gap-3 text-xs text-muted-foreground">
+            <span>
+              Betaald:{' '}
+              <span className="tabular-nums">{formatCurrency(payment.invoiceAmount)}</span>
+            </span>
+            {payment.fromReservation > 0 && (
+              <span>
+                Uit pot:{' '}
+                <span className="tabular-nums text-emerald-600">
+                  {formatCurrency(payment.fromReservation)}
+                </span>
+              </span>
+            )}
+            {payment.fromCash > 0 && (
+              <span>
+                Uit cash:{' '}
+                <span className="tabular-nums text-destructive">
+                  {formatCurrency(payment.fromCash)}
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   );

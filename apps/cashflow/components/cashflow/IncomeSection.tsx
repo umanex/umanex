@@ -8,6 +8,9 @@ import { formatCurrency, generateId } from '../../lib/cashflow/recurring';
 interface IncomeSectionProps {
   monthKey: MonthKey;
   items: IncomeItem[];
+  startBalance: number;
+  isFirst: boolean;
+  onStartBalanceChange?: (value: number) => void;
   onAdd: (item: IncomeItem) => void;
   onToggleReceived: (id: string, received: boolean) => void;
   onRemove: (id: string) => void;
@@ -72,9 +75,53 @@ function DraggableIncomeItem({
   );
 }
 
+function BalanceRow({
+  startBalance,
+  isFirst,
+  onStartBalanceChange,
+}: {
+  startBalance: number;
+  isFirst: boolean;
+  onStartBalanceChange?: (value: number) => void;
+}) {
+  const [inputValue, setInputValue] = useState(String(startBalance));
+
+  function handleBlur() {
+    const parsed = parseFloat(inputValue.replace(',', '.'));
+    if (!isNaN(parsed)) onStartBalanceChange?.(parsed);
+    else setInputValue(String(startBalance));
+  }
+
+  return (
+    <div className="flex items-center gap-2 py-0.5">
+      <span className="w-3.5 flex-shrink-0" />
+      <span className="w-3.5 flex-shrink-0" />
+      <span className="flex-1 text-sm truncate text-muted-foreground">Saldo</span>
+      {isFirst ? (
+        <input
+          type="text"
+          inputMode="decimal"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onBlur={handleBlur}
+          className="w-20 h-6 px-1.5 text-sm text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+          aria-label="Beginsaldo"
+        />
+      ) : (
+        <span className="text-sm tabular-nums text-muted-foreground w-20 text-right">
+          {formatCurrency(startBalance)}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function IncomeSection({
   monthKey,
   items,
+  startBalance,
+  isFirst,
+  onStartBalanceChange,
   onAdd,
   onToggleReceived,
   onRemove,
@@ -121,6 +168,12 @@ export function IncomeSection({
           + Toevoegen
         </button>
       </div>
+
+      <BalanceRow
+        startBalance={startBalance}
+        isFirst={isFirst}
+        onStartBalanceChange={onStartBalanceChange}
+      />
 
       {items.map((item) => (
         <DraggableIncomeItem
