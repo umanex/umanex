@@ -67,7 +67,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
           </p>
         </div>
         <div className="rounded-lg bg-muted/50 px-3 py-2">
-          <p className="text-xs text-muted-foreground mb-0.5">Openstaand</p>
+          <p className="text-xs text-muted-foreground mb-0.5">Totale kosten</p>
           <p className="text-sm font-semibold tabular-nums text-destructive">
             {formatCurrency(totalOutstandingCosts)}
           </p>
