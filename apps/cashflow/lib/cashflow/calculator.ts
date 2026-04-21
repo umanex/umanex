@@ -153,7 +153,7 @@ export function calculateMonths(
       return s + budgeted;
     }, 0);
 
-    const availableBudget = runningBalance + totalIncome - paidRecurringAmount;
+    const availableBudget = runningBalance + totalIncome;
 
     // Berekening 1: openstaande kosten (display tile) — enkel onbetaalde recurring
     const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
@@ -172,7 +172,7 @@ export function calculateMonths(
       totalBtw +
       totalExpenses;
 
-    const endBalance = availableBudget - totalOutstandingCosts;
+    const endBalance = availableBudget - totalOutstandingCosts - paidRecurringAmount;
 
     result.push({
       monthKey,
