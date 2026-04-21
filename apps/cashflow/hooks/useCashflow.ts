@@ -7,14 +7,25 @@ import type { MonthData } from '../lib/cashflow/types';
 
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
-    try {
-      useCashflowStore.persist.rehydrate();
-    } catch {
-      // localStorage not available or corrupt state — ignore and continue
-    }
-    setHydrated(true);
+    // rehydrate() laadt de localStorage data in de store.
+    // Errors worden opgevangen zodat de app altijd laadt,
+    // ook als de opgeslagen data corrupt of incompatibel is.
+    // De migrate-functie in de store zorgt voor schema-upgrades.
+    const rehydrate = async () => {
+      try {
+        await useCashflowStore.persist.rehydrate();
+      } catch {
+        // Corrupte of incompatibele state: start met lege store
+        console.warn('[cashflow] rehydrate failed, starting fresh');
+      } finally {
+        setHydrated(true);
+      }
+    };
+    void rehydrate();
   }, []);
+
   return hydrated;
 }
 

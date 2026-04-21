@@ -13,6 +13,11 @@ import type {
   MonthKey,
 } from '../lib/cashflow/types';
 
+// Verhoog deze versie telkens als de store-structuur uitbreidt.
+// De migrate-functie zorgt dat bestaande data bewaard blijft
+// en nieuwe velden automatisch hun default waarde krijgen.
+const STORE_VERSION = 1;
+
 export const useCashflowStore = create<CashflowStore>()(
   persist(
     immer((set) => ({
@@ -138,6 +143,28 @@ export const useCashflowStore = create<CashflowStore>()(
     })),
     {
       name: 'cashflow-store-v2',
+      version: STORE_VERSION,
+      // Migrate zorgt dat bestaande localStorage-data bewaard blijft
+      // en ontbrekende velden hun default waarde krijgen.
+      // Verhoog STORE_VERSION en voeg hier nieuwe velden toe als de
+      // store-structuur uitbreidt — NOOIT de store-naam wijzigen.
+      migrate: (persisted: unknown) => {
+        const s = (persisted ?? {}) as Record<string, unknown>;
+        return {
+          ...s,
+          // Data-velden: altijd als array bewaard, nooit undefined
+          incomeItems: Array.isArray(s.incomeItems) ? s.incomeItems : [],
+          recurringItems: Array.isArray(s.recurringItems) ? s.recurringItems : [],
+          reservations: Array.isArray(s.reservations) ? s.reservations : [],
+          reservationPayments: Array.isArray(s.reservationPayments) ? s.reservationPayments : [],
+          btwPayments: Array.isArray(s.btwPayments) ? s.btwPayments : [],
+          recurringDefers: Array.isArray(s.recurringDefers) ? s.recurringDefers : [],
+          recurringSettlements: Array.isArray(s.recurringSettlements) ? s.recurringSettlements : [],
+          // Scalars
+          startBalance: typeof s.startBalance === 'number' ? s.startBalance : 0,
+          anchorMonth: typeof s.anchorMonth === 'string' ? s.anchorMonth : format(new Date(), 'yyyy-MM'),
+        };
+      },
       storage: createJSONStorage(() => localStorage),
       skipHydration: true,
     },
