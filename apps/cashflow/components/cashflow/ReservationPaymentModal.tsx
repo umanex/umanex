@@ -51,8 +51,9 @@ export function ReservationPaymentModal({ monthKey, onClose }: ReservationPaymen
     setInvoiceStr(value);
     setError('');
     const inv = parseFloat(value.replace(',', '.')) || 0;
-    const res = parseFloat(fromResStr.replace(',', '.')) || 0;
-    setFromCashStr(String(Math.max(0, inv - res)));
+    const fromPot = Math.min(inv, availableSaldo);
+    setFromResStr(String(fromPot));
+    setFromCashStr(String(Math.max(0, inv - fromPot)));
   }
 
   function handleSave() {
