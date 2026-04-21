@@ -28,6 +28,8 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     monthKey,
     startBalance,
     endBalance,
+    availableBudget,
+    totalOutstandingCosts,
     incomeItems,
     recurringItems,
     reservationPots,
@@ -55,6 +57,21 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         <span className="text-xs text-muted-foreground tabular-nums">
           start {formatCurrency(startBalance)}
         </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg bg-muted/50 px-3 py-2">
+          <p className="text-xs text-muted-foreground mb-0.5">Beschikbaar</p>
+          <p className="text-sm font-semibold tabular-nums text-emerald-600">
+            {formatCurrency(availableBudget)}
+          </p>
+        </div>
+        <div className="rounded-lg bg-muted/50 px-3 py-2">
+          <p className="text-xs text-muted-foreground mb-0.5">Openstaand</p>
+          <p className="text-sm font-semibold tabular-nums text-destructive">
+            {formatCurrency(totalOutstandingCosts)}
+          </p>
+        </div>
       </div>
 
       <IncomeSection
