@@ -157,7 +157,7 @@ export function calculateMonths(
       totalReservationCashPayments +
       totalBtw;
 
-    const endBalance = availableBudget - totalOutstandingCosts - paidRecurringAmount;
+    const endBalance = availableBudget - totalOutstandingCosts;
 
     result.push({
       monthKey,
