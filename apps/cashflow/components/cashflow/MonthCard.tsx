@@ -26,6 +26,8 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
     updateExpenseItem,
     removeExpenseItem,
     removeReservationDefer,
+    upsertReservationSettlement,
+    removeReservationSettlement,
   } = useCashflowActions();
 
   const { removeReservationPayment, updateReservationPayment } = useReservationActions();
@@ -55,7 +57,7 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl border bg-card p-5 space-y-4 w-full max-w-sm flex-shrink-0 transition-colors ${
+      className={`rounded-xl border bg-card p-5 space-y-4 transition-colors ${
         isOver ? 'border-primary ring-2 ring-primary/30' : 'border-border'
       }`}
     >
@@ -115,6 +117,12 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
         onRemovePayment={removeReservationPayment}
         onMovePayment={(id, newMonthKey) => updateReservationPayment(id, { monthKey: newMonthKey })}
         onRemoveReservationDefer={removeReservationDefer}
+        onSettleReservation={(reservationId, effectiveAmount) =>
+          upsertReservationSettlement(reservationId, monthKey, effectiveAmount)
+        }
+        onRemoveReservationSettlement={(reservationId) =>
+          removeReservationSettlement(reservationId, monthKey)
+        }
       />
 
       <div className="pt-2 border-t border-border flex items-center justify-between">
