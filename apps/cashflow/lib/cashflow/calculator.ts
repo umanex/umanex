@@ -77,6 +77,7 @@ export function calculateMonths(
 
     const totalIncome = monthIncomeItems.reduce((s, i) => s + i.amount, 0);
 
+    // Gebruik actualAmount voor betaalde items, begroot voor onbetaalde
     const totalNormalRecurring = monthRecurringItems.reduce((s, item) => {
       const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
       const settlement = recurringSettlements.find(
@@ -87,13 +88,6 @@ export function calculateMonths(
 
     const deferredRecurringAmount = deferredItems.reduce((s, d) => s + d.amount, 0);
     const totalRecurring = totalNormalRecurring + deferredRecurringAmount;
-
-    const paidRecurringAmount = monthRecurringItems.reduce((s, item) => {
-      const settlement = recurringSettlements.find(
-        (st) => st.recurringId === item.id && st.monthKey === monthKey,
-      );
-      return s + (settlement?.paid ? settlement.actualAmount : 0);
-    }, 0);
 
     const activeReservations = reservations.filter((r) => r.startMonth <= monthKey);
 
@@ -153,24 +147,18 @@ export function calculateMonths(
     // Beschikbaar budget = startsaldo + inkomsten
     const availableBudget = runningBalance + totalIncome;
 
-    // Openstaand = enkel onbetaalde recurring + deferred + reserveringen + BTW + kosten
-    const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
-      const settlement = recurringSettlements.find(
-        (st) => st.recurringId === item.id && st.monthKey === monthKey,
-      );
-      if (settlement?.paid) return s;
-      return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
-    }, 0);
-
+    // Totale kosten = ALLE kosten die van het saldo afgaan:
+    // totalRecurring gebruikt actualAmount voor betaalde items
+    // (eerder stond hier totalOpenRecurring wat betaalde items oversloeg
+    // en zo eindsaldo en totale kosten uit sync haalde)
     const totalOutstandingCosts =
-      totalOpenRecurring +
-      deferredRecurringAmount +
+      totalRecurring +
       totalReservationDeductions +
       totalReservationCashPayments +
       totalBtw +
       totalExpenses;
 
-    // Eindsaldo = beschikbaar − openstaand
+    // Invariant: Beschikbaar - Totale kosten = Eindsaldo
     const endBalance = availableBudget - totalOutstandingCosts;
 
     result.push({
