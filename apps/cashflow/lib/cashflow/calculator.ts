@@ -144,10 +144,28 @@ export function calculateMonths(
 
     const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
 
-    const availableBudget = runningBalance + totalIncome;
+    // Betaalde recurring items (actualAmount)
+    const paidRecurringAmount = monthRecurringItems.reduce((s, item) => {
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      return s + (settlement?.paid ? settlement.actualAmount : 0);
+    }, 0);
 
-    // Berekening 1: openstaande kosten (display tile) — enkel onbetaalde recurring
-    const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
+    // Wat er al effectief uit het saldo is gegaan deze maand
+    const paidThisMonth =
+      paidRecurringAmount +
+      deferredRecurringAmount +
+      totalReservationDeductions +
+      totalReservationCashPayments +
+      (btwPayments.find((p) => p.monthKey === monthKey && p.paid)?.amount ?? 0) +
+      totalExpenses;
+
+    // Beschikbaar = wat je nog vrij hebt na alles wat al betaald/gereserveerd is
+    const availableBudget = runningBalance + totalIncome - paidThisMonth;
+
+    // Openstaand = wat er nog betaald moet worden
+    const unpaidRecurringAmount = monthRecurringItems.reduce((s, item) => {
       const settlement = recurringSettlements.find(
         (st) => st.recurringId === item.id && st.monthKey === monthKey,
       );
@@ -155,14 +173,12 @@ export function calculateMonths(
       return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
     }, 0);
 
-    const totalOutstandingCosts =
-      totalOpenRecurring +
-      deferredRecurringAmount +
-      totalReservationDeductions +
-      totalReservationCashPayments +
-      totalBtw +
-      totalExpenses;
+    const unpaidBtw = btwPayment?.amount ?? 0;
 
+    const totalOutstandingCosts = unpaidRecurringAmount + unpaidBtw;
+
+    // Invariant: endBalance = (startBalance + income - betaald) - onbetaald
+    //                       = startBalance + income - alle kosten
     const endBalance = availableBudget - totalOutstandingCosts;
 
     result.push({
