@@ -28,7 +28,6 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
     updateExpenseItem,
     removeExpenseItem,
     removeReservationDefer,
-    setStartBalance,
   } = useCashflowActions();
 
   const { removeReservationPayment, updateReservationPayment } = useReservationActions();
@@ -85,9 +84,6 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
       <IncomeSection
         monthKey={monthKey}
         items={incomeItems}
-        startBalance={startBalance}
-        isFirst={isFirst ?? false}
-        onStartBalanceChange={isFirst ? setStartBalance : undefined}
         onAdd={addIncomeItem}
         onToggleReceived={(id, received) => updateIncomeItem(id, { received })}
         onRemove={removeIncomeItem}
