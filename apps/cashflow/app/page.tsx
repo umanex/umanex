@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useHydrated, useMonths, useCashflowActions } from '../hooks/useCashflow';
+import { useMonths, useCashflowActions } from '../hooks/useCashflow';
 import { useCashflowStore } from '../store/cashflow';
 import { MonthCard } from '../components/cashflow/MonthCard';
 import { CashflowDndContext } from '../components/cashflow/CashflowDndContext';
@@ -38,19 +38,10 @@ function StartBalanceInput() {
 }
 
 export default function Page() {
-  const hydrated = useHydrated();
   const months = useMonths(3);
   const [recurringOpen, setRecurringOpen] = useState(false);
   const [reservationOpen, setReservationOpen] = useState(false);
   const [paymentMonth, setPaymentMonth] = useState<MonthKey | null>(null);
-
-  if (!hydrated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <span className="text-muted-foreground text-sm">Laden…</span>
-      </div>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 space-y-8">

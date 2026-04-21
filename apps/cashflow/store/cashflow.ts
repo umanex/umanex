@@ -195,7 +195,6 @@ export const useCashflowStore = create<CashflowStore>()(
         };
       },
       storage: createJSONStorage(() => localStorage),
-      skipHydration: true,
     },
   ),
 );

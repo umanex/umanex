@@ -1,37 +1,24 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCashflowStore } from '../store/cashflow';
 import { calculateMonths } from '../lib/cashflow/calculator';
 import type { MonthData } from '../lib/cashflow/types';
 
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);
-  const done = useRef(false);
 
   useEffect(() => {
-    if (done.current) return;
-    done.current = true;
-
-    const finish = () => setHydrated(true);
-
-    const timeout = setTimeout(finish, 800);
-
     try {
-      const result = useCashflowStore.persist.rehydrate();
-      if (result instanceof Promise) {
-        result.then(finish).catch(finish).finally(() => clearTimeout(timeout));
-      } else {
-        clearTimeout(timeout);
-        finish();
+      const r = useCashflowStore.persist.rehydrate();
+      if (r && typeof (r as Promise<void>).then === 'function') {
+        (r as Promise<void>).catch(() => {});
       }
     } catch {
-      clearTimeout(timeout);
-      finish();
+      // Negeer elke fout
     }
-
-    return () => clearTimeout(timeout);
-  }, []);
+    setHydrated(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return hydrated;
 }
