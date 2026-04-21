@@ -1,29 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCashflowStore } from '../store/cashflow';
 import { calculateMonths } from '../lib/cashflow/calculator';
 import type { MonthData } from '../lib/cashflow/types';
 
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);
+  const done = useRef(false);
 
   useEffect(() => {
-    // rehydrate() laadt de localStorage data in de store.
-    // Errors worden opgevangen zodat de app altijd laadt,
-    // ook als de opgeslagen data corrupt of incompatibel is.
-    // De migrate-functie in de store zorgt voor schema-upgrades.
-    const rehydrate = async () => {
-      try {
-        await useCashflowStore.persist.rehydrate();
-      } catch {
-        // Corrupte of incompatibele state: start met lege store
-        console.warn('[cashflow] rehydrate failed, starting fresh');
-      } finally {
-        setHydrated(true);
+    if (done.current) return;
+    done.current = true;
+
+    const finish = () => setHydrated(true);
+
+    // Timeout fallback: altijd hydrateren na max 800ms
+    // zodat de pagina nooit permanent vast staat.
+    const timeout = setTimeout(finish, 800);
+
+    try {
+      const result = useCashflowStore.persist.rehydrate();
+      if (result instanceof Promise) {
+        result.then(finish).catch(finish).finally(() => clearTimeout(timeout));
+      } else {
+        // Synchrone rehydratie — meteen klaar
+        clearTimeout(timeout);
+        finish();
       }
-    };
-    void rehydrate();
+    } catch {
+      clearTimeout(timeout);
+      finish();
+    }
+
+    return () => clearTimeout(timeout);
   }, []);
 
   return hydrated;
