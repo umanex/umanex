@@ -144,22 +144,33 @@ export function calculateMonths(
 
     const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
 
-    // Beschikbaar budget = startsaldo + inkomsten
     const availableBudget = runningBalance + totalIncome;
 
-    // Totale kosten = ALLE kosten die van het saldo afgaan:
-    // totalRecurring gebruikt actualAmount voor betaalde items
-    // (eerder stond hier totalOpenRecurring wat betaalde items oversloeg
-    // en zo eindsaldo en totale kosten uit sync haalde)
+    // Berekening 1: openstaande kosten (display tile) — enkel onbetaalde recurring
+    const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      if (settlement?.paid) return s;
+      return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
+    }, 0);
+
     const totalOutstandingCosts =
-      totalRecurring +
+      totalOpenRecurring +
+      deferredRecurringAmount +
       totalReservationDeductions +
       totalReservationCashPayments +
       totalBtw +
       totalExpenses;
 
-    // Invariant: Beschikbaar - Totale kosten = Eindsaldo
-    const endBalance = availableBudget - totalOutstandingCosts;
+    // Berekening 2: eindsaldo — beschikbaar minus alle kosten (ook betaalde)
+    const endBalance =
+      availableBudget -
+      totalRecurring -
+      totalReservationDeductions -
+      totalReservationCashPayments -
+      totalBtw -
+      totalExpenses;
 
     result.push({
       monthKey,
