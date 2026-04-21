@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDraggable } from '@dnd-kit/core';
 import type { ExpenseItem, MonthKey } from '../../lib/cashflow/types';
 import { formatCurrency, generateId } from '../../lib/cashflow/recurring';
 
@@ -12,7 +13,7 @@ interface ExpenseSectionProps {
   onRemove: (id: string) => void;
 }
 
-function ExpenseItemRow({
+function DraggableExpenseItem({
   item,
   onUpdate,
   onRemove,
@@ -23,6 +24,17 @@ function ExpenseItemRow({
 }) {
   const [localAmount, setLocalAmount] = useState(String(item.amount));
 
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `expense-${item.id}`,
+    data: {
+      type: 'expense',
+      id: item.id,
+      sourceMonth: item.monthKey,
+      label: item.label,
+      amount: item.amount,
+    },
+  });
+
   function handleAmountBlur() {
     const parsed = parseFloat(localAmount.replace(',', '.'));
     const effective = isNaN(parsed) || parsed < 0 ? item.amount : parsed;
@@ -31,8 +43,26 @@ function ExpenseItemRow({
   }
 
   return (
-    <div className="flex items-center gap-2 py-0.5">
-      <span className={`flex-1 text-sm truncate ${item.paid ? 'text-muted-foreground' : ''}`}>
+    <div
+      ref={setNodeRef}
+      className={`flex items-center gap-2 py-0.5 ${isDragging ? 'opacity-30' : ''}`}
+    >
+      <button
+        {...listeners}
+        {...attributes}
+        className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing text-base leading-none select-none"
+        aria-label="Versleep"
+      >
+        ⠿
+      </button>
+      <input
+        type="checkbox"
+        checked={item.paid}
+        onChange={(e) => onUpdate(item.id, { paid: e.target.checked })}
+        className="h-3.5 w-3.5 rounded border-input accent-primary flex-shrink-0"
+        title="Betaald"
+      />
+      <span className={`flex-1 text-sm truncate ${item.paid ? 'line-through text-muted-foreground' : ''}`}>
         {item.label}
       </span>
       <input
@@ -41,17 +71,11 @@ function ExpenseItemRow({
         value={localAmount}
         onChange={(e) => setLocalAmount(e.target.value)}
         onBlur={handleAmountBlur}
+        onPointerDown={(e) => e.stopPropagation()}
         className={`w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring ${
           item.paid ? 'text-emerald-600' : 'text-destructive'
         }`}
         aria-label="Bedrag"
-      />
-      <input
-        type="checkbox"
-        checked={item.paid}
-        onChange={(e) => onUpdate(item.id, { paid: e.target.checked })}
-        className="h-3.5 w-3.5 rounded border-input accent-primary flex-shrink-0"
-        title="Betaald"
       />
       <button
         onClick={() => onRemove(item.id)}
@@ -126,7 +150,7 @@ export function ExpenseSection({
       </div>
 
       {items.map((item) => (
-        <ExpenseItemRow
+        <DraggableExpenseItem
           key={item.id}
           item={item}
           onUpdate={onUpdate}
@@ -152,10 +176,7 @@ export function ExpenseSection({
             placeholder="€"
             className="w-20 h-7 px-2 text-sm rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring text-right"
           />
-          <button
-            onClick={handleAdd}
-            className="text-xs text-primary hover:text-primary/80 font-medium"
-          >
+          <button onClick={handleAdd} className="text-xs text-primary hover:text-primary/80 font-medium">
             OK
           </button>
           <button

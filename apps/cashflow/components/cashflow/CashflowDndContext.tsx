@@ -18,7 +18,7 @@ import { formatCurrency } from '../../lib/cashflow/recurring';
 import type { MonthKey, RecurringDefer, ReservationDefer } from '../../lib/cashflow/types';
 
 interface ActiveItem {
-  type: 'income' | 'recurring' | 'reservation-payment' | 'reservation-pot';
+  type: 'income' | 'expense' | 'recurring' | 'reservation-payment' | 'reservation-pot';
   id: string;
   label: string;
   amount: number;
@@ -33,6 +33,7 @@ export function CashflowDndContext({ children }: CashflowDndContextProps) {
   const [activeItem, setActiveItem] = useState<ActiveItem | null>(null);
 
   const updateIncomeItem = useCashflowStore((s) => s.updateIncomeItem);
+  const updateExpenseItem = useCashflowStore((s) => s.updateExpenseItem);
   const updateReservationPayment = useCashflowStore((s) => s.updateReservationPayment);
   const addRecurringDefer = useCashflowStore((s) => s.addRecurringDefer);
   const addReservationDefer = useCashflowStore((s) => s.addReservationDefer);
@@ -60,6 +61,8 @@ export function CashflowDndContext({ children }: CashflowDndContextProps) {
 
     if (data.type === 'income') {
       updateIncomeItem(data.id, { monthKey: targetMonthKey });
+    } else if (data.type === 'expense') {
+      updateExpenseItem(data.id, { monthKey: targetMonthKey });
     } else if (data.type === 'reservation-payment') {
       updateReservationPayment(data.id, { monthKey: targetMonthKey });
     } else if (data.type === 'reservation-pot') {

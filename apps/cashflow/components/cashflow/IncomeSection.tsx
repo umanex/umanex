@@ -8,10 +8,9 @@ import { formatCurrency, generateId } from '../../lib/cashflow/recurring';
 interface IncomeSectionProps {
   monthKey: MonthKey;
   items: IncomeItem[];
-  startBalance: number;
-  isFirst: boolean;
-  onStartBalanceChange?: (value: number) => void;
+  prevBalance?: number;
   onAdd: (item: IncomeItem) => void;
+  onUpdate: (id: string, patch: Partial<IncomeItem>) => void;
   onToggleReceived: (id: string, received: boolean) => void;
   onRemove: (id: string) => void;
 }
@@ -20,11 +19,17 @@ function DraggableIncomeItem({
   item,
   onToggleReceived,
   onRemove,
+  onUpdate,
 }: {
   item: IncomeItem;
   onToggleReceived: (id: string, received: boolean) => void;
   onRemove: (id: string) => void;
+  onUpdate: (id: string, patch: Partial<IncomeItem>) => void;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [label, setLabel] = useState(item.label);
+  const [amount, setAmount] = useState(String(item.amount));
+
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `income-${item.id}`,
     data: {
@@ -35,6 +40,53 @@ function DraggableIncomeItem({
       amount: item.amount,
     },
   });
+
+  function handleSave() {
+    const parsed = parseFloat(amount.replace(',', '.'));
+    if (!label.trim() || isNaN(parsed) || parsed <= 0) return;
+    onUpdate(item.id, { label: label.trim(), amount: parsed });
+    setEditing(false);
+  }
+
+  function handleCancel() {
+    setLabel(item.label);
+    setAmount(String(item.amount));
+    setEditing(false);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') handleSave();
+    if (e.key === 'Escape') handleCancel();
+  }
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-2 py-0.5" onKeyDown={handleKeyDown}>
+        <input
+          autoFocus
+          type="text"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="Omschrijving"
+          className="flex-1 h-7 px-2 text-sm rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+        <input
+          type="text"
+          inputMode="decimal"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="€"
+          className="w-20 h-7 px-2 text-sm rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring text-right"
+        />
+        <button onClick={handleSave} className="text-xs text-primary hover:text-primary/80 font-medium">
+          OK
+        </button>
+        <button onClick={handleCancel} className="text-xs text-muted-foreground hover:text-foreground">
+          ✕
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -57,11 +109,15 @@ function DraggableIncomeItem({
         title="Ontvangen"
       />
       <span
-        className={`flex-1 text-sm truncate ${item.received ? 'line-through text-muted-foreground' : ''}`}
+        className={`flex-1 text-sm truncate cursor-pointer ${item.received ? 'line-through text-muted-foreground' : ''}`}
+        onClick={() => { setLabel(item.label); setAmount(String(item.amount)); setEditing(true); }}
       >
         {item.label}
       </span>
-      <span className="text-sm font-medium text-emerald-600 tabular-nums">
+      <span
+        className="text-sm font-medium text-emerald-600 tabular-nums cursor-pointer"
+        onClick={() => { setLabel(item.label); setAmount(String(item.amount)); setEditing(true); }}
+      >
         {formatCurrency(item.amount)}
       </span>
       <button
@@ -75,54 +131,12 @@ function DraggableIncomeItem({
   );
 }
 
-function BalanceRow({
-  startBalance,
-  isFirst,
-  onStartBalanceChange,
-}: {
-  startBalance: number;
-  isFirst: boolean;
-  onStartBalanceChange?: (value: number) => void;
-}) {
-  const [inputValue, setInputValue] = useState(String(startBalance));
-
-  function handleBlur() {
-    const parsed = parseFloat(inputValue.replace(',', '.'));
-    if (!isNaN(parsed)) onStartBalanceChange?.(parsed);
-    else setInputValue(String(startBalance));
-  }
-
-  return (
-    <div className="flex items-center gap-2 py-0.5">
-      <span className="w-3.5 flex-shrink-0" />
-      <span className="w-3.5 flex-shrink-0" />
-      <span className="flex-1 text-sm truncate text-muted-foreground">Saldo</span>
-      {isFirst ? (
-        <input
-          type="text"
-          inputMode="decimal"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onBlur={handleBlur}
-          className="w-20 h-6 px-1.5 text-sm text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-          aria-label="Beginsaldo"
-        />
-      ) : (
-        <span className="text-sm tabular-nums text-muted-foreground w-20 text-right">
-          {formatCurrency(startBalance)}
-        </span>
-      )}
-    </div>
-  );
-}
-
 export function IncomeSection({
   monthKey,
   items,
-  startBalance,
-  isFirst,
-  onStartBalanceChange,
+  prevBalance,
   onAdd,
+  onUpdate,
   onToggleReceived,
   onRemove,
 }: IncomeSectionProps) {
@@ -169,11 +183,17 @@ export function IncomeSection({
         </button>
       </div>
 
-      <BalanceRow
-        startBalance={startBalance}
-        isFirst={isFirst}
-        onStartBalanceChange={onStartBalanceChange}
-      />
+      {prevBalance !== undefined && (
+        <div className="flex items-center gap-2 py-0.5">
+          <span className="w-[18px] flex-shrink-0" />
+          <span className="w-3.5 flex-shrink-0" />
+          <span className="flex-1 text-sm text-muted-foreground truncate italic">Vorig saldo</span>
+          <span className="text-sm font-medium text-emerald-600 tabular-nums">
+            {formatCurrency(prevBalance)}
+          </span>
+          <span className="w-3 flex-shrink-0" />
+        </div>
+      )}
 
       {items.map((item) => (
         <DraggableIncomeItem
@@ -181,6 +201,7 @@ export function IncomeSection({
           item={item}
           onToggleReceived={onToggleReceived}
           onRemove={onRemove}
+          onUpdate={onUpdate}
         />
       ))}
 
@@ -217,7 +238,7 @@ export function IncomeSection({
         </div>
       )}
 
-      {items.length === 0 && !adding && (
+      {prevBalance === undefined && items.length === 0 && !adding && (
         <p className="text-xs text-muted-foreground italic py-0.5">Geen inkomsten deze maand</p>
       )}
     </div>

@@ -31,7 +31,6 @@ export function useMonths(count = 3): MonthData[] {
   const recurringItems = useCashflowStore((s) => s.recurringItems);
   const reservations = useCashflowStore((s) => s.reservations);
   const reservationPayments = useCashflowStore((s) => s.reservationPayments);
-  const btwPayments = useCashflowStore((s) => s.btwPayments);
   const recurringDefers = useCashflowStore((s) => s.recurringDefers);
   const recurringSettlements = useCashflowStore((s) => s.recurringSettlements);
   const reservationDefers = useCashflowStore((s) => s.reservationDefers);
@@ -44,7 +43,6 @@ export function useMonths(count = 3): MonthData[] {
     recurringItems,
     reservations,
     reservationPayments,
-    btwPayments,
     recurringDefers,
     recurringSettlements,
     reservationDefers,
@@ -65,7 +63,6 @@ export function useCashflowActions() {
     addExpenseItem: useCashflowStore((s) => s.addExpenseItem),
     updateExpenseItem: useCashflowStore((s) => s.updateExpenseItem),
     removeExpenseItem: useCashflowStore((s) => s.removeExpenseItem),
-    upsertBtwPayment: useCashflowStore((s) => s.upsertBtwPayment),
     addRecurringDefer: useCashflowStore((s) => s.addRecurringDefer),
     removeRecurringDefer: useCashflowStore((s) => s.removeRecurringDefer),
     upsertRecurringSettlement: useCashflowStore((s) => s.upsertRecurringSettlement),

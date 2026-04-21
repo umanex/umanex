@@ -6,7 +6,6 @@ import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
 import { IncomeSection } from './IncomeSection';
 import { RecurringSection } from './RecurringSection';
 import { ReservationSection } from './ReservationSection';
-import { BtwSection } from './BtwSection';
 import { ExpenseSection } from './ExpenseSection';
 import { useCashflowActions, useReservationActions } from '../../hooks/useCashflow';
 
@@ -21,7 +20,6 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
     addIncomeItem,
     updateIncomeItem,
     removeIncomeItem,
-    upsertBtwPayment,
     removeRecurringDefer,
     upsertRecurringSettlement,
     addExpenseItem,
@@ -42,7 +40,6 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
     recurringItems,
     reservationPots,
     deferredReservationItems,
-    btwPayment,
     deferredItems,
     recurringSettlements,
     expenseItems,
@@ -84,10 +81,9 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
       <IncomeSection
         monthKey={monthKey}
         items={incomeItems}
-        startBalance={startBalance}
-        isFirst={isFirst ?? false}
-        onStartBalanceChange={isFirst ? setStartBalance : undefined}
+        prevBalance={isFirst ? undefined : startBalance}
         onAdd={addIncomeItem}
+        onUpdate={(id, patch) => updateIncomeItem(id, patch)}
         onToggleReceived={(id, received) => updateIncomeItem(id, { received })}
         onRemove={removeIncomeItem}
       />
@@ -119,12 +115,6 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
         onRemovePayment={removeReservationPayment}
         onMovePayment={(id, newMonthKey) => updateReservationPayment(id, { monthKey: newMonthKey })}
         onRemoveReservationDefer={removeReservationDefer}
-      />
-
-      <BtwSection
-        monthKey={monthKey}
-        btwPayment={btwPayment}
-        onUpsert={(amount, paid) => upsertBtwPayment(monthKey, amount, paid)}
       />
 
       <div className="pt-2 border-t border-border flex items-center justify-between">
