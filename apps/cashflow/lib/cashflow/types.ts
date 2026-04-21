@@ -64,12 +64,6 @@ export interface ReservationPayment {
   fromCash: number;
 }
 
-export interface BtwPayment {
-  id: string;
-  monthKey: MonthKey;
-  amount: number;
-  paid: boolean;
-}
 
 export interface ReservationPotBalance {
   reservationId: string;
@@ -87,13 +81,11 @@ export interface MonthData {
   totalRecurring: number;
   totalReservationDeductions: number;
   totalReservationCashPayments: number;
-  totalBtw: number;
   availableBudget: number;
   totalOutstandingCosts: number;
   incomeItems: IncomeItem[];
   recurringItems: RecurringItem[];
   recurringSettlements: RecurringSettlement[];
-  btwPayment: BtwPayment | null;
   reservationPots: ReservationPotBalance[];
   reservationPayments: ReservationPayment[];
   deferredRecurringAmount: number;
@@ -125,7 +117,6 @@ export interface CashflowStore {
   recurringSettlements: RecurringSettlement[];
   reservations: ReservationItem[];
   reservationPayments: ReservationPayment[];
-  btwPayments: BtwPayment[];
   recurringDefers: RecurringDefer[];
   reservationDefers: ReservationDefer[];
 
@@ -151,8 +142,6 @@ export interface CashflowStore {
   addExpenseItem: (item: ExpenseItem) => void;
   updateExpenseItem: (id: string, patch: Partial<ExpenseItem>) => void;
   removeExpenseItem: (id: string) => void;
-
-  upsertBtwPayment: (monthKey: MonthKey, amount: number, paid: boolean) => void;
 
   addRecurringDefer: (defer: RecurringDefer) => void;
   removeRecurringDefer: (id: string) => void;

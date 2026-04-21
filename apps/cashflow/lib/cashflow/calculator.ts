@@ -6,7 +6,6 @@ import type {
   RecurringItem,
   RecurringDefer,
   RecurringSettlement,
-  BtwPayment,
   ReservationItem,
   ReservationPayment,
   ReservationPotBalance,
@@ -45,7 +44,6 @@ export function calculateMonths(
   recurringItems: RecurringItem[],
   reservations: ReservationItem[],
   reservationPayments: ReservationPayment[],
-  btwPayments: BtwPayment[],
   recurringDefers: RecurringDefer[],
   recurringSettlements: RecurringSettlement[],
   reservationDefers: ReservationDefer[],
@@ -131,8 +129,6 @@ export function calculateMonths(
     const totalReservationDeductions =
       billableReservations.reduce((s, r) => s + r.monthlyAmount, 0) + deferredReservationAmount;
     const totalReservationCashPayments = monthReservationPayments.reduce((s, p) => s + p.fromCash, 0);
-    const btwPayment = btwPayments.find((p) => p.monthKey === monthKey && !p.paid) ?? null;
-    const totalBtw = btwPayment?.amount ?? 0;
 
     const reservationPots: ReservationPotBalance[] = billableReservations.map((r) => ({
       reservationId: r.id,
@@ -152,14 +148,16 @@ export function calculateMonths(
       return s + (settlement?.paid ? settlement.actualAmount : 0);
     }, 0);
 
+    const paidExpenses = monthExpenseItems.filter((i) => i.paid).reduce((s, i) => s + i.amount, 0);
+    const unpaidExpenses = monthExpenseItems.filter((i) => !i.paid).reduce((s, i) => s + i.amount, 0);
+
     // Wat er al effectief uit het saldo is gegaan deze maand
     const paidThisMonth =
       paidRecurringAmount +
       deferredRecurringAmount +
       totalReservationDeductions +
       totalReservationCashPayments +
-      (btwPayments.find((p) => p.monthKey === monthKey && p.paid)?.amount ?? 0) +
-      totalExpenses;
+      paidExpenses;
 
     // Beschikbaar = wat je nog vrij hebt na alles wat al betaald/gereserveerd is
     const availableBudget = runningBalance + totalIncome - paidThisMonth;
@@ -173,9 +171,7 @@ export function calculateMonths(
       return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
     }, 0);
 
-    const unpaidBtw = btwPayment?.amount ?? 0;
-
-    const totalOutstandingCosts = unpaidRecurringAmount + unpaidBtw;
+    const totalOutstandingCosts = unpaidRecurringAmount + unpaidExpenses;
 
     // Invariant: endBalance = (startBalance + income - betaald) - onbetaald
     //                       = startBalance + income - alle kosten
@@ -189,14 +185,12 @@ export function calculateMonths(
       totalRecurring,
       totalReservationDeductions,
       totalReservationCashPayments,
-      totalBtw,
       availableBudget,
       totalOutstandingCosts,
       expenseItems: monthExpenseItems,
       totalExpenses,
       incomeItems: monthIncomeItems,
       recurringItems: monthRecurringItems,
-      btwPayment,
       reservationPots,
       reservationPayments: monthReservationPayments,
       deferredRecurringAmount,

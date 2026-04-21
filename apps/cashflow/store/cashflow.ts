@@ -16,7 +16,7 @@ import type {
 } from '../lib/cashflow/types';
 
 // Verhoog bij elke schema-uitbreiding + voeg het nieuwe veld toe in migrate.
-const STORE_VERSION = 2;
+const STORE_VERSION = 3;
 
 export const useCashflowStore = create<CashflowStore>()(
   persist(
@@ -28,7 +28,6 @@ export const useCashflowStore = create<CashflowStore>()(
       recurringItems: [] as RecurringItem[],
       reservations: [] as ReservationItem[],
       reservationPayments: [] as ReservationPayment[],
-      btwPayments: [],
       recurringDefers: [] as RecurringDefer[],
       recurringSettlements: [] as RecurringSettlement[],
       reservationDefers: [] as ReservationDefer[],
@@ -115,17 +114,6 @@ export const useCashflowStore = create<CashflowStore>()(
           state.reservationPayments = state.reservationPayments.filter((p) => p.id !== id);
         }),
 
-      upsertBtwPayment: (monthKey: MonthKey, amount: number, paid: boolean) =>
-        set((state) => {
-          const existing = state.btwPayments.find((p) => p.monthKey === monthKey);
-          if (existing) {
-            existing.amount = amount;
-            existing.paid = paid;
-          } else {
-            state.btwPayments.push({ id: crypto.randomUUID(), monthKey, amount, paid });
-          }
-        }),
-
       addRecurringDefer: (defer) =>
         set((state) => { state.recurringDefers.push(defer); }),
 
@@ -169,7 +157,7 @@ export const useCashflowStore = create<CashflowStore>()(
         }),
     })),
     {
-      name: 'cashflow-store-v2',
+      name: 'cashflow-store-v3',
       version: STORE_VERSION,
       migrate: (persisted: unknown) => {
         const s = (persisted ?? {}) as Record<string, unknown>;
@@ -183,12 +171,11 @@ export const useCashflowStore = create<CashflowStore>()(
           recurringItems: Array.isArray(s.recurringItems) ? s.recurringItems : [],
           reservations: Array.isArray(s.reservations) ? s.reservations : [],
           reservationPayments: Array.isArray(s.reservationPayments) ? s.reservationPayments : [],
-          btwPayments: Array.isArray(s.btwPayments) ? s.btwPayments : [],
           recurringDefers: Array.isArray(s.recurringDefers) ? s.recurringDefers : [],
           recurringSettlements: Array.isArray(s.recurringSettlements) ? s.recurringSettlements : [],
           reservationDefers: Array.isArray(s.reservationDefers) ? s.reservationDefers : [],
           // Scalars
-          startBalance: typeof s.startBalance === 'number' ? s.startBalance : 0,
+          startBalance: 0,
           anchorMonth: typeof s.anchorMonth === 'string'
             ? s.anchorMonth
             : format(new Date(), 'yyyy-MM'),
