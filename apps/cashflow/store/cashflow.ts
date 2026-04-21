@@ -4,6 +4,7 @@ import { immer } from 'zustand/middleware/immer';
 import { format } from 'date-fns';
 import type {
   CashflowStore,
+  ExpenseItem,
   IncomeItem,
   RecurringItem,
   RecurringDefer,
@@ -23,6 +24,7 @@ export const useCashflowStore = create<CashflowStore>()(
     immer((set) => ({
       startBalance: 0,
       anchorMonth: format(new Date(), 'yyyy-MM'),
+      expenseItems: [] as ExpenseItem[],
       incomeItems: [] as IncomeItem[],
       recurringItems: [] as RecurringItem[],
       reservations: [] as ReservationItem[],
@@ -36,6 +38,20 @@ export const useCashflowStore = create<CashflowStore>()(
 
       setAnchorMonth: (month) =>
         set((state) => { state.anchorMonth = month; }),
+
+      addExpenseItem: (item) =>
+        set((state) => { state.expenseItems.push(item); }),
+
+      updateExpenseItem: (id, patch) =>
+        set((state) => {
+          const item = state.expenseItems.find((i) => i.id === id);
+          if (item) Object.assign(item, patch);
+        }),
+
+      removeExpenseItem: (id) =>
+        set((state) => {
+          state.expenseItems = state.expenseItems.filter((i) => i.id !== id);
+        }),
 
       addIncomeItem: (item) =>
         set((state) => { state.incomeItems.push(item); }),

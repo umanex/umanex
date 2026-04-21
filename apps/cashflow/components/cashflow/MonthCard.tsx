@@ -7,8 +7,8 @@ import { IncomeSection } from './IncomeSection';
 import { RecurringSection } from './RecurringSection';
 import { ReservationSection } from './ReservationSection';
 import { BtwSection } from './BtwSection';
-import { useCashflowActions } from '../../hooks/useCashflow';
-import { useReservationActions } from '../../hooks/useCashflow';
+import { ExpenseSection } from './ExpenseSection';
+import { useCashflowActions, useReservationActions } from '../../hooks/useCashflow';
 
 interface MonthCardProps {
   monthData: MonthData;
@@ -23,9 +23,12 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     upsertBtwPayment,
     removeRecurringDefer,
     upsertRecurringSettlement,
+    addExpenseItem,
+    updateExpenseItem,
+    removeExpenseItem,
   } = useCashflowActions();
 
-  const { removeReservationPayment } = useReservationActions();
+  const { removeReservationPayment, updateReservationPayment } = useReservationActions();
 
   const {
     monthKey,
@@ -39,6 +42,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     btwPayment,
     deferredItems,
     recurringSettlements,
+    expenseItems,
   } = monthData;
 
   const { setNodeRef, isOver } = useDroppable({
@@ -70,7 +74,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
           </p>
         </div>
         <div className="rounded-lg bg-muted/50 px-3 py-2">
-          <p className="text-xs text-muted-foreground mb-0.5">Totale kosten</p>
+          <p className="text-xs text-muted-foreground mb-0.5">Openstaand</p>
           <p className="text-sm font-semibold tabular-nums text-destructive">
             {formatCurrency(totalOutstandingCosts)}
           </p>
@@ -96,10 +100,20 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         }
       />
 
+      <ExpenseSection
+        monthKey={monthKey}
+        items={expenseItems}
+        onAdd={addExpenseItem}
+        onUpdate={(id, patch) => updateExpenseItem(id, patch)}
+        onRemove={removeExpenseItem}
+      />
+
       <ReservationSection
         pots={reservationPots}
+        monthKey={monthKey}
         onRegisterPayment={onRegisterPayment}
         onRemovePayment={removeReservationPayment}
+        onMovePayment={(id, newMonthKey) => updateReservationPayment(id, { monthKey: newMonthKey })}
       />
 
       <BtwSection

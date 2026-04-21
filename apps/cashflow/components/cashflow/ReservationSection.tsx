@@ -1,21 +1,36 @@
 'use client';
 
 import { useDraggable } from '@dnd-kit/core';
-import type { ReservationPotBalance, ReservationPayment } from '../../lib/cashflow/types';
+import type { ReservationPotBalance, ReservationPayment, MonthKey } from '../../lib/cashflow/types';
 import { formatCurrency } from '../../lib/cashflow/recurring';
 
 interface ReservationSectionProps {
   pots: ReservationPotBalance[];
+  monthKey: MonthKey;
   onRegisterPayment: () => void;
   onRemovePayment: (id: string) => void;
+  onMovePayment: (id: string, newMonthKey: MonthKey) => void;
+}
+
+function nextMonthKey(monthKey: MonthKey): MonthKey {
+  const parts = monthKey.split('-').map(Number);
+  const year = parts[0] ?? 2000;
+  const month = parts[1] ?? 1;
+  return month === 12
+    ? `${year + 1}-01`
+    : `${year}-${String(month + 1).padStart(2, '0')}`;
 }
 
 function DraggablePayment({
   payment,
+  currentMonthKey,
   onRemove,
+  onMove,
 }: {
   payment: ReservationPayment;
+  currentMonthKey: MonthKey;
   onRemove: (id: string) => void;
+  onMove: (id: string, newMonthKey: MonthKey) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `reservation-payment-${payment.id}`,
@@ -55,6 +70,15 @@ function DraggablePayment({
         </span>
       )}
       <button
+        onClick={() => onMove(payment.id, nextMonthKey(currentMonthKey))}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="text-muted-foreground hover:text-primary transition-colors leading-none"
+        title="Verplaats naar volgende maand"
+        aria-label="Verplaats naar volgende maand"
+      >
+        →
+      </button>
+      <button
         onClick={() => onRemove(payment.id)}
         onPointerDown={(e) => e.stopPropagation()}
         className="text-muted-foreground hover:text-destructive transition-colors leading-none flex-shrink-0 ml-0.5"
@@ -68,8 +92,10 @@ function DraggablePayment({
 
 export function ReservationSection({
   pots,
+  monthKey,
   onRegisterPayment,
   onRemovePayment,
+  onMovePayment,
 }: ReservationSectionProps) {
   if (pots.length === 0) return null;
 
@@ -108,7 +134,9 @@ export function ReservationSection({
             <DraggablePayment
               key={payment.id}
               payment={payment}
+              currentMonthKey={monthKey}
               onRemove={onRemovePayment}
+              onMove={onMovePayment}
             />
           ))}
         </div>

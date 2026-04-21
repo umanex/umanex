@@ -39,6 +39,7 @@ export function useHydrated(): boolean {
 export function useMonths(count = 3): MonthData[] {
   const anchorMonth = useCashflowStore((s) => s.anchorMonth);
   const startBalance = useCashflowStore((s) => s.startBalance);
+  const expenseItems = useCashflowStore((s) => s.expenseItems);
   const incomeItems = useCashflowStore((s) => s.incomeItems);
   const recurringItems = useCashflowStore((s) => s.recurringItems);
   const reservations = useCashflowStore((s) => s.reservations);
@@ -50,6 +51,7 @@ export function useMonths(count = 3): MonthData[] {
   return calculateMonths(
     anchorMonth,
     startBalance,
+    expenseItems,
     incomeItems,
     recurringItems,
     reservations,
@@ -71,6 +73,9 @@ export function useCashflowActions() {
     addRecurringItem: useCashflowStore((s) => s.addRecurringItem),
     updateRecurringItem: useCashflowStore((s) => s.updateRecurringItem),
     removeRecurringItem: useCashflowStore((s) => s.removeRecurringItem),
+    addExpenseItem: useCashflowStore((s) => s.addExpenseItem),
+    updateExpenseItem: useCashflowStore((s) => s.updateExpenseItem),
+    removeExpenseItem: useCashflowStore((s) => s.removeExpenseItem),
     upsertBtwPayment: useCashflowStore((s) => s.upsertBtwPayment),
     addRecurringDefer: useCashflowStore((s) => s.addRecurringDefer),
     removeRecurringDefer: useCashflowStore((s) => s.removeRecurringDefer),

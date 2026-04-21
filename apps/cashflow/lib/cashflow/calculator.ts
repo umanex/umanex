@@ -1,6 +1,7 @@
 import type {
   MonthKey,
   MonthData,
+  ExpenseItem,
   IncomeItem,
   RecurringItem,
   RecurringDefer,
@@ -38,6 +39,7 @@ export function calcPotBalance(
 export function calculateMonths(
   anchorMonth: MonthKey,
   startBalance: number,
+  expenseItems: ExpenseItem[],
   incomeItems: IncomeItem[],
   recurringItems: RecurringItem[],
   reservations: ReservationItem[],
@@ -53,6 +55,8 @@ export function calculateMonths(
   const potBalanceMap = new Map<string, number>();
 
   for (const monthKey of months) {
+    const monthExpenseItems = expenseItems.filter((i) => i.monthKey === monthKey);
+    const totalExpenses = monthExpenseItems.reduce((s, i) => s + i.amount, 0);
     const monthIncomeItems = incomeItems.filter((i) => i.monthKey === monthKey);
     const allActiveRecurring = recurringItems.filter((i) => i.startMonth <= monthKey);
 
@@ -113,14 +117,24 @@ export function calculateMonths(
     // Beschikbaar budget = startsaldo + inkomsten
     const availableBudget = runningBalance + totalIncome;
 
-    // Totale kosten = alles wat van het saldo afgetrokken wordt (betaald + onbetaald)
-    // zodat: eindsaldo = beschikbaar - totalOutstandingCosts
+    // Openstaand = enkel onbetaalde recurring + deferred + reserveringen + BTW + kosten
+    const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      if (settlement?.paid) return s;
+      return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
+    }, 0);
+
     const totalOutstandingCosts =
-      totalRecurring +
+      totalOpenRecurring +
+      deferredRecurringAmount +
       totalReservationDeductions +
       totalReservationCashPayments +
-      totalBtw;
+      totalBtw +
+      totalExpenses;
 
+    // Eindsaldo = beschikbaar − openstaand
     const endBalance = availableBudget - totalOutstandingCosts;
 
     result.push({
@@ -134,6 +148,8 @@ export function calculateMonths(
       totalBtw,
       availableBudget,
       totalOutstandingCosts,
+      expenseItems: monthExpenseItems,
+      totalExpenses,
       incomeItems: monthIncomeItems,
       recurringItems: monthRecurringItems,
       btwPayment,
