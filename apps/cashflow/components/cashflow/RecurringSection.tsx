@@ -87,7 +87,7 @@ function DraggableRecurringItem({
         aria-label={`${item.label} betaald`}
       />
 
-      <span className={`flex-1 text-sm truncate ${isPaid ? 'line-through text-muted-foreground' : ''}`}>
+      <span className="flex-1 text-sm truncate">
         {item.label}
       </span>
 
@@ -95,28 +95,22 @@ function DraggableRecurringItem({
         <span className="text-xs text-muted-foreground">(jaarlijks)</span>
       )}
 
-      {isPaid ? (
-        <div className="flex items-center gap-1">
-          <input
-            type="text"
-            inputMode="decimal"
-            value={localAmount}
-            onChange={(e) => setLocalAmount(e.target.value)}
-            onBlur={handleAmountBlur}
-            className="w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-            aria-label="Werkelijk bedrag"
-          />
-          {hasDeviation && (
-            <span className="text-xs text-amber-500 tabular-nums" title={`Begroot: ${formatCurrency(budgeted)}`}>
-              ({formatCurrency(budgeted)})
-            </span>
-          )}
-        </div>
-      ) : (
-        <span className="text-sm font-medium text-destructive tabular-nums">
-          {formatCurrency(budgeted)}
-        </span>
-      )}
+      <div className="flex items-center gap-1">
+        <input
+          type="text"
+          inputMode="decimal"
+          value={localAmount}
+          onChange={(e) => setLocalAmount(e.target.value)}
+          onBlur={handleAmountBlur}
+          className="w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+          aria-label="Werkelijk bedrag"
+        />
+        {hasDeviation && (
+          <span className="text-xs text-amber-500 tabular-nums" title={`Begroot: ${formatCurrency(budgeted)}`}>
+            ({formatCurrency(budgeted)})
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -129,14 +123,39 @@ export function RecurringSection({
   onRemoveDefer,
   onSettle,
 }: RecurringSectionProps) {
+  const [showPaid, setShowPaid] = useState(false);
+
+  const unpaidItems = items.filter(
+    (item) => !settlements.find((s) => s.recurringId === item.id && s.paid),
+  );
+  const paidItems = items.filter(
+    (item) => !!settlements.find((s) => s.recurringId === item.id && s.paid),
+  );
+
+  const hasAnyPaid = paidItems.length > 0;
+  const visibleItems = showPaid ? items : unpaidItems;
+
   if (items.length === 0 && deferredItems.length === 0) return null;
 
   return (
     <div className="space-y-1">
-      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        Vaste uitgaven
-      </span>
-      {items.map((item) => (
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          Vaste uitgaven
+        </span>
+        {hasAnyPaid && (
+          <button
+            onClick={() => setShowPaid((v) => !v)}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showPaid
+              ? `Verberg betaald (${paidItems.length})`
+              : `Toon betaald (${paidItems.length})`}
+          </button>
+        )}
+      </div>
+
+      {visibleItems.map((item) => (
         <DraggableRecurringItem
           key={item.id}
           item={item}
@@ -145,6 +164,7 @@ export function RecurringSection({
           onSettle={onSettle}
         />
       ))}
+
       {deferredItems.map((d) => (
         <div key={d.deferId} className="flex items-center gap-2 py-0.5">
           <span className="flex-1 text-sm truncate">
