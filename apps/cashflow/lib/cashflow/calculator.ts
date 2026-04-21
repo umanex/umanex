@@ -4,6 +4,7 @@ import type {
   IncomeItem,
   RecurringItem,
   RecurringDefer,
+  RecurringSettlement,
   BtwPayment,
   ReservationItem,
   ReservationPayment,
@@ -43,6 +44,7 @@ export function calculateMonths(
   reservationPayments: ReservationPayment[],
   btwPayments: BtwPayment[],
   recurringDefers: RecurringDefer[],
+  recurringSettlements: RecurringSettlement[],
   count = 3,
 ): MonthData[] {
   const months = getMonthsInRange(anchorMonth, count);
@@ -78,8 +80,14 @@ export function calculateMonths(
 
     const totalIncome = monthIncomeItems.reduce((s, i) => s + i.amount, 0);
 
-    const totalNormalRecurring = monthRecurringItems.reduce((s, i) => {
-      return s + (i.frequency === 'yearly' ? i.amount / 12 : i.amount);
+    // Per recurring item: gebruik actualAmount als er een betaalde settlement is
+    const totalNormalRecurring = monthRecurringItems.reduce((s, item) => {
+      const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      const effective = settlement?.paid ? settlement.actualAmount : budgeted;
+      return s + effective;
     }, 0);
 
     const deferredRecurringAmount = deferredItems.reduce((s, d) => s + d.amount, 0);
@@ -121,6 +129,8 @@ export function calculateMonths(
       paymentsThisMonth: monthReservationPayments.filter((p) => p.reservationId === r.id),
     }));
 
+    const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
+
     const endBalance =
       runningBalance +
       totalIncome -
@@ -145,6 +155,7 @@ export function calculateMonths(
       reservationPayments: monthReservationPayments,
       deferredRecurringAmount,
       deferredItems,
+      recurringSettlements: monthSettlements,
     });
 
     runningBalance = endBalance;
