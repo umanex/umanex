@@ -57,6 +57,7 @@ export function calculateMonths(
     const monthIncomeItems = incomeItems.filter((i) => i.monthKey === monthKey);
     const allActiveRecurring = recurringItems.filter((i) => i.startMonth <= monthKey);
 
+    // Recurring items deferred away from this month
     const departingDeferIds = new Set(
       recurringDefers
         .filter((d) => d.fromMonth === monthKey)
@@ -65,6 +66,7 @@ export function calculateMonths(
 
     const monthRecurringItems = allActiveRecurring.filter((i) => !departingDeferIds.has(i.id));
 
+    // Deferred items arriving this month from other months
     const arrivingDefers = recurringDefers.filter((d) => d.toMonth === monthKey);
     const deferredItems = arrivingDefers.flatMap((d) => {
       const recurringItem = recurringItems.find(
@@ -78,6 +80,7 @@ export function calculateMonths(
 
     const totalIncome = monthIncomeItems.reduce((s, i) => s + i.amount, 0);
 
+    // Per recurring item: gebruik actualAmount als er een betaalde settlement is
     const totalNormalRecurring = monthRecurringItems.reduce((s, item) => {
       const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
       const settlement = recurringSettlements.find(

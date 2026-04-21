@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDraggable } from '@dnd-kit/core';
 import type { IncomeItem, MonthKey } from '../../lib/cashflow/types';
 import { formatCurrency, generateId } from '../../lib/cashflow/recurring';
 
@@ -10,6 +11,65 @@ interface IncomeSectionProps {
   onAdd: (item: IncomeItem) => void;
   onToggleReceived: (id: string, received: boolean) => void;
   onRemove: (id: string) => void;
+}
+
+function DraggableIncomeItem({
+  item,
+  onToggleReceived,
+  onRemove,
+}: {
+  item: IncomeItem;
+  onToggleReceived: (id: string, received: boolean) => void;
+  onRemove: (id: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `income-${item.id}`,
+    data: {
+      type: 'income',
+      id: item.id,
+      sourceMonth: item.monthKey,
+      label: item.label,
+      amount: item.amount,
+    },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex items-center gap-2 py-0.5 ${isDragging ? 'opacity-30' : ''}`}
+    >
+      <button
+        {...listeners}
+        {...attributes}
+        className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing text-base leading-none select-none"
+        aria-label="Versleep"
+      >
+        ⠿
+      </button>
+      <input
+        type="checkbox"
+        checked={item.received}
+        onChange={(e) => onToggleReceived(item.id, e.target.checked)}
+        className="h-3.5 w-3.5 rounded border-input accent-primary"
+        title="Ontvangen"
+      />
+      <span
+        className={`flex-1 text-sm truncate ${item.received ? 'line-through text-muted-foreground' : ''}`}
+      >
+        {item.label}
+      </span>
+      <span className="text-sm font-medium text-emerald-600 tabular-nums">
+        {formatCurrency(item.amount)}
+      </span>
+      <button
+        onClick={() => onRemove(item.id)}
+        className="text-muted-foreground hover:text-destructive transition-colors text-xs leading-none"
+        aria-label="Verwijder"
+      >
+        ×
+      </button>
+    </div>
+  );
 }
 
 export function IncomeSection({
@@ -63,28 +123,12 @@ export function IncomeSection({
       </div>
 
       {items.map((item) => (
-        <div key={item.id} className="flex items-center gap-2 py-0.5">
-          <input
-            type="checkbox"
-            checked={item.received}
-            onChange={(e) => onToggleReceived(item.id, e.target.checked)}
-            className="h-3.5 w-3.5 rounded border-input accent-primary"
-            title="Ontvangen"
-          />
-          <span className={`flex-1 text-sm truncate ${item.received ? 'line-through text-muted-foreground' : ''}`}>
-            {item.label}
-          </span>
-          <span className="text-sm font-medium text-emerald-600 tabular-nums">
-            {formatCurrency(item.amount)}
-          </span>
-          <button
-            onClick={() => onRemove(item.id)}
-            className="text-muted-foreground hover:text-destructive transition-colors text-xs leading-none"
-            aria-label="Verwijder"
-          >
-            ×
-          </button>
-        </div>
+        <DraggableIncomeItem
+          key={item.id}
+          item={item}
+          onToggleReceived={onToggleReceived}
+          onRemove={onRemove}
+        />
       ))}
 
       {adding && (

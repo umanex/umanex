@@ -1,5 +1,6 @@
 'use client';
 
+import { useDroppable } from '@dnd-kit/core';
 import type { MonthData } from '../../lib/cashflow/types';
 import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
 import { IncomeSection } from './IncomeSection';
@@ -35,10 +36,20 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     recurringSettlements,
   } = monthData;
 
+  const { setNodeRef, isOver } = useDroppable({
+    id: `month-${monthKey}`,
+    data: { monthKey },
+  });
+
   const balanceColor = endBalance >= 0 ? 'text-emerald-600' : 'text-destructive';
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 space-y-4 w-full max-w-sm flex-shrink-0">
+    <div
+      ref={setNodeRef}
+      className={`rounded-xl border bg-card p-5 space-y-4 w-full max-w-sm flex-shrink-0 transition-colors ${
+        isOver ? 'border-primary ring-2 ring-primary/30' : 'border-border'
+      }`}
+    >
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-base">{getMonthLabel(monthKey)}</h2>
         <span className="text-xs text-muted-foreground tabular-nums">

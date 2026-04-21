@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useHydrated, useMonths, useCashflowActions } from '../hooks/useCashflow';
 import { useCashflowStore } from '../store/cashflow';
 import { MonthCard } from '../components/cashflow/MonthCard';
+import { CashflowDndContext } from '../components/cashflow/CashflowDndContext';
 import { RecurringSidepanel } from '../components/cashflow/RecurringSidepanel';
 import { ReservationSidepanel } from '../components/cashflow/ReservationSidepanel';
 import { ReservationPaymentModal } from '../components/cashflow/ReservationPaymentModal';
-import { formatCurrency } from '../lib/cashflow/recurring';
 import type { MonthKey } from '../lib/cashflow/types';
 
 function StartBalanceInput() {
@@ -23,7 +23,7 @@ function StartBalanceInput() {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">Beginsaldo</span>
+      <span className="text-sm text-muted-foreground">Huidig saldo:</span>
       <input
         type="text"
         inputMode="decimal"
@@ -31,9 +31,8 @@ function StartBalanceInput() {
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
         className="w-32 h-8 px-3 rounded-md border border-input bg-background text-sm tabular-nums text-right focus:outline-none focus:ring-2 focus:ring-ring"
-        aria-label="Beginsaldo"
+        aria-label="Huidig saldo"
       />
-      <span className="text-sm text-muted-foreground">{formatCurrency(startBalance)}</span>
     </div>
   );
 }
@@ -77,15 +76,17 @@ export default function Page() {
       </header>
 
       <section>
-        <div className="flex gap-5 overflow-x-auto pb-4">
-          {months.map((month) => (
-            <MonthCard
-              key={month.monthKey}
-              monthData={month}
-              onRegisterPayment={() => setPaymentMonth(month.monthKey)}
-            />
-          ))}
-        </div>
+        <CashflowDndContext>
+          <div className="flex gap-5 overflow-x-auto pb-4">
+            {months.map((month) => (
+              <MonthCard
+                key={month.monthKey}
+                monthData={month}
+                onRegisterPayment={() => setPaymentMonth(month.monthKey)}
+              />
+            ))}
+          </div>
+        </CashflowDndContext>
       </section>
 
       <RecurringSidepanel open={recurringOpen} onClose={() => setRecurringOpen(false)} />

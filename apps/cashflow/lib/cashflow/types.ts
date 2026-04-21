@@ -75,6 +75,7 @@ export interface MonthData {
   totalBtw: number;
   incomeItems: IncomeItem[];
   recurringItems: RecurringItem[];
+  recurringSettlements: RecurringSettlement[];
   btwPayment: BtwPayment | null;
   reservationPots: ReservationPotBalance[];
   reservationPayments: ReservationPayment[];
@@ -86,7 +87,6 @@ export interface MonthData {
     amount: number;
     fromMonth: MonthKey;
   }>;
-  recurringSettlements: RecurringSettlement[];
 }
 
 export interface CashflowStore {
@@ -94,11 +94,11 @@ export interface CashflowStore {
   anchorMonth: MonthKey;
   incomeItems: IncomeItem[];
   recurringItems: RecurringItem[];
+  recurringSettlements: RecurringSettlement[];
   reservations: ReservationItem[];
   reservationPayments: ReservationPayment[];
   btwPayments: BtwPayment[];
   recurringDefers: RecurringDefer[];
-  recurringSettlements: RecurringSettlement[];
 
   setStartBalance: (balance: number) => void;
   setAnchorMonth: (month: MonthKey) => void;
