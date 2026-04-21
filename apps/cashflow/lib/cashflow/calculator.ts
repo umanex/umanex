@@ -144,7 +144,15 @@ export function calculateMonths(
 
     const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
 
-    const availableBudget = runningBalance + totalIncome;
+    const paidRecurringAmount = monthRecurringItems.reduce((s, item) => {
+      const settlement = recurringSettlements.find(
+        (st) => st.recurringId === item.id && st.monthKey === monthKey,
+      );
+      if (!settlement?.paid) return s;
+      return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
+    }, 0);
+
+    const availableBudget = runningBalance + totalIncome - paidRecurringAmount;
 
     // Berekening 1: openstaande kosten (display tile) — enkel onbetaalde recurring
     const totalOpenRecurring = monthRecurringItems.reduce((s, item) => {
