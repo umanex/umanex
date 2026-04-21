@@ -8,6 +8,7 @@ import { RecurringSection } from './RecurringSection';
 import { ReservationSection } from './ReservationSection';
 import { BtwSection } from './BtwSection';
 import { useCashflowActions } from '../../hooks/useCashflow';
+import { useReservationActions } from '../../hooks/useCashflow';
 
 interface MonthCardProps {
   monthData: MonthData;
@@ -23,6 +24,8 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     removeRecurringDefer,
     upsertRecurringSettlement,
   } = useCashflowActions();
+
+  const { removeReservationPayment } = useReservationActions();
 
   const {
     monthKey,
@@ -93,7 +96,11 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         }
       />
 
-      <ReservationSection pots={reservationPots} onRegisterPayment={onRegisterPayment} />
+      <ReservationSection
+        pots={reservationPots}
+        onRegisterPayment={onRegisterPayment}
+        onRemovePayment={removeReservationPayment}
+      />
 
       <BtwSection
         monthKey={monthKey}
