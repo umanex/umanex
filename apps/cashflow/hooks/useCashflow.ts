@@ -15,8 +15,6 @@ export function useHydrated(): boolean {
 
     const finish = () => setHydrated(true);
 
-    // Timeout fallback: altijd hydrateren na max 800ms
-    // zodat de pagina nooit permanent vast staat.
     const timeout = setTimeout(finish, 800);
 
     try {
@@ -24,7 +22,6 @@ export function useHydrated(): boolean {
       if (result instanceof Promise) {
         result.then(finish).catch(finish).finally(() => clearTimeout(timeout));
       } else {
-        // Synchrone rehydratie — meteen klaar
         clearTimeout(timeout);
         finish();
       }
