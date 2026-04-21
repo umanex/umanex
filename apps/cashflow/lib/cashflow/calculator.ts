@@ -146,8 +146,8 @@ export function calculateMonths(
 
     const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
 
-    // Beschikbaar budget = startsaldo + inkomsten
-    const availableBudget = runningBalance + totalIncome;
+    // Beschikbaar budget = startsaldo + inkomsten - reeds betaalde kosten
+    const availableBudget = runningBalance + totalIncome - paidRecurringAmount;
 
     // Totale kosten = onbetaalde posten (wat nog betaald moet worden)
     // Eindsaldo trekt ook al betaalde recurring af zodat de cashflow correct blijft
