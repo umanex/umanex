@@ -40,7 +40,7 @@ function ItemEditRow({ item, onUpdate, onRemove }: ItemEditRowProps) {
           ✕
         </button>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <input
           type="number"
           value={item.amount === 0 ? '' : item.amount}
@@ -63,6 +63,17 @@ function ItemEditRow({ item, onUpdate, onRemove }: ItemEditRowProps) {
         {monthlyHint && (
           <span className="text-xs text-muted-foreground shrink-0">{monthlyHint}</span>
         )}
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-0.5">
+          <label className="text-xs text-muted-foreground">Vanaf</label>
+          <input
+            type="month"
+            value={item.startMonth}
+            onChange={(e) => onUpdate({ startMonth: e.target.value })}
+            className="h-8 px-2 rounded border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
       </div>
     </div>
   );

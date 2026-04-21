@@ -37,7 +37,7 @@ export default function Page() {
 
       <section>
         <CashflowDndContext>
-          <div className="flex gap-5 overflow-x-auto pb-4">
+          <div className="grid grid-cols-3 gap-5">
             {months.map((month, index) => (
               <MonthCard
                 key={month.monthKey}

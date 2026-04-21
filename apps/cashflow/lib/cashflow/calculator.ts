@@ -155,7 +155,6 @@ export function calculateMonths(
     const paidThisMonth =
       paidRecurringAmount +
       deferredRecurringAmount +
-      totalReservationDeductions +
       totalReservationCashPayments +
       paidExpenses;
 
@@ -171,7 +170,7 @@ export function calculateMonths(
       return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
     }, 0);
 
-    const totalOutstandingCosts = unpaidRecurringAmount + unpaidExpenses;
+    const totalOutstandingCosts = unpaidRecurringAmount + unpaidExpenses + totalReservationDeductions;
 
     // Invariant: endBalance = (startBalance + income - betaald) - onbetaald
     //                       = startBalance + income - alle kosten

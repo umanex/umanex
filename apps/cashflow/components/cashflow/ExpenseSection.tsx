@@ -72,9 +72,7 @@ function DraggableExpenseItem({
         onChange={(e) => setLocalAmount(e.target.value)}
         onBlur={handleAmountBlur}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring ${
-          item.paid ? 'text-emerald-600' : 'text-destructive'
-        }`}
+        className="w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
         aria-label="Bedrag"
       />
       <button
