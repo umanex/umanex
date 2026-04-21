@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import type { RecurringItem, RecurringSettlement, MonthKey } from '../../lib/cashflow/types';
 import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
@@ -35,14 +35,8 @@ function DraggableRecurringItem({
 }) {
   const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
   const isPaid = settlement?.paid ?? false;
-
-  const [localAmount, setLocalAmount] = useState(
-    String(settlement?.actualAmount ?? budgeted),
-  );
-
-  useEffect(() => {
-    setLocalAmount(String(settlement?.actualAmount ?? budgeted));
-  }, [settlement?.actualAmount, settlement?.paid]);
+  const actualAmount = settlement?.actualAmount ?? budgeted;
+  const [localAmount, setLocalAmount] = useState(String(actualAmount));
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `recurring-${item.id}-${monthKey}`,
@@ -62,16 +56,13 @@ function DraggableRecurringItem({
   }
 
   function handleAmountBlur() {
-    if (!isPaid) return;
     const amt = parseFloat(localAmount.replace(',', '.'));
     const effective = isNaN(amt) || amt < 0 ? budgeted : amt;
     setLocalAmount(String(effective));
-    onSettle(item.id, true, effective);
+    if (isPaid) onSettle(item.id, true, effective);
   }
 
-  const hasDeviation =
-    isPaid &&
-    Math.abs((settlement?.actualAmount ?? budgeted) - budgeted) > 0.01;
+  const hasDeviation = isPaid && Math.abs(actualAmount - budgeted) > 0.01;
 
   return (
     <div
@@ -96,37 +87,30 @@ function DraggableRecurringItem({
         aria-label={`${item.label} betaald`}
       />
 
-      <span className="flex-1 text-sm truncate">{item.label}</span>
+      <span className="flex-1 text-sm truncate">
+        {item.label}
+      </span>
 
       {item.frequency === 'yearly' && (
         <span className="text-xs text-muted-foreground">(jaarlijks)</span>
       )}
 
-      {isPaid ? (
-        <div className="flex items-center gap-1">
-          <input
-            type="text"
-            inputMode="decimal"
-            value={localAmount}
-            onChange={(e) => setLocalAmount(e.target.value)}
-            onBlur={handleAmountBlur}
-            className="w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring text-emerald-600"
-            aria-label="Werkelijk betaald bedrag"
-          />
-          {hasDeviation && (
-            <span
-              className="text-xs text-amber-500 tabular-nums"
-              title={`Begroot: ${formatCurrency(budgeted)}`}
-            >
-              ({formatCurrency(budgeted)})
-            </span>
-          )}
-        </div>
-      ) : (
-        <span className="text-sm font-medium text-destructive tabular-nums">
-          {formatCurrency(budgeted)}
-        </span>
-      )}
+      <div className="flex items-center gap-1">
+        <input
+          type="text"
+          inputMode="decimal"
+          value={localAmount}
+          onChange={(e) => setLocalAmount(e.target.value)}
+          onBlur={handleAmountBlur}
+          className="w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+          aria-label="Werkelijk bedrag"
+        />
+        {hasDeviation && (
+          <span className="text-xs text-amber-500 tabular-nums" title={`Begroot: ${formatCurrency(budgeted)}`}>
+            ({formatCurrency(budgeted)})
+          </span>
+        )}
+      </div>
     </div>
   );
 }
