@@ -15,10 +15,8 @@ import type {
   MonthKey,
 } from '../lib/cashflow/types';
 
-// Verhoog deze versie telkens als de store-structuur uitbreidt.
-// De migrate-functie zorgt dat bestaande data bewaard blijft
-// en nieuwe velden automatisch hun default waarde krijgen.
-const STORE_VERSION = 1;
+// Verhoog bij elke schema-uitbreiding + voeg het nieuwe veld toe in migrate.
+const STORE_VERSION = 2;
 
 export const useCashflowStore = create<CashflowStore>()(
   persist(
@@ -173,15 +171,14 @@ export const useCashflowStore = create<CashflowStore>()(
     {
       name: 'cashflow-store-v2',
       version: STORE_VERSION,
-      // Migrate zorgt dat bestaande localStorage-data bewaard blijft
-      // en ontbrekende velden hun default waarde krijgen.
-      // Verhoog STORE_VERSION en voeg hier nieuwe velden toe als de
-      // store-structuur uitbreidt — NOOIT de store-naam wijzigen.
       migrate: (persisted: unknown) => {
         const s = (persisted ?? {}) as Record<string, unknown>;
         return {
           ...s,
-          // Data-velden: altijd als array bewaard, nooit undefined
+          // Alle array-velden expliciet vermeld met fallback naar []
+          // zodat ontbrekende velden (door schema-uitbreidingen) nooit
+          // undefined zijn en de calculator niet laten crashen.
+          expenseItems: Array.isArray(s.expenseItems) ? s.expenseItems : [],
           incomeItems: Array.isArray(s.incomeItems) ? s.incomeItems : [],
           recurringItems: Array.isArray(s.recurringItems) ? s.recurringItems : [],
           reservations: Array.isArray(s.reservations) ? s.reservations : [],
@@ -189,9 +186,12 @@ export const useCashflowStore = create<CashflowStore>()(
           btwPayments: Array.isArray(s.btwPayments) ? s.btwPayments : [],
           recurringDefers: Array.isArray(s.recurringDefers) ? s.recurringDefers : [],
           recurringSettlements: Array.isArray(s.recurringSettlements) ? s.recurringSettlements : [],
+          reservationDefers: Array.isArray(s.reservationDefers) ? s.reservationDefers : [],
           // Scalars
           startBalance: typeof s.startBalance === 'number' ? s.startBalance : 0,
-          anchorMonth: typeof s.anchorMonth === 'string' ? s.anchorMonth : format(new Date(), 'yyyy-MM'),
+          anchorMonth: typeof s.anchorMonth === 'string'
+            ? s.anchorMonth
+            : format(new Date(), 'yyyy-MM'),
         };
       },
       storage: createJSONStorage(() => localStorage),
