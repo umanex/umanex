@@ -15,6 +15,7 @@ interface ReservationPaymentModalProps {
 export function ReservationPaymentModal({ monthKey, onClose }: ReservationPaymentModalProps) {
   const reservations = useCashflowStore((s) => s.reservations);
   const reservationPayments = useCashflowStore((s) => s.reservationPayments);
+  const reservationSettlements = useCashflowStore((s) => s.reservationSettlements);
   const { addReservationPayment } = useReservationActions();
 
   const activeReservations = reservations.filter((r) => r.startMonth <= monthKey);
@@ -28,7 +29,7 @@ export function ReservationPaymentModal({ monthKey, onClose }: ReservationPaymen
 
   const selectedReservation = reservations.find((r) => r.id === reservationId);
   const availableSaldo = selectedReservation
-    ? calcPotBalance(selectedReservation, reservationPayments, monthKey)
+    ? calcPotBalance(selectedReservation, reservationPayments, reservationSettlements, monthKey)
     : 0;
 
   function syncFromReservation(value: string) {
@@ -123,7 +124,7 @@ export function ReservationPaymentModal({ monthKey, onClose }: ReservationPaymen
                 {activeReservations.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.label || 'Naamloos'} — beschikbaar {formatCurrency(
-                      calcPotBalance(r, reservationPayments, monthKey),
+                      calcPotBalance(r, reservationPayments, reservationSettlements, monthKey),
                     )}
                   </option>
                 ))}

@@ -11,12 +11,13 @@ import type {
   RecurringSettlement,
   ReservationItem,
   ReservationPayment,
+  ReservationSettlement,
   ReservationDefer,
   MonthKey,
 } from '../lib/cashflow/types';
 
 // Verhoog bij elke schema-uitbreiding + voeg het nieuwe veld toe in migrate.
-const STORE_VERSION = 3;
+const STORE_VERSION = 4;
 
 export const useCashflowStore = create<CashflowStore>()(
   persist(
@@ -30,6 +31,7 @@ export const useCashflowStore = create<CashflowStore>()(
       reservationPayments: [] as ReservationPayment[],
       recurringDefers: [] as RecurringDefer[],
       recurringSettlements: [] as RecurringSettlement[],
+      reservationSettlements: [] as ReservationSettlement[],
       reservationDefers: [] as ReservationDefer[],
 
       setStartBalance: (balance) =>
@@ -98,6 +100,9 @@ export const useCashflowStore = create<CashflowStore>()(
           state.reservationDefers = state.reservationDefers.filter(
             (d) => d.reservationId !== id,
           );
+          state.reservationSettlements = state.reservationSettlements.filter(
+            (s) => s.reservationId !== id,
+          );
         }),
 
       addReservationPayment: (payment) =>
@@ -112,6 +117,30 @@ export const useCashflowStore = create<CashflowStore>()(
       removeReservationPayment: (id) =>
         set((state) => {
           state.reservationPayments = state.reservationPayments.filter((p) => p.id !== id);
+        }),
+
+      upsertReservationSettlement: (reservationId, monthKey, effectiveAmount) =>
+        set((state) => {
+          const existing = state.reservationSettlements.find(
+            (s) => s.reservationId === reservationId && s.monthKey === monthKey,
+          );
+          if (existing) {
+            existing.effectiveAmount = effectiveAmount;
+          } else {
+            state.reservationSettlements.push({
+              id: crypto.randomUUID(),
+              reservationId,
+              monthKey,
+              effectiveAmount,
+            });
+          }
+        }),
+
+      removeReservationSettlement: (reservationId, monthKey) =>
+        set((state) => {
+          state.reservationSettlements = state.reservationSettlements.filter(
+            (s) => !(s.reservationId === reservationId && s.monthKey === monthKey),
+          );
         }),
 
       addRecurringDefer: (defer) =>
@@ -157,7 +186,7 @@ export const useCashflowStore = create<CashflowStore>()(
         }),
     })),
     {
-      name: 'cashflow-store-v3',
+      name: 'cashflow-store-v4',
       version: STORE_VERSION,
       migrate: (persisted: unknown) => {
         const s = (persisted ?? {}) as Record<string, unknown>;
@@ -173,6 +202,7 @@ export const useCashflowStore = create<CashflowStore>()(
           reservationPayments: Array.isArray(s.reservationPayments) ? s.reservationPayments : [],
           recurringDefers: Array.isArray(s.recurringDefers) ? s.recurringDefers : [],
           recurringSettlements: Array.isArray(s.recurringSettlements) ? s.recurringSettlements : [],
+          reservationSettlements: Array.isArray(s.reservationSettlements) ? s.reservationSettlements : [],
           reservationDefers: Array.isArray(s.reservationDefers) ? s.reservationDefers : [],
           // Scalars
           startBalance: 0,

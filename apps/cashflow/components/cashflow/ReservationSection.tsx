@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import type { ReservationPotBalance, ReservationPayment, MonthKey } from '../../lib/cashflow/types';
 import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
@@ -20,6 +21,8 @@ interface ReservationSectionProps {
   onRemovePayment: (id: string) => void;
   onMovePayment: (id: string, newMonthKey: MonthKey) => void;
   onRemoveReservationDefer: (deferId: string) => void;
+  onSettleReservation: (reservationId: string, effectiveAmount: number) => void;
+  onRemoveReservationSettlement: (reservationId: string) => void;
 }
 
 function nextMonthKey(monthKey: MonthKey): MonthKey {
@@ -93,12 +96,22 @@ function DraggablePotRow({
   monthKey,
   onRemovePayment,
   onMovePayment,
+  onSettle,
+  onRemoveSettlement,
 }: {
   pot: ReservationPotBalance;
   monthKey: MonthKey;
   onRemovePayment: (id: string) => void;
   onMovePayment: (id: string, newMonthKey: MonthKey) => void;
+  onSettle: (reservationId: string, effectiveAmount: number) => void;
+  onRemoveSettlement: (reservationId: string) => void;
 }) {
+  const [localAmount, setLocalAmount] = useState(String(pot.effectiveAmount));
+
+  useEffect(() => {
+    setLocalAmount(String(pot.effectiveAmount));
+  }, [pot.effectiveAmount]);
+
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `reservation-pot-${pot.reservationId}-${monthKey}`,
     data: {
@@ -110,9 +123,23 @@ function DraggablePotRow({
     },
   });
 
+  function handleAmountBlur() {
+    const amt = parseFloat(localAmount.replace(',', '.'));
+    if (isNaN(amt) || amt < 0) {
+      setLocalAmount(String(pot.monthlyAmount));
+      onRemoveSettlement(pot.reservationId);
+      return;
+    }
+    if (Math.abs(amt - pot.monthlyAmount) < 0.01) {
+      onRemoveSettlement(pot.reservationId);
+    } else {
+      onSettle(pot.reservationId, amt);
+    }
+  }
+
   return (
     <div ref={setNodeRef} className={`space-y-1 ${isDragging ? 'opacity-30' : ''}`}>
-      {/* Rij 1: label + maandelijkse storting */}
+      {/* Rij 1: label + effectief stortingsbedrag */}
       <div className="flex items-center gap-2">
         <button
           {...listeners}
@@ -123,9 +150,24 @@ function DraggablePotRow({
           ⠿
         </button>
         <span className="flex-1 text-sm font-medium truncate">{pot.label}</span>
-        <span className="text-sm font-medium text-amber-600 tabular-nums flex-shrink-0">
-          -{formatCurrency(pot.monthlyAmount)}/m
-        </span>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={localAmount}
+          onChange={(e) => setLocalAmount(e.target.value)}
+          onBlur={handleAmountBlur}
+          onPointerDown={(e) => e.stopPropagation()}
+          className={`w-20 h-6 px-1.5 text-xs text-right tabular-nums rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring ${
+            pot.hasSettlement ? 'text-amber-600 font-medium' : 'text-amber-600'
+          }`}
+          aria-label="Stortingsbedrag"
+        />
+        <span className="text-xs text-muted-foreground flex-shrink-0">/m</span>
+        {pot.hasSettlement && (
+          <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0" title="Begroot bedrag">
+            ({formatCurrency(pot.monthlyAmount)})
+          </span>
+        )}
       </div>
 
       {/* Rij 2: provisie saldo */}
@@ -186,6 +228,8 @@ export function ReservationSection({
   onRemovePayment,
   onMovePayment,
   onRemoveReservationDefer,
+  onSettleReservation,
+  onRemoveReservationSettlement,
 }: ReservationSectionProps) {
   if (pots.length === 0 && deferredReservationItems.length === 0) return null;
 
@@ -210,6 +254,8 @@ export function ReservationSection({
           monthKey={monthKey}
           onRemovePayment={onRemovePayment}
           onMovePayment={onMovePayment}
+          onSettle={onSettleReservation}
+          onRemoveSettlement={onRemoveReservationSettlement}
         />
       ))}
 

@@ -26,6 +26,8 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
     updateExpenseItem,
     removeExpenseItem,
     removeReservationDefer,
+    upsertReservationSettlement,
+    removeReservationSettlement,
   } = useCashflowActions();
 
   const { removeReservationPayment, updateReservationPayment } = useReservationActions();
@@ -115,6 +117,12 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
         onRemovePayment={removeReservationPayment}
         onMovePayment={(id, newMonthKey) => updateReservationPayment(id, { monthKey: newMonthKey })}
         onRemoveReservationDefer={removeReservationDefer}
+        onSettleReservation={(reservationId, effectiveAmount) =>
+          upsertReservationSettlement(reservationId, monthKey, effectiveAmount)
+        }
+        onRemoveReservationSettlement={(reservationId) =>
+          removeReservationSettlement(reservationId, monthKey)
+        }
       />
 
       <div className="pt-2 border-t border-border flex items-center justify-between">

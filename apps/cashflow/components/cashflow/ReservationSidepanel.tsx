@@ -4,7 +4,7 @@ import { useCashflowStore } from '../../store/cashflow';
 import { useReservationActions } from '../../hooks/useCashflow';
 import { generateId, getCurrentMonthKey, formatCurrency } from '../../lib/cashflow/recurring';
 import { calcPotBalance } from '../../lib/cashflow/calculator';
-import type { ReservationItem, ReservationPayment } from '../../lib/cashflow/types';
+import type { ReservationItem, ReservationPayment, ReservationSettlement } from '../../lib/cashflow/types';
 
 interface ReservationSidepanelProps {
   open: boolean;
@@ -14,6 +14,7 @@ interface ReservationSidepanelProps {
 interface ReservationRowProps {
   reservation: ReservationItem;
   payments: ReservationPayment[];
+  settlements: ReservationSettlement[];
   onUpdate: (patch: Partial<ReservationItem>) => void;
   onRemove: () => void;
   onRemovePayment: (id: string) => void;
@@ -22,11 +23,12 @@ interface ReservationRowProps {
 function ReservationRow({
   reservation,
   payments,
+  settlements,
   onUpdate,
   onRemove,
   onRemovePayment,
 }: ReservationRowProps) {
-  const currentBalance = calcPotBalance(reservation, payments, getCurrentMonthKey());
+  const currentBalance = calcPotBalance(reservation, payments, settlements, getCurrentMonthKey());
   const ownPayments = [...payments.filter((p) => p.reservationId === reservation.id)].sort(
     (a, b) => a.monthKey.localeCompare(b.monthKey),
   );
@@ -91,6 +93,7 @@ function ReservationRow({
             const balanceAfter = calcPotBalance(
               reservation,
               ownPayments.slice(0, idx + 1),
+              settlements,
               payment.monthKey,
             );
             return (
@@ -177,6 +180,7 @@ function ReservationRow({
 export function ReservationSidepanel({ open, onClose }: ReservationSidepanelProps) {
   const reservations = useCashflowStore((s) => s.reservations);
   const reservationPayments = useCashflowStore((s) => s.reservationPayments);
+  const reservationSettlements = useCashflowStore((s) => s.reservationSettlements);
   const {
     addReservation,
     updateReservation,
@@ -229,6 +233,7 @@ export function ReservationSidepanel({ open, onClose }: ReservationSidepanelProp
               key={reservation.id}
               reservation={reservation}
               payments={reservationPayments}
+              settlements={reservationSettlements}
               onUpdate={(patch) => updateReservation(reservation.id, patch)}
               onRemove={() => removeReservation(reservation.id)}
               onRemovePayment={removeReservationPayment}
