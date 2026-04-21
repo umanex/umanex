@@ -149,7 +149,8 @@ export function calculateMonths(
         (st) => st.recurringId === item.id && st.monthKey === monthKey,
       );
       if (!settlement?.paid) return s;
-      return s + settlement.actualAmount;
+      const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
+      return s + budgeted;
     }, 0);
 
     const availableBudget = runningBalance + totalIncome - paidRecurringAmount;
