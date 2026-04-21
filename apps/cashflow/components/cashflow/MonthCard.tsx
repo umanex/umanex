@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import type { MonthData } from '../../lib/cashflow/types';
 import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
@@ -13,9 +14,10 @@ import { useCashflowActions, useReservationActions } from '../../hooks/useCashfl
 interface MonthCardProps {
   monthData: MonthData;
   onRegisterPayment: () => void;
+  isFirst?: boolean;
 }
 
-export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
+export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardProps) {
   const {
     addIncomeItem,
     updateIncomeItem,
@@ -27,6 +29,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     updateExpenseItem,
     removeExpenseItem,
     removeReservationDefer,
+    setStartBalance,
   } = useCashflowActions();
 
   const { removeReservationPayment, updateReservationPayment } = useReservationActions();
@@ -52,6 +55,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     data: { monthKey },
   });
 
+  const [balanceInputValue, setBalanceInputValue] = useState(String(startBalance));
   const balanceColor = endBalance >= 0 ? 'text-emerald-600' : 'text-destructive';
 
   return (
@@ -63,9 +67,28 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     >
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-base">{getMonthLabel(monthKey)}</h2>
-        <span className="text-xs text-muted-foreground tabular-nums">
-          start {formatCurrency(startBalance)}
-        </span>
+        {isFirst ? (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">start</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={balanceInputValue}
+              onChange={(e) => setBalanceInputValue(e.target.value)}
+              onBlur={() => {
+                const parsed = parseFloat(balanceInputValue.replace(',', '.'));
+                if (!isNaN(parsed)) setStartBalance(parsed);
+                else setBalanceInputValue(String(startBalance));
+              }}
+              className="w-28 h-6 px-2 rounded border border-input bg-background text-xs tabular-nums text-right focus:outline-none focus:ring-1 focus:ring-ring"
+              aria-label="Beginsaldo"
+            />
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground tabular-nums">
+            start {formatCurrency(startBalance)}
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
