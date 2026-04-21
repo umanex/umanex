@@ -23,6 +23,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     upsertBtwPayment,
     removeRecurringDefer,
     upsertRecurringSettlement,
+    removeReservationDefer,
   } = useCashflowActions();
 
   const { removeReservationPayment } = useReservationActions();
@@ -36,6 +37,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     incomeItems,
     recurringItems,
     reservationPots,
+    deferredReservationItems,
     btwPayment,
     deferredItems,
     recurringSettlements,
@@ -97,9 +99,12 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
       />
 
       <ReservationSection
+        monthKey={monthKey}
         pots={reservationPots}
+        deferredReservationItems={deferredReservationItems}
         onRegisterPayment={onRegisterPayment}
         onRemovePayment={removeReservationPayment}
+        onRemoveReservationDefer={removeReservationDefer}
       />
 
       <BtwSection

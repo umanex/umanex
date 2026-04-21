@@ -9,6 +9,7 @@ import type {
   ReservationItem,
   ReservationPayment,
   ReservationPotBalance,
+  ReservationDefer,
 } from './types';
 import { addMonths, format, parseISO, differenceInMonths } from 'date-fns';
 
@@ -45,6 +46,7 @@ export function calculateMonths(
   btwPayments: BtwPayment[],
   recurringDefers: RecurringDefer[],
   recurringSettlements: RecurringSettlement[],
+  reservationDefers: ReservationDefer[],
   count = 3,
 ): MonthData[] {
   const months = getMonthsInRange(anchorMonth, count);
@@ -83,8 +85,34 @@ export function calculateMonths(
     const totalRecurring = totalNormalRecurring + deferredRecurringAmount;
 
     const activeReservations = reservations.filter((r) => r.startMonth <= monthKey);
-    for (const res of activeReservations) {
+
+    const departingReservationDeferIds = new Set(
+      reservationDefers.filter((d) => d.fromMonth === monthKey).map((d) => d.reservationId),
+    );
+    const billableReservations = activeReservations.filter(
+      (r) => !departingReservationDeferIds.has(r.id),
+    );
+
+    const arrivingReservationDefers = reservationDefers.filter((d) => d.toMonth === monthKey);
+    const deferredReservationItems = arrivingReservationDefers.flatMap((d) => {
+      const res = reservations.find((r) => r.id === d.reservationId);
+      if (!res) return [];
+      return [{
+        deferId: d.id,
+        reservationId: d.reservationId,
+        label: res.label,
+        amount: res.monthlyAmount,
+        fromMonth: d.fromMonth,
+      }];
+    });
+    const deferredReservationAmount = deferredReservationItems.reduce((s, d) => s + d.amount, 0);
+
+    for (const res of billableReservations) {
       potBalanceMap.set(res.id, (potBalanceMap.get(res.id) ?? 0) + res.monthlyAmount);
+    }
+    for (const d of arrivingReservationDefers) {
+      const res = reservations.find((r) => r.id === d.reservationId);
+      if (res) potBalanceMap.set(res.id, (potBalanceMap.get(res.id) ?? 0) + res.monthlyAmount);
     }
 
     const monthReservationPayments = reservationPayments.filter((p) => p.monthKey === monthKey);
@@ -95,12 +123,13 @@ export function calculateMonths(
       );
     }
 
-    const totalReservationDeductions = activeReservations.reduce((s, r) => s + r.monthlyAmount, 0);
+    const totalReservationDeductions =
+      billableReservations.reduce((s, r) => s + r.monthlyAmount, 0) + deferredReservationAmount;
     const totalReservationCashPayments = monthReservationPayments.reduce((s, p) => s + p.fromCash, 0);
     const btwPayment = btwPayments.find((p) => p.monthKey === monthKey && !p.paid) ?? null;
     const totalBtw = btwPayment?.amount ?? 0;
 
-    const reservationPots: ReservationPotBalance[] = activeReservations.map((r) => ({
+    const reservationPots: ReservationPotBalance[] = billableReservations.map((r) => ({
       reservationId: r.id,
       label: r.label,
       monthlyAmount: r.monthlyAmount,
@@ -141,6 +170,8 @@ export function calculateMonths(
       reservationPayments: monthReservationPayments,
       deferredRecurringAmount,
       deferredItems,
+      deferredReservationAmount,
+      deferredReservationItems,
       recurringSettlements: monthSettlements,
     });
 

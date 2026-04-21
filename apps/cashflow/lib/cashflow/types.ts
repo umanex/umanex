@@ -24,6 +24,13 @@ export interface RecurringDefer {
   toMonth: MonthKey;
 }
 
+export interface ReservationDefer {
+  id: string;
+  reservationId: string;
+  fromMonth: MonthKey;
+  toMonth: MonthKey;
+}
+
 export interface RecurringSettlement {
   id: string;
   recurringId: string;
@@ -89,6 +96,14 @@ export interface MonthData {
     amount: number;
     fromMonth: MonthKey;
   }>;
+  deferredReservationAmount: number;
+  deferredReservationItems: Array<{
+    deferId: string;
+    reservationId: string;
+    label: string;
+    amount: number;
+    fromMonth: MonthKey;
+  }>;
 }
 
 export interface CashflowStore {
@@ -101,6 +116,7 @@ export interface CashflowStore {
   reservationPayments: ReservationPayment[];
   btwPayments: BtwPayment[];
   recurringDefers: RecurringDefer[];
+  reservationDefers: ReservationDefer[];
 
   setStartBalance: (balance: number) => void;
   setAnchorMonth: (month: MonthKey) => void;
@@ -125,6 +141,9 @@ export interface CashflowStore {
 
   addRecurringDefer: (defer: RecurringDefer) => void;
   removeRecurringDefer: (id: string) => void;
+
+  addReservationDefer: (defer: ReservationDefer) => void;
+  removeReservationDefer: (id: string) => void;
 
   upsertRecurringSettlement: (
     recurringId: string,
