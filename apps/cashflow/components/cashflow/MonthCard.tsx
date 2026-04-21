@@ -7,6 +7,7 @@ import { IncomeSection } from './IncomeSection';
 import { RecurringSection } from './RecurringSection';
 import { ReservationSection } from './ReservationSection';
 import { BtwSection } from './BtwSection';
+import { ExpenseSection } from './ExpenseSection';
 import { useCashflowActions } from '../../hooks/useCashflow';
 
 interface MonthCardProps {
@@ -22,6 +23,9 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     upsertBtwPayment,
     removeRecurringDefer,
     upsertRecurringSettlement,
+    addExpenseItem,
+    updateExpenseItem,
+    removeExpenseItem,
   } = useCashflowActions();
 
   const {
@@ -36,6 +40,7 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
     btwPayment,
     deferredItems,
     recurringSettlements,
+    expenseItems,
   } = monthData;
 
   const { setNodeRef, isOver } = useDroppable({
@@ -91,6 +96,14 @@ export function MonthCard({ monthData, onRegisterPayment }: MonthCardProps) {
         onSettle={(recurringId, paid, actualAmount) =>
           upsertRecurringSettlement(recurringId, monthKey, paid, actualAmount)
         }
+      />
+
+      <ExpenseSection
+        monthKey={monthKey}
+        items={expenseItems}
+        onAdd={addExpenseItem}
+        onUpdate={(id, patch) => updateExpenseItem(id, patch)}
+        onRemove={removeExpenseItem}
       />
 
       <ReservationSection pots={reservationPots} onRegisterPayment={onRegisterPayment} />
