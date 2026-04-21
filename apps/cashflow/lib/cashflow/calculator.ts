@@ -163,14 +163,7 @@ export function calculateMonths(
       totalBtw +
       totalExpenses;
 
-    // Berekening 2: eindsaldo — beschikbaar minus alle kosten (ook betaalde)
-    const endBalance =
-      availableBudget -
-      totalRecurring -
-      totalReservationDeductions -
-      totalReservationCashPayments -
-      totalBtw -
-      totalExpenses;
+    const endBalance = availableBudget - totalOutstandingCosts;
 
     result.push({
       monthKey,
