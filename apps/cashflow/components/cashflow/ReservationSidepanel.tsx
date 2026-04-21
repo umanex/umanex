@@ -130,6 +130,46 @@ function ReservationRow({
           })}
         </div>
       )}
+
+      {/* Samenvatting provisie */}
+      {(() => {
+        const totalPaidFromReservation = ownPayments.reduce((s, p) => s + p.fromReservation, 0);
+        const totalPaidFromCash = ownPayments.reduce((s, p) => s + p.fromCash, 0);
+        const totalReserved = currentBalance + totalPaidFromReservation;
+        return (
+          <div className="mt-1 pt-2 border-t border-border/50 space-y-0.5 text-xs">
+            <div className="flex justify-between text-muted-foreground">
+              <span>Totaal gereserveerd</span>
+              <span className="tabular-nums">{formatCurrency(totalReserved)}</span>
+            </div>
+            {totalPaidFromReservation > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <span>Totaal betaald uit pot</span>
+                <span className="tabular-nums text-destructive">
+                  -{formatCurrency(totalPaidFromReservation)}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between font-medium">
+              <span>Resterend provisie</span>
+              <span
+                className={`tabular-nums ${currentBalance < 0 ? 'text-destructive' : 'text-emerald-600'}`}
+              >
+                {formatCurrency(currentBalance)}
+                {currentBalance < 0 && ' ⚠'}
+              </span>
+            </div>
+            {totalPaidFromCash > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <span>Extra betaald uit cash</span>
+                <span className="tabular-nums text-destructive">
+                  -{formatCurrency(totalPaidFromCash)}
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
