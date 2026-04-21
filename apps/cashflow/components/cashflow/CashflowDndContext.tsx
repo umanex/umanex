@@ -15,10 +15,10 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useCashflowStore } from '../../store/cashflow';
 import { formatCurrency } from '../../lib/cashflow/recurring';
-import type { MonthKey, RecurringDefer } from '../../lib/cashflow/types';
+import type { MonthKey, RecurringDefer, ReservationDefer } from '../../lib/cashflow/types';
 
 interface ActiveItem {
-  type: 'income' | 'recurring' | 'reservation-payment';
+  type: 'income' | 'recurring' | 'reservation-payment' | 'reservation-pot';
   id: string;
   label: string;
   amount: number;
@@ -35,6 +35,7 @@ export function CashflowDndContext({ children }: CashflowDndContextProps) {
   const updateIncomeItem = useCashflowStore((s) => s.updateIncomeItem);
   const updateReservationPayment = useCashflowStore((s) => s.updateReservationPayment);
   const addRecurringDefer = useCashflowStore((s) => s.addRecurringDefer);
+  const addReservationDefer = useCashflowStore((s) => s.addReservationDefer);
   const recurringItems = useCashflowStore((s) => s.recurringItems);
 
   const sensors = useSensors(
@@ -61,6 +62,14 @@ export function CashflowDndContext({ children }: CashflowDndContextProps) {
       updateIncomeItem(data.id, { monthKey: targetMonthKey });
     } else if (data.type === 'reservation-payment') {
       updateReservationPayment(data.id, { monthKey: targetMonthKey });
+    } else if (data.type === 'reservation-pot') {
+      const defer: ReservationDefer = {
+        id: crypto.randomUUID(),
+        reservationId: data.id,
+        fromMonth: data.sourceMonth,
+        toMonth: targetMonthKey,
+      };
+      addReservationDefer(defer);
     } else if (data.type === 'recurring') {
       const recurringItem = recurringItems.find((i) => i.id === data.id);
       if (!recurringItem) return;
@@ -90,7 +99,10 @@ export function CashflowDndContext({ children }: CashflowDndContextProps) {
         {activeItem && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background border border-border shadow-lg text-sm font-medium opacity-90">
             <span className="truncate max-w-[140px]">{activeItem.label}</span>
-            <span className="tabular-nums">{formatCurrency(activeItem.amount)}</span>
+            <span className="tabular-nums">
+              {formatCurrency(activeItem.amount)}
+              {activeItem.type === 'reservation-pot' ? '/m' : ''}
+            </span>
           </div>
         )}
       </DragOverlay>

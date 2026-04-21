@@ -11,6 +11,7 @@ import type {
   RecurringSettlement,
   ReservationItem,
   ReservationPayment,
+  ReservationDefer,
   MonthKey,
 } from '../lib/cashflow/types';
 
@@ -32,6 +33,7 @@ export const useCashflowStore = create<CashflowStore>()(
       btwPayments: [],
       recurringDefers: [] as RecurringDefer[],
       recurringSettlements: [] as RecurringSettlement[],
+      reservationDefers: [] as ReservationDefer[],
 
       setStartBalance: (balance) =>
         set((state) => { state.startBalance = balance; }),
@@ -96,6 +98,9 @@ export const useCashflowStore = create<CashflowStore>()(
           state.reservationPayments = state.reservationPayments.filter(
             (p) => p.reservationId !== id,
           );
+          state.reservationDefers = state.reservationDefers.filter(
+            (d) => d.reservationId !== id,
+          );
         }),
 
       addReservationPayment: (payment) =>
@@ -129,6 +134,14 @@ export const useCashflowStore = create<CashflowStore>()(
       removeRecurringDefer: (id) =>
         set((state) => {
           state.recurringDefers = state.recurringDefers.filter((d) => d.id !== id);
+        }),
+
+      addReservationDefer: (defer) =>
+        set((state) => { state.reservationDefers.push(defer); }),
+
+      removeReservationDefer: (id) =>
+        set((state) => {
+          state.reservationDefers = state.reservationDefers.filter((d) => d.id !== id);
         }),
 
       upsertRecurringSettlement: (recurringId, monthKey, paid, actualAmount) =>
