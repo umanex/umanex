@@ -56,6 +56,7 @@ function DraggablePayment({
       )}
       <button
         onClick={() => onRemove(payment.id)}
+        onPointerDown={(e) => e.stopPropagation()}
         className="text-muted-foreground hover:text-destructive transition-colors leading-none flex-shrink-0 ml-0.5"
         aria-label="Verwijder betaling"
       >
