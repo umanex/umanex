@@ -61,8 +61,12 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
         isOver ? 'border-primary ring-2 ring-primary/30' : 'border-border'
       }`}
     >
-      <div className="flex items-center justify-between">
+      {/* Header: maandnaam + eindsaldo rechts */}
+      <div className="flex items-baseline justify-between gap-4">
         <h2 className="font-semibold text-base">{getMonthLabel(monthKey)}</h2>
+        <span className={`text-base font-bold tabular-nums ${balanceColor}`}>
+          {formatCurrency(endBalance)}
+        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
