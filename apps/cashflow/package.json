@@ -8,7 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf .next"
+    "clean": "rm -rf .next",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop cashflow",
+    "pm2:restart": "pm2 restart cashflow",
+    "pm2:logs": "pm2 logs cashflow",
+    "pm2:status": "pm2 status"
   },
   "dependencies": {
     "next": "^14",
