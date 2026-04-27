@@ -17,13 +17,16 @@ import type {
 } from '../lib/cashflow/types';
 
 // Verhoog bij elke schema-uitbreiding + voeg het nieuwe veld toe in migrate.
-const STORE_VERSION = 4;
+const STORE_VERSION = 5;
+
+const currentMonth = () => format(new Date(), 'yyyy-MM');
 
 export const useCashflowStore = create<CashflowStore>()(
   persist(
     immer((set) => ({
       startBalance: 0,
-      anchorMonth: format(new Date(), 'yyyy-MM'),
+      // anchorMonth wordt nooit gepersisteerd — altijd de huidige maand
+      anchorMonth: currentMonth(),
       expenseItems: [] as ExpenseItem[],
       incomeItems: [] as IncomeItem[],
       recurringItems: [] as RecurringItem[],
@@ -188,13 +191,21 @@ export const useCashflowStore = create<CashflowStore>()(
     {
       name: 'cashflow-store-v3',
       version: STORE_VERSION,
+      // partialize: sla anchorMonth NOOIT op in localStorage.
+      // Bij elke app-start is het altijd de huidige maand.
+      partialize: (state) => {
+        const { anchorMonth: _anchorMonth, ...rest } = state as Record<string, unknown>;
+        return rest;
+      },
       migrate: (persisted: unknown) => {
         const s = (persisted ?? {}) as Record<string, unknown>;
         return {
           ...s,
-          // Alle array-velden expliciet vermeld met fallback naar []
-          // zodat ontbrekende velden (door schema-uitbreidingen) nooit
-          // undefined zijn en de calculator niet laten crashen.
+          // anchorMonth wordt niet gepersisteerd — altijd fresh berekend
+          anchorMonth: currentMonth(),
+          // startBalance bewaren (fix: was per ongeluk altijd 0)
+          startBalance: typeof s.startBalance === 'number' ? s.startBalance : 0,
+          // Alle array-velden met fallback naar []
           expenseItems: Array.isArray(s.expenseItems) ? s.expenseItems : [],
           incomeItems: Array.isArray(s.incomeItems) ? s.incomeItems : [],
           recurringItems: Array.isArray(s.recurringItems) ? s.recurringItems : [],
@@ -204,11 +215,6 @@ export const useCashflowStore = create<CashflowStore>()(
           recurringSettlements: Array.isArray(s.recurringSettlements) ? s.recurringSettlements : [],
           reservationSettlements: Array.isArray(s.reservationSettlements) ? s.reservationSettlements : [],
           reservationDefers: Array.isArray(s.reservationDefers) ? s.reservationDefers : [],
-          // Scalars
-          startBalance: 0,
-          anchorMonth: typeof s.anchorMonth === 'string'
-            ? s.anchorMonth
-            : format(new Date(), 'yyyy-MM'),
         };
       },
       storage: createJSONStorage(() => localStorage),
