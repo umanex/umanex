@@ -15,6 +15,9 @@ apps/*/build
 # Vercel
 .vercel
 
+# PM2 (machine-specifieke absolute paden)
+ecosystem.config.js
+
 # macOS
 .DS_Store
 
