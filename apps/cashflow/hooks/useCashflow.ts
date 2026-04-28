@@ -1,23 +1,68 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { format } from 'date-fns';
 import { useCashflowStore } from '../store/cashflow';
 import { calculateMonths } from '../lib/cashflow/calculator';
 import type { MonthData } from '../lib/cashflow/types';
 
+// Verwijder verouderde defers en settlements die volledig in het verleden liggen.
+// Wordt eenmalig uitgevoerd na rehydratie.
+function cleanupStaleData(currentMonth: string) {
+  const state = useCashflowStore.getState();
+
+  // RecurringDefers: verwijder als zowel fromMonth als toMonth voor huidige maand liggen
+  const staleRecurringDefers = state.recurringDefers.filter(
+    (d) => d.fromMonth < currentMonth && d.toMonth < currentMonth,
+  );
+  staleRecurringDefers.forEach((d) => state.removeRecurringDefer(d.id));
+
+  // ReservationDefers: zelfde logica
+  const staleReservationDefers = state.reservationDefers.filter(
+    (d) => d.fromMonth < currentMonth && d.toMonth < currentMonth,
+  );
+  staleReservationDefers.forEach((d) => state.removeReservationDefer(d.id));
+
+  // RecurringSettlements: bewaar enkel de huidige maand
+  // Oudere settlements zijn historiek en worden niet verwijderd —
+  // ze beinvloeden de berekening niet (calculator filtert op monthKey)
+  // maar ze blijven beschikbaar als referentie.
+
+  // Rapporteer cleanup in development
+  const cleaned = staleRecurringDefers.length + staleReservationDefers.length;
+  if (cleaned > 0 && process.env.NODE_ENV === 'development') {
+    console.info(
+      `[cashflow] cleanup: ${staleRecurringDefers.length} recurring defers, ` +
+      `${staleReservationDefers.length} reservation defers verwijderd (voor ${currentMonth})`
+    );
+  }
+}
+
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);
+  const done = useRef(false);
 
   useEffect(() => {
+    if (done.current) return;
+    done.current = true;
+
+    const currentMonth = format(new Date(), 'yyyy-MM');
+
+    const finish = () => {
+      cleanupStaleData(currentMonth);
+      setHydrated(true);
+    };
+
     try {
       const r = useCashflowStore.persist.rehydrate();
       if (r && typeof (r as Promise<void>).then === 'function') {
-        (r as Promise<void>).catch(() => {});
+        (r as Promise<void>).then(finish).catch(finish);
+      } else {
+        finish();
       }
     } catch {
-      // Negeer elke fout
+      finish();
     }
-    setHydrated(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return hydrated;
