@@ -1,8 +1,7 @@
 # CLAUDE.md — umanex monorepo
 
-> **Extends `.umanex-os/CLAUDE.md`** — globale werkprincipes voor alle umanex werk.
-> Lees die eerst, dan dit bestand voor monorepo-specifieke regels.
-> Klant/project profile: `.umanex-os/profiles/umanex.md`.
+@.umanex-os/CLAUDE.md
+@.umanex-os/profiles/umanex.md
 
 Monorepoconventies voor de umanex codebase. Lees dit vóór je iets implementeert.
 
