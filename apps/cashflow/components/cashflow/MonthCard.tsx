@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import type { MonthData } from '../../lib/cashflow/types';
 import { formatCurrency, getMonthLabel } from '../../lib/cashflow/recurring';
@@ -8,6 +9,38 @@ import { RecurringSection } from './RecurringSection';
 import { ReservationSection } from './ReservationSection';
 import { ExpenseSection } from './ExpenseSection';
 import { useCashflowActions, useReservationActions } from '../../hooks/useCashflow';
+import { useCashflowStore } from '../../store/cashflow';
+
+function StartBalanceInput() {
+  const stored = useCashflowStore((s) => s.startBalance);
+  const { setStartBalance } = useCashflowActions();
+  const [local, setLocal] = useState(String(stored));
+
+  // Sync als store extern wijzigt (rehydratie)
+  useEffect(() => { setLocal(String(stored)); }, [stored]);
+
+  function handleBlur() {
+    const parsed = parseFloat(local.replace(',', '.'));
+    if (!isNaN(parsed)) setStartBalance(parsed);
+    else setLocal(String(stored));
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs text-muted-foreground">Huidig saldo:</span>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={local}
+        onChange={(e) => setLocal(e.target.value)}
+        onBlur={handleBlur}
+        className="w-28 h-6 px-2 text-xs tabular-nums text-right rounded border border-input
+          bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+        aria-label="Huidig saldo"
+      />
+    </div>
+  );
+}
 
 interface MonthCardProps {
   monthData: MonthData;
@@ -69,6 +102,18 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
         </span>
       </div>
 
+      {/* Saldo: editeerbaar in eerste maand, read-only in volgende maanden */}
+      {isFirst ? (
+        <StartBalanceInput />
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Startsaldo:{' '}
+          <span className="tabular-nums font-medium text-foreground">
+            {formatCurrency(startBalance)}
+          </span>
+        </p>
+      )}
+
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-lg bg-muted/50 px-3 py-2">
           <p className="text-xs text-muted-foreground mb-0.5">Beschikbaar</p>
@@ -87,7 +132,6 @@ export function MonthCard({ monthData, onRegisterPayment, isFirst }: MonthCardPr
       <IncomeSection
         monthKey={monthKey}
         items={incomeItems}
-        prevBalance={isFirst ? undefined : startBalance}
         onAdd={addIncomeItem}
         onUpdate={(id, patch) => updateIncomeItem(id, patch)}
         onToggleReceived={(id, received) => updateIncomeItem(id, { received })}
