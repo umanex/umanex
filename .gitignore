@@ -29,3 +29,6 @@ ecosystem.config.js
 # tokens.json is committed — Tokens Studio GitHub sync target
 # packages/tokens/build: generated output is committed, intermediate file is not
 packages/tokens/build/_merged.json
+
+# Manuele backups
+*.backup

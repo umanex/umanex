@@ -1,12 +1,16 @@
 # CLAUDE.md — umanex monorepo
 
+> **Extends `.umanex-os/CLAUDE.md`** — globale werkprincipes voor alle umanex werk.
+> Lees die eerst, dan dit bestand voor monorepo-specifieke regels.
+> Klant/project profile: `.umanex-os/profiles/umanex.md`.
+
 Monorepoconventies voor de umanex codebase. Lees dit vóór je iets implementeert.
 
 ## Context
 
 - **Eigenaar**: Jeroen (jeroen@umanex.be), Belgische freelance UX/UI designer & developer
 - **Stack**: Next.js 14 App Router, TypeScript strict, Tailwind CSS, pnpm workspaces, Turborepo
-- **Apps**: cashflow (persoonlijke cashflow prognose tool), meer volgen
+- **Apps**: cashflow (persoonlijke cashflow prognose tool), rowtrack (React Native rowing tracker), watermark-remover, meer volgen
 - **Deployment**: Vercel, één project per app
 
 ## Structuurregels
@@ -40,15 +44,17 @@ Scope = package of app naam. Eén logische stap per commit.
 - Figma plugin File path: `packages/tokens/tokens.json`
 - Style Dictionary wiring volgt in aparte prompt
 
-## Prompting framework (TC-EBC)
+## Briefings (TC-EBC)
 
-Gebruik dit framework voor consistente implementaties:
+TC-EBC framework staat volledig in `.umanex-os/CLAUDE.md` — werkprincipe, niet hier herhaald.
 
-- **T**ask: wat moet gemaakt worden
-- **C**ontext: welke app/package, welke bestaande patronen
-- **E**lements: file paths, component names, props, types
-- **B**ehavior: interacties, states, edge cases
-- **C**onstraints: wat mag niet, wat volgt later
+Briefings-bestanden landen op deze plek:
+- **App-specifieke briefing:** `apps/{app}/briefings/{YYYY-MM-DD}-{type}-{naam}.tcebc.md`
+- **Cross-app briefing (raakt meerdere apps of monorepo-niveau):** `briefings/{YYYY-MM-DD}-{type}-{naam}.tcebc.md` aan de root
+
+Bij twijfel — vraag.
+
+Folders worden aangemaakt wanneer ze nodig zijn, niet vooraf.
 
 ## Wat nog komt (aparte prompts)
 
