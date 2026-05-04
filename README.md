@@ -5,9 +5,11 @@ Persoonlijke Turborepo monorepo voor umanex.be projecten. Bevat alle apps en ged
 ## Structuur
 
 ```
-umanex/
+umanex-apps/
 ├── apps/
-│   └── cashflow/          # Persoonlijke cashflow prognose tool
+│   ├── cashflow/          # Persoonlijke cashflow prognose tool
+│   ├── rowtrack/          # React Native rowing tracker (Expo + BLE + Supabase)
+│   └── watermark-remover/ # Next.js app met inpaint API
 ├── packages/
 │   ├── config/            # Gedeelde tsconfig, eslint, tailwind preset
 │   ├── tokens/            # Design tokens (Tokens Studio sync target)
@@ -20,8 +22,8 @@ umanex/
 ## Quickstart
 
 ```bash
-git clone git@github.com:umanex/umanex.git
-cd umanex
+git clone git@github.com:umanex/umanex-apps.git
+cd umanex-apps
 pnpm install
 pnpm dev
 ```
