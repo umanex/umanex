@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "turbo dev",
+    "dev:rowtrack": "pnpm --filter rowtrack start",
     "build": "turbo build",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
@@ -14,6 +15,14 @@
   },
   "devDependencies": {
     "turbo": "^2.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0"
+    },
+    "patchedDependencies": {
+      "expo-router@6.0.23": "patches/expo-router@6.0.23.patch"
+    }
   },
   "packageManager": "pnpm@9.0.0"
 }

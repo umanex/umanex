@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "RowTrack",
+    "slug": "RowTrack",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "rowtrack",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0F"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rowtrack.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "RowTrack gebruikt Bluetooth om te verbinden met je roeier.",
+        "NSBluetoothPeripheralUsageDescription": "RowTrack gebruikt Bluetooth om data te ontvangen van je roeier.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0F"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "bluetoothAlwaysPermission": "RowTrack gebruikt Bluetooth om te verbinden met je roeier."
+        }
+      ],
+      "expo-router",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0c8d0891-5f38-449d-9a70-e1b2f5dd5d27"
+      }
+    }
+  }
+}
