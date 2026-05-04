@@ -1,9 +1,9 @@
-# CLAUDE.md — umanex monorepo
+# CLAUDE.md — umanex-apps monorepo
 
 @.umanex-os/CLAUDE.md
 @.umanex-os/profiles/umanex.md
 
-Monorepoconventies voor de umanex codebase. Lees dit vóór je iets implementeert.
+Monorepoconventies voor de umanex-apps codebase. Lees dit vóór je iets implementeert.
 
 ## Context
 
