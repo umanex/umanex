@@ -23,6 +23,8 @@ interface ReservationSectionProps {
   onRemoveReservationDefer: (deferId: string) => void;
   onSettleReservation: (reservationId: string, effectiveAmount: number) => void;
   onRemoveReservationSettlement: (reservationId: string) => void;
+  onFinalize: (reservationId: string, effectiveAmount: number) => void;
+  onUnfinalize: (reservationId: string) => void;
 }
 
 function nextMonthKey(monthKey: MonthKey): MonthKey {
@@ -98,6 +100,7 @@ function DraggablePotRow({
   onMovePayment,
   onSettle,
   onRemoveSettlement,
+  onFinalize,
 }: {
   pot: ReservationPotBalance;
   monthKey: MonthKey;
@@ -105,6 +108,7 @@ function DraggablePotRow({
   onMovePayment: (id: string, newMonthKey: MonthKey) => void;
   onSettle: (reservationId: string, effectiveAmount: number) => void;
   onRemoveSettlement: (reservationId: string) => void;
+  onFinalize: (reservationId: string, effectiveAmount: number) => void;
 }) {
   const [localAmount, setLocalAmount] = useState(String(pot.effectiveAmount));
 
@@ -216,6 +220,24 @@ function DraggablePotRow({
           </div>
         </div>
       ))}
+
+      {/* Finaliseer knop — enkel zichtbaar als er betalingen zijn */}
+      {pot.paymentsThisMonth.length > 0 && (
+        <div className="pl-5">
+          <button
+            onClick={() => {
+              const total = pot.paymentsThisMonth.reduce(
+                (s, p) => s + p.fromReservation,
+                0,
+              );
+              onFinalize(pot.reservationId, total);
+            }}
+            className="text-xs text-muted-foreground hover:text-primary transition-colors mt-0.5"
+          >
+            Finaliseer →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -230,8 +252,15 @@ export function ReservationSection({
   onRemoveReservationDefer,
   onSettleReservation,
   onRemoveReservationSettlement,
+  onFinalize,
+  onUnfinalize,
 }: ReservationSectionProps) {
-  if (pots.length === 0 && deferredReservationItems.length === 0) return null;
+  const [showFinalized, setShowFinalized] = useState(false);
+
+  const activePots = pots.filter((p) => !p.finalized);
+  const finalizedPots = pots.filter((p) => p.finalized);
+
+  if (activePots.length === 0 && finalizedPots.length === 0 && deferredReservationItems.length === 0) return null;
 
   return (
     <div className="space-y-2">
@@ -247,7 +276,7 @@ export function ReservationSection({
         </button>
       </div>
 
-      {pots.map((pot) => (
+      {activePots.map((pot) => (
         <DraggablePotRow
           key={pot.reservationId}
           pot={pot}
@@ -256,6 +285,7 @@ export function ReservationSection({
           onMovePayment={onMovePayment}
           onSettle={onSettleReservation}
           onRemoveSettlement={onRemoveReservationSettlement}
+          onFinalize={onFinalize}
         />
       ))}
 
@@ -281,6 +311,42 @@ export function ReservationSection({
           </button>
         </div>
       ))}
+
+      {/* Toggle voor gefinaliseerde potten */}
+      {finalizedPots.length > 0 && (
+        <button
+          onClick={() => setShowFinalized((v) => !v)}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {showFinalized
+            ? `Verberg gefinaliseerd (${finalizedPots.length})`
+            : `Toon gefinaliseerd (${finalizedPots.length})`}
+        </button>
+      )}
+
+      {/* Gefinaliseerde potten */}
+      {showFinalized &&
+        finalizedPots.map((pot) => (
+          <div
+            key={pot.reservationId}
+            className="flex items-center justify-between gap-2 opacity-50"
+          >
+            <span className="text-sm truncate">{pot.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {formatCurrency(pot.effectiveAmount)} / {formatCurrency(pot.monthlyAmount)}
+              </span>
+              <button
+                onClick={() => onUnfinalize(pot.reservationId)}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                title="Finalisatie opheffen"
+                aria-label="Finalisatie opheffen"
+              >
+                ↩
+              </button>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }

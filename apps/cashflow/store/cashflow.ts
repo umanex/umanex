@@ -17,7 +17,7 @@ import type {
 } from '../lib/cashflow/types';
 
 // Verhoog bij elke schema-uitbreiding + voeg het nieuwe veld toe in migrate.
-const STORE_VERSION = 5;
+const STORE_VERSION = 6;
 
 const currentMonth = () => format(new Date(), 'yyyy-MM');
 
@@ -129,12 +129,33 @@ export const useCashflowStore = create<CashflowStore>()(
           );
           if (existing) {
             existing.effectiveAmount = effectiveAmount;
+            existing.finalized = false;
           } else {
             state.reservationSettlements.push({
               id: crypto.randomUUID(),
               reservationId,
               monthKey,
               effectiveAmount,
+              finalized: false,
+            });
+          }
+        }),
+
+      finalizeReservation: (reservationId, monthKey, effectiveAmount) =>
+        set((state) => {
+          const existing = state.reservationSettlements.find(
+            (s) => s.reservationId === reservationId && s.monthKey === monthKey,
+          );
+          if (existing) {
+            existing.effectiveAmount = effectiveAmount;
+            existing.finalized = true;
+          } else {
+            state.reservationSettlements.push({
+              id: crypto.randomUUID(),
+              reservationId,
+              monthKey,
+              effectiveAmount,
+              finalized: true,
             });
           }
         }),
@@ -213,7 +234,12 @@ export const useCashflowStore = create<CashflowStore>()(
           reservationPayments: Array.isArray(s.reservationPayments) ? s.reservationPayments : [],
           recurringDefers: Array.isArray(s.recurringDefers) ? s.recurringDefers : [],
           recurringSettlements: Array.isArray(s.recurringSettlements) ? s.recurringSettlements : [],
-          reservationSettlements: Array.isArray(s.reservationSettlements) ? s.reservationSettlements : [],
+          reservationSettlements: Array.isArray(s.reservationSettlements)
+            ? (s.reservationSettlements as ReservationSettlement[]).map((rs) => ({
+                ...rs,
+                finalized: rs.finalized ?? false,
+              }))
+            : [],
           reservationDefers: Array.isArray(s.reservationDefers) ? s.reservationDefers : [],
         };
       },

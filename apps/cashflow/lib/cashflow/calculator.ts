@@ -157,6 +157,7 @@ export function calculateMonths(
         monthlyAmount: r.monthlyAmount,
         effectiveAmount: settlement ? settlement.effectiveAmount : r.monthlyAmount,
         hasSettlement: !!settlement,
+        finalized: settlement?.finalized ?? false,
         potBalance: potBalanceMap.get(r.id) ?? 0,
         paymentsThisMonth: monthReservationPayments.filter((p) => p.reservationId === r.id),
       };

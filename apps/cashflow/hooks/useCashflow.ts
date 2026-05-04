@@ -118,6 +118,7 @@ export function useCashflowActions() {
     removeReservationDefer: useCashflowStore((s) => s.removeReservationDefer),
     upsertReservationSettlement: useCashflowStore((s) => s.upsertReservationSettlement),
     removeReservationSettlement: useCashflowStore((s) => s.removeReservationSettlement),
+    finalizeReservation: useCashflowStore((s) => s.finalizeReservation),
   };
 }
 
