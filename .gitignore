@@ -32,3 +32,8 @@ packages/tokens/build/_merged.json
 
 # Manuele backups
 *.backup
+
+# Lokale dev-bestanden
+apps/watermark-remover/.iopaint.log
+apps/watermark-remover/start.sh
+apps/rowtrack/package-lock.json
