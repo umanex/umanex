@@ -1,0 +1,28 @@
+name: Keep Supabase alive
+
+on:
+  schedule:
+    - cron: '0 9 * * 1,4'  # Maandag + donderdag 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Insert keep-alive row
+        run: |
+          curl -fsS -X POST \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/keep_alive" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=minimal" \
+            -d '{}'
+
+      - name: Delete rows older than 1 day
+        run: |
+          CUTOFF=$(date -u -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)
+          curl -fsS -X DELETE \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/keep_alive?pinged_at=lt.${CUTOFF}" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
