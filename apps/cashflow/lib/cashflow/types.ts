@@ -44,6 +44,7 @@ export interface ReservationSettlement {
   reservationId: string;
   monthKey: MonthKey;
   effectiveAmount: number;
+  finalized: boolean;
 }
 
 export interface RecurringSettlement {
@@ -78,6 +79,7 @@ export interface ReservationPotBalance {
   monthlyAmount: number;
   effectiveAmount: number;
   hasSettlement: boolean;
+  finalized: boolean;
   potBalance: number;
   paymentsThisMonth: ReservationPayment[];
 }
@@ -166,6 +168,12 @@ export interface CashflowStore {
     effectiveAmount: number,
   ) => void;
   removeReservationSettlement: (reservationId: string, monthKey: MonthKey) => void;
+
+  finalizeReservation: (
+    reservationId: string,
+    monthKey: MonthKey,
+    effectiveAmount: number,
+  ) => void;
 
   upsertRecurringSettlement: (
     recurringId: string,
