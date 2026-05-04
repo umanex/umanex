@@ -194,7 +194,7 @@ export const useCashflowStore = create<CashflowStore>()(
       // partialize: sla anchorMonth NOOIT op in localStorage.
       // Bij elke app-start is het altijd de huidige maand.
       partialize: (state) => {
-        const { anchorMonth: _anchorMonth, ...rest } = state as Record<string, unknown>;
+        const { anchorMonth: _anchorMonth, ...rest } = state as unknown as Record<string, unknown>;
         return rest;
       },
       migrate: (persisted: unknown) => {
