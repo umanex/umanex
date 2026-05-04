@@ -66,7 +66,6 @@ export function calculateMonths(
 
   for (const monthKey of months) {
     const monthExpenseItems = expenseItems.filter((i) => i.monthKey === monthKey);
-    const totalExpenses = monthExpenseItems.reduce((s, i) => s + i.amount, 0);
     const monthIncomeItems = incomeItems.filter((i) => i.monthKey === monthKey);
     const allActiveRecurring = recurringItems.filter((i) => i.startMonth <= monthKey);
 
@@ -85,7 +84,7 @@ export function calculateMonths(
 
     const totalIncome = monthIncomeItems.reduce((s, i) => s + i.amount, 0);
 
-    // Gebruik actualAmount voor betaalde items, begroot voor onbetaalde
+    // Recurring: gebruik actualAmount als betaald, anders begroot
     const totalNormalRecurring = monthRecurringItems.reduce((s, item) => {
       const budgeted = item.frequency === 'yearly' ? item.amount / 12 : item.amount;
       const settlement = recurringSettlements.find(
@@ -165,7 +164,23 @@ export function calculateMonths(
 
     const monthSettlements = recurringSettlements.filter((s) => s.monthKey === monthKey);
 
-    // Betaalde recurring items (actualAmount)
+    // --- BESCHIKBAAR / OPENSTAAND / EINDSALDO ---
+    //
+    // Betaald/gereserveerd = al effectief van het saldo weg:
+    //   - betaalde vaste kosten (actualAmount)
+    //   - uitgestelde recurring die deze maand toekomen
+    //   - spaarpot stortingen (altijd weg, gaan naar pot)
+    //   - cash betalingen uit potten (bovenop de storting)
+    //   - betaalde expense items
+    //
+    // Openstaand = nog te betalen:
+    //   - onbetaalde vaste kosten
+    //   - onbetaalde expense items
+    //
+    // Invariant: Beschikbaar - Openstaand = Eindsaldo
+    //   = runningBalance + income - betaald - onbetaald
+    //   = runningBalance + income - alle kosten  ✓
+
     const paidRecurringAmount = monthRecurringItems.reduce((s, item) => {
       const settlement = recurringSettlements.find(
         (st) => st.recurringId === item.id && st.monthKey === monthKey,
@@ -173,20 +188,21 @@ export function calculateMonths(
       return s + (settlement?.paid ? settlement.actualAmount : 0);
     }, 0);
 
+    const totalExpenses = monthExpenseItems.reduce((s, i) => s + i.amount, 0);
     const paidExpenses = monthExpenseItems.filter((i) => i.paid).reduce((s, i) => s + i.amount, 0);
     const unpaidExpenses = monthExpenseItems.filter((i) => !i.paid).reduce((s, i) => s + i.amount, 0);
 
-    // Wat er al effectief uit het saldo is gegaan deze maand
+    // Spaarpot stortingen zijn altijd "betaald" (geld gaat naar de pot)
+    // en horen in paidThisMonth, NIET in openstaand
     const paidThisMonth =
       paidRecurringAmount +
       deferredRecurringAmount +
+      totalReservationDeductions +   // ← was missing: spaarpot stortingen
       totalReservationCashPayments +
       paidExpenses;
 
-    // Beschikbaar = wat je nog vrij hebt na alles wat al betaald/gereserveerd is
     const availableBudget = runningBalance + totalIncome - paidThisMonth;
 
-    // Openstaand = wat er nog betaald moet worden
     const unpaidRecurringAmount = monthRecurringItems.reduce((s, item) => {
       const settlement = recurringSettlements.find(
         (st) => st.recurringId === item.id && st.monthKey === monthKey,
@@ -195,10 +211,9 @@ export function calculateMonths(
       return s + (item.frequency === 'yearly' ? item.amount / 12 : item.amount);
     }, 0);
 
-    const totalOutstandingCosts = unpaidRecurringAmount + unpaidExpenses + totalReservationDeductions;
+    // Openstaand bevat GEEN spaarpot stortingen meer — die zitten in paidThisMonth
+    const totalOutstandingCosts = unpaidRecurringAmount + unpaidExpenses;
 
-    // Invariant: endBalance = (startBalance + income - betaald) - onbetaald
-    //                       = startBalance + income - alle kosten
     const endBalance = availableBudget - totalOutstandingCosts;
 
     result.push({
