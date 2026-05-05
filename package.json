@@ -17,9 +17,6 @@
     "turbo": "^2.0.0"
   },
   "pnpm": {
-    "overrides": {
-      "react": "19.1.0"
-    },
     "patchedDependencies": {
       "expo-router@6.0.23": "patches/expo-router@6.0.23.patch"
     }
