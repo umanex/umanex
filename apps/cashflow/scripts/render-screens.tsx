@@ -164,7 +164,7 @@ const Inhoud = () => h('div', null,
         h('div', { className: 'flex flex-col gap-1' },
           h(StartBalanceRow, { balance: -1250.5 })))) }),
 
-  h(Sectie, { titel: 'BalanceFooter — de vier standen', kind:
+  h(Sectie, { titel: 'BalanceFooter — opbouw, ankermaand zonder bedrag, negatieve stand, geen buffer', kind:
     h('div', { className: 'grid grid-cols-2 gap-3 max-w-3xl' },
       h('div', null, h(BalanceFooter, { movement: 500, position: 4074.62, hasBuffer: true, isAnchor: false })),
       h('div', null, h(BalanceFooter, { movement: -900, position: 120, hasBuffer: true, isAnchor: true })),

@@ -567,8 +567,9 @@ async function saldoPerKolom(page) {
  */
 // `formatSigned` schrijft een opbouw als `+€ 862,58`, dus het teken moet in de klasse:
 // zonder de `+` matcht een overschotmaand niet en meldt het scenario "geen footer" — een
-// instrument dat omvalt in plaats van meet.
-const FOOTER = /Deze maand ([+−]?€ [\d.,]+) Buffer ([+−]?€ [\d.,]+)/;
+// instrument dat omvalt in plaats van meet. Het em-streepje hoort er ook in: sinds
+// 2026-09-06 toont een half verstreken maand (anker of afgesloten) geen maandbedrag.
+const FOOTER = /Deze maand ([+−]?€ [\d.,]+|—) Buffer ([+−]?€ [\d.,]+)/;
 
 async function footerPerKolom(page) {
   const kolommen = page.locator(KOLOM);
@@ -580,7 +581,15 @@ async function footerPerKolom(page) {
     const treffer = tekst.match(FOOTER);
     uit.push(
       treffer
-        ? { kolom: i, aanwezig: true, beweging: bedragUit(treffer[1]), stand: bedragUit(treffer[2]), rijtekst: treffer[0] }
+        ? {
+            kolom: i,
+            aanwezig: true,
+            // `null` is "geen bedrag getoond" en is iets anders dan 0 — die twee uit
+            // elkaar houden is de hele assertie in de ankerkolom.
+            beweging: treffer[1] === '—' ? null : bedragUit(treffer[1]),
+            stand: bedragUit(treffer[2]),
+            rijtekst: treffer[0],
+          }
         : { kolom: i, aanwezig: false, rijtekst: tekst.slice(-140) },
     );
   }
@@ -977,17 +986,22 @@ function scenarios() {
           );
         }
 
-        // Anker: één onbetaalde kost van 137,42, banksaldo 1000 → de pot vangt de rest op.
+        // Anker: half verstreken maand, dus géén maandbedrag — wel de stand. De pot
+        // vangt op wat er van het banksaldo van 1000 overblijft na een kost van 137,42.
         // Tweede maand: 500 inkomen, dus opbouw — die kolom draagt het `+`-teken.
         // Derde maand: een kost van 1600 tegen een pot van 1362,58 — het tekort overstijgt
         // de pot, dus dáár moet de stand negatief zijn in plaats van nul.
         const verwacht = [
-          { beweging: -137.42, stand: 862.58 },
+          { beweging: null, stand: 862.58 },
           { beweging: 500, stand: 1362.58 },
           { beweging: -1600, stand: -237.42 },
         ];
         for (const [i, v] of verwacht.entries()) {
-          if (Math.abs(rijen[i].beweging - v.beweging) >= 0.005) {
+          if (v.beweging === null) {
+            if (rijen[i].beweging !== null) {
+              throw new Error(`kolom ${i} toont een maandbedrag (${rijen[i].beweging}) in een half verstreken maand — "${rijen[i].rijtekst}"`);
+            }
+          } else if (rijen[i].beweging === null || Math.abs(rijen[i].beweging - v.beweging) >= 0.005) {
             throw new Error(`kolom ${i} beweegt ${rijen[i].beweging} in plaats van ${v.beweging} — "${rijen[i].rijtekst}"`);
           }
           if (Math.abs(rijen[i].stand - v.stand) >= 0.005) {
@@ -1004,7 +1018,7 @@ function scenarios() {
 
         return {
           ok: true,
-          bewijs: `kolom 2 toont "${rijen[2].rijtekst}" — stand negatief, beweging is het volle tekort, geen regel "Niet gedekt" ertussen`,
+          bewijs: `kolom 0 toont "${rijen[0].rijtekst}" (geen maandbedrag in een half verstreken maand) en kolom 2 "${rijen[2].rijtekst}" — stand negatief, beweging is het volle tekort, geen regel "Niet gedekt" ertussen`,
         };
       },
     },
@@ -1128,6 +1142,22 @@ function tegenproeven() {
           return { ok: false, bewijs: `kolom 2 toont "${derde.rijtekst}" — positie, niet de potstand` };
         }
         return { ok: true, bewijs: 'kolom 2 meldde € 0,00 met de potbeweging ernaast' };
+      },
+    },
+    {
+      // Spiegelbeeld van de ankerassertie hierboven: slaagt deze, dan toont de ankerkolom
+      // tóch een maandbedrag en zegt "geen maandbedrag in een half verstreken maand" niets.
+      naam: 'tegenproef — ankerkolom toont tóch een bedrag',
+      moetFalen: true,
+      gedrag: { buffer: true },
+      actie: async (page) => {
+        const rijen = await footerPerKolom(page);
+        const eerste = rijen[0];
+        if (!eerste?.aanwezig) return { ok: false, bewijs: 'kolom 0 heeft geen leesbare footer' };
+        if (eerste.beweging === null) {
+          return { ok: false, bewijs: `kolom 0 toont "${eerste.rijtekst}" — geen bedrag, zoals het hoort` };
+        }
+        return { ok: true, bewijs: `kolom 0 toont een maandbedrag: ${eerste.beweging}` };
       },
     },
     {
