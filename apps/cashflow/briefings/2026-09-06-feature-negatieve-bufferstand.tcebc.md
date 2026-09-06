@@ -81,17 +81,17 @@ _(leeg — alle kritische items beantwoord)_
 
 _Invarianten over het hele model (afhankelijke berekeningen — scherm-per-scherm valideert hier niets):_
 
-- [x] **I1** — vanaf de tweede kolom sluit de maandstroom op de positiereeks: per maand
-      `movement == (potstand + eindsaldo) − (beginstand pot + beginsaldo)` en over het
-      venster `positie(t) − positie(t−1) == movement(t)` — bewijs: de checks
+- [x] **I1** — vanaf de tweede kolom sluit de maandstroom op de positiereeks — bewijs: de
+      gelijkheden `movement == (potstand + eindsaldo) − (beginstand pot + beginsaldo)` en
+      `positie(t) − positie(t−1) == movement(t)` staan als de checks
       `beweging == positieverschil` en `positie-doorrol` in `invariant()`, over alle 31
       scenario's; `pnpm --filter cashflow scenarios` geeft 794/794 + 48/48, met de
       tegenproef per suite bewezen faalbaar. In de ankermaand geldt de gelijkheid **niet**
       en wordt ze ook niet getoetst: `startBalance` is daar het banksaldo mét de potten
       erin en met de afgevinkte betalingen er al af. Dat verschil staat in BEHAVIOUR en
       draagt sinds de review een `title` op de regel zelf.
-- [x] **I2** — `positie == −niet gedekt` zolang de potstand niet zelf negatief staat —
-      bewijs: check `positie == −niet gedekt` in `invariant()`, groen over dezelfde
+- [x] **I2** — `positie == −niet gedekt` zolang de potstand niet negatief staat — bewijs:
+      check `positie == −niet gedekt` in `invariant()`, groen over dezelfde
       scenario's; de guard `b.total > -0.005` sluit de andere faalklasse uit (S10, een
       betaling groter dan de pot — zie `BACKLOG.md`)
 - [x] **Tegenproef** — de nieuwe checks dragen het defect zelf — bewijs: met het oude
@@ -107,8 +107,8 @@ _Invarianten over het hele model (afhankelijke berekeningen — scherm-per-scher
 
 _Gedrag:_
 
-- [x] Tekort groter dan de pot toont een negatieve stand en de volle maandstroom —
-      bewijs: `S27` in de rekenkern (positie −792,57 · beweging −832,70 · potstand blijft
+- [x] Tekort groter dan de pot toont een negatieve stand en de volle maandstroom — bewijs:
+      `S27` in de rekenkern (positie −792,57 · beweging −832,70 · potstand blijft
       0 · potbeweging blijft −40,13) én op een gerenderd scherm in de flow-harness:
       kolom 2 leest `Deze maand −€ 1.600,00 Buffer −€ 237,42`
 - [x] De regel "Niet gedekt" bestaat niet meer — bewijs: `grep -c "Niet gedekt"
@@ -119,8 +119,8 @@ _Gedrag:_
       −500 / −1000 / −1500 bij een beweging van −500 per maand. Het eerdere bewijs (S5 en
       S9) was fout: S5 heeft één negatieve maand en S9 herhaalt dezelfde stand bij een
       beweging van €0 — geen van beide kon het verschil tussen optellen en stilstaan zien
-- [x] Een latere maand met overschot toont hetzelfde getal als vóór de wijziging —
-      bewijs: harness kolom 1 (`Deze maand +€ 500,00 · Buffer € 1.362,58`); in een latere
+- [x] Een latere maand met overschot toont hetzelfde getal als vóór de wijziging — bewijs:
+      harness kolom 1 (`Deze maand +€ 500,00 · Buffer € 1.362,58`); in een latere
       maand veegt de pot het hele overschot op, dus vallen potbeweging en maandstroom
       samen. **In de ankerkolom niet:** daar verandert het getal per constructie (S4 ging
       van +€ 9.200,00 naar +€ 2.000,00), want de potbeweging droeg daar de opgebouwde
@@ -135,8 +135,8 @@ _Gedrag:_
       harness-scenario `buffer — hint zonder bufferpot` leest alle drie de kolommen op de
       standaardfixture: "Geen buffer" aanwezig én de footer-regex nergens raak. Twee
       signalen uit dezelfde DOM in tegengestelde richting
-- [x] `RunwayCard` toont "Buffer staat negatief" bij een negatieve stand, met dezelfde
-      drempel als de footer — bewijs: vijfde fixture in `render-screens.tsx`
+- [x] `RunwayCard` toont "Buffer staat negatief" met dezelfde drempel als de footer —
+      bewijs: vijfde fixture in `render-screens.tsx`
       (`buffer: -792.57`) rendert die tak en de sweep meet hem (302 elementen boven AA);
       de drempel is `< -0.005`, want zonder epsilon meldde de kaart "staat negatief" bij
       een float-residu van −5,6e−17 terwijl de footer in dezelfde toestand "€ 0,00" toont
