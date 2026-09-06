@@ -168,6 +168,21 @@ function invariant(months: MonthData[], label: string) {
     if (b.present && b.total > -0.005) {
       check(`${label} · positie == −niet gedekt ${m.monthKey}`, Math.min(b.position, 0), -b.uncovered);
     }
+    // In de ankermaand is de kostenkop van de buffer de stand ná beweging (het banksaldo
+    // bevat de hele pot), dus valt de zichtbare bodem van de kolom daar samen met de
+    // bufferstand. Dat is de reden dat de footer daar wél een stand mag tonen en géén
+    // beweging: van de drie regels is alleen "Deze maand" op een andere grondslag.
+    //
+    // Twee uitsluitingen, allebei een pre-existing defect uit `BACKLOG.md` en niet iets
+    // wat deze check mag wegdefiniëren: een pot die zelf negatief staat (S10, een betaling
+    // groter dan het potsaldo) en een cash-bijbetaling op de bufferpot (S19, waar
+    // `hasCashOverflow` het potsaldo op 0 zet terwijl de kostenkop de volle stand boekt —
+    // gemeten verschil €12.000). Zijn die twee opgelost, dan hoort deze check het zonder
+    // guard te doen: dát is hun acceptatietest.
+    const bufferCash = potten.some((p) => p.paymentsThisMonth.some((pay) => pay.fromCash > 0.005));
+    if (i === 0 && b.total > -0.005 && !bufferCash) {
+      check(`${label} · anker: zichtbaar == bufferstand ${m.monthKey}`, zichtbaar, b.position);
+    }
     // `movement` komt uit `netBurn` (stromen), de positie uit de potstand en de doorrol.
     // Twee onafhankelijke wegen naar hetzelfde getal — in de ankermaand niet te nemen,
     // want `startBalance` is daar het banksaldo mét de potten erin. Geldt óók in een maand

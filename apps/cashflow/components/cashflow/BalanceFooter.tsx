@@ -14,11 +14,13 @@ type BalanceFooterProps = {
   hasBuffer: boolean;
   /**
    * Is dit de ankerkolom (of een afgesloten maand, die per constructie zijn eigen anker
-   * is)? Daar telt `Beginsaldo + Deze maand` niet op tot `Buffer`, en dat is geen fout:
-   * het beginsaldo is je échte banksaldo, dus wat je al hebt afgevinkt is er al af,
-   * terwijl de maandstroom die posten wél meetelt. Het verschil is exact het afgevinkte
-   * bedrag. Zonder uitleg leest dat als een rekenfout in de enige kolom die je dagelijks
-   * bekijkt.
+   * is)? Dan blijft de regel leeg. Het beginsaldo is daar je échte banksaldo — met álle
+   * potten erin en met de afgevinkte betalingen er al af — terwijl de maandstroom die
+   * posten wél telt en de andere potten niet. `Beginsaldo + Deze maand` komt dus niet uit
+   * op `Buffer`, en in elke ándere kolom doet het dat wél op de cent. Eén getal dat als
+   * enige niet optelt in de kolom die je dagelijks bekijkt, leest als een rekenfout; er
+   * bestaat geen variant die daar wél klopt (een saldoverschil op de ankerbasis wijkt af
+   * met precies het afgevinkte bedrag). Dus: niets tonen in plaats van iets dat niet sluit.
    */
   isAnchor: boolean;
 };
@@ -42,7 +44,7 @@ export function BalanceFooter({ movement, position, hasBuffer, isAnchor }: Balan
           className="text-sm text-muted-foreground"
           title={
             isAnchor
-              ? 'Alles wat deze maand binnenkwam en vertrok. Je beginsaldo is het echte banksaldo, dus wat je al afvinkte is daar al af — daarom telt deze regel niet op van beginsaldo naar buffer.'
+              ? 'Deze maand is al deels voorbij: je beginsaldo is het echte banksaldo, waar de afgevinkte posten al af zijn en de andere potten nog in zitten. Een maandbeweging is daar niet te nemen zonder dat de kolom niet meer optelt.'
               : 'Alles wat deze maand binnenkwam en vertrok. Vorig saldo plus deze beweging is de bufferstand eronder.'
           }
         >
@@ -54,14 +56,16 @@ export function BalanceFooter({ movement, position, hasBuffer, isAnchor }: Balan
             // cent schrijft die al "€ 0,00" zonder teken, en een maand waarin niets
             // beweegt is niet positief maar stil — groen zetten zou dat als goed nieuws
             // lezen, pal boven een stand die rood kan staan.
-            Math.abs(movement) < 0.005
+            isAnchor || Math.abs(movement) < 0.005
               ? 'text-muted-foreground'
               : movement > 0
                 ? 'text-finance-positive'
                 : 'text-finance-negative'
           }`}
         >
-          {formatSigned(movement, 'in')}
+          {/* Em-streepje, geen leeg element: de regel houdt zo zijn hoogte én zegt
+              "niet van toepassing" in plaats van "nul". */}
+          {isAnchor ? '—' : formatSigned(movement, 'in')}
         </span>
       </div>
 

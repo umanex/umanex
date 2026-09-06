@@ -168,11 +168,13 @@ _Gedrag:_
 - [x] `pnpm --filter cashflow build` — bewijs: CI op PR #362, "Type-check, lint, build"
       geslaagd (3m48s); lokaal herhaald met `NEXT_DIST_DIR=.next` vóór de PM2-restart
 
-_De ankerkolom blijft een open ontwerpvraag_ — zie `BACKLOG.md` 2026-09-06. Gemeten op de
-draaiende app: september toont `Beginsaldo € 22.078,72 · Deze maand −€ 11.774,03 · Buffer
-€ 40,13`. Die drie tellen niet op, en het gat is structureel: het beginsaldo is het
-banksaldo mét álle potten erin, terwijl de bufferstand alleen de bufferpot plus het vrije
-saldo is. De regel draagt een `title` die dat uitlegt.
+- [x] De ankerkolom toont geen maandbedrag — bewijs: harness-scenario `buffer — negatieve
+      stand in de footer` leest `kolom 0 toont "Deze maand — Buffer € 862,58"`, met een
+      tegenproef die slaagt zodra daar tóch een bedrag staat. Reden: alleen die regel
+      rekent daar op een andere grondslag; de bufferstand valt in de ankermaand wél samen
+      met de zichtbare bodem van de kolom — vastgelegd als check `anker: zichtbaar ==
+      bufferstand`, groen over alle scenario's op twee bekende `BACKLOG`-defecten na, die
+      de guard expliciet uitsluit
 
 ## Beslissingsgeschiedenis
 
@@ -237,3 +239,13 @@ vooraf. Bevindingen opgelost bij de oorzaak, elk met een check die zonder de fix
 - **P3** Verweesde JSDoc, de rename niet doorgetrokken, een overbodige re-export → opgelost.
 
 Drie bevindingen zijn pre-existing en staan in `BACKLOG.md` in plaats van hier meegepatcht.
+- 2026-09-06: **Ankerkolom toont geen maandbedrag meer** (keuze Jeroen, na de meting op de
+  draaiende app). September toonde `Beginsaldo € 22.078,72 · Deze maand −€ 11.774,03 ·
+  Buffer € 40,13` — drie regels waarvan alleen de middelste niet in de kolom past. Het
+  beginsaldo is daar het banksaldo mét álle potten erin en met de afgevinkte betalingen er
+  al af; de maandstroom telt die posten wél en de andere potten niet. Er bestaat geen
+  variant die daar wél sluit: een saldoverschil op de ankerbasis wijkt af met precies het
+  afgevinkte bedrag (gemeten −200 waar de maand −600 bewoog). Dus een em-streepje in plaats
+  van een getal dat niet optelt. In elke latere kolom blijft het bedrag staan, en daar
+  sluiten de drie regels wél op de cent (gemeten op de echte data: −792,57 − 12.574,13 =
+  −13.366,70).
