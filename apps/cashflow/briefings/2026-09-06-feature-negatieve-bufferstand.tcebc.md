@@ -135,8 +135,7 @@ _Gedrag:_
       harness-scenario `buffer — hint zonder bufferpot` leest alle drie de kolommen op de
       standaardfixture: "Geen buffer" aanwezig én de footer-regex nergens raak. Twee
       signalen uit dezelfde DOM in tegengestelde richting
-- [x] `RunwayCard` toont "Buffer staat negatief" met dezelfde drempel als de footer —
-      bewijs: vijfde fixture in `render-screens.tsx`
+- [x] `RunwayCard` toont "Buffer staat negatief" op de footer-drempel — bewijs: vijfde fixture in `render-screens.tsx`
       (`buffer: -792.57`) rendert die tak en de sweep meet hem (302 elementen boven AA);
       de drempel is `< -0.005`, want zonder epsilon meldde de kaart "staat negatief" bij
       een float-residu van −5,6e−17 terwijl de footer in dezelfde toestand "€ 0,00" toont

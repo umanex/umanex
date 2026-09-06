@@ -49,11 +49,11 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c7791bf docs(cashflow): put the evidence marker on the acceptance line itself
 038f703 feat(cashflow): show the buffer position instead of the pot balance
 5b9aa03 refactor(ui): extract the shared focus ring into a constant
 529d255 docs(handoff): bring the HANDOFF headers up to the current format
 a15b915 feat(ui): check every Figma variable against the token source
-99ad3b2 docs(cashflow): record three findings the #314 merge did not resolve
 ```
 
 ## Uncommitted wijzigingen
