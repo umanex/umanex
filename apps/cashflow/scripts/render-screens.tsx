@@ -166,17 +166,24 @@ const Inhoud = () => h('div', null,
 
   h(Sectie, { titel: 'BalanceFooter — de vier standen', kind:
     h('div', { className: 'grid grid-cols-2 gap-3 max-w-3xl' },
-      h('div', null, h(BalanceFooter, { delta: 500, total: 4074.62, uncovered: 0, hasBuffer: true, showUncovered: false })),
-      h('div', null, h(BalanceFooter, { delta: -900, total: 120, uncovered: 0, hasBuffer: true, showUncovered: true })),
-      h('div', null, h(BalanceFooter, { delta: -900, total: 0, uncovered: 780.25, hasBuffer: true, showUncovered: true })),
-      h('div', null, h(BalanceFooter, { delta: 0, total: 0, uncovered: 0, hasBuffer: false, showUncovered: false }))) }),
+      h('div', null, h(BalanceFooter, { movement: 500, position: 4074.62, hasBuffer: true, isAnchor: false })),
+      h('div', null, h(BalanceFooter, { movement: -900, position: 120, hasBuffer: true, isAnchor: true })),
+      // De stand die het model tot 2026-09-06 als "€ 0,00" met een aparte regel
+      // "Niet gedekt" toonde: de pot is leeg en het tekort staat in het vrije saldo.
+      h('div', null, h(BalanceFooter, { movement: -900, position: -780.25, hasBuffer: true, isAnchor: false })),
+      h('div', null, h(BalanceFooter, { movement: 0, position: 0, hasBuffer: false, isAnchor: false }))) }),
 
-  h(Sectie, { titel: 'RunwayCard — te weinig data, gezond, krap, geen tekort', kind:
+  h(Sectie, { titel: 'RunwayCard — te weinig data, gezond, krap, geen tekort, negatief', kind:
     h('div', { className: 'grid grid-cols-2 gap-3 max-w-3xl' },
       h(RunwayCard, { runway: { months: null, buffer: 0, netBurn: 0, closedMonths: 1, hasEnoughData: false } }),
       h(RunwayCard, { runway: { months: 9.4, buffer: 12000, netBurn: 1280, closedMonths: 6, hasEnoughData: true } }),
       h(RunwayCard, { runway: { months: 1.2, buffer: 1500, netBurn: 1250, closedMonths: 4, hasEnoughData: true } }),
-      h(RunwayCard, { runway: { months: null, buffer: 8000, netBurn: 0, closedMonths: 5, hasEnoughData: true } })) }),
+      h(RunwayCard, { runway: { months: null, buffer: 8000, netBurn: 0, closedMonths: 5, hasEnoughData: true } }),
+      // Sinds de kaart de positie leest in plaats van de potstand, is dit de stand die
+      // hoort bij een tekort dat de pot niet meer draagt. De tak bestond al maar was
+      // onbereikbaar via de sweep, dus is hij nooit gerenderd — en dus nooit op contrast
+      // gemeten.
+      h(RunwayCard, { runway: { months: -0.6, buffer: -792.57, netBurn: 1280, closedMonths: 6, hasEnoughData: true } })) }),
 );
 
 // ── Pagina ───────────────────────────────────────────────────────────────────

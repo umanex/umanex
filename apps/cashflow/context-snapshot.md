@@ -1,5 +1,5 @@
 # Context Snapshot — cashflow
-_Gegenereerd op 2026-08-27_
+_Gegenereerd op 2026-09-06_
 
 ## Project
 - **App:** cashflow
@@ -49,15 +49,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+5b9aa03 refactor(ui): extract the shared focus ring into a constant
+529d255 docs(handoff): bring the HANDOFF headers up to the current format
 a15b915 feat(ui): check every Figma variable against the token source
 99ad3b2 docs(cashflow): record three findings the #314 merge did not resolve
 ac48be5 Merge remote-tracking branch 'origin/main' into feature/cashflow-harness-distdir
-3c61b21 feat(ui): export Storybook components to Figma with a sync guard
-c9a290d fix(cashflow): exit 130/143 when the harness is interrupted after the browser started
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/cashflow/HANDOFF.md
+  M  apps/cashflow/BACKLOG.md
+  M  apps/cashflow/CLAUDE.md
+  M  apps/cashflow/app/page.tsx
+  A  apps/cashflow/briefings/2026-09-06-feature-negatieve-bufferstand.tcebc.md
+  M  apps/cashflow/components/cashflow/BalanceFooter.tsx
+  M  apps/cashflow/components/cashflow/BufferChart.tsx
+  M  apps/cashflow/components/cashflow/MonthCard.tsx
+  M  apps/cashflow/components/cashflow/ReservationSection.tsx
+  M  apps/cashflow/components/cashflow/RunwayCard.tsx
+  M  apps/cashflow/components/cashflow/WaterfallChart.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

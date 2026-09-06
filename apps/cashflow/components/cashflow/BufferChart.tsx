@@ -40,7 +40,7 @@ export function BufferChart({ points, closedMonths }: BufferChartProps) {
     const nog = TREND_THRESHOLD - closedMonths;
     return (
       <section className="rounded-xl border border-accent bg-card p-5">
-        <h2 className="text-base font-semibold text-foreground">Bufferopbouw</h2>
+        <h2 className="text-base font-semibold text-foreground">Bufferstand</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Nog {nog} {nog === 1 ? 'afgesloten maand' : 'afgesloten maanden'} nodig. Tot dan is
           er te weinig historie om een opbouw uit af te lezen.
@@ -96,9 +96,9 @@ export function BufferChart({ points, closedMonths }: BufferChartProps) {
     <section className="rounded-xl border border-accent bg-card p-5">
       <div className="flex items-baseline justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Bufferopbouw</h2>
+          <h2 className="text-base font-semibold text-foreground">Bufferstand</h2>
           <p className="text-sm text-muted-foreground">
-            Stand van je bufferpot per maand — doorlopend is historie, gestippeld is prognose
+            Waar je staat per maand: bufferpot plus vrij saldo — doorlopend is historie, gestippeld is prognose
           </p>
         </div>
         <button

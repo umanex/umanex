@@ -17,13 +17,30 @@ export function addMonth(monthKey: MonthKey, count = 1): MonthKey {
   return format(addMonths(base, count), 'yyyy-MM');
 }
 
+/**
+ * Eén notatie voor een negatief bedrag in de hele app: een echt minteken (U+2212) vóór
+ * het euroteken, zoals `formatSigned` het al schreef. `Intl` zet er zelf een
+ * ASCII-koppelteken ná het symbool (`€ -780,25`), en sinds de bufferregel een negatieve
+ * stand kan tonen staan die twee schrijfwijzen pal onder elkaar in dezelfde footer —
+ * hetzelfde teken in twee vormen leest als twee dingen.
+ *
+ * Het teken volgt de **getoonde** magnitude, niet de rauwe waarde. Een bedrag dat als
+ * "€ 0,00" op het scherm komt is nul en krijgt geen teken; een bedrag dat naar "€ 1"
+ * wegrondt is dat niet en krijgt hem wél. Met een eigen afrondingsdrempel liep dat mis op
+ * precies een halve eenheid: `Math.round` rondt daar naar nul en `Intl` ervan weg, dus
+ * −0,50 werd "€ 1" — de magnitude van een negatief bedrag met een positief teken.
+ */
+function metTeken(amount: number, tekst: string): string {
+  return amount < 0 && /[1-9]/.test(tekst) ? `−${tekst}` : tekst;
+}
+
 /** Overzichtsgetal zonder centen — KPI's en chart-labels. */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('nl-BE', {
+  return metTeken(amount, new Intl.NumberFormat('nl-BE', {
     style: 'currency',
     currency: 'EUR',
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(Math.abs(amount)));
 }
 
 /**
@@ -32,12 +49,12 @@ export function formatCurrency(amount: number): string {
  * som zichtbaar een euro doen missen.
  */
 export function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('nl-BE', {
+  return metTeken(amount, new Intl.NumberFormat('nl-BE', {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(Math.abs(amount)));
 }
 
 /** Richting van een bedrag in de ledger. `neutral` is een saldo, geen mutatie. */

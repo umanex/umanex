@@ -39,7 +39,11 @@ function buildSteps(month: MonthData): Step[] {
     { label: 'Eenmalig', delta: -subtotals.oneOff, value: afterOneOff },
     { label: 'Budgetten', delta: -subtotals.budgets, value: afterBudgets },
     { label: 'Provisies', delta: -subtotals.provisions, value: afterProvisions },
-    { label: 'Buffer', delta: -subtotals.buffer, value: subtotals.endBalance },
+    // "Naar de buffer" en niet "Buffer": dit is de storting of opname van die maand, en
+    // sinds 2026-09-06 heet de stand in de footer en op de runwaykaart "Buffer". Twee
+    // dingen met dezelfde naam op twee schermen las als een tegenspraak — gemeten stond
+    // hier "Buffer € 0,00" terwijl de kaart erboven "Buffer −€ 1.500,00" meldde.
+    { label: 'Naar de buffer', delta: -subtotals.buffer, value: subtotals.endBalance },
     { label: 'Eindsaldo', delta: null, value: subtotals.endBalance },
   ];
 }

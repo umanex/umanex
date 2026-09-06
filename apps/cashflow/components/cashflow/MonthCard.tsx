@@ -21,7 +21,6 @@ interface MonthCardProps {
   isFirst?: boolean;
   /** Gelijk voor alle maanden, zodat de drie footers even hoog blijven. */
   hasBuffer: boolean;
-  showUncovered: boolean;
   /**
    * Deze maand ligt in het verleden en is nooit afgesloten, dus wat je ziet is opnieuw
    * doorgerekend uit je huidige gegevens — geen vastgelegde historie.
@@ -41,7 +40,6 @@ export function MonthCard({
   onRepeatMonth,
   isFirst,
   hasBuffer,
-  showUncovered,
   isReconstruction,
   locked,
   onCloseMonth,
@@ -83,8 +81,8 @@ export function MonthCard({
     expenseItems,
   } = monthData;
 
-  // De footer toont enkel nog de buffer: wat er deze maand bij komt of uit gaat, en waar
-  // de pot daarmee op uitkomt. Afleiding in lib/cashflow/buffer.ts — niet hier.
+  // De footer toont de bufferpositie: wat de maand beweegt, en waar je daarmee op
+  // uitkomt. Afleiding in lib/cashflow/buffer.ts — niet hier.
   const buffer = bufferSummary(monthData);
 
   const { setNodeRef, isOver } = useDroppable({
@@ -249,11 +247,10 @@ export function MonthCard({
       </fieldset>
 
       <BalanceFooter
-        delta={buffer.delta}
-        total={buffer.total}
-        uncovered={buffer.uncovered}
+        movement={buffer.movement}
+        position={buffer.position}
         hasBuffer={hasBuffer}
-        showUncovered={showUncovered}
+        isAnchor={isFirst || locked}
       />
     </div>
   );

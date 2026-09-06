@@ -1,5 +1,8 @@
-import type { MonthData, MonthKey, MonthSnapshot, ReservationPotBalance } from './types';
+import type { MonthData, MonthKey, MonthSnapshot } from './types';
 import { bufferSummary } from './buffer';
+// `netBurn` staat in ./burn omdat ook lib/cashflow/buffer.ts hem nodig heeft: die
+// afleiding en deze module zouden elkaar anders circulair importeren.
+import { netBurn } from './burn';
 
 /** Onder dit aantal afgesloten maanden is een trend ruis, geen signaal. */
 export const TREND_THRESHOLD = 3;
@@ -7,7 +10,7 @@ export const TREND_THRESHOLD = 3;
 /** Rollend venster voor het gemiddelde: één maand is onbetrouwbaar bij wisselende facturen. */
 const BURN_WINDOW = 6;
 
-/** Stand van de bufferpot aan het einde van een maand. */
+/** Bufferstand aan het einde van een maand: potstand plus vrij saldo. */
 export interface BufferPoint {
   monthKey: MonthKey;
   buffer: number;
@@ -28,42 +31,14 @@ export interface RunwayResult {
   hasEnoughData: boolean;
 }
 
-function bufferBalance(data: MonthData): number {
-  return bufferSummary(data).total;
-}
-
 /**
- * Netto tekort van één maand: wat eruit ging min wat erin kwam.
- *
- * Bewust niet afgeleid uit `subtotals`. Die koppen antwoorden in de ankermaand op een
- * andere vraag — "wat moet er nog van je huidige banksaldo af" — en dragen daar de
- * volledige opgebouwde stand van elke provisiepot in plaats van de storting van die ene
- * maand. Elke afgesloten maand is per constructie zo'n ankermaand (`useAutoCloseMonth`
- * rekent één maand vanaf zijn eigen ankerstaat door), dus zou de runway systematisch een
- * tekort melden ter grootte van je opgebouwde provisies.
- *
- * Hier meten we daarom stromen: wat er deze maand aan kosten vertrekt, tegenover wat er
- * binnenkwam. De buffer blijft erbuiten — hij neemt per constructie op wat er overblijft
- * en vult aan wat er tekort is, dus zou elke maand op nul uitkomen als hij meetelde.
- * Precies die beweging is wat de runway moet verklaren.
+ * De bufferstand zoals het scherm hem noemt: de positie, niet de potstand. Een pot die
+ * op €0 staat omdat hij een tekort niet meer kon dekken, laat dat tekort als negatief
+ * vrij saldo achter — de runway en de grafiek moeten dat meenemen, anders melden ze
+ * "€ 0,00" en "0 maanden" op het moment dat de maandfooter −€ 792,57 toont.
  */
-export function netBurn(data: MonthData): number {
-  // Een budget telt volledig mee, ook onbesteed: het prudente model gaat ervan uit dat
-  // het opgaat. Een provisie telt met de storting van deze maand, verminderd met wat een
-  // finalisatie weer vrijgeeft.
-  const potFlow = (p: ReservationPotBalance): number =>
-    p.potType === 'maandelijks_budget'
-      ? p.provisionThisMonth
-      : p.provisionThisMonth - p.releasedThisMonth;
-
-  const costs =
-    data.totalRecurring +
-    data.totalExpenses +
-    data.totalReservationCashPayments +
-    data.reservationPots.filter((p) => !p.isDeficitBuffer).reduce((s, p) => s + potFlow(p), 0) +
-    data.deferredReservationAmount;
-
-  return costs - data.totalIncome;
+function bufferBalance(data: MonthData): number {
+  return bufferSummary(data).position;
 }
 
 /**
@@ -106,9 +81,13 @@ export function bufferSeries(
 ): BufferPoint[] {
   const history = [...snapshots]
     .sort((a, b) => a.monthKey.localeCompare(b.monthKey))
+    // Bewust niet `snap.buffer`: dat bevroren veld is de potstand, en die is €0 in
+    // precies de maanden waar de positie negatief staat. De volledige `MonthData` zit
+    // in het snapshot, dus de positie is er af te leiden zonder de historie te
+    // herschrijven — de bevroren waarden blijven onaangeroerd.
     .map<BufferPoint>((snap) => ({
       monthKey: snap.monthKey,
-      buffer: snap.buffer,
+      buffer: bufferSummary(snap.data).position,
       isForecast: false,
     }));
 
