@@ -4,7 +4,7 @@
 - **Type:** feature
 - **Project:** cashflow
 - **Klant:** umanex
-- **Status:** gebouwd
+- **Status:** gevalideerd
 
 ---
 
@@ -157,19 +157,22 @@ _Gedrag:_
       10 tegenproeven die hóren te falen; 3 schrijfpogingen onderschept, 0 verzoeken naar
       buiten
 
-_Niet afgevinkt:_
+- [x] Jeroens eigen kolommen op de draaiende app — bewijs: na merge + rebuild
+      (`BUILD_ID KL-mU92CyB73vkSImEUY0`, HTTP 200 op `:3000`) uitgelezen in de browser:
+      oktober `Deze maand −€ 832,70 · Buffer −€ 792,57`, exact de verwachte getallen.
+      November toont `Vorig saldo −€ 792,57 · Deze maand −€ 12.574,13 · Buffer
+      −€ 13.366,70` — die drie sluiten op de cent (−792,57 − 12.574,13 = −13.366,70), dus
+      de begin → beweging → einde-lezing houdt op echte data. "Niet gedekt" komt in geen
+      enkele kolom nog voor, en `/analyse` rendert zonder fout met de koppen "Runway",
+      "Van beginsaldo naar eindsaldo", "Bufferstand" en "Begroot tegenover werkelijk"
+- [x] `pnpm --filter cashflow build` — bewijs: CI op PR #362, "Type-check, lint, build"
+      geslaagd (3m48s); lokaal herhaald met `NEXT_DIST_DIR=.next` vóór de PM2-restart
 
-- [ ] Jeroens eigen september- en oktoberkolom op `:3000` — **[NIET TE VERIFIËREN vóór de
-      merge]**. De PM2-app serveert `.next` uit deze tree, en `next build` op een feature
-      branch breekt die draaiende server. Te meten ná merge + `pm2:rebuild` op `main`.
-- [ ] `pnpm --filter cashflow build` — zelfde reden; CI draait hem op de PR.
-- [ ] **Open ontwerpvraag, niet gebouwd:** in de ankerkolom en in afgesloten maanden is
-      "Deze maand" de maandstroom, en die telt élke kost mee — ook wat al afgevinkt en dus
-      al van het banksaldo af is. Gemeten op het enige productiesnapshot (augustus 2026,
-      nul geregistreerde inkomsten): het getal gaat van −€ 695,72 naar −€ 16.891,62.
-      Beide zijn waar over verschillende grootheden; de nieuwe is de echte stroom van die
-      maand. De regel draagt nu een `title` die het verschil uitlegt. Het alternatief —
-      geen bedrag tonen in een half verstreken maand — staat open.
+_De ankerkolom blijft een open ontwerpvraag_ — zie `BACKLOG.md` 2026-09-06. Gemeten op de
+draaiende app: september toont `Beginsaldo € 22.078,72 · Deze maand −€ 11.774,03 · Buffer
+€ 40,13`. Die drie tellen niet op, en het gat is structureel: het beginsaldo is het
+banksaldo mét álle potten erin, terwijl de bufferstand alleen de bufferpot plus het vrije
+saldo is. De regel draagt een `title` die dat uitlegt.
 
 ## Beslissingsgeschiedenis
 
