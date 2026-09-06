@@ -33,7 +33,6 @@ export default function Page() {
   // Gelijk voor alle kolommen: anders staan de drie footers niet meer op één lijn.
   const bufferSummaries = months.map(bufferSummary);
   const hasBuffer = bufferSummaries.some((b) => b.present);
-  const showUncovered = bufferSummaries.some((b) => b.uncovered > 0);
   const [recurringOpen, setRecurringOpen] = useState(false);
   const [reservationOpen, setReservationOpen] = useState(false);
   const [paymentState, setPaymentState] = useState<{ monthKey: MonthKey; filterType: ReservationPotType } | null>(null);
@@ -85,7 +84,6 @@ export default function Page() {
                 monthData={month}
                 isFirst={index === 0}
                 hasBuffer={hasBuffer}
-                showUncovered={showUncovered}
                 isReconstruction={month.monthKey < currentMonth}
                 locked={monthSnapshots.some((s) => s.monthKey === month.monthKey)}
                 onCloseMonth={

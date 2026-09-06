@@ -101,7 +101,36 @@ const DOEL = monthKey(1);
  * mislukte fetch, en het hoort ook iets anders te tonen: lege staten per sectie in
  * plaats van een foutscherm.
  */
-function fixtureData({ leeg = false } = {}) {
+function fixtureData({ leeg = false, buffer = false } = {}) {
+  // De buffer-variant zet één bufferpot en één kost die de pot ver overstijgt, zodat de
+  // maandfooter alle drie zijn standen laat zien: opbouw, stilstand, en een stand die
+  // negatief staat. Zonder die derde stand kan geen enkele check onderscheiden of de
+  // footer de positie of de potstand toont — die vallen samen zolang de pot volstaat.
+  if (buffer) {
+    return {
+      referenceBalance: 1000,
+      referenceMonth: BRON,
+      historyStartMonth: BRON,
+      balanceOverrides: [],
+      expenseItems: [
+        { id: 'harness-1', monthKey: BRON, label: LABEL, amount: AMOUNT, paid: false },
+        { id: 'harness-tekort', monthKey: monthKey(2), label: 'Harnastekort', amount: 1600, paid: false },
+      ],
+      // Inkomen in de middelste kolom, zodat één van de drie footers een overschot toont:
+      // anders staat er nooit een `+` op het scherm en blijft die tak van de regex blind.
+      incomeItems: [{ id: 'harness-in', monthKey: DOEL, label: 'Harnasinkomen', amount: 500 }],
+      recurringItems: [],
+      recurringSettlements: [],
+      reservationSettlements: [],
+      reservations: [
+        { id: 'harness-buffer', label: 'Reserve', monthlyAmount: 0, startMonth: BRON, type: 'spaardoel', coversDeficit: true },
+      ],
+      reservationPayments: [],
+      recurringDefers: [],
+      reservationDefers: [],
+      reopenedMonths: [],
+    };
+  }
   return {
     referenceBalance: leeg ? 0 : 5000,
     referenceMonth: BRON,
@@ -230,7 +259,7 @@ function controleerBuildOrigin(origin) {
  * drie andere schermen (skeleton, lege staat, foutscherm) zag nooit een guard.
  */
 function maakRouteHandler(state, gedrag = {}) {
-  const { leeg = false, vertragingMs = 0, documentStatus = 200 } = gedrag;
+  const { leeg = false, buffer = false, vertragingMs = 0, documentStatus = 200 } = gedrag;
 
   return async (route) => {
     const req = route.request();
@@ -252,7 +281,7 @@ function maakRouteHandler(state, gedrag = {}) {
         if (documentStatus !== 200) {
           return json({ message: 'harness: opzettelijke serverfout' }, documentStatus);
         }
-        return json({ data: fixtureData({ leeg }), revision: state.revision }, 200);
+        return json({ data: fixtureData({ leeg, buffer }), revision: state.revision }, 200);
       }
       // Elke schrijfpoging wordt geteld en beantwoord alsof ze lukte: de app moet
       // verder kunnen, en het bewijs dat er niets weglekte is juist dat we hier staan.
@@ -475,11 +504,14 @@ function greep(page, label) {
 const SALDO = /Beginsaldo|Vorig saldo/;
 
 /**
- * Bedrag uit een rijtekst als getal. nl-BE schrijft `€ -11.443,15`: punt is duizendtal,
- * komma is decimaal, en het minteken staat ná het euroteken.
+ * Bedrag uit een rijtekst als getal. Punt is duizendtal, komma is decimaal. Het teken
+ * staat vóór het euroteken en is een echt minteken (U+2212), niet het ASCII-koppelteken
+ * dat `Intl` zelf ná het symbool zou zetten — zie `formatAmount` in lib/cashflow/recurring.ts.
+ * Zonder die normalisatie valt het teken weg in de klassefilter hieronder en leest een
+ * tekort als een tegoed.
  */
 function bedragUit(tekst) {
-  const cijfers = tekst.replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(',', '.');
+  const cijfers = tekst.replace(/[−–]/g, '-').replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(',', '.');
   const n = parseFloat(cijfers);
   return Number.isNaN(n) ? null : n;
 }
@@ -521,6 +553,36 @@ async function saldoPerKolom(page) {
         tekst.indexOf('Inkomsten') < treffer.index && treffer.index < tekst.indexOf('Vaste uitgaves'),
       rijtekst,
     });
+  }
+
+  return uit;
+}
+
+// ── De maandfooter ───────────────────────────────────────────────────────────
+
+/**
+ * De twee regels van de footer, in documentvolgorde en pal na elkaar. Dat "pal na elkaar"
+ * is de tweede assertie in deze ene regex: stond er nog een derde regel tussen — "Niet
+ * gedekt", die tot 2026-09-06 het tekort droeg — dan matcht hij niet meer.
+ */
+// `formatSigned` schrijft een opbouw als `+€ 862,58`, dus het teken moet in de klasse:
+// zonder de `+` matcht een overschotmaand niet en meldt het scenario "geen footer" — een
+// instrument dat omvalt in plaats van meet.
+const FOOTER = /Deze maand ([+−]?€ [\d.,]+) Buffer ([+−]?€ [\d.,]+)/;
+
+async function footerPerKolom(page) {
+  const kolommen = page.locator(KOLOM);
+  const aantal = await kolommen.count();
+  const uit = [];
+
+  for (let i = 0; i < aantal; i++) {
+    const tekst = (await kolommen.nth(i).innerText()).replace(/\s+/g, ' ');
+    const treffer = tekst.match(FOOTER);
+    uit.push(
+      treffer
+        ? { kolom: i, aanwezig: true, beweging: bedragUit(treffer[1]), stand: bedragUit(treffer[2]), rijtekst: treffer[0] }
+        : { kolom: i, aanwezig: false, rijtekst: tekst.slice(-140) },
+    );
   }
 
   return uit;
@@ -896,6 +958,83 @@ function scenarios() {
       },
     },
     {
+      // De maandfooter met een bufferpot die het tekort niet meer draagt. Tot 2026-09-06
+      // stond daar "Buffer € 0,00" naast een aparte regel "Niet gedekt": de pot was leeg,
+      // dus de prominentste regel van de kolom meldde nul op het moment dat je er het
+      // slechtst voor stond. En "Deze maand" toonde de potbeweging — die per constructie
+      // exact de potstand van de maand ervoor is zodra het tekort de pot overstijgt,
+      // waardoor het scherm eruitzag alsof het die stand doorschoof.
+      naam: 'buffer — negatieve stand in de footer',
+      gedrag: { buffer: true },
+      actie: async (page) => {
+        const rijen = await footerPerKolom(page);
+        if (rijen.length !== 3) throw new Error(`${rijen.length} kolommen in plaats van 3`);
+
+        const ontbreekt = rijen.filter((r) => !r.aanwezig);
+        if (ontbreekt.length) {
+          throw new Error(
+            `kolom ${ontbreekt.map((r) => r.kolom).join(', ')} toont geen footer met "Deze maand" direct gevolgd door "Buffer" — staart: ${ontbreekt[0].rijtekst}`,
+          );
+        }
+
+        // Anker: één onbetaalde kost van 137,42, banksaldo 1000 → de pot vangt de rest op.
+        // Tweede maand: 500 inkomen, dus opbouw — die kolom draagt het `+`-teken.
+        // Derde maand: een kost van 1600 tegen een pot van 1362,58 — het tekort overstijgt
+        // de pot, dus dáár moet de stand negatief zijn in plaats van nul.
+        const verwacht = [
+          { beweging: -137.42, stand: 862.58 },
+          { beweging: 500, stand: 1362.58 },
+          { beweging: -1600, stand: -237.42 },
+        ];
+        for (const [i, v] of verwacht.entries()) {
+          if (Math.abs(rijen[i].beweging - v.beweging) >= 0.005) {
+            throw new Error(`kolom ${i} beweegt ${rijen[i].beweging} in plaats van ${v.beweging} — "${rijen[i].rijtekst}"`);
+          }
+          if (Math.abs(rijen[i].stand - v.stand) >= 0.005) {
+            throw new Error(`kolom ${i} staat op ${rijen[i].stand} in plaats van ${v.stand} — "${rijen[i].rijtekst}"`);
+          }
+        }
+
+        // De invariant over het venster, op het scherm gelezen in plaats van in de kern:
+        // wat een maand beweegt, brengt je van de vorige stand naar deze.
+        const verschil = rijen[2].stand - rijen[1].stand;
+        if (Math.abs(verschil - rijen[2].beweging) >= 0.005) {
+          throw new Error(`standverschil ${verschil} ≠ beweging ${rijen[2].beweging} in kolom 2`);
+        }
+
+        return {
+          ok: true,
+          bewijs: `kolom 2 toont "${rijen[2].rijtekst}" — stand negatief, beweging is het volle tekort, geen regel "Niet gedekt" ertussen`,
+        };
+      },
+    },
+    {
+      // De tegenhanger van het scenario hierboven, op de standaardfixture: zonder pot met
+      // `coversDeficit` hoort de footer de hint te tonen en géén bedragen. Twee signalen
+      // uit dezelfde DOM, in tegengestelde richting — zou de footer tóch zijn twee regels
+      // renderen, dan valt de tweede assertie.
+      naam: 'buffer — hint zonder bufferpot',
+      actie: async (page) => {
+        const kolommen = page.locator(KOLOM);
+        const aantal = await kolommen.count();
+        if (aantal !== 3) throw new Error(`${aantal} kolommen in plaats van 3`);
+
+        const rijen = await footerPerKolom(page);
+        const metBedrag = rijen.filter((r) => r.aanwezig);
+        if (metBedrag.length) {
+          throw new Error(`kolom ${metBedrag.map((r) => r.kolom).join(', ')} toont bufferbedragen zonder bufferpot`);
+        }
+
+        for (let i = 0; i < aantal; i++) {
+          const tekst = (await kolommen.nth(i).innerText()).replace(/\s+/g, ' ');
+          if (!tekst.includes('Geen buffer')) {
+            throw new Error(`kolom ${i} toont de hint "Geen buffer" niet — staart: ${tekst.slice(-140)}`);
+          }
+        }
+        return { ok: true, bewijs: 'drie kolommen tonen de hint "Geen buffer" en geen enkel bufferbedrag' };
+      },
+    },
+    {
       // Een trage fetch hoort een skeleton te geven, geen leeg scherm en geen nullen.
       naam: 'state — laden',
       gedrag: { vertragingMs: 2_500 },
@@ -972,6 +1111,23 @@ function tegenproeven() {
         const m = await sweep(page, 'prognose + injectie');
         if (m.fouten.length) return { ok: false, bewijs: `${m.fouten.length} fout(en) gevonden, zoals het hoort` };
         return { ok: true, bewijs: 'de geïnjecteerde te lichte tekst glipte door de sweep' };
+      },
+    },
+    {
+      // De footer-assertie is pas een meting als ze het oude gedrag afkeurt. Slaagt deze,
+      // dan toont kolom 2 nog altijd de potstand (€ 0,00) in plaats van de positie, en
+      // zegt "buffer — negatieve stand in de footer" niets.
+      naam: 'tegenproef — lege pot geldt als een gezonde stand',
+      moetFalen: true,
+      gedrag: { buffer: true },
+      actie: async (page) => {
+        const rijen = await footerPerKolom(page);
+        const derde = rijen[2];
+        if (!derde?.aanwezig) return { ok: false, bewijs: 'kolom 2 heeft geen leesbare footer' };
+        if (Math.abs(derde.stand) >= 0.005 || Math.abs(derde.beweging + 1362.58) >= 0.005) {
+          return { ok: false, bewijs: `kolom 2 toont "${derde.rijtekst}" — positie, niet de potstand` };
+        }
+        return { ok: true, bewijs: 'kolom 2 meldde € 0,00 met de potbeweging ernaast' };
       },
     },
     {

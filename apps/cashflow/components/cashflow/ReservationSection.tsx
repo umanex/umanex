@@ -451,7 +451,7 @@ export function ReservationSection({
   const budgetActive = pots.filter((p) => !p.finalized && p.potType === 'maandelijks_budget');
   const budgetFinalized = pots.filter((p) => p.finalized && p.potType === 'maandelijks_budget');
   // De bufferpot hoort niet in de ledger: zijn storting is geen beslissing die je hier
-  // neemt maar het saldo dat na alle andere posten overblijft. Hij staat in de footer.
+  // neemt maar het saldo dat na alle andere posten overblijft. Zijn stand zit in de bufferregel van de footer.
   const spaardoelActive = pots.filter(
     (p) => !p.finalized && p.potType === 'spaardoel' && !p.isDeficitBuffer,
   );

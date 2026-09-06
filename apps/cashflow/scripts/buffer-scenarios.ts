@@ -1,7 +1,8 @@
 import { calculateMonths, computeAnchorState } from '../lib/cashflow/calculator';
 import type { AnchorState } from '../lib/cashflow/calculator';
 import { bufferSummary } from '../lib/cashflow/buffer';
-import { netBurn, computeRunway } from '../lib/cashflow/analysis';
+import { bufferSeries, computeRunway } from '../lib/cashflow/analysis';
+import { netBurn } from '../lib/cashflow/burn';
 import { buildSnapshot, snapshotMap } from '../lib/cashflow/snapshot';
 import type {
   ExpenseItem,
@@ -156,11 +157,38 @@ function invariant(months: MonthData[], label: string) {
       potten.reduce((s, p) => s + p.potBalance - p.deferredFromPrevious, 0));
     check(`${label} · buffer-totaal ${m.monthKey}`, b.total,
       potten.reduce((s, p) => s + p.potBalance, 0));
+
+    // De footer toont sinds 2026-09-06 niet de pot maar de positie: potstand plus vrij
+    // saldo. De pot alleen is €0 in precies de maanden waarin je er slecht voor staat,
+    // want de opname is begrensd tot wat erin zit.
+    // `uncovered` is dan hetzelfde getal met omgekeerd teken — de regel "Niet gedekt"
+      // was een tweede naam voor een negatieve positie, en is daarom uit de footer weg.
+      // Alleen zolang de pot zelf niet negatief staat: dat is een andere faalklasse
+    // (een betaling groter dan de pot, zie S10) en geen door de buffer gedekt tekort.
+    if (b.present && b.total > -0.005) {
+      check(`${label} · positie == −niet gedekt ${m.monthKey}`, Math.min(b.position, 0), -b.uncovered);
+    }
+    // `movement` komt uit `netBurn` (stromen), de positie uit de potstand en de doorrol.
+    // Twee onafhankelijke wegen naar hetzelfde getal — in de ankermaand niet te nemen,
+    // want `startBalance` is daar het banksaldo mét de potten erin. Geldt óók in een maand
+    // zonder bufferpot: dan is het vrije saldo de hele positie.
+    if (i > 0) {
+      check(`${label} · beweging == positieverschil ${m.monthKey}`, b.movement,
+        (potten.reduce((s, p) => s + p.potBalance, 0) + m.endBalance) -
+        (potten.reduce((s, p) => s + p.deferredFromPrevious, 0) + m.startBalance));
+    }
   });
   // Doorrol: eindsaldo maand N == startsaldo maand N+1
   for (let i = 0; i < months.length - 1; i++) {
     check(`${label} · doorrol ${months[i]!.monthKey}→${months[i + 1]!.monthKey}`,
       months[i + 1]!.startBalance, months[i]!.endBalance);
+    // Wat de footer van maand N+1 toont, moet de positie van maand N zijn plus wat die
+    // maand beweegt. Dit is de invariant over het hele venster: fixt iemand later één
+    // kolom, dan valt hier op dat de reeks niet meer sluit.
+    const vorige = bufferSummary(months[i]!);
+    const nu = bufferSummary(months[i + 1]!);
+    check(`${label} · positie-doorrol ${months[i]!.monthKey}→${months[i + 1]!.monthKey}`,
+      nu.position - vorige.position, nu.movement);
   }
 }
 
@@ -854,6 +882,149 @@ console.log('\nS25 — budget overschreden in de ankermaand');
   check('S25 · latere maand toont de cash-regel', later[1]!.cashOverflowItems.length, 1);
   checkBool('S25 · wél meegeteld → regel niet als betaald', later[1]!.cashOverflowItems[0]!.paid, false);
   invariant(later, 'S25c');
+}
+
+// ── S27: de regressie waarvoor de positie bestaat ──────────────────────────────
+// Jeroens oktober 2026, teruggebracht tot zijn vorm: een maand die eindigt met een kleine
+// pot, gevolgd door een tekort dat die pot ver overstijgt. De footer toonde daar "Deze
+// maand −€ 40,13 · Buffer € 0,00" — de potbeweging en een lege pot — terwijl de maand
+// €832,70 verloor en de stand op −€792,57 kwam. Dat de opname exact het potsaldo is, is
+// per constructie zo: daardoor viel het ene getal samen met de bufferstand van de maand
+// ervoor en las het scherm als een doorgeschoven saldo.
+console.log('\nS27 — tekort groter dan de pot: wat de footer toont');
+{
+  const vers: ReservationItem = { ...BUFFER, monthlyAmount: 0, startMonth: '2026-08' };
+  const months = run({
+    anchor: '2026-08', startBalance: 0,
+    income: [['2026-08', 1000], ['2026-09', 2000], ['2026-10', 1000]],
+    recurring: [['2026-08', 1000]],
+    expenses: [['2026-09', 959.87, false], ['2026-10', 832.70, false]],
+    reservations: [vers],
+    count: 3,
+  });
+  const [, sep, okt] = months as [MonthData, MonthData, MonthData];
+  const bSep = bufferSummary(sep);
+  const bOkt = bufferSummary(okt);
+
+  check('S27 · september bouwt op', bSep.position, 40.13);
+  check('S27 · september beweegt', bSep.movement, 40.13);
+  check('S27 · oktober staat negatief', bOkt.position, -792.57);
+  check('S27 · oktober beweegt het volle tekort', bOkt.movement, -832.70);
+  // De twee oude getallen bestaan nog en zijn nog steeds wat ze waren — ze horen alleen
+  // niet meer in de footer. Zonder deze twee zou de suite niet vastleggen dat de nieuwe
+  // regels iets ánders zeggen dan de oude.
+  check('S27 · potbeweging blijft de oude −potstand', bOkt.delta, -40.13);
+  check('S27 · potstand blijft begrensd op nul', bOkt.total, 0);
+  check('S27 · niet-gedekt is de negatieve positie', bOkt.uncovered, 792.57);
+  invariant(months, 'S27');
+}
+
+// ── S28: betaling uit een ánder spaardoel, groter dan die pot ──────────────────
+// Het gat dat de suite tot 2026-09-06 niet had: een bufferpot náást een gewoon spaardoel
+// waaruit méér betaald wordt dan erin zit. Het deel dat de pot niet draagt komt van de
+// rekening — `subtotals.ts` boekt dat als `teveel`, en een maandstroom die die term mist
+// is te gunstig. Zonder dit scenario blijft die fout onzichtbaar: geen enkel ander
+// scenario combineert een buffer met een pot-betaling boven het potsaldo.
+console.log('\nS28 — betaling boven het saldo van een ánder spaardoel');
+{
+  const buf: ReservationItem = { ...BUFFER, monthlyAmount: 0, startMonth: '2026-09' };
+  const doel: ReservationItem = {
+    id: 'doel', label: 'Doel', monthlyAmount: 100, startMonth: '2026-09', type: 'spaardoel',
+  };
+  const months = calculateMonths(
+    '2026-09', 5000, [], [], [], [buf, doel],
+    [{ id: 'pay1', reservationId: 'doel', monthKey: '2026-10', label: 'factuur', invoiceAmount: 600, fromReservation: 600, fromCash: 0 }],
+    [], [], [], [], 3,
+  );
+  const okt = months[1]!;
+  const doelPot = okt.reservationPots.find((p) => p.reservationId === 'doel')!;
+  // De pot draagt 100 overgedragen + 100 storting = 200; 400 komt van de rekening.
+  check('S28 · pot draagt 200', doelPot.deferredFromPrevious + doelPot.provisionThisMonth, 200);
+  check('S28 · teveel valt op de rekening', okt.subtotals.provisions, 100 + 400);
+  invariant(months, 'S28');
+}
+
+// ── S29: betaling boven een maandbudget ────────────────────────────────────────
+// De tegenhanger van S28 voor de andere pot-soort. Een budget kent geen `teveel`-term in
+// `subtotals`; het teveel verschijnt als losse regel in de uitgavensectie. De vraag is of
+// de maandstroom dan nog sluit op de positiereeks — meten, niet aannemen.
+console.log('\nS29 — betaling boven een maandbudget');
+{
+  const buf: ReservationItem = { ...BUFFER, monthlyAmount: 0, startMonth: '2026-09' };
+  const budget: ReservationItem = {
+    id: 'budget', label: 'Budget', monthlyAmount: 150, startMonth: '2026-09', type: 'maandelijks_budget',
+  };
+  const months = calculateMonths(
+    '2026-09', 5000, [], [], [], [buf, budget],
+    [{ id: 'pay1', reservationId: 'budget', monthKey: '2026-10', label: 'factuur', invoiceAmount: 400, fromReservation: 150, fromCash: 250 }],
+    [], [], [], [], 3,
+  );
+  check('S29 · het teveel staat als losse regel', months[1]!.cashOverflowItems.length, 1);
+  invariant(months, 'S29');
+}
+
+// ── S30: /analyse leest dezelfde positie als de footer ─────────────────────────
+// `computeRunway` en `bufferSeries` lazen tot 2026-09-06 de potstand. Die is per
+// constructie €0 zodra het tekort de pot overstijgt, dus meldde de runwaykaart "0 maanden"
+// en tekende de grafiek een vlakke nullijn op het moment dat de footer een negatieve stand
+// toont. Beide leespaden hadden geen enkele check; dit is die check.
+console.log('\nS30 — runway en grafiek volgen de footer');
+{
+  const vers: ReservationItem = { ...BUFFER, monthlyAmount: 0, startMonth: '2026-08' };
+  const months = run({
+    anchor: '2026-08', startBalance: 0,
+    income: [['2026-08', 1000], ['2026-09', 2000], ['2026-10', 1000]],
+    recurring: [['2026-08', 1000]],
+    expenses: [['2026-09', 959.87, false], ['2026-10', 832.70, false]],
+    reservations: [vers],
+    count: 3,
+  });
+  const okt = months[2]!;
+  const stand = bufferSummary(okt).position;
+  check('S30 · oktober staat negatief', stand, -792.57);
+
+  // De runway deelt die stand, niet de potstand — anders is de teller altijd nul.
+  const runway = computeRunway([buildSnapshot(months[0]!, '2026-09-01T00:00:00Z')], okt);
+  check('S30 · runway deelt de bufferstand', runway.buffer, stand);
+  checkBool('S30 · runwaykaart valt in de tak "staat negatief"', runway.buffer < -0.005, true);
+
+  // De grafiek plot dezelfde grootheid, ook voor de bevroren maand: die leidt hem af uit
+  // `snap.data` en laat het bevroren veld `snap.buffer` ongemoeid.
+  const snap = buildSnapshot(okt, '2026-11-01T00:00:00Z');
+  const punten = bufferSeries([snap], months);
+  check('S30 · grafiek plot de positie voor historie', punten[0]!.buffer, stand);
+  check('S30 · het bevroren veld blijft de potstand', snap.buffer, 0);
+  checkBool('S30 · historie en prognose op dezelfde definitie',
+    punten.every((punt) => Math.abs(punt.buffer - bufferSummary(
+      months.find((m) => m.monthKey === punt.monthKey)!,
+    ).position) < 0.005), true);
+  invariant(months, 'S30');
+}
+
+// ── S31: drie tekortmaanden op rij, de stand zakt door ─────────────────────────
+// Het acceptatie-item "twee tekortmaanden op rij cumuleren" leunde eerst op S5 en S9, en
+// geen van beide cumuleert: S5 heeft één negatieve maand, S9 herhaalt drie keer dezelfde
+// stand bij een beweging van €0. Zonder een reeks die écht doorzakt kan geen enkele check
+// het verschil zien tussen "de stand telt op" en "de stand blijft staan".
+console.log('\nS31 — drie tekortmaanden op rij, de stand cumuleert');
+{
+  const vers: ReservationItem = { ...BUFFER, monthlyAmount: 0, startMonth: '2026-09' };
+  const months = run({
+    anchor: '2026-09', startBalance: 0,
+    income: [['2026-09', 1000], ['2026-10', 1000], ['2026-11', 1000]],
+    recurring: [['2026-09', 1500]],
+    reservations: [vers],
+    count: 3,
+  });
+  const standen = months.map((m) => bufferSummary(m).position);
+  const bewegingen = months.map((m) => bufferSummary(m).movement);
+  check('S31 · stand maand 1', standen[0]!, -500);
+  check('S31 · stand maand 2', standen[1]!, -1000);
+  check('S31 · stand maand 3', standen[2]!, -1500);
+  // De beweging blijft élke maand −500: de stand zakt door omdat hij optelt, niet omdat
+  // de maand zelf erger wordt. Precies dat onderscheid mist een reeks die stilstaat.
+  bewegingen.forEach((b, i) => check(`S31 · beweging maand ${i + 1}`, b, -500));
+  invariant(months, 'S31');
 }
 
 // Tegenproef. `scripts/scenarios.mjs` draait deze suite eerst mét deze vlag en eist dan een
