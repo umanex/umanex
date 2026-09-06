@@ -49,14 +49,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+0293a46 docs(cashflow): last acceptance line carries its own evidence marker
 c7791bf docs(cashflow): put the evidence marker on the acceptance line itself
 038f703 feat(cashflow): show the buffer position instead of the pot balance
 5b9aa03 refactor(ui): extract the shared focus ring into a constant
 529d255 docs(handoff): bring the HANDOFF headers up to the current format
-a15b915 feat(ui): check every Figma variable against the token source
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/cashflow/BACKLOG.md
   M  apps/cashflow/briefings/2026-09-06-feature-negatieve-bufferstand.tcebc.md
 
 ## Bestanden met TODO/FIXME
