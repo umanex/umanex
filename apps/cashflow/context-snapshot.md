@@ -1,5 +1,5 @@
 # Context Snapshot — cashflow
-_Gegenereerd op 2026-09-06_
+_Gegenereerd op 2026-09-07_
 
 ## Project
 - **App:** cashflow
@@ -49,21 +49,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+fb1e38b feat: design-systeem-bron per app, met guard en tegenproef
+d72e86c feat(cashflow): drop the monthly amount from a half-elapsed month's footer
 4bead1f docs(cashflow): record the buffer position as validated on the running app
 0293a46 docs(cashflow): last acceptance line carries its own evidence marker
 c7791bf docs(cashflow): put the evidence marker on the acceptance line itself
-038f703 feat(cashflow): show the buffer position instead of the pot balance
-5b9aa03 refactor(ui): extract the shared focus ring into a constant
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/cashflow/BACKLOG.md
   M  apps/cashflow/CLAUDE.md
-  M  apps/cashflow/briefings/2026-09-06-feature-negatieve-bufferstand.tcebc.md
-  M  apps/cashflow/components/cashflow/BalanceFooter.tsx
-  M  apps/cashflow/scripts/buffer-scenarios.ts
-  M  apps/cashflow/scripts/flow-harness.mjs
-  M  apps/cashflow/scripts/render-screens.tsx
+  M  apps/cashflow/components/cashflow/RepeatMonthModal.tsx
+  M  apps/cashflow/components/cashflow/ReservationPaymentModal.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -1,5 +1,5 @@
 # Context Snapshot — soda-plus
-_Gegenereerd op 2026-09-02_
+_Gegenereerd op 2026-09-07_
 
 ## Project
 - **App:** soda-plus
@@ -26,16 +26,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+eaaf0d9 docs(soda-plus): record that the counter is gone entirely
 53a880f fix(soda-plus): drop the stepper graphic, keep the count as text
 76850bd feat(soda-plus): make 00 part of the flow, it carries the evidence
 bdcae70 fix(soda-plus): stop using the empty box as evidence
 e007052 fix(soda-plus): read the actual report, revert the wrong correction
-37e7ea1 fix(soda-plus): the empty box is a blank specimen, not evidence
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/soda-plus/BACKLOG.md
-  M  apps/soda-plus/briefings/2026-09-02-component-domeinteller.tcebc.md
+  M  apps/soda-plus/CLAUDE.md
 
 ## Bestanden met TODO/FIXME
   (geen)

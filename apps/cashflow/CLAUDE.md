@@ -38,6 +38,40 @@ mode meer. Een contrastcijfer voor cashflow gaat dus altijd over light.
 
 ---
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `@umanex/config/tailwind/preset`
+- **Componentbron:** `@umanex/ui`
+- **Storybook:** `pnpm --filter @umanex/ui storybook` (:6006)
+
+De modals (`ReservationPaymentModal`, `RepeatMonthModal`) draaien op `Button`, `Input` en `Label`
+uit `@umanex/ui`. Een nieuwe primitive hoort in `packages/ui` met een story ernaast, niet hier.
+
+**De rest van de app niet, en dat is gemeten.** Van de 96 hand-gerolde primitives in deze app
+zijn er 2 een schone swap, 58 te dicht voor elke bestaande maat, en 36 helemaal geen knop of
+veld (drag-handles, glyph-affordances, een klikbare rij). De app-body werkt op `h-7`/`h-8` met
+`text-dense`, `rounded-sm` en `focus:ring-1`; `Input` kent alleen `h-10` en `Button` alleen
+`h-9`/`h-10`/`h-11`. Een swap daar kost vier tot zes overschrijvende klassen per call-site en
+levert een primitive op die tegen zijn eigen defaults vecht — slechtere code dan wat er staat.
+
+De echte oplossing is een **compacte maat in `packages/ui`**, niet meer overrides hier. Dat is
+een design-system-wijziging (bevestiging van Jeroen) én een Figma-herbouw, want
+`pnpm --filter @umanex/ui figma:check` faalt hard op een variant-as die code en Figma niet delen.
+Staat als open item in de root-`BACKLOG.md`.
+
+Wat de migratie van de modals zichtbaar veranderde, alle drie beslissingen van de rollaag en niet
+van deze app: de veldlabels werden 6px korter per regel (`Label` draagt `leading-none`, de
+call-sites hadden de `text-sm`-regelhoogte van 20px), de focus-ring werd `focus-visible` mét
+2px offset in plaats van `focus` zonder, en de Annuleren-knop hovert nu naar `bg-accent` — de
+bleke merktint — in plaats van naar `bg-muted`. Dat laatste is precies de inconsistentie die
+deze app tegenover jobradar had.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-07 door alle vijf te draaien, niet door

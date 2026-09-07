@@ -60,6 +60,21 @@ Voor de beschikbare exports (kleuren, `fontFamily`, `typeStyles`, `space`, `radi
 
 ---
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `geen` — React Native, geen Tailwind; de rollaag komt uit `constants/`
+- **Componentbron:** `eigen` — `components/`, op `@/constants` uit `tokens/tokens.json`
+- **Storybook:** `geen` — `@storybook/react-vite` draait niet op React Native
+
+Een gedeelde Storybook met `packages/ui` vraagt `@storybook/react-native` of een
+react-native-web-target. Dat is een eigen beslissing, geen bijproduct van een componenttaak.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-07 door het te draaien, niet door

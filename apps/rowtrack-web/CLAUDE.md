@@ -44,6 +44,22 @@ alleen `nl` in — zie de toelichting in dat bestand.
 Apple Health, geen in-app-aankopen, twee persoonlijke records (niet drie), en calorieën
 worden berekend in plaats van uitgelezen. De site mag niets beloven dat daar niet in staat.
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `@umanex/rowtrack-tokens/tailwind/preset`
+- **Componentbron:** `eigen` — `components/ui/`, op RowTrack's dark-only rollaag
+- **Storybook:** `geen` — de componenten zijn site-specifiek en hebben geen tweede consument
+
+Zie ook *Design-DNA — RowTrack, niet umanex* hierboven. Krijgt deze laag ooit een tweede
+consument, dan is de vorm een eigen Storybook die als `ref` in die van `packages/ui` hangt,
+niet een verhuizing naar `@umanex/ui`.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-09 door het te draaien, niet door

@@ -5,6 +5,22 @@ Next.js (App Router), dev op poort 3002.
 Dit bestand is bewust **minimaal**: het bevat alleen wat gemeten is. Vul de rest aan wanneer er
 echt aan deze app gewerkt wordt — verzonnen projectcontext is schadelijker dan geen.
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `geen` — zelfstandig Vyvey-theme in `tailwind.config.ts`, geen umanex-tokens
+- **Componentbron:** `eigen` — `components/ui/`, want het klantthema deelt geen rollaag met `@umanex/ui`
+- **Storybook:** `geen` — één klant-onepager; een tweede Storybook kost meer dan hij hier oplevert
+
+`Button`, `Input`, `Checkbox`, `Card` en `Select` dubbelen bewust namen uit `@umanex/ui`. De
+structuur zou te delen zijn, de styling niet: deze app draait op Vyvey's merk, niet op umanex'.
+Verandert dat, dan verandert deze sectie mee — de guard vergelijkt hem met de config.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-08 door het te draaien, niet door
