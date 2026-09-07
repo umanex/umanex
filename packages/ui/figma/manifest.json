@@ -2,104 +2,792 @@
   "$comment": "Neergeslagen Figma-staat van het Component library-bestand. NIET met de hand bewerken: ververs via het figma_execute-commando in packages/ui/CLAUDE.md (## Verify-pad). scripts/figma-sync-check.mjs toetst dit bestand tegen de code.",
   "fileKey": "ko2OuasYxyY2YRD69MYhWX",
   "fileName": "Component library",
-  "gegenereerd": "2026-08-25",
+  "gegenereerd": "2026-09-07",
   "collections": {
     "Theme": {
-      "modes": ["Light", "Dark"],
+      "modes": [
+        "Light",
+        "Dark"
+      ],
       "variables": [
-        "background", "foreground", "card", "card-foreground", "popover", "popover-foreground",
-        "primary", "primary-foreground", "secondary", "secondary-foreground", "muted", "muted-foreground",
-        "accent", "accent-foreground", "destructive", "destructive-foreground", "success", "success-foreground",
-        "warning", "warning-foreground", "border", "input", "ring",
-        "chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
-        "sidebar", "sidebar-foreground", "sidebar-primary", "sidebar-primary-foreground",
-        "sidebar-accent", "sidebar-accent-foreground", "sidebar-border", "sidebar-ring",
-        "finance-positive", "finance-negative", "finance-negative-surface",
-        "finance-deferred", "finance-deferred-strong", "finance-total",
+        "background",
+        "foreground",
+        "card",
+        "card-foreground",
+        "popover",
+        "popover-foreground",
+        "primary",
+        "primary-foreground",
+        "secondary",
+        "secondary-foreground",
+        "muted",
+        "muted-foreground",
+        "accent",
+        "accent-foreground",
+        "destructive",
+        "destructive-foreground",
+        "success",
+        "success-foreground",
+        "warning",
+        "warning-foreground",
+        "border",
+        "input",
+        "ring",
+        "chart-1",
+        "chart-2",
+        "chart-3",
+        "chart-4",
+        "chart-5",
+        "sidebar",
+        "sidebar-foreground",
+        "sidebar-primary",
+        "sidebar-primary-foreground",
+        "sidebar-accent",
+        "sidebar-accent-foreground",
+        "sidebar-border",
+        "sidebar-ring",
+        "finance-positive",
+        "finance-negative",
+        "finance-negative-surface",
+        "finance-deferred",
+        "finance-deferred-strong",
+        "finance-total",
         "overlay-scrim"
-      ]
+      ],
+      "waarden": {
+        "background": {
+          "Light": "0 0% 100%",
+          "Dark": "222 41% 8%"
+        },
+        "foreground": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "card": {
+          "Light": "0 0% 100%",
+          "Dark": "220 43% 11%"
+        },
+        "card-foreground": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "popover": {
+          "Light": "0 0% 100%",
+          "Dark": "220 43% 11%"
+        },
+        "popover-foreground": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "primary": {
+          "Light": "0 56.2% 49.2%",
+          "Dark": "0 83.9% 70.8%"
+        },
+        "primary-foreground": {
+          "Light": "0 0% 100%",
+          "Dark": "222 41% 8%"
+        },
+        "secondary": {
+          "Light": "216 24% 96%",
+          "Dark": "214 32.6% 16.9%"
+        },
+        "secondary-foreground": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "muted": {
+          "Light": "216 24% 96%",
+          "Dark": "214 32.6% 16.9%"
+        },
+        "muted-foreground": {
+          "Light": "221 13% 46%",
+          "Dark": "218 15% 65%"
+        },
+        "accent": {
+          "Light": "0 90% 96%",
+          "Dark": "0 66.3% 18.6%"
+        },
+        "accent-foreground": {
+          "Light": "0 56.2% 49.2%",
+          "Dark": "0 84.6% 92.4%"
+        },
+        "destructive": {
+          "Light": "0 73.7% 41.8%",
+          "Dark": "0 90.6% 70.8%"
+        },
+        "destructive-foreground": {
+          "Light": "0 0% 100%",
+          "Dark": "222 41% 8%"
+        },
+        "success": {
+          "Light": "163 93.5% 24.3%",
+          "Dark": "160 84.1% 39.4%"
+        },
+        "success-foreground": {
+          "Light": "0 0% 100%",
+          "Dark": "222 41% 8%"
+        },
+        "warning": {
+          "Light": "26 90.5% 37.1%",
+          "Dark": "38 92.1% 50.2%"
+        },
+        "warning-foreground": {
+          "Light": "0 0% 100%",
+          "Dark": "222 41% 8%"
+        },
+        "border": {
+          "Light": "218 17% 91%",
+          "Dark": "214 32.6% 16.9%"
+        },
+        "input": {
+          "Light": "218 17% 91%",
+          "Dark": "214 32.6% 16.9%"
+        },
+        "ring": {
+          "Light": "0 56.2% 49.2%",
+          "Dark": "0 83.9% 70.8%"
+        },
+        "chart-1": {
+          "Light": "0 83.9% 63.5%",
+          "Dark": "0 83.9% 63.5%"
+        },
+        "chart-2": {
+          "Light": "221 83.2% 53.3%",
+          "Dark": "221 83.2% 53.3%"
+        },
+        "chart-3": {
+          "Light": "38 92.1% 50.2%",
+          "Dark": "38 92.1% 50.2%"
+        },
+        "chart-4": {
+          "Light": "160 84.1% 39.4%",
+          "Dark": "160 84.1% 39.4%"
+        },
+        "chart-5": {
+          "Light": "258 89.5% 66.3%",
+          "Dark": "258 89.5% 66.3%"
+        },
+        "sidebar": {
+          "Light": "210 20% 98%",
+          "Dark": "220 43% 11%"
+        },
+        "sidebar-foreground": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "sidebar-primary": {
+          "Light": "0 56.2% 49.2%",
+          "Dark": "0 83.9% 70.8%"
+        },
+        "sidebar-primary-foreground": {
+          "Light": "0 0% 100%",
+          "Dark": "222 41% 8%"
+        },
+        "sidebar-accent": {
+          "Light": "216 24% 96%",
+          "Dark": "214 32.6% 16.9%"
+        },
+        "sidebar-accent-foreground": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "sidebar-border": {
+          "Light": "218 17% 91%",
+          "Dark": "214 32.6% 16.9%"
+        },
+        "sidebar-ring": {
+          "Light": "0 56.2% 49.2%",
+          "Dark": "0 83.9% 70.8%"
+        },
+        "finance-positive": {
+          "Light": "163 93.5% 24.3%",
+          "Dark": "160 84.1% 39.4%"
+        },
+        "finance-negative": {
+          "Light": "0 73.7% 41.8%",
+          "Dark": "0 90.6% 70.8%"
+        },
+        "finance-negative-surface": {
+          "Light": "0 72.2% 50.6%",
+          "Dark": "0 72.2% 50.6%"
+        },
+        "finance-deferred": {
+          "Light": "26 90.5% 37.1%",
+          "Dark": "38 92.1% 50.2%"
+        },
+        "finance-deferred-strong": {
+          "Light": "23 82.5% 31.4%",
+          "Dark": "43 96.4% 56.3%"
+        },
+        "finance-total": {
+          "Light": "220 43% 11%",
+          "Dark": "210 20% 98%"
+        },
+        "overlay-scrim": {
+          "Light": "rgba(10, 10, 10, 0.5)",
+          "Dark": "rgba(10, 10, 10, 0.7)"
+        }
+      }
     },
     "Base": {
-      "modes": ["Value"],
+      "modes": [
+        "Value"
+      ],
       "variables": {
-        "radius": 8, "radius-lg": 8, "radius-md": 6, "radius-sm": 4, "radius-full": 9999,
-        "spacing-0_5": 2, "spacing-1": 4, "spacing-1_5": 6, "spacing-2": 8, "spacing-2_5": 10,
-        "spacing-3": 12, "spacing-4": 16, "spacing-5": 20, "spacing-6": 24, "spacing-8": 32,
-        "spacing-9": 36, "spacing-10": 40, "spacing-11": 44,
-        "border-1": 1, "border-2": 2,
+        "radius": 8,
+        "radius-lg": 8,
+        "radius-md": 6,
+        "radius-sm": 4,
+        "radius-full": 9999,
+        "spacing-0_5": 2,
+        "spacing-1": 4,
+        "spacing-1_5": 6,
+        "spacing-2": 8,
+        "spacing-2_5": 10,
+        "spacing-3": 12,
+        "spacing-4": 16,
+        "spacing-5": 20,
+        "spacing-6": 24,
+        "spacing-8": 32,
+        "spacing-9": 36,
+        "spacing-10": 40,
+        "spacing-11": 44,
+        "border-1": 1,
+        "border-2": 2,
         "icon-stroke": 2
       }
     }
   },
   "textStyles": [
-    { "name": "sans/sm-normal",    "family": "Fira Sans", "style": "Regular",  "fontSize": 14, "lineHeight": 20, "letterSpacing": 0 },
-    { "name": "sans/sm-medium",    "family": "Fira Sans", "style": "Medium",   "fontSize": 14, "lineHeight": 20, "letterSpacing": 0 },
-    { "name": "sans/xs-semibold",  "family": "Fira Sans", "style": "SemiBold", "fontSize": 12, "lineHeight": 16, "letterSpacing": 0 },
-    { "name": "sans/2xl-semibold", "family": "Fira Sans", "style": "SemiBold", "fontSize": 24, "lineHeight": 32, "letterSpacing": -2.5 },
-    { "name": "sans/base-normal",  "family": "Fira Sans", "style": "Regular",  "fontSize": 16, "lineHeight": 24, "letterSpacing": 0 }
+    {
+      "name": "sans/sm-normal",
+      "family": "Fira Sans",
+      "style": "Regular",
+      "fontSize": 14,
+      "lineHeight": 20,
+      "letterSpacing": 0
+    },
+    {
+      "name": "sans/sm-medium",
+      "family": "Fira Sans",
+      "style": "Medium",
+      "fontSize": 14,
+      "lineHeight": 20,
+      "letterSpacing": 0
+    },
+    {
+      "name": "sans/xs-semibold",
+      "family": "Fira Sans",
+      "style": "SemiBold",
+      "fontSize": 12,
+      "lineHeight": 16,
+      "letterSpacing": 0
+    },
+    {
+      "name": "sans/2xl-semibold",
+      "family": "Fira Sans",
+      "style": "SemiBold",
+      "fontSize": 24,
+      "lineHeight": 32,
+      "letterSpacing": -2.5
+    },
+    {
+      "name": "sans/base-normal",
+      "family": "Fira Sans",
+      "style": "Regular",
+      "fontSize": 16,
+      "lineHeight": 24,
+      "letterSpacing": 0
+    }
   ],
-  "effectStyles": ["shadow/sm", "shadow/md"],
+  "effectStyles": [
+    "shadow/sm",
+    "shadow/md"
+  ],
   "pages": {
-    "Overzicht": { "pageId": "0:1", "primary": null },
+    "Overzicht": {
+      "pageId": "0:1",
+      "primary": null,
+      "extra": [
+        {
+          "name": "Overzicht",
+          "id": "27:480",
+          "type": "FRAME",
+          "variantProperties": null
+        }
+      ]
+    },
     "Badge": {
       "pageId": "27:48",
-      "primary": { "name": "Badge", "id": "27:393", "type": "COMPONENT_SET",
-        "variantProperties": { "variant": ["default", "secondary", "destructive", "outline", "success", "warning"] } }
+      "primary": {
+        "name": "Badge",
+        "id": "27:393",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "variant": [
+            "default",
+            "secondary",
+            "destructive",
+            "outline",
+            "success",
+            "warning"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "variant=default",
+            "id": "27:377"
+          },
+          {
+            "name": "variant=secondary",
+            "id": "27:380"
+          },
+          {
+            "name": "variant=destructive",
+            "id": "27:383"
+          },
+          {
+            "name": "variant=outline",
+            "id": "27:386"
+          },
+          {
+            "name": "variant=success",
+            "id": "27:389"
+          },
+          {
+            "name": "variant=warning",
+            "id": "27:392"
+          }
+        ]
+      },
+      "extra": []
     },
     "Button": {
       "pageId": "27:49",
-      "primary": { "name": "Button", "id": "27:374", "type": "COMPONENT_SET",
+      "primary": {
+        "name": "Button",
+        "id": "27:374",
+        "type": "COMPONENT_SET",
         "variantProperties": {
-          "variant": ["default", "secondary", "outline", "ghost", "destructive", "link"],
-          "size": ["default", "sm", "lg", "icon"],
-          "disabled": ["false", "true"] } }
+          "variant": [
+            "default",
+            "secondary",
+            "outline",
+            "ghost",
+            "destructive",
+            "link"
+          ],
+          "size": [
+            "default",
+            "sm",
+            "lg",
+            "icon"
+          ],
+          "disabled": [
+            "false",
+            "true"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "variant=default, size=default, disabled=false",
+            "id": "27:208"
+          },
+          {
+            "name": "variant=default, size=default, disabled=true",
+            "id": "27:211"
+          },
+          {
+            "name": "variant=default, size=sm, disabled=false",
+            "id": "27:214"
+          },
+          {
+            "name": "variant=default, size=sm, disabled=true",
+            "id": "27:217"
+          },
+          {
+            "name": "variant=default, size=lg, disabled=false",
+            "id": "27:220"
+          },
+          {
+            "name": "variant=default, size=lg, disabled=true",
+            "id": "27:223"
+          },
+          {
+            "name": "variant=default, size=icon, disabled=false",
+            "id": "27:228"
+          },
+          {
+            "name": "variant=default, size=icon, disabled=true",
+            "id": "27:233"
+          },
+          {
+            "name": "variant=secondary, size=default, disabled=false",
+            "id": "27:236"
+          },
+          {
+            "name": "variant=secondary, size=default, disabled=true",
+            "id": "27:239"
+          },
+          {
+            "name": "variant=secondary, size=sm, disabled=false",
+            "id": "27:242"
+          },
+          {
+            "name": "variant=secondary, size=sm, disabled=true",
+            "id": "27:245"
+          },
+          {
+            "name": "variant=secondary, size=lg, disabled=false",
+            "id": "27:248"
+          },
+          {
+            "name": "variant=secondary, size=lg, disabled=true",
+            "id": "27:251"
+          },
+          {
+            "name": "variant=secondary, size=icon, disabled=false",
+            "id": "27:256"
+          },
+          {
+            "name": "variant=secondary, size=icon, disabled=true",
+            "id": "27:261"
+          },
+          {
+            "name": "variant=outline, size=default, disabled=false",
+            "id": "27:264"
+          },
+          {
+            "name": "variant=outline, size=default, disabled=true",
+            "id": "27:267"
+          },
+          {
+            "name": "variant=outline, size=sm, disabled=false",
+            "id": "27:270"
+          },
+          {
+            "name": "variant=outline, size=sm, disabled=true",
+            "id": "27:273"
+          },
+          {
+            "name": "variant=outline, size=lg, disabled=false",
+            "id": "27:276"
+          },
+          {
+            "name": "variant=outline, size=lg, disabled=true",
+            "id": "27:279"
+          },
+          {
+            "name": "variant=outline, size=icon, disabled=false",
+            "id": "27:284"
+          },
+          {
+            "name": "variant=outline, size=icon, disabled=true",
+            "id": "27:289"
+          },
+          {
+            "name": "variant=ghost, size=default, disabled=false",
+            "id": "27:292"
+          },
+          {
+            "name": "variant=ghost, size=default, disabled=true",
+            "id": "27:295"
+          },
+          {
+            "name": "variant=ghost, size=sm, disabled=false",
+            "id": "27:298"
+          },
+          {
+            "name": "variant=ghost, size=sm, disabled=true",
+            "id": "27:301"
+          },
+          {
+            "name": "variant=ghost, size=lg, disabled=false",
+            "id": "27:304"
+          },
+          {
+            "name": "variant=ghost, size=lg, disabled=true",
+            "id": "27:307"
+          },
+          {
+            "name": "variant=ghost, size=icon, disabled=false",
+            "id": "27:312"
+          },
+          {
+            "name": "variant=ghost, size=icon, disabled=true",
+            "id": "27:317"
+          },
+          {
+            "name": "variant=destructive, size=default, disabled=false",
+            "id": "27:320"
+          },
+          {
+            "name": "variant=destructive, size=default, disabled=true",
+            "id": "27:323"
+          },
+          {
+            "name": "variant=destructive, size=sm, disabled=false",
+            "id": "27:326"
+          },
+          {
+            "name": "variant=destructive, size=sm, disabled=true",
+            "id": "27:329"
+          },
+          {
+            "name": "variant=destructive, size=lg, disabled=false",
+            "id": "27:332"
+          },
+          {
+            "name": "variant=destructive, size=lg, disabled=true",
+            "id": "27:335"
+          },
+          {
+            "name": "variant=destructive, size=icon, disabled=false",
+            "id": "27:340"
+          },
+          {
+            "name": "variant=destructive, size=icon, disabled=true",
+            "id": "27:345"
+          },
+          {
+            "name": "variant=link, size=default, disabled=false",
+            "id": "27:348"
+          },
+          {
+            "name": "variant=link, size=default, disabled=true",
+            "id": "27:351"
+          },
+          {
+            "name": "variant=link, size=sm, disabled=false",
+            "id": "27:354"
+          },
+          {
+            "name": "variant=link, size=sm, disabled=true",
+            "id": "27:357"
+          },
+          {
+            "name": "variant=link, size=lg, disabled=false",
+            "id": "27:360"
+          },
+          {
+            "name": "variant=link, size=lg, disabled=true",
+            "id": "27:363"
+          },
+          {
+            "name": "variant=link, size=icon, disabled=false",
+            "id": "27:368"
+          },
+          {
+            "name": "variant=link, size=icon, disabled=true",
+            "id": "27:373"
+          }
+        ]
+      },
+      "extra": []
     },
     "Card": {
       "pageId": "27:50",
-      "primary": { "name": "Card", "id": "27:432", "type": "COMPONENT", "variantProperties": null,
-        "subNodes": ["CardHeader", "CardContent", "CardFooter"] }
+      "primary": {
+        "name": "Card",
+        "id": "27:432",
+        "type": "COMPONENT",
+        "variantProperties": null,
+        "varianten": null
+      },
+      "extra": []
     },
     "Checkbox": {
       "pageId": "27:51",
-      "primary": { "name": "Checkbox", "id": "27:406", "type": "COMPONENT_SET",
-        "variantProperties": { "checked": ["false", "true"], "disabled": ["false", "true"] } }
+      "primary": {
+        "name": "Checkbox",
+        "id": "27:406",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "checked": [
+            "false",
+            "true"
+          ],
+          "disabled": [
+            "false",
+            "true"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "checked=false, disabled=false",
+            "id": "27:395"
+          },
+          {
+            "name": "checked=false, disabled=true",
+            "id": "27:397"
+          },
+          {
+            "name": "checked=true, disabled=false",
+            "id": "27:401"
+          },
+          {
+            "name": "checked=true, disabled=true",
+            "id": "27:405"
+          }
+        ]
+      },
+      "extra": []
     },
     "Input": {
       "pageId": "27:52",
-      "primary": { "name": "Input", "id": "27:413", "type": "COMPONENT_SET",
-        "variantProperties": { "disabled": ["false", "true"] } }
+      "primary": {
+        "name": "Input",
+        "id": "27:413",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "disabled": [
+            "false",
+            "true"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "disabled=false",
+            "id": "27:409"
+          },
+          {
+            "name": "disabled=true",
+            "id": "27:412"
+          }
+        ]
+      },
+      "extra": []
     },
     "Label": {
       "pageId": "27:53",
-      "primary": { "name": "Label", "id": "27:416", "type": "COMPONENT", "variantProperties": null }
+      "primary": {
+        "name": "Label",
+        "id": "27:416",
+        "type": "COMPONENT",
+        "variantProperties": null,
+        "varianten": null
+      },
+      "extra": []
     },
     "Separator": {
       "pageId": "27:54",
-      "primary": { "name": "Separator", "id": "27:421", "type": "COMPONENT_SET",
-        "variantProperties": { "orientation": ["horizontal", "vertical"] } }
+      "primary": {
+        "name": "Separator",
+        "id": "27:421",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "orientation": [
+            "horizontal",
+            "vertical"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "orientation=horizontal",
+            "id": "27:418"
+          },
+          {
+            "name": "orientation=vertical",
+            "id": "27:420"
+          }
+        ]
+      },
+      "extra": []
     },
     "Slider": {
       "pageId": "27:55",
-      "primary": { "name": "Slider", "id": "27:443", "type": "COMPONENT_SET",
-        "variantProperties": { "disabled": ["false", "true"] } }
+      "primary": {
+        "name": "Slider",
+        "id": "27:443",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "disabled": [
+            "false",
+            "true"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "disabled=false",
+            "id": "27:437"
+          },
+          {
+            "name": "disabled=true",
+            "id": "27:442"
+          }
+        ]
+      },
+      "extra": []
     },
     "Tabs": {
       "pageId": "27:56",
-      "primary": { "name": "Tabs", "id": "27:459", "type": "COMPONENT", "variantProperties": null,
-        "subNodes": ["TabsList", "TabsContent"] },
+      "primary": {
+        "name": "Tabs",
+        "id": "27:459",
+        "type": "COMPONENT",
+        "variantProperties": null,
+        "varianten": null
+      },
       "extra": [
-        { "name": "TabsTrigger", "id": "27:450", "type": "COMPONENT_SET",
-          "variantProperties": { "state": ["inactive", "active"] } }
+        {
+          "name": "TabsTrigger",
+          "id": "27:450",
+          "type": "COMPONENT_SET",
+          "variantProperties": {
+            "state": [
+              "inactive",
+              "active"
+            ]
+          },
+          "varianten": [
+            {
+              "name": "state=inactive",
+              "id": "27:446"
+            },
+            {
+              "name": "state=active",
+              "id": "27:449"
+            }
+          ]
+        }
       ]
     },
     "ThemeToggle": {
       "pageId": "27:57",
-      "primary": { "name": "ThemeToggle", "id": "27:476", "type": "COMPONENT_SET",
-        "variantProperties": { "mode": ["light", "dark"] } }
+      "primary": {
+        "name": "ThemeToggle",
+        "id": "27:476",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "mode": [
+            "light",
+            "dark"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "mode=light",
+            "id": "27:463"
+          },
+          {
+            "name": "mode=dark",
+            "id": "27:475"
+          }
+        ]
+      },
+      "extra": []
     },
     "Tooltip": {
       "pageId": "27:58",
-      "primary": { "name": "TooltipContent", "id": "27:479", "type": "COMPONENT", "variantProperties": null }
+      "primary": {
+        "name": "TooltipContent",
+        "id": "27:479",
+        "type": "COMPONENT",
+        "variantProperties": null,
+        "varianten": null
+      },
+      "extra": []
     }
-  }
+  },
+  "schemaVersie": 2
 }

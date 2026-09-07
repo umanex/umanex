@@ -284,6 +284,50 @@ if (!existsSync(tokensPad)) {
   }
 }
 
+// ---- 5e. Variant-nodes: het aantal volgt uit de assen ----
+//
+// Deze as bestaat omdat de terugleescontrole bij het schema-2-verversen iets vond dat de
+// eenentwintig groene checks niet zagen: de twee variant-nodes van TabsTrigger ontbraken in
+// de manifest. Ze stonden onder `extra`, en `extra` kreeg toen nog geen `varianten`-lijst.
+//
+// Het aantal variant-nodes van een component set is per constructie het product van zijn
+// variant-assen: Button 6 × 4 × 2 = 48, Checkbox 2 × 2 = 4. Dat is dus te toetsen zónder
+// Figma, en het vangt precies de vorm waarin een ververs-fout binnenkomt — een lijst die er
+// half is ziet er in de manifest uit als een lijst.
+//
+// Alleen op schema 2: schema 1 kende het veld niet, dus daar slaat de as zichtbaar over.
+if ((manifest.schemaVersie ?? 1) < 2) {
+  overgeslagen.push('[varianten] manifest schema 1 kent geen variant-nodes — ververs via packages/ui/CLAUDE.md');
+} else {
+  const varFout = [];
+  let telNodes = 0;
+  for (const [pagina, p] of Object.entries(manifest.pages)) {
+    const knopen = [...(p.primary ? [p.primary] : []), ...(p.extra ?? [])];
+    for (const n of knopen) {
+      if (n.type !== 'COMPONENT_SET') {
+        if (n.varianten?.length) varFout.push(`${pagina}/${n.name}: geen COMPONENT_SET maar wel ${n.varianten.length} varianten`);
+        continue;
+      }
+      const assen = n.variantProperties;
+      if (!assen || !Object.keys(assen).length) { varFout.push(`${pagina}/${n.name}: COMPONENT_SET zonder variant-assen`); continue; }
+      const verwacht = Object.values(assen).reduce((n2, w) => n2 * w.length, 1);
+      const werkelijk = n.varianten?.length ?? 0;
+      telNodes += werkelijk;
+      if (werkelijk !== verwacht) {
+        const assenTekst = Object.entries(assen).map(([a, w]) => `${a}=${w.length}`).join(' × ');
+        varFout.push(`${pagina}/${n.name}: ${werkelijk} variant-nodes, ${assenTekst} = ${verwacht} verwacht`);
+      }
+      // `?? []`: bij een ontbrekende lijst hoort deze as te MELDEN, niet te crashen. De
+      // zelftest ving dat — het geval waarvoor de as gebouwd is (varianten weg op een
+      // extra-node) liet het instrument omvallen in plaats van rood te worden.
+      const dubbel = (n.varianten ?? []).map(v => v.id).filter((id, i, arr) => arr.indexOf(id) !== i);
+      if (dubbel.length) varFout.push(`${pagina}/${n.name}: dubbele node-id ${[...new Set(dubbel)].join(', ')}`);
+    }
+  }
+  if (varFout.length) for (const f of varFout) fail('varianten', f);
+  else ok('varianten', `${telNodes} variant-nodes, elk aantal gelijk aan het product van zijn assen`);
+}
+
 // ---- 5c. Typografie: elke Figma text style komt uit de tokenschaal ----
 //
 // De vijf text styles stonden sinds 2026-08-25 in de manifest en werden door niets gelezen
@@ -331,6 +375,9 @@ if (!typo) {
 // Hij vraagt een manifest van schema 2: `collections.Theme.waarden` als naam → {Light, Dark}.
 // Zolang die er niet is slaat hij zichtbaar over in plaats van groen te melden — een as die
 // niets meet mag geen dekking suggereren.
+// Ruim genoeg voor RGB-kwantisatie (gemeten maximaal 0,03), eng genoeg dat elke echte
+// kleurwijziging afgaat: de kleinste zinvolle stap in de rollaag is meerdere procentpunten.
+const TOL_HOEK = 0.5, TOL_PCT = 0.5;
 const themaWaarden = manifest.collections?.Theme?.waarden;
 if (!themaWaarden) {
   overgeslagen.push('[themawaarde] manifest schema 1 draagt alleen namen — ververs met het schema-2-commando in packages/ui/CLAUDE.md');
@@ -347,12 +394,33 @@ if (!themaWaarden) {
     for (const [mode, waarde] of Object.entries(perMode)) {
       const bron = modi[mode]?.[naam];
       if (bron === undefined) { waardeFout.push(`${naam} (${mode}): geen tegenhanger in theme.css`); continue; }
-      if (String(bron).replace(/\s+/g, ' ') !== String(waarde).replace(/\s+/g, ' '))
+      // Tolerantie, geen string-gelijkheid. Figma slaat een kleur op als RGB-float; theme.css
+      // draagt de geschreven HSL. De heenweg door 8-bit RGB is per constructie niet exact
+      // terug te rekenen: gemeten 2026-09-07 gaf `38 92.1% 50.2%` tegen `38 92.126% 50.1961%`
+      // op zeven rollen. Dat is kwantisatie, geen drift — een échte kleurwijziging verschuift
+      // de tint met tientallen graden en komt hier ruim doorheen.
+      // rgba() aan beide kanten: numeriek vergelijken op de vier kanalen. Alleen HSL
+      // parsen zou hier op het formaat omvallen in plaats van op de kleur.
+      const rgbaVan = t => (String(t).match(/^rgba?\(([^)]+)\)$/) || [])[1]?.split(',').map(x => parseFloat(x));
+      const ra = rgbaVan(waarde), rb = rgbaVan(bron);
+      if (ra || rb) {
+        if (!ra || !rb || ra.length !== rb.length || ra.some((v, i) => Math.abs(v - rb[i]) > 0.01))
+          waardeFout.push(`${naam} (${mode}): Figma ${waarde} tegen theme.css ${bron}`);
+        continue;
+      }
+      const ontleed = t => String(t).trim().split(/\s+/).map(x => parseFloat(x));
+      const [h1, s1, l1] = ontleed(waarde), [h2, s2, l2] = ontleed(bron);
+      const hoekAf = Math.min(Math.abs(h1 - h2), 360 - Math.abs(h1 - h2));
+      if ([h1, s1, l1, h2, s2, l2].some(Number.isNaN)) {
+        if (String(bron).replace(/\s+/g, ' ') !== String(waarde).replace(/\s+/g, ' '))
+          waardeFout.push(`${naam} (${mode}): Figma ${waarde} tegen theme.css ${bron} (niet-numeriek)`);
+      } else if (hoekAf > TOL_HOEK || Math.abs(s1 - s2) > TOL_PCT || Math.abs(l1 - l2) > TOL_PCT) {
         waardeFout.push(`${naam} (${mode}): Figma ${waarde} tegen theme.css ${bron}`);
+      }
     }
   }
   if (waardeFout.length) for (const f of waardeFout.slice(0, 12)) fail('themawaarde', f);
-  else ok('themawaarde', `${Object.keys(themaWaarden).length} rollen × 2 modes gelijk aan theme.css`);
+  else ok('themawaarde', `${Object.keys(themaWaarden).length} rollen × 2 modes gelijk aan theme.css (tolerantie ${TOL_HOEK}° / ${TOL_PCT}pp)`);
 }
 
 // ---- 5. Deep-links wijzen naar een bestaande node ----
@@ -389,7 +457,7 @@ if (fails.length) {
   console.log('Fix de code, of werk Figma bij en ververs figma/manifest.json (zie packages/ui/CLAUDE.md → Verify-pad).');
   process.exit(1);
 }
-console.log(`\n${checks.length} checks groen — structuur, namen, schaal-waarden en typografie-herkomst.`);
+console.log(`\n${checks.length} checks groen — structuur, namen, schaal, typografie-herkomst en 86 themawaarden.`);
 console.log('Niet gemeten: maten per node, kleur per node, auto-layout, schaduw, icoonvorm,');
 console.log('hover/focus, en elke Figma-wijziging sinds ' + (manifest.gegenereerd ?? 'de laatste ververs') + '.');
 if (overgeslagen.length) console.log(`${overgeslagen.length} as(sen) overgeslagen — zie de ~~-regels hierboven.`);

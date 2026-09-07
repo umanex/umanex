@@ -50,6 +50,39 @@ const gevallen = [
     },
   },
   {
+    naam: 'variant-node ontbreekt in een component set',
+    as: '[varianten]',
+    muteer: uiRoot => {
+      const p = join(uiRoot, 'figma/manifest.json');
+      const m = JSON.parse(lees(p));
+      m.pages.Button.primary.varianten.pop();
+      schrijf(p, JSON.stringify(m, null, 2));
+    },
+  },
+  {
+    naam: 'varianten-lijst van een extra-node ontbreekt heel',
+    as: '[varianten]',
+    muteer: uiRoot => {
+      // Precies de fout die de terugleescontrole bij het schema-2-verversen vond: de twee
+      // variant-nodes van TabsTrigger stonden onder `extra` en kregen geen lijst. De guard
+      // was toen groen op eenentwintig checks.
+      const p = join(uiRoot, 'figma/manifest.json');
+      const m = JSON.parse(lees(p));
+      for (const e of m.pages.Tabs.extra) if (e.name === 'TabsTrigger') e.varianten = null;
+      schrijf(p, JSON.stringify(m, null, 2));
+    },
+  },
+  {
+    naam: 'twee varianten delen een node-id',
+    as: '[varianten]',
+    muteer: uiRoot => {
+      const p = join(uiRoot, 'figma/manifest.json');
+      const m = JSON.parse(lees(p));
+      m.pages.Badge.primary.varianten[1].id = m.pages.Badge.primary.varianten[0].id;
+      schrijf(p, JSON.stringify(m, null, 2));
+    },
+  },
+  {
     naam: 'text style wijkt af van de tokenschaal',
     as: '[typografie]',
     muteer: uiRoot => {
