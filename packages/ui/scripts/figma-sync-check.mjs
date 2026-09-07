@@ -284,6 +284,50 @@ if (!existsSync(tokensPad)) {
   }
 }
 
+// ---- 5e. Variant-nodes: het aantal volgt uit de assen ----
+//
+// Deze as bestaat omdat de terugleescontrole bij het schema-2-verversen iets vond dat de
+// eenentwintig groene checks niet zagen: de twee variant-nodes van TabsTrigger ontbraken in
+// de manifest. Ze stonden onder `extra`, en `extra` kreeg toen nog geen `varianten`-lijst.
+//
+// Het aantal variant-nodes van een component set is per constructie het product van zijn
+// variant-assen: Button 6 × 4 × 2 = 48, Checkbox 2 × 2 = 4. Dat is dus te toetsen zónder
+// Figma, en het vangt precies de vorm waarin een ververs-fout binnenkomt — een lijst die er
+// half is ziet er in de manifest uit als een lijst.
+//
+// Alleen op schema 2: schema 1 kende het veld niet, dus daar slaat de as zichtbaar over.
+if ((manifest.schemaVersie ?? 1) < 2) {
+  overgeslagen.push('[varianten] manifest schema 1 kent geen variant-nodes — ververs via packages/ui/CLAUDE.md');
+} else {
+  const varFout = [];
+  let telNodes = 0;
+  for (const [pagina, p] of Object.entries(manifest.pages)) {
+    const knopen = [...(p.primary ? [p.primary] : []), ...(p.extra ?? [])];
+    for (const n of knopen) {
+      if (n.type !== 'COMPONENT_SET') {
+        if (n.varianten?.length) varFout.push(`${pagina}/${n.name}: geen COMPONENT_SET maar wel ${n.varianten.length} varianten`);
+        continue;
+      }
+      const assen = n.variantProperties;
+      if (!assen || !Object.keys(assen).length) { varFout.push(`${pagina}/${n.name}: COMPONENT_SET zonder variant-assen`); continue; }
+      const verwacht = Object.values(assen).reduce((n2, w) => n2 * w.length, 1);
+      const werkelijk = n.varianten?.length ?? 0;
+      telNodes += werkelijk;
+      if (werkelijk !== verwacht) {
+        const assenTekst = Object.entries(assen).map(([a, w]) => `${a}=${w.length}`).join(' × ');
+        varFout.push(`${pagina}/${n.name}: ${werkelijk} variant-nodes, ${assenTekst} = ${verwacht} verwacht`);
+      }
+      // `?? []`: bij een ontbrekende lijst hoort deze as te MELDEN, niet te crashen. De
+      // zelftest ving dat — het geval waarvoor de as gebouwd is (varianten weg op een
+      // extra-node) liet het instrument omvallen in plaats van rood te worden.
+      const dubbel = (n.varianten ?? []).map(v => v.id).filter((id, i, arr) => arr.indexOf(id) !== i);
+      if (dubbel.length) varFout.push(`${pagina}/${n.name}: dubbele node-id ${[...new Set(dubbel)].join(', ')}`);
+    }
+  }
+  if (varFout.length) for (const f of varFout) fail('varianten', f);
+  else ok('varianten', `${telNodes} variant-nodes, elk aantal gelijk aan het product van zijn assen`);
+}
+
 // ---- 5c. Typografie: elke Figma text style komt uit de tokenschaal ----
 //
 // De vijf text styles stonden sinds 2026-08-25 in de manifest en werden door niets gelezen
