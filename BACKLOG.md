@@ -81,6 +81,13 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 
 # Klant — umanex
 
+## 2026-09-07 — Compacte maat in @umanex/ui · [design-system]
+- **Wat:** Een compacte size-as op `Button` en `Input` in `packages/ui` (de cashflow-maatvoering: `h-7`/`h-8`, `text-dense`, `rounded-sm`, `focus:ring-1`), zodat een dichte app de gedeelde primitives kan gebruiken zonder ze per call-site te overschrijven.
+- **Waarom niet nu:** Twee redenen. (1) Een variant toevoegen aan een primitive is een design-system-wijziging en die hoort vooraf bevestigd (CLAUDE.md → *Acties die altijd eerst moeten worden bevestigd*). (2) `pnpm --filter @umanex/ui figma:check` faalt hard op een variant-as die code en Figma niet delen — hij staat nu groen op 19 checks. Een nieuwe size vraagt dus ook de component-set in het Figma-bestand **Component library** (`ko2OuasYxyY2YRD69MYhWX`) én een verse `figma/manifest.json`, wat een actieve Desktop Bridge vereist.
+- **Meting die dit item opende (2026-09-07):** 96 hand-gerolde primitives in `apps/cashflow` geclassificeerd tegen `@umanex/ui`: **2 schone swaps** (de twee primaire modal-knoppen, allebei gemigreerd), **58 te dicht** voor elke bestaande maat, **36 geen primitive** (drag-handles, glyph-affordances, klikbare rijen). De 58 kosten elk vier tot zes overschrijvende klassen; dat levert een primitive op die tegen zijn eigen defaults vecht.
+- **Eerste zet:** beslissen of de compacte schaal in de primitive hoort of in een cashflow-lokale wrapper (`DenseInput` bovenop `Input` — geen design-system-wijziging, geen Figma-herbouw, en de `[dubbel]`-as van `ds:guard` vlagt hem niet omdat de naam geen export dubbelt). Pas daarna bouwen.
+- **Status:** open
+
 ## 2026-09-07 — Design-systeem-bron als pre-commit-signaal · [infra]
 - **Wat:** `.githooks/pre-commit` laten waarschuwen bij een aangeraakte app zonder `## Design-systeem-bron`-sectie, naast de bestaande waarschuwing voor `## Verify-pad`. CI faalt er al hard op (`pnpm ds:guard`), maar dat signaal komt pas ná de push; de hook geeft het bij de commit.
 - **Waarom niet nu:** De hook heeft zijn canonieke bron in `umanex-os/templates/githooks-pre-commit` en wordt door `scripts/sync-os.sh` onvoorwaardelijk overgekopieerd (`cp "$GITHOOK" .githooks/pre-commit`, regel 498). Een edit die alleen hier staat is dus stil verlies bij de eerstvolgende sync. En in `/Users/jeroen/Documents/umanex-os` stond bij het schrijven van dit item onvastgelegd werk van Jeroen op `main` (`strategie/README.md`, `strategie/aanbod-catalogus.html`, `strategie/prijslijst.html`) — daar een taak naast beginnen is precies wat CLAUDE.md → Git workflow verbiedt.
