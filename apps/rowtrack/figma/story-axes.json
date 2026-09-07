@@ -1,0 +1,452 @@
+{
+ "$comment": "GEGENEREERD door scripts/story-axes.mjs uit de gebouwde Storybook. Niet met de hand bewerken.",
+ "componenten": {
+  "BleStatusBar": {
+   "storyId": "componenten-blestatusbar--playground",
+   "titel": "Componenten/BleStatusBar",
+   "assen": {
+    "bleStatus": [
+     "idle",
+     "scanning",
+     "connecting",
+     "discovering",
+     "connected",
+     "disconnecting",
+     "reconnecting",
+     "error"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 8
+  },
+  "BottomFade": {
+   "storyId": "componenten-bottomfade--playground",
+   "titel": "Componenten/BottomFade",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "BottomSheet": {
+   "storyId": "componenten-bottomsheet--playground",
+   "titel": "Componenten/BottomSheet",
+   "assen": {
+    "visible": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "Button": {
+   "storyId": "componenten-button--playground",
+   "titel": "Componenten/Button",
+   "assen": {
+    "variant": [
+     "primary",
+     "destructive",
+     "ghost",
+     "outline"
+    ],
+    "size": [
+     "md",
+     "lg"
+    ],
+    "loading": [
+     true,
+     false
+    ],
+    "disabled": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {
+    "iconPosition": [
+     "leading",
+     "trailing"
+    ]
+   },
+   "variantNodes": 32
+  },
+  "Chip": {
+   "storyId": "componenten-chip--playground",
+   "titel": "Componenten/Chip",
+   "assen": {
+    "active": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "DeviceRow": {
+   "storyId": "componenten-devicerow--playground",
+   "titel": "Componenten/DeviceRow",
+   "assen": {
+    "icon": [
+     "dot",
+     "heart"
+    ],
+    "loading": [
+     true,
+     false
+    ],
+    "actionDisabled": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 8
+  },
+  "Dot": {
+   "storyId": "componenten-dot--playground",
+   "titel": "Componenten/Dot",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "EmptyState": {
+   "storyId": "componenten-emptystate--playground",
+   "titel": "Componenten/EmptyState",
+   "assen": {
+    "size": [
+     "sm",
+     "lg"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "ErrorMessage": {
+   "storyId": "componenten-errormessage--playground",
+   "titel": "Componenten/ErrorMessage",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "ErrorState": {
+   "storyId": "componenten-errorstate--playground",
+   "titel": "Componenten/ErrorState",
+   "assen": {
+    "size": [
+     "sm",
+     "lg"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "FormField": {
+   "storyId": "componenten-formfield--playground",
+   "titel": "Componenten/FormField",
+   "assen": {
+    "secureTextEntry": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {
+    "autoCorrect": [
+     true,
+     false
+    ]
+   },
+   "variantNodes": 2
+  },
+  "GoalCardSkeleton": {
+   "storyId": "componenten-goalcardskeleton--playground",
+   "titel": "Componenten/GoalCardSkeleton",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "GoalProgressCard": {
+   "storyId": "componenten-goalprogresscard--playground",
+   "titel": "Componenten/GoalProgressCard",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "GoalSegments": {
+   "storyId": "componenten-goalsegments--playground",
+   "titel": "Componenten/GoalSegments",
+   "assen": {
+    "selected": [
+     "none",
+     "duration",
+     "distance",
+     "split",
+     "watts"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 5
+  },
+  "GoalSheet": {
+   "storyId": "componenten-goalsheet--playground",
+   "titel": "Componenten/GoalSheet",
+   "assen": {
+    "visible": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "HealthConsentScreen": {
+   "storyId": "componenten-healthconsentscreen--playground",
+   "titel": "Componenten/HealthConsentScreen",
+   "assen": {
+    "visible": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "HrStatusBar": {
+   "storyId": "componenten-hrstatusbar--playground",
+   "titel": "Componenten/HrStatusBar",
+   "assen": {
+    "hrStatus": [
+     "idle",
+     "scanning",
+     "waiting",
+     "connected",
+     "error"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 5
+  },
+  "Icon": {
+   "storyId": "componenten-icon--playground",
+   "titel": "Componenten/Icon",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "KPI": {
+   "storyId": "componenten-kpi--playground",
+   "titel": "Componenten/KPI",
+   "assen": {
+    "highlighted": [
+     true,
+     false
+    ],
+    "compact": [
+     true,
+     false
+    ],
+    "fill": [
+     true,
+     false
+    ],
+    "loading": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 16
+  },
+  "KpiSingle": {
+   "storyId": "componenten-kpisingle--playground",
+   "titel": "Componenten/KpiSingle",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "MotivationalToast": {
+   "storyId": "componenten-motivationaltoast--playground",
+   "titel": "Componenten/MotivationalToast",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "PrBadge": {
+   "storyId": "componenten-prbadge--playground",
+   "titel": "Componenten/PrBadge",
+   "assen": {
+    "size": [
+     "sm",
+     "md"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "SectionHeader": {
+   "storyId": "componenten-sectionheader--playground",
+   "titel": "Componenten/SectionHeader",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "Segmented": {
+   "storyId": "componenten-segmented--playground",
+   "titel": "Componenten/Segmented",
+   "assen": {
+    "variant": [
+     "filled",
+     "band"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "Skeleton": {
+   "storyId": "componenten-skeleton--playground",
+   "titel": "Componenten/Skeleton",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "SplitsList": {
+   "storyId": "componenten-splitslist--playground",
+   "titel": "Componenten/SplitsList",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "Subtitle": {
+   "storyId": "componenten-subtitle--playground",
+   "titel": "Componenten/Subtitle",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "TabLabel": {
+   "storyId": "componenten-tablabel--playground",
+   "titel": "Componenten/TabLabel",
+   "assen": {
+    "focused": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 2
+  },
+  "WheelPicker": {
+   "storyId": "componenten-wheelpicker--playground",
+   "titel": "Componenten/WheelPicker",
+   "assen": {
+    "showPill": [
+     true,
+     false
+    ],
+    "surface": [
+     "base",
+     "raised"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 4
+  },
+  "WorkoutCard": {
+   "storyId": "componenten-workoutcard--playground",
+   "titel": "Componenten/WorkoutCard",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "ActivePhase": {
+   "storyId": "componenten-activephase--playground",
+   "titel": "Componenten/ActivePhase",
+   "assen": {
+    "phase": [
+     "active",
+     "summary"
+    ],
+    "bleStatus": [
+     "idle",
+     "scanning",
+     "connecting",
+     "discovering",
+     "connected",
+     "disconnecting",
+     "reconnecting",
+     "error"
+    ],
+    "hasProfileWeight": [
+     true,
+     false
+    ],
+    "hrStatus": [
+     "idle",
+     "scanning",
+     "waiting",
+     "connected",
+     "error"
+    ]
+   },
+   "uitgesloten": {
+    "isCountdown": [
+     true,
+     false
+    ]
+   },
+   "variantNodes": 160
+  },
+  "DeviceSelectionModal": {
+   "storyId": "componenten-deviceselectionmodal--playground",
+   "titel": "Componenten/DeviceSelectionModal",
+   "assen": {
+    "visible": [
+     true,
+     false
+    ],
+    "kind": [
+     "rower",
+     "hr"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 4
+  },
+  "IdlePhase": {
+   "storyId": "componenten-idlephase--playground",
+   "titel": "Componenten/IdlePhase",
+   "assen": {
+    "bleStatus": [
+     "idle",
+     "scanning",
+     "connecting",
+     "discovering",
+     "connected",
+     "disconnecting",
+     "reconnecting",
+     "error"
+    ],
+    "hrStatus": [
+     "idle",
+     "scanning",
+     "waiting",
+     "connected",
+     "error"
+    ],
+    "picking": [
+     "rower",
+     "hr"
+    ],
+    "idleGoalType": [
+     "duration",
+     "distance",
+     "split",
+     "watts"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 320
+  }
+ },
+ "zonderPlayground": [],
+ "fouten": [],
+ "totaalVariantNodes": 595
+}

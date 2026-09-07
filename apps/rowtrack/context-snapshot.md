@@ -59,24 +59,18 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+1269fe4 feat(rowtrack): 33 stories, alle 197 renderen schoon
 e1c8f2c feat(rowtrack): storybook op react-native-web met token-trouwe render
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
 81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
 6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
-d98be09 fix(ui): breedte-filter ankeren op hele klasse-tokens
 ```
 
 ## Uncommitted wijzigingen
-  D  apps/rowtrack/.claude/skills/code-naar-figma/SKILL.md
-  M  apps/rowtrack/.storybook/main.ts
-  M  apps/rowtrack/BACKLOG.md
-  A  apps/rowtrack/components/BleStatusBar.stories.tsx
-  A  apps/rowtrack/components/BottomFade.stories.tsx
-  A  apps/rowtrack/components/BottomSheet.stories.tsx
-  A  apps/rowtrack/components/Chip.stories.tsx
-  A  apps/rowtrack/components/DeviceRow.stories.tsx
-  A  apps/rowtrack/components/Dot.stories.tsx
-  A  apps/rowtrack/components/EmptyState.stories.tsx
+  A  apps/rowtrack/figma/build-spec.json
+  A  apps/rowtrack/figma/story-axes.json
+  A  apps/rowtrack/scripts/figma-build-spec.mjs
+  A  apps/rowtrack/scripts/story-axes.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
