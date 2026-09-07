@@ -19,6 +19,7 @@
 # - ~/.claude/hooks/session-start-handoff.sh + settings.json  (SessionStart handoff-hook, user-level)
 # - ~/.claude/hooks/askquestion-estimate-guard.sh + settings.json  (PreToolUse schatting-guard, user-level)
 # - ~/.claude/hooks/bron-assertie-guard.sh + settings.json          (PreToolUse bron-guard, user-level)
+# - ~/.claude/hooks/acceptatie-guard.sh + settings.json             (PreToolUse acceptatie-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -708,6 +709,41 @@ else
     else
       _tmp="$(mktemp)"
       if jq --arg cmd "$BRON_CMD" '.hooks.PreToolUse += [{"matcher":"Write|Edit|NotebookEdit","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Bron-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PreToolUse-hook toegevoegd aan settings.json (open /hooks of herstart om te activeren)"
+      else
+        rm -f "$_tmp"
+        echo "  ⚠ kon settings.json niet bewerken — controleer of het geldige JSON is"
+      fi
+    fi
+  fi
+fi
+
+# Acceptatie-guard: de trigger van de Beoordeel-stap. Vuurt op de HANDELING (een vinkje,
+# een statusovergang in een *.tcebc.md) en niet op de prompt, want het gemeten gat zit niet
+# in wat de gebruiker vraagt maar in wat er tijdens de taak gebeurt: 22 van 78 briefings
+# blijven op `gebouwd` staan, 49% van de acceptatie-items draagt meer dan één meting, en
+# 14% kan per constructie niet rood worden (2026-09-07, umanex-apps).
+echo ""
+echo "→ Installeer acceptatie-guard (PreToolUse, user-level)..."
+ACC_SRC="$UMANEX_OS_PATH/templates/acceptatie-guard.sh"
+ACC_CMD="$USER_HOOKS/acceptatie-guard.sh"
+if [ ! -f "$ACC_SRC" ]; then
+  echo "  ⚠ templates/acceptatie-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$ACC_SRC" "$ACC_CMD"
+  chmod +x "$ACC_CMD"
+  echo "  ✓ ~/.claude/hooks/acceptatie-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast. Voeg de PreToolUse-hook handmatig toe."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$ACC_CMD" '.hooks.PreToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$ACC_CMD" '.hooks.PreToolUse += [{"matcher":"Write|Edit|NotebookEdit","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Acceptatie-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
         echo "  ✓ PreToolUse-hook toegevoegd aan settings.json (open /hooks of herstart om te activeren)"
       else

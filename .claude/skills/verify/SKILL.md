@@ -122,6 +122,16 @@ de stap daar landde (umanex-os#176). Voor umanex-os sloeg ik diezelfde ronde ove
 vond CI ze, één iteratie later en met een rode pijplijn ertussen. De corpus is het enige
 dat je de vormen toont waar je níet aan dacht.
 
+*Een ad-hoc scan is een meting, geen instrument.* Een snippet dat je in de sessie draait
+levert een geldige waarde op, maar niemand kan hem herdraaien — en in een acceptatie-regel
+leest zijn variabelenaam als gereedschap. Gemeten op 2026-09-07: drie items in de
+storybook-sync-briefing vinken af op `rawFills 0`, `geenAutoLayout: []` en
+`tekstZonderStyle: []`; die drie namen komen in de hele repo alleen in díe briefing voor, en
+de gecommitte guard toetst fills noch layoutMode noch textStyleId. Erger nog: alle drie lezen
+een leegte af, en dat is precies waar een schoon resultaat en een kapotte detector er
+identiek uitzien. Committeer de scan, of schrijf erbij dat hij eenmalig was — een naam die
+alleen in het bewijs bestaat, is geen herdraaibaar pad.
+
 *Een vervangen instrument valideer je eerst op wat níet veranderde.* Herschrijf of vervang je een meetinstrument — een dump-filter, een vergelijker, een parser — dan zegt zijn uitkomst over het gewijzigde deel pas iets als hij het óngewijzigde deel exact reproduceert. Gemeten op fleet-manager: een nieuw dump-filter gooide twee strings weg, en die lege uitkomst zag er identiek uit aan een schone dump; alleen 19 onveranderde schermen ernaast leggen (aantal teksten + tekenlengte) haalde het boven. Dat het instrument zélf kapot kan zijn hoort bij die toets: de vergelijker gaf twee verschillende hashes voor identieke invoer.
 
 **7. De verwachting is de reden om te meten, nooit het bewijs.** Een vuistregel uit de literatuur, een typische waarde, een aggregaat dat logisch oogt — dat is de hypothese die de meting motiveert, niet de meting zelf. Bestaat de meetbare as (een log, een opname, een teller, het Verify-pad van de app), dan sluit alleen díe de vraag; kun je niet meten, dan lever je een hypothese mét het meetpad erbij, geen conclusie met een tabel eronder.
