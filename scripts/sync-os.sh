@@ -20,6 +20,7 @@
 # - ~/.claude/hooks/askquestion-estimate-guard.sh + settings.json  (PreToolUse schatting-guard, user-level)
 # - ~/.claude/hooks/bron-assertie-guard.sh + settings.json          (PreToolUse bron-guard, user-level)
 # - ~/.claude/hooks/acceptatie-guard.sh + settings.json             (PreToolUse acceptatie-guard, user-level)
+# - ~/.claude/hooks/meting-guard.sh + settings.json                 (PreToolUse meting-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -749,6 +750,38 @@ else
       else
         rm -f "$_tmp"
         echo "  ⚠ kon settings.json niet bewerken — controleer of het geldige JSON is"
+      fi
+    fi
+  fi
+fi
+
+# Meting-guard: de verify-discipline in een taak zónder briefing. Vuurt wanneer je een
+# instrument schrijft — een guard, een check, een test — want daar is "hij draait" niet
+# hetzelfde als "hij meet". Gemeten op 243 schrijfacties: 6% vuurrate, nul vals.
+echo ""
+echo "→ Installeer meting-guard (PreToolUse, user-level)..."
+MET_SRC="$UMANEX_OS_PATH/templates/meting-guard.sh"
+MET_CMD="$USER_HOOKS/meting-guard.sh"
+if [ ! -f "$MET_SRC" ]; then
+  echo "  ⚠ templates/meting-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$MET_SRC" "$MET_CMD"
+  chmod +x "$MET_CMD"
+  echo "  ✓ ~/.claude/hooks/meting-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$MET_CMD" '.hooks.PreToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$MET_CMD" '.hooks.PreToolUse += [{"matcher":"Write|Edit|NotebookEdit","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Meting-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PreToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
       fi
     fi
   fi
