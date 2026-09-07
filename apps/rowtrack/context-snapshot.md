@@ -59,17 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+fa1ff0a docs(rowtrack): log the 17 untracked generated files as a backlog item
 ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
 81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
-6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
-d98be09 fix(ui): breedte-filter ankeren op hele klasse-tokens
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/BACKLOG.md
-  ?? apps/rowtrack/.storybook/
-  ?? apps/rowtrack/figma/
 
 ## Bestanden met TODO/FIXME
   (geen)
