@@ -81,6 +81,12 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 
 # Klant — umanex
 
+## 2026-09-07 — Design-systeem-bron als pre-commit-signaal · [infra]
+- **Wat:** `.githooks/pre-commit` laten waarschuwen bij een aangeraakte app zonder `## Design-systeem-bron`-sectie, naast de bestaande waarschuwing voor `## Verify-pad`. CI faalt er al hard op (`pnpm ds:guard`), maar dat signaal komt pas ná de push; de hook geeft het bij de commit.
+- **Waarom niet nu:** De hook heeft zijn canonieke bron in `umanex-os/templates/githooks-pre-commit` en wordt door `scripts/sync-os.sh` onvoorwaardelijk overgekopieerd (`cp "$GITHOOK" .githooks/pre-commit`, regel 498). Een edit die alleen hier staat is dus stil verlies bij de eerstvolgende sync. En in `/Users/jeroen/Documents/umanex-os` stond bij het schrijven van dit item onvastgelegd werk van Jeroen op `main` (`strategie/README.md`, `strategie/aanbod-catalogus.html`, `strategie/prijslijst.html`) — daar een taak naast beginnen is precies wat CLAUDE.md → Git workflow verbiedt.
+- **Eerste zet:** in umanex-os een branch vanaf `origin/main`, de waarschuwing in `templates/githooks-pre-commit` naast blok 6 zetten (zelfde vorm: waarschuwen, niet blokkeren, alleen voor apps die in déze commit veranderen), en `scripts/sync-os.sh` in umanex-apps draaien. Tegenproef: een commit die `apps/<app>/` raakt in een repo waar die app géén sectie heeft moet de regel tonen, en mét sectie zwijgen.
+- **Status:** open
+
 ## 2026-08-25 — Storybook-build in CI en turbo · [infra]
 - **Wat:** `build-storybook` van `@umanex/ui` als turbo-task opnemen en in `ci.yml` draaien, zodat een story of docs-blok dat niet meer compileert de PR rood maakt in plaats van pas bij de volgende `pnpm storybook`.
 - **Waarom niet nu:** `turbo.json` en `ci.yml` zijn config-bestanden die vooraf bevestigd horen te worden; de Storybook-opzet zelf (PR `chore/storybook-ui`) is gebouwd zonder die stap.
