@@ -21,6 +21,7 @@
 # - ~/.claude/hooks/bron-assertie-guard.sh + settings.json          (PreToolUse bron-guard, user-level)
 # - ~/.claude/hooks/acceptatie-guard.sh + settings.json             (PreToolUse acceptatie-guard, user-level)
 # - ~/.claude/hooks/meting-guard.sh + settings.json                 (PreToolUse meting-guard, user-level)
+# - ~/.claude/hooks/nulmeting-guard.sh + settings.json              (PostToolUse nulmeting-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -780,6 +781,38 @@ else
       if jq --arg cmd "$MET_CMD" '.hooks.PreToolUse += [{"matcher":"Write|Edit|NotebookEdit","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Meting-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
         echo "  ✓ PreToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
+      fi
+    fi
+  fi
+fi
+
+# Nulmeting-guard: PostToolUse op Bash. Vuurt wanneer een telcommando een nul teruggeeft —
+# het moment waarop "er is niets" en "mijn instrument staat stuk" er identiek uitzien.
+# Gemeten op 592 Bash-calls: 2% vuurrate met de eis dat het commando óók een telling is.
+echo ""
+echo "→ Installeer nulmeting-guard (PostToolUse, user-level)..."
+NUL_SRC="$UMANEX_OS_PATH/templates/nulmeting-guard.sh"
+NUL_CMD="$USER_HOOKS/nulmeting-guard.sh"
+if [ ! -f "$NUL_SRC" ]; then
+  echo "  ⚠ templates/nulmeting-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$NUL_SRC" "$NUL_CMD"
+  chmod +x "$NUL_CMD"
+  echo "  ✓ ~/.claude/hooks/nulmeting-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$NUL_CMD" '.hooks.PostToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$NUL_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Nulmeting-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
       else
         rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
       fi
