@@ -282,3 +282,11 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Eerste zet:** Eerst bevestigen dat de check nog over dezelfde code gaat: `git log --oneline 490b703.. -- apps/rowtrack/components/WheelPicker.tsx apps/rowtrack/components/BottomSheet.tsx` (vandaag alleen `cd09074`, i18n); daarna Profiel → Lengte / Gewicht / Geboortedatum openen op het toestel en per sheet één screenshot naast het Figma-frame leggen.
 - **Check:** Alleen jij kunt dit beantwoorden: heb je Lengte, Gewicht en Geboortedatum op de iPhone naast Figma gelegd? Nee = open — geen commit of screenshot legt een toestel-check vast.
 - **Status:** open
+
+## 2026-09-07 — 17 gegenereerde bestanden staan ongetrackt in de tree · [infra]
+
+- **Wat:** Beslissen of `apps/rowtrack/.storybook/fonts.css`, de 15 `.ttf`-bestanden onder `.storybook/public/fonts/` en `apps/rowtrack/figma/build-spec.json` in git horen of in `.gitignore`. Ze zijn alle drie output: de fonts uit `scripts/build-web-fonts.mjs` (`pnpm --filter rowtrack fonts:web`), de spec uit `scripts/figma-build-spec.mjs` (`pnpm --filter rowtrack figma:spec`). Vandaag zijn ze ongetrackt én ongenegeerd, wat de slechtste van de drie opties is: ze reizen mee bij elke `git checkout` naar een andere branch, precies het mechanisme uit CLAUDE.md → Git workflow.
+- **Waarom niet nu:** Buiten scope van de dashboard-taak (PR #389). Opgemerkt doordat het nieuwe dev-dashboard "17 gewijzigd" op de rowtrack-kaart toonde terwijl `feature/dev-dashboard` vers van `origin/main` kwam — de bestanden hoorden bij `feature/rowtrack-storybook-figma` en waren meegereisd. Welke kant het op moet is een oordeel dat bij die branch hoort, niet bij deze: `figma/build-spec.json` kán bedoeld zijn als gecommitteerd artefact (commit 5ae050f heet "de bouwspec uit de render"), de `.ttf`-kopieën vermoedelijk niet.
+- **Eerste zet:** Op `feature/rowtrack-storybook-figma`: `git log --oneline -- apps/rowtrack/figma/` om te zien of build-spec.json daar eerder wél gecommit werd. Zo ja → committen; zo nee → `.gitignore`-regel per pad. De font-`.ttf`'s los beoordelen van de spec: die zijn kopieën van `node_modules`, en `pnpm --filter rowtrack fonts:web` maakt ze opnieuw aan.
+- **Check:** `git status --porcelain -uall -- apps/rowtrack | wc -l` → `0` = beslist (gecommit of genegeerd). Elke andere uitkomst = nog open.
+- **Status:** open
