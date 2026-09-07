@@ -10,7 +10,8 @@
     "figma:check": "node scripts/figma-sync-check.mjs",
     "figma:check:selftest": "node scripts/figma-sync-selftest.mjs && node scripts/figma-sync-check.mjs",
     "geometry": "node scripts/geometry-check.mjs",
-    "geometry:write": "node scripts/geometry-check.mjs --write"
+    "geometry:write": "node scripts/geometry-check.mjs --write",
+    "parity": "node scripts/geometry-parity.mjs"
   },
   "exports": {
     "./lib/utils": "./lib/utils.ts",

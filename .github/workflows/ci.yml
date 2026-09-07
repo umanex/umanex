@@ -179,6 +179,14 @@ jobs:
       - name: Guard — gerenderde maten van packages/ui tegen de basislijn
         run: pnpm --filter @umanex/ui geometry
 
+      # De maat-as tussen Figma en de browser, per variant-node. De join zijn de 68
+      # variant-nodes uit de schema-2-manifest; zonder die nodes bestond de koppeling niet.
+      # Vergelijkt hoogte, horizontale padding, gap, radius, randbreedte, opacity en de
+      # aanwezigheid van vulling/rand/effect. Breedte en verticale padding blijven er
+      # bewust buiten — beide zijn niet vergelijkbaar tussen Figma en een browser.
+      - name: Guard — Figma ↔ browser per variant (geometrie-parity)
+        run: pnpm --filter @umanex/ui parity
+
       - name: Guard — contrast van de gerenderde DOM (WCAG AA)
         run: pnpm --filter cashflow verify:visual
 
