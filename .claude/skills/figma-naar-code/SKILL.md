@@ -207,6 +207,24 @@ Token-correctheid (stap 7) bewijst niet dat het component eruitziet als het desi
    dat mislukt. Een parity-run die zijn eigen instrument niet toetst, rapporteert vertrouwen
    dat hij niet heeft.
 
+9. **Bij elke mismatch die de numerieke diff (5), de structuur-as (6) of de render-meting
+   (7) vindt: capture via `vastleggen`, niet-interactief.** Dit is de spiegel van de
+   parity-gate in `code-naar-figma` stap 8, die sinds 2026-06 per mismatch captured — deze
+   richting deed dat niet, en de drift uit punt 5 hierboven (partner-portal: 16
+   parity-fix-commits in 90 dagen volgens die meting) bereikte de eval-loop nooit (gemeten 2026-09-07: één `figma-naar-code`-entry in
+   `umanex-os/LEARNINGS.md` tegen zeven voor `code-naar-figma`). Vul de velden vooraf in
+   volgens het contract in `vastleggen` (*Niet-interactieve aanroep*):
+   - **Header:** `figma-naar-code parity`
+   - **Input:** de Figma-node-URL (stap 3) plus het pad van de gebouwde component
+   - **Fout:** de concrete diff — property, Figma-waarde, gemeten waarde (`padding-bottom:
+     Figma 16 (spacing/4), code 12 (pb-3)`) — of de structurele afwijking (kaart ontbreekt,
+     titel 16 i.p.v. 24)
+   - **Routing:** afgeleid uit de cwd, niet gevraagd
+
+   De capture blijft staan, ook na de fix: ze registreert dat de mapping op deze input
+   faalde en dient als verificatie-test. Nul mismatches is óók een uitkomst — zeg dat dan
+   expliciet in het rapport, zodat "geen capture" niet hetzelfde leest als "niet gekeken".
+
 Pas door naar stap 7 als de render visueel overeenkomt met de Figma-referentie **én** de numerieke diff nul verschillen geeft — of expliciet als niet-meetbaar gemeld is. Kan het component niet gerenderd worden (geen preview-pad beschikbaar) → meld expliciet dat de parity-check is overgeslagen; sluit nooit stil af alsof hij geslaagd is.
 
 ---
@@ -231,6 +249,7 @@ Aanwezigheid én correctheid. De eerste vier checks vangen hardcoded waarden; de
 - [ ] Het meetscript zelf draagt een positieve controle die de run laat falen als de meting
       ongeldig is?
 - [ ] **Design parity (stap 6) geslaagd — render komt visueel overeen met de Figma-node én de numerieke per-property diff geeft nul verschillen — of expliciet als overgeslagen/niet-meetbaar gemeld?**
+- [ ] Elke parity-mismatch uit stap 6 gecaptured via `vastleggen` (niet-interactief, stap 6.9) — of expliciet "nul mismatches" gemeld?
 - [ ] States afgeleid uit `reactions` (stap 5), geen speculatieve states toegevoegd?
 - [ ] `codebasePath`-scan (stap 3) nagekeken — geen dubbele implementatie van een bestaand component?
 - [ ] **Design-snapshot (`<ComponentNaam>.design-snapshot.md`, stap 4b) weggeschreven of bijgewerkt — dekt token-bindings, structuur en states?**

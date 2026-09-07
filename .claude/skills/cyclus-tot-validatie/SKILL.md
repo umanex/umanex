@@ -74,7 +74,7 @@ EXIT (status `gevalideerd`) geldt pas wanneer **alle drie** waar zijn:
 
 Convergeert het niet binnen 3 → **gecontroleerde stop**:
 
-1. roep `vastleggen` niet-interactief aan — de taak-input als Input, de aanhoudende bevinding als Fout;
+1. roep `vastleggen` niet-interactief aan (contract in die skill: *Niet-interactieve aanroep*) — Header `cyclus-tot-validatie — geen convergentie na 3 iteraties`, de taak-input als Input, de aanhoudende bevinding als Fout;
 2. escaleer naar Jeroen met wat er blijft falen en wat je al geprobeerd hebt.
 
 Nooit stil afsluiten alsof gevalideerd.

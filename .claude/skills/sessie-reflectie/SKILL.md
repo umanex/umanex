@@ -34,6 +34,14 @@ Was de sessie triviaal of leeg (geen substantieel werk)? → zeg dat er weinig t
 
 Vóór je vooruitkijkt, kijk terug. Lees de relevante `HANDOFF.md` (repo-root en, indien van toepassing, `apps/{app}/`). **Draai de `Check` van elk open item** — dat veld staat er juist voor, en een check die door niets aangeroepen wordt meet niets. Heeft een ouder item nog geen check, beoordeel het dan met de hand en voeg er meteen een toe. Ga daarna na of déze sessie het item heeft opgepakt of beantwoord. Zo ja: zet de `Status` op `resolved` (via de Edit-tool, gericht — niet het bestand herschrijven). Zo voorkom je dat HANDOFF enkel aangroeit en de SessionStart-hook lawaaierig wordt.
 
+**Items ouder dan 30 dagen krijgen hier een beslissing, geen herhaling.** De SessionStart-hook toont per bestand alleen de vijf jongste open items en telt de rest — lees dus het bestand zelf, niet de hook-output. Oudste eerst:
+
+```bash
+awk '/^```/{b=!b;next} b{next} /^## 20/{d=substr($0,4,10);t=substr($0,4)} /^- \*\*Status:\*\* open/{print d"\t"t}' HANDOFF.md | sort
+```
+
+Voor elk item ouder dan 30 dagen kies je expliciet één van drie: **resolved** (de check zegt dat het niet meer leeft, of het antwoord is intussen gegeven), een **`BACKLOG.md`-item** (het is werk dat blijft liggen — verplaats het, met de check als *Eerste zet*, en zet het HANDOFF-item op resolved met een verwijzing), of een **herformulering** met een scherpere check en een nieuwe datum. Een item dat je een derde keer laat staan zonder een van die drie, is het bewijs dat de check niet werkt. Gemeten op rowtrack (2026-09-07): 29 open, mediaan 53 dagen, 22 ouder dan 30 — een lijst die elke sessiestart werd overgeslagen.
+
 Zijn er geen HANDOFF-bestanden of geen open items → sla deze stap over.
 
 ### Stap 2 — Beantwoord de reflectievragen (eerlijk, gegroepeerd)

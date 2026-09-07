@@ -5,7 +5,7 @@ description: Verifieert openstaande LEARNINGS-entries en hardt bewezen lessen st
 
 ## Werkwijze
 
-Deze skill is de **verwerk-helft** van de eval/feedback-loop van umanex-os; `vastleggen` is de capture-helft. Waar `vastleggen` een fout met zijn letterlijke trigger-input vastlegt op status `open`, neemt deze skill die entry op, **verifieert** of de fout nog optreedt, **hardt** de bewezen les structureel, en werkt de status bij: `open` → `verified` → `promoted`.
+Deze skill is de **verwerk-helft** van de eval/feedback-loop van umanex-os; `vastleggen` is de capture-helft. Waar `vastleggen` een fout met zijn letterlijke trigger-input vastlegt op status `open`, neemt deze skill die entry op, **verifieert** of de fout nog optreedt, **hardt** de bewezen les structureel, en werkt de status bij: `open` → `verified` → `promoted`, of `closed` wanneer er niets te harden valt. Per ronde speelt hij bovendien één oudere promotie als steekproef opnieuw af (stap 1b).
 
 Waarom dit nodig is: een entry op `open` in een `LEARNINGS.md` is **inert** — `LEARNINGS.md` wordt nergens in een sessie ingeladen (geen `@`-import, geen hook). Een learning voorkomt een fout pas wanneer de les óf als regel in een CLAUDE.md-laag staat (die elke sessie via `@`-import geladen wordt) óf in een code-guard zit. Deze skill verzorgt precies die overgang.
 
@@ -30,6 +30,21 @@ Path-resolutie spiegelt `vastleggen` — dezelfde drie lagen. Bepaal welke `LEAR
 Edge case: is de actieve repo umanex-os zélf, dan is alleen globaal zinvol.
 
 Lees de bron en filter entries op status: `open` (te verifiëren) en `verified` (klaar om te promoveren). Toon de te-verwerken entries en vraag welke. Noemde de gebruiker al een specifieke learning → neem die. "Alle" mag, maar verwerk dan één voor één grondig — niet oppervlakkig batchen.
+
+### Stap 1b — Steekproef-regressie: één oudere promotie per ronde
+
+`promoted` bewijst dat een regel geschreven is, niet dat hij blijft werken. Gemeten op 2026-09-07 over 58 promoties in `umanex-os/LEARNINGS.md`: dertien waren Route C (de regel bestond al en vuurde niet), drie recente fouten herhaalden een rail die er al stond, en de enige open entry reproduceerde volledig ná de harding. Niets in de lus toetste een gepromoveerde regel ooit opnieuw — de exit van de lus was daarmee een aanname.
+
+Daarom, **elke ronde, één**: kies de gepromoveerde entry met de oudste (of ontbrekende) `Regressie`-regel waarvan de Input reproduceerbaar is — een letterlijke prompt, een `git log`-wijzer, of een case in `evals/` (de replay-corpus; zie `evals/README.md`). Speel hem blind af volgens stap 3 (geen hint over de verwachte fout; sub-agent of verse sessie naargelang de rail), en schrijf de uitkomst als extra regel ín de entry, vóór de `Status`:
+
+```
+- **Regressie:** YYYY-MM-DD — houdt: {één zin wat de replay deed}
+- **Regressie:** YYYY-MM-DD — faalt: {wat er opnieuw misging}
+```
+
+Houdt hij → klaar; de regel is daarmee een tweede keer gemeten. Faalt hij → de status gaat **niet** terug (deze skill beweegt alleen vooruit), maar er komt een nieuwe `open`-entry met dezelfde Input en als Fout *"regel `<naam>` bestond sinds `<datum>` en vuurde niet"* — die verwerk je in dezelfde ronde als Route C, en dan is instructie alleen aantoonbaar niet genoeg: stel een guard of een deterministisch mechanisme voor. Overslaan mag alleen met reden (geen reproduceerbare entry meer die niet in de laatste 90 dagen is afgespeeld), en die reden staat in je rapport.
+
+Is `claude plugin eval` beschikbaar (gemeten 2026-09-07: nog early access, niet actief), dan is dít de stap die het draait: de cases in `evals/` zijn precies deze inputs met hun graders.
 
 ### Stap 2 — Classificeer de fix-route
 
@@ -119,6 +134,7 @@ Spiegelt `vastleggen`, omgekeerd: van LEARNINGS-laag naar de corresponderende CL
 Gericht met de Edit-tool — nooit het bestand herschrijven (spiegelt `vastleggen`s append-discipline). Werk de `Status`-regel bij en voeg een `Fix`-regel toe die zelf-documenteert hóe en wáár het opgelost is:
 
 - Verify gedaan, fout weg, nog niet gehard naar een regel/guard → `Status: verified`.
+- Verify gedaan en er valt **niets te harden** — de fout bleek een meetfout, de fix zit in het werk zelf (een rebind, een script, een gecorrigeerd bestand) of de klasse is vervallen → `Status: closed`, met de reden in de `Fix`-regel. Zonder deze uitgang blijft de entry eeuwig op `verified` en verschijnt hij elke sessiestart (Columba: vier parity-entries, 83 dagen). `closed` is een eindstatus: hij verschijnt niet meer in de hook en telt niet mee in `doctor.sh`.
 - Regel gehard naar CLAUDE.md (route A/C) of guard gebouwd/bevestigd (route B) → `Status: promoted`.
   - **Route B-drempel:** `promoted` mag alleen als de guard de volledige faalklasse van de learning dekt, niet enkel de letterlijke gecapturede input. Dekt hij de gecapturede conditie maar laat een adversariële check verwante gaten van dezelfde klasse open, hou dan `verified` en open een losse code-taak — promoveren zou impliceren dat het gat dicht is.
 

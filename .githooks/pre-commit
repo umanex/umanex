@@ -117,8 +117,16 @@ fi
 #    daarop afgaan zou de guard permanent laten piepen, en een wachter die altijd afgaat leer
 #    je vooral negeren. Aanwezigheid is machinaal te toetsen, betekenis niet: of de check
 #    ergens naar kíjkt blijft mensenwerk.
+# Paden NUL-gescheiden en mét R: `for f in $(… | grep)` splitste een pad met een spatie in
+# twee fragmenten (twee valse meldingen), liet een pad met een niet-ASCII-teken stil vallen
+# (git quoteert dat pad, dus de `$`-anker van de grep miste) en zag een hernoemd bestand
+# helemaal niet (`--diff-filter=ACM` laat R weg, en git detecteert renames standaard).
+# Gemeten 2026-09-07 door het review-panel, op beide kanten. Zelfde vorm in 2b en 2c.
+staged_paths() { git diff --cached --name-only -z --diff-filter=ACMR; }
+
 zonder_check=""
-for f in $(git diff --cached --name-only --diff-filter=ACM | grep -E '(^|/)HANDOFF\.md$' || true); do
+while IFS= read -r -d '' f; do
+  case "$f" in HANDOFF.md|*/HANDOFF.md) ;; *) continue ;; esac
   # Per toegevoegd entry-blok: staat er tussen de toegevoegde regels een `Check`?
   missing=$(git diff --cached -U0 -- "$f" \
     | awk '
@@ -133,7 +141,7 @@ for f in $(git diff --cached --name-only --diff-filter=ACM | grep -E '(^|/)HANDO
         END { if (open_entry && is_open && !has_check) n++; print n + 0 }
       ')
   [ "${missing:-0}" -gt 0 ] 2>/dev/null && zonder_check="$zonder_check $f"
-done
+done < <(staged_paths)
 
 if [ -n "$zonder_check" ]; then
   echo "⚠ Nieuwe open HANDOFF-entry zonder 'Check'-regel in:$zonder_check"
@@ -155,17 +163,63 @@ fi
 #     Alleen op toegevoegde `- [x]`-regels in `*.tcebc.md`. Aanwezigheid van het woord
 #     is machinaal te toetsen; of het bewijs iets meet, blijft mensenwerk.
 zonder_bewijs=""
-for f in $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.tcebc\.md$' || true); do
+while IFS= read -r -d '' f; do
+  case "$f" in *.tcebc.md) ;; *) continue ;; esac
   n_zb=$(git diff --cached -U0 -- "$f" \
     | awk '/^\+ *- \[[xX]\]/ && !/bewijs:/ { n++ } END { print n + 0 }')
   [ "${n_zb:-0}" -gt 0 ] 2>/dev/null && zonder_bewijs="$zonder_bewijs $f ($n_zb)"
-done
+done < <(staged_paths)
 
 if [ -n "$zonder_bewijs" ]; then
   echo "⚠ Acceptatie-item(s) afgevinkt zonder 'bewijs:' in:$zonder_bewijs"
   echo "  Een vinkje zonder meting is een bewering, geen validatie — op Soda+ stond het"
   echo "  vijf keer verkeerd op negentien. Zet het bewijs ín de regel:"
   echo "    - [x] CTA's op één hoogte — bewijs: y=612 op 02–08 (figma_execute)"
+fi
+
+# 2c. Briefing-status-signaal — draagt een aangeraakte briefing een status uit het
+#     vocabulaire van de triade? Waarschuwt, blokkeert niet. Zelfde plek als 2a/2b: een
+#     briefing kan in de root én in een app staan.
+#
+#     De faalvorm: de triade kent drie statussen (gepland → gebouwd → gevalideerd) en niets
+#     bewaakte het woord. Gemeten 2026-09-07 over 197 briefings in vier repo's: 64 gevalideerd,
+#     59 gebouwd, 10 gepland, 1 zónder Status en 63 met een van veertien eigen woorden
+#     ("In uitvoering", "uitgevoerd", "geïmplementeerd", "draft", "ready", "concept", "akkoord").
+#     De enige telling die zegt of de cyclus
+#     sluit — hoeveel briefings halen `gevalideerd` — was daardoor niet te maken; die telling
+#     staat nu in doctor.sh en leest alleen deze drie woorden.
+#
+#     Op aanraking, niet op de hele repo — dezelfde reden als het verify-pad-signaal: de
+#     bestaande afwijkers zijn er tientallen, en een wachter die permanent afgaat leer je
+#     negeren. Leest de gestagede inhoud (`git show :pad`), niet de working tree.
+#     De parser leest drie schrijfwijzen — `- **Status:** x`, `| **Status** | x |` en kaal
+#     `Status: x` — en slaat codeblocks over. De eerste versie las alleen de lijstvorm en
+#     meldde 34 briefings als "zonder Status" waarvan er 33 wél een Status droegen (gemeten
+#     2026-09-07 door het review-panel over 197 briefings). Dezelfde awk staat in
+#     scripts/doctor.sh (blok 6b); wijzig ze samen.
+status_af=""
+while IFS= read -r -d '' f; do
+  case "$f" in *.tcebc.md) ;; *) continue ;; esac
+  st="$(git show ":$f" 2>/dev/null \
+    | awk '/^```/ { blok = !blok; next } blok { next }
+           { sub(/\r$/, "") }
+           match($0, /^[[:space:]]*(- )?\*\*Status:?\*\*:?[[:space:]]*/) { v = substr($0, RLENGTH + 1) }
+           match($0, /^\| *(\*\*)?Status(\*\*)? *\| */)              { v = substr($0, RLENGTH + 1) }
+           match($0, /^Status: */)                                     { v = substr($0, RLENGTH + 1) }
+           v != "" { gsub(/\*/, "", v); sub(/[[:space:]|].*/, "", v); gsub(/[.,;:]+$/, "", v)
+                     print tolower(v); exit }')"
+  case "$st" in
+    gepland|gebouwd|gevalideerd) ;;
+    "") status_af="$status_af $f (geen Status)" ;;
+    *)  status_af="$status_af $f ('$st')" ;;
+  esac
+done < <(staged_paths)
+
+if [ -n "$status_af" ]; then
+  echo "⚠ Briefing-status buiten het vocabulaire in:$status_af"
+  echo "  De triade kent drie statussen — gepland → gebouwd → gevalideerd — en alleen die"
+  echo "  drie tellen mee in de telling van doctor.sh. Een eigen woord of geen Status zegt"
+  echo "  niets over of de cyclus sloot. Zet in het metadata-blok: - **Status:** gebouwd"
 fi
 
 # `D` hoort erbij. Een commit die alleen verwijdert raakt de app net zo goed, en juist een

@@ -156,6 +156,8 @@ Sorteer op exploiteerbaarheid × impact. Een gelekt secret of een authz-gat staa
 
 **P3 is een bestemming, geen etiket.** Schrijf elke P3 weg als entry in de dichtstbijzijnde `BACKLOG.md` (`apps/{app}/` → repo-root → globaal), type `security`, en noem het pad in je rapport. Een P3 die alleen in het auditrapport staat, verdwijnt met dat rapport — en dan heeft de audit hem net zo goed niet gevonden.
 
+**P0–P2 hebben óók een huis.** Binnen de triade blokkeren P0/P1 `gevalideerd` en landen ze in de fix-lijst. Buiten de triade — een losse audit op bestaand werk — bestond een P0–P2 tot 2026-09-07 alleen in het rapport, terwijl de P3 wél een bestemming had. Elke P0–P2 landt daarom als **`BACKLOG.md`-entry met status `open` en type `security`** (de bevinding als *Wat*, de fix als *Eerste zet*), of als **taak-contract** wanneer hij meteen gefixt wordt; een P0 die niet vandaag gefixt wordt is bovendien een melding aan Jeroen, geen backlog-regel. Het rapport noemt per bevinding de bestemming.
+
 ---
 
 ## Rapport-output
@@ -170,6 +172,7 @@ Structuur:
 4. **Bevindingen** — geprioriteerd P0→P3, elk met bewijs (`bestand:regel`), risico en concrete fix.
 5. **Niet te verifiëren** — categorieën die runtime/deploy-inzicht vereisen, met hoe ze wél te checken; bij een launch-/productie-vraag altijd inclusief de launch-gate-lijst.
 6. **Limieten** — eerlijk: dit is een statische code-review, geen penetratietest; benoem de aannames.
+7. **Bestemmingen** — per P0–P3 het pad van de `BACKLOG.md`-entry of het taak-contract waarin hij geland is. Een rapport zonder deze lijst is onaf.
 
 Toon de samenvatting (punt 2) + de P0/P1-lijst ook **inline** in de chat, met het bestandspad. Niet stilzwijgend enkel wegschrijven.
 
