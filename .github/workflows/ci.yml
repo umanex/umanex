@@ -172,6 +172,13 @@ jobs:
       # `verify:visual` rendert de harness uit de build hierboven en sweept hem daarna.
       # De sweep draait zijn eigen zelftest mee — een guard die niet kán falen meldt
       # "0 fouten" even overtuigend als een die werkt.
+      # De sync-guard toetst namen, variant-assen, tokenwaarden en typografie-herkomst —
+      # geen enkele van die assen raakt een MAAT. Deze stap meet de gerenderde doosmaten van
+      # elke story tegen een gecommitteerde basislijn. Vereist de Storybook-build hierboven
+      # en de Chromium uit de stap ervoor.
+      - name: Guard — gerenderde maten van packages/ui tegen de basislijn
+        run: pnpm --filter @umanex/ui geometry
+
       - name: Guard — contrast van de gerenderde DOM (WCAG AA)
         run: pnpm --filter cashflow verify:visual
 
