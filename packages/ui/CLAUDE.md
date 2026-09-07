@@ -96,8 +96,14 @@ for (const c of cols) {
       w[v.name] = {};
       for (const [modeId, val] of Object.entries(v.valuesByMode)) {
         // De rollaag staat in theme.css als HSL-triplet zonder functie: "0 0% 100%".
-        const h = typeof val === "object" && val.r !== undefined ? rgbNaarHslTriplet(val) : val;
-        w[v.name][modeNaam[modeId]] = h;
+        // theme.css draagt de rollaag als HSL-triplet, behalve waar een alpha nodig is —
+        // `overlay-scrim` staat er als rgba(). Stuur dus dezelfde vorm uit als de bron,
+        // anders vergelijkt de guard een triplet met een rgba en valt hij om op het formaat.
+        w[v.name][modeNaam[modeId]] = (typeof val === "object" && val.r !== undefined)
+          ? (val.a < 0.999
+              ? `rgba(${Math.round(val.r * 255)}, ${Math.round(val.g * 255)}, ${Math.round(val.b * 255)}, ${Math.round(val.a * 100) / 100})`
+              : rgbNaarHslTriplet(val))
+          : val;
       }
     }
     collections[c.name].waarden = w;
@@ -122,7 +128,16 @@ function rgbNaarHslTriplet({ r, g, b }) {
 const pages = {};
 for (const p of figma.root.children) {
   const kinderen = p.children;
-  const hoofd = kinderen.find(c => c.type === "COMPONENT_SET") ?? kinderen.find(c => c.type === "COMPONENT") ?? null;
+  // Welke node is "primary"? Niet simpelweg de eerste component set — op de Tabs-pagina
+  // staan `Tabs` (COMPONENT) en `TabsTrigger` (COMPONENT_SET) naast elkaar, en de deep-link
+  // in tabs.stories.tsx wijst naar `Tabs`. De naam is hier de sleutel: exacte match op de
+  // paginanaam wint, dan een prefix (pagina "Tooltip" ↔ node "TooltipContent"), en pas
+  // daarna de eerste set. Zonder die volgorde kiest het recept TabsTrigger en faalt de
+  // [link]-as op een verschil dat er niet is.
+  const hoofd = kinderen.find(c => c.name === p.name)
+    ?? kinderen.find(c => c.name.startsWith(p.name))
+    ?? kinderen.find(c => c.type === "COMPONENT_SET")
+    ?? kinderen.find(c => c.type === "COMPONENT") ?? null;
   pages[p.name] = {
     pageId: p.id,
     primary: hoofd ? {
@@ -131,7 +146,12 @@ for (const p of figma.root.children) {
       varianten: hoofd.type === "COMPONENT_SET"
         ? hoofd.children.map(v => ({ name: v.name, id: v.id })) : null,
     } : null,
-    extra: kinderen.filter(c => c !== hoofd).map(c => ({ name: c.name, id: c.id, type: c.type })),
+    // Ook `extra` houdt zijn variant-assen. Op de Tabs-pagina draagt TabsTrigger de assen
+    // terwijl Tabs de primary is; laat je ze hier weg, dan is die informatie weg uit de
+    // manifest en kan geen enkele as hem ooit nog toetsen.
+    extra: kinderen.filter(c => c !== hoofd).map(c => ({
+      name: c.name, id: c.id, type: c.type, variantProperties: platteAssen(c),
+      varianten: c.type === "COMPONENT_SET" ? c.children.map(v => ({ name: v.name, id: v.id })) : null })),
   };
 }
 
