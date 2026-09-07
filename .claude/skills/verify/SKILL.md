@@ -58,6 +58,16 @@ Vóór een build in een repo met draaiende processen: `pm2 status`, `lsof -nP -i
 
 Kan dat niet, dan is een surrogaat toegestaan **mits je twee dingen meldt**: dat je op een surrogaat getest hebt, en wat dat níet uitsluit. Sluit het gat waar mogelijk met een aantoonbare gelijkheid ("de uitgerolde hook is byte-identiek aan de geteste template, en `core.hooksPath` staat gezet") — dat is geen aanname maar een diff.
 
+*Een overgetypte kopie is óók een surrogaat, en de kortste die er bestaat.* Gemeten op
+2026-09-07: een nieuwe grep-keten in `templates/githooks-pre-commit` zweeg op élk geval.
+Ik toetste de keten los door hem in de shell over te tikken, hij gaf precies de verwachte
+treffer, dus zocht ik de fout in een ander blok. Mijn getikte versie droeg
+`grep -v -E '^[+][+][+]'`; het bestand droeg `grep -v '^\+\+\+'`, en dat is BRE, waar
+`\+` een herhalingsoperator zonder operand is — de hele keten viel om op stderr terwijl de
+hook exit 0 gaf. Wat je typt is wat je bedóelde, niet wat er staat. Haal de regel dus uit
+het artefact (`sed -n '<n>p'`, `awk`, `git show`) en pijp hem naar de test, of draai het
+artefact zelf. Dit is rail 2 op zijn kleinste schaal: één regel is óók een doelwit.
+
 **3. Geen verzonnen bewijs.** Kun je een item niet uitvoeren, markeer het `[NIET TE VERIFIËREN — reden]` en zeg hoe het wél zou kunnen. Een verificatie met valse zekerheid is schadelijker dan een eerlijke leemte, want ze sluit de vraag af.
 
 **4. Toets een bewering over een bibliotheek aan de geïnstalleerde bron.** Die staat in `node_modules`. Hoe stelliger de bewering, hoe kleiner de kans dat ze nagekeken is — en een typecheck die slaagt zegt niets over een verkeerd begrepen contract.
@@ -88,9 +98,29 @@ Een niet-getrouw instrument levert een vals-negatief dat er identiek uitziet als
 
 *En de omgeving van je instrument.* In een achtergrond-tabblad staat `document.visibilityState` op `hidden` en vuurt `requestAnimationFrame` niet meer: een wachtlus op frames hangt tot de tool-timeout, en animaties maken hun exit nooit af. Wat je dan meet is de tab-staat, niet de app. Gebruik timers in plaats van frames, of breng het doelwit naar de voorgrond.
 
-*Een afwijzing heeft dezelfde vorm als een lege uitkomst.* "Niet gevonden", "geweigerd" en "instrument kapot" zien er identiek uit, dus een negatieve uitkomst vraagt evengoed een positieve controle: toon dat je opstelling de positieve uitkomst ooit kón produceren. Gemeten op 2026-08-29: `sftp -b` tegen de SFTP-drop van FOD Economie gaf `Permission denied (publickey,keyboard-interactive)` zonder ooit een wachtwoordprompt, en dat werd gerapporteerd als eigenschap van de server — met het advies een sleutelpaar via de helpdesk te laten installeren, dagen wachttijd voor een probleem dat niet bestond. `-b` zet `BatchMode=yes` door naar ssh en onderdrukt élke interactieve prompt; zonder `-b` logden exact dezelfde gegevens meteen in. De meting ging dus over het gereedschap, niet over de server. Het alarm lag er al: de foutmelding noemde `keyboard-interactive` zélf als toegestane methode, en dat is per definitie een methode die prompt — twee signalen die elkaar tegenspraken, als één gelezen. Nagemeten op 2026-09-03 met een host-key-prompt: mét `-b` `Host key verification failed` zonder prompt, zonder `-b` verschijnt `The authenticity of host … can't be established`. Let op de eerste opzet daarvan, die zélf rail 8 opleverde: met `</dev/null` gaven **béide** kanten dezelfde uitkomst, want zonder tty prompt ssh sowieso niet — pas op een pty (`script -q /dev/null`) bewoog de meting.
+*Een afwijzing heeft dezelfde vorm als een lege uitkomst.* "Niet gevonden", "geweigerd" en "instrument kapot" zien er identiek uit, dus een negatieve uitkomst vraagt evengoed een positieve controle: toon dat je opstelling de positieve uitkomst ooit kón produceren. Gemeten op 2026-08-29: `sftp -b` tegen de SFTP-drop van FOD Economie gaf `Permission denied (publickey,keyboard-interactive)` zonder ooit een wachtwoordprompt, en dat werd gerapporteerd als eigenschap van de server — met het advies een sleutelpaar via de helpdesk te laten installeren, dagen wachttijd voor een probleem dat niet bestond. `-b` zet `BatchMode=yes` door naar ssh en onderdrukt élke interactieve prompt; zonder `-b` logden exact dezelfde gegevens meteen in. De meting ging dus over het gereedschap, niet over de server. Het alarm lag er al: de foutmelding noemde `keyboard-interactive` zélf als toegestane methode, en dat is per definitie een methode die prompt — twee signalen die elkaar tegenspraken, als één gelezen. Nagemeten op 2026-09-03 met een host-key-prompt: mét `-b` `Host key verification failed` zonder prompt, zonder `-b` verschijnt `The authenticity of host … can't be established`. Let op de eerste opzet daarvan, die zélf rail 8 opleverde: met `</dev/null` gaven **béide** kanten dezelfde uitkomst, want zonder tty prompt ssh sowieso niet — pas op een pty (`script -q /dev/null`) bewoog de meting. Dezelfde vorm, één laag abstracter: **"niet gevonden" uit een systeem met
+toegangscontrole onderscheidt niet tussen afwezig en verboden.** GitHub antwoordt op een
+privé-repo waar je token niet bij mag met **404** en niet met 403, expres, anders zou het
+bestaan van privé-repo's lekken; een Supabase-rij achter een RLS-policy geeft een lege
+resultset in plaats van een fout; een Figma-node in een bestand dat je token niet mag openen
+bestaat simpelweg niet. Gemeten op 2026-09-07: `refs-check.mjs` meldde in CI vijf bestaande
+umanex-os-PR's als niet-bestaand, omdat het token die privé-repo niet zag. Laat het
+instrument daarom éérst de **container** terugvinden — de repo, de tabel, het bestand — vóór
+je uit een leeg antwoord afleidt dat het item er niet is. Ziet het de container niet, dan is
+de enige geldige uitkomst een zichtbaar geteld gat, geen "bestaat niet".
 
 *Meerdere beoordelaars op één afgeleide bron zijn één meting.* Gemeten op Partner Fleet Portal (2026-08-27): een dump gefilterd op `node.visible` — de eigen vlag van de node, die niets zegt over een ouder die een component-variant heeft weggeklapt — droeg 22 `kWh`-tekstnodes waarvan er **nul** gerenderd worden. Alle drie de audit-assen meldden daarop onafhankelijk dezelfde P1 ("22 kWh-suffixen op velden die niets met energie te maken hebben"), en de scheidsrechter zette hem bovenaan als quick win met het hoogste rendement. Drie eensluidende beoordelaars zijn daar géén bevestiging: ze lazen alle drie dezelfde kapotte bron, dus hun overeenstemming meet de dump en niet het bestand. De hermeting met `absoluteRenderBounds` plus een ouder-keten-check en een positieve controle wierp de bevinding om vóór publicatie. De bron moet een tegenproef dragen vóórdat je er meerdere beoordelaars op zet.
+
+*Een tekst-scanner die nooit echte tekst gezien heeft, is ongetoetst.* Een zelftest op
+verzonnen invoer bewijst de assen, niet de pasvorm met de werkelijkheid: hij bevat per
+constructie alleen de vormen waar je aan dacht. Draai een nieuwe scanner daarom over de
+**volledige corpus van elke repo waar hij gaat landen** vóór je hem in CI hangt, en lees de
+treffers één voor één. Gemeten op 2026-09-07 met `refs-check.mjs`: op umanex-apps leverde
+die ronde twee valse positieven op — een verkorte hex-kleur (`#000@30%`) die als PR-nummer
+nul las, en een naam die op een streepje eindigde en als repo las. Allebei gerepareerd vóór
+de stap daar landde (umanex-os#176). Voor umanex-os sloeg ik diezelfde ronde over, en daar
+vond CI ze, één iteratie later en met een rode pijplijn ertussen. De corpus is het enige
+dat je de vormen toont waar je níet aan dacht.
 
 *Een vervangen instrument valideer je eerst op wat níet veranderde.* Herschrijf of vervang je een meetinstrument — een dump-filter, een vergelijker, een parser — dan zegt zijn uitkomst over het gewijzigde deel pas iets als hij het óngewijzigde deel exact reproduceert. Gemeten op fleet-manager: een nieuw dump-filter gooide twee strings weg, en die lege uitkomst zag er identiek uit aan een schone dump; alleen 19 onveranderde schermen ernaast leggen (aantal teksten + tekenlengte) haalde het boven. Dat het instrument zélf kapot kan zijn hoort bij die toets: de vergelijker gaf twee verschillende hashes voor identieke invoer.
 
