@@ -1,0 +1,1181 @@
+{
+  "$comment": "Gemeten Figma-kant per variant-node. NIET met de hand bewerken — ververs via packages/ui/CLAUDE.md. Breedte staat er bewust NIET in: die is tekstgedreven en niet vergelijkbaar met een browser.",
+  "fileKey": "ko2OuasYxyY2YRD69MYhWX",
+  "gegenereerd": "2026-09-07",
+  "sets": 8,
+  "varianten": 68,
+  "gemeten": {
+    "Badge": {
+      "variant=default": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          2,
+          10,
+          2,
+          10
+        ],
+        "gap": 0,
+        "r": 9999,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=secondary": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          2,
+          10,
+          2,
+          10
+        ],
+        "gap": 0,
+        "r": 9999,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=destructive": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          2,
+          10,
+          2,
+          10
+        ],
+        "gap": 0,
+        "r": 9999,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=outline": {
+        "h": 22,
+        "lay": "HORIZONTAL",
+        "pad": [
+          2,
+          10,
+          2,
+          10
+        ],
+        "gap": 0,
+        "r": 9999,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=success": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          2,
+          10,
+          2,
+          10
+        ],
+        "gap": 0,
+        "r": 9999,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=warning": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          2,
+          10,
+          2,
+          10
+        ],
+        "gap": 0,
+        "r": 9999,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      }
+    },
+    "Button": {
+      "variant=default, size=default, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=default, size=default, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=default, size=sm, disabled=false": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=default, size=sm, disabled=true": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=default, size=lg, disabled=false": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=default, size=lg, disabled=true": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=default, size=icon, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=default, size=icon, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=secondary, size=default, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=secondary, size=default, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=secondary, size=sm, disabled=false": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=secondary, size=sm, disabled=true": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=secondary, size=lg, disabled=false": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=secondary, size=lg, disabled=true": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=secondary, size=icon, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=secondary, size=icon, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=outline, size=default, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=outline, size=default, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=outline, size=sm, disabled=false": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=outline, size=sm, disabled=true": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=outline, size=lg, disabled=false": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=outline, size=lg, disabled=true": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=outline, size=icon, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=outline, size=icon, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=ghost, size=default, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=ghost, size=default, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=ghost, size=sm, disabled=false": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=ghost, size=sm, disabled=true": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=ghost, size=lg, disabled=false": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=ghost, size=lg, disabled=true": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=ghost, size=icon, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=ghost, size=icon, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=destructive, size=default, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=destructive, size=default, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=destructive, size=sm, disabled=false": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=destructive, size=sm, disabled=true": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=destructive, size=lg, disabled=false": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=destructive, size=lg, disabled=true": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=destructive, size=icon, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=destructive, size=icon, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=link, size=default, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=link, size=default, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          16,
+          0,
+          16
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=link, size=sm, disabled=false": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=link, size=sm, disabled=true": {
+        "h": 36,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=link, size=lg, disabled=false": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=link, size=lg, disabled=true": {
+        "h": 44,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          32,
+          0,
+          32
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      },
+      "variant=link, size=icon, disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "variant=link, size=icon, disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 8,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      }
+    },
+    "Checkbox": {
+      "checked=false, disabled=false": {
+        "h": 16,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 4,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "checked=false, disabled=true": {
+        "h": 16,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 4,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      },
+      "checked=true, disabled=false": {
+        "h": 16,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 4,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "checked=true, disabled=true": {
+        "h": 16,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 4,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      }
+    },
+    "Input": {
+      "disabled=false": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 0,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 1
+      },
+      "disabled=true": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          12,
+          0,
+          12
+        ],
+        "gap": 0,
+        "r": 6,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 1,
+        "eff": 0,
+        "op": 0.5
+      }
+    },
+    "Separator": {
+      "orientation=horizontal": {
+        "h": 1,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 0,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "orientation=vertical": {
+        "h": 80,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 0,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      }
+    },
+    "Slider": {
+      "disabled=false": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 0,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "disabled=true": {
+        "h": 20,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 0,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 0.5
+      }
+    },
+    "TabsTrigger": {
+      "state=inactive": {
+        "h": 32,
+        "lay": "HORIZONTAL",
+        "pad": [
+          6,
+          12,
+          6,
+          12
+        ],
+        "gap": 0,
+        "r": 4,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "state=active": {
+        "h": 32,
+        "lay": "HORIZONTAL",
+        "pad": [
+          6,
+          12,
+          6,
+          12
+        ],
+        "gap": 0,
+        "r": 4,
+        "bw": 1,
+        "fills": 1,
+        "strokes": 0,
+        "eff": 1,
+        "op": 1
+      }
+    },
+    "ThemeToggle": {
+      "mode=light": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      },
+      "mode=dark": {
+        "h": 40,
+        "lay": "HORIZONTAL",
+        "pad": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "gap": 0,
+        "r": 6,
+        "bw": 1,
+        "fills": 0,
+        "strokes": 0,
+        "eff": 0,
+        "op": 1
+      }
+    }
+  }
+}
