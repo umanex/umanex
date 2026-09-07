@@ -13,6 +13,37 @@ Klant-specifieke gegevens — token-bron, doelbestand-keys en een eventueel onde
 
 ---
 
+## Bronnen-poort — verplicht vóór je bouwt
+
+Bouw nooit op een leeg vel wanneer er al een bron ligt. Stel eerst vast welke van de drie
+bestaan, en noem ze in je antwoord. De app-eigen `CLAUDE.md` draagt dat sinds 2026-09-07 in
+een `## Design-systeem-bron`-sectie: welke Tailwind-preset, welke componentbron, welke Storybook.
+Ontbreekt die sectie, dan is dát je eerste bevinding — `pnpm ds:guard` toetst hem hard in CI.
+
+| Bron | Wat het betekent voor deze taak | Harde check |
+|---|---|---|
+| **Design system** (tokens + preset) | elke kleur, spacing, radius en typografie bindt aan een rol; nooit een rauwe waarde, nooit een primitive | `pnpm --filter @umanex/tokens guard` |
+| **Figma library** (component library-bestand) | het component bestáát daar mogelijk al: instantieer in plaats van na te tekenen | `pnpm --filter @umanex/ui figma:check` |
+| **Storybook** | de gerenderde component is het meetbare doelwit, en zijn maten liggen vast in een basislijn | `pnpm --filter @umanex/ui geometry` |
+
+Drie regels die daaruit volgen.
+
+**Bestaat het component al in de library, dan bouw je het niet opnieuw.** Zoek eerst
+(`figma_search_components` aan de Figma-kant, de `exports` van de componentpackage aan de
+code-kant). Een nagetekend component is een tweede bron van waarheid, precies zoals een
+variabele zonder token.
+
+**Bestaat er een Storybook, dan is die de bedoeld-kant.** Niet je eigen lezing van de code, en
+niet een grep. In umanex-apps ligt de gemeten code-kant in `packages/ui/figma/geometry.code.json`
+(`pnpm --filter @umanex/ui geometry:write`); dat bestand draagt per story de doosmaten van elk
+element. Gebruik díe getallen als vergelijkingsbron.
+
+**Ontbreekt een van de drie, zeg dat.** "Geen Storybook in deze app" is een geldig antwoord dat
+de meetbare as verzwakt, en dat hoort in je rapport te staan — niet weggelaten te worden. Zelfde
+regime als "geen" in het `## Verify-pad`.
+
+---
+
 ## Drie principes — niet-onderhandelbaar
 
 Deze drie regels sturen elke stap hieronder. Bij twijfel onderweg vallen ze terug op deze principes.
@@ -41,24 +72,6 @@ figma_get_status
 
 - Actief → ga verder
 - Niet actief → stop. Vraag: "Wil je de Figma Desktop Bridge activeren, of overschakelen naar native MCP?" — wacht op antwoord, ga nooit stilzwijgend verder.
-**Verkeerd bestand actief? Schakelen, niet stoppen.** De Bridge is multi-client: meerdere
-bestanden kunnen tegelijk verbonden zijn, elk met een eigen WebSocket-verbinding. Het "actieve
-doel" is dus een instelling, geen lot — en deze skill werkt per definitie over meerdere klanten,
-projecten en libraries.
-
-1. `figma_list_open_files` — welke bestanden zijn verbonden, en welk is actief?
-2. `figma_navigate` met de URL van het doelbestand — schakelt het actieve doel om zodra dat
-   bestand verbonden is. Alle volgende tool-calls raken dan dát bestand.
-3. Antwoordt hij `websocket_file_not_connected`, dan draait de plugin daar niet. Vraag de
-   gebruiker de Desktop Bridge plugin te openen in **dat specifieke bestand**, bij naam — hij
-   verbindt vanzelf en verschijnt daarna in `figma_list_open_files`. Vraag niet of hij "de
-   Bridge wil activeren": die draait al.
-
-Gemeten op 2026-09-07: de status meldde de Bridge verbonden en responsief, maar met een ander
-klantbestand als actief doel. Zonder schakelstap leest dat als een blokkade terwijl het een
-instelling is. De fileKey-assert blijft nodig náást deze stap — het actieve doel kan bij een
-reconnect stil terugwisselen.
-
 - **Meerdere bestanden verbonden?** De actieve file kan stil terugwisselen (reconnects). Assert het doelbestand in élke `figma_execute` — zeker vóór schrijfacties; een write in het verkeerde klantbestand is de duurste stille fout van deze skill (les 2026-08-18). Toets op **identiteit, niet op naam**: `figma.fileKey` (de key uit de URL van het doelbestand, `figma.com/design/<fileKey>/…`), niet `figma.root.name`. Een naam is een bewering die iemand ooit typte — gemeten op 2026-08-25 aan béide kanten: de gebruiker hernoemde het bestand in Desktop en de naam-assert blokkeerde de export van het júiste bestand (vals alarm), en het spiegelbeeld is duurder — twee klantbestanden mogen dezelfde naam dragen, dan zwijgt de naam-assert terwijl de write in het verkeerde bestand landt. Het skelet staat in stap 6.
 
 ---
@@ -214,6 +227,22 @@ const bindRadius = (node, variable) => {
 - Effect styles: shadow/blur via `setEffectStyleId`
 - Component variants: states (default/hover/active/disabled/error) als aparte frames in een component set, gegroepeerd in een parent frame — ook die parent in auto layout
 
+**States horen op een `state`-variant-as, niet in `reactions`.** Dit is de afspraak die deze
+skill met `figma-naar-code` deelt, en ze bestaat omdat de twee richtingen elkaar anders missen.
+Gemeten op 2026-09-07: de heenweg schrijft states als variantframes, de terugweg leest ze
+uitsluitend uit `reactions` en noemt die daar letterlijk de bron van waarheid. Dat zijn twee
+verschillende Figma-constructies. Een component die deze skill exporteert heeft géén reactions,
+dus de terugweg concludeert dat hij geen states heeft — de round-trip sluit en verliest de helft.
+
+De variant-as wint, om drie redenen. Een `:hover` in Tailwind is een CSS-pseudo-klasse en geen
+prototype-interactie. Een `state`-as op een component set is het standaardpatroon van een
+design-systeem-library. En het is de enige van de twee die een structurele gate kán zien:
+`figma-sync-check.mjs` vergelijkt `variantGroupProperties`, niet `reactions`.
+
+Noem de as `state` en de waarden exact zoals de code ze kent (`default` · `hover` · `focus` ·
+`active` · `disabled`). Draagt het component in code geen state-varianten, laat de as dan weg —
+een lege as is erger dan geen as, want de terugweg leest hem als bestaande states.
+
 **Kritieke Figma Plugin API gotcha's (algemeen):**
 - Gebruik altijd de async versies: `figma.variables.getLocalVariablesAsync()`, `figma.setCurrentPageAsync(page)`
 
@@ -276,6 +305,94 @@ node <repo>/templates/figma-token-coverage.mjs --tokens=<pad/tokens.json> --vars
 Exit 0 = alles gedekt · 1 = variabelen zonder token (de bevinding) · **2 = meting ongeldig**, en dat laatste is bewust een eigen type: geen enkele match, een lege dump of een lege token-bron is een instrumentfout, geen afwezigheidsbewijs. Matching gebeurt op de **staart** van het tokenpad, dus dezelfde check werkt op umanex (`Theme/light/x`), rowtrack (`Core|Theme|Component`) en Columba (`semantic/color/text/primary`, geen mode-laag) zonder configuratie. Een `⚠ dubbelzinnig` meldt dat een naam op twee échte lagen matcht (`chart-1` → `Primitives/Chart/1` én `Theme/light/chart-1`) — mode-varianten zwijgen. De tegenproef staat in `scripts/test-figma-token-coverage.sh` (9 cases, beide kanten per regel).
 
 **Faalt een punt?** Dat is een gap. Los hem op (terug naar stap 5) of rapporteer hem expliciet aan de gebruiker met de reden waarom hij niet opgelost kon worden — sluit nooit af met een stille gap.
+
+---
+
+### Leesbaarheidscontract — wat je schrijft moet terug te lezen zijn
+
+De heenweg bepaalt hoe duur de terugweg is. Een export die klopt op elke token-as maar
+`Frame 427` heet, is voor `figma-naar-code` een raadsel dat alleen een mens kan oplossen.
+Zeven regels, allemaal machinaal toetsbaar.
+
+**1. De laagnaam is de code-naam.** Het component heet zoals zijn export (`Button`,
+`CardHeader`), een element zoals zijn rol (`icon`, `label`, `trailing`). Nooit `Frame 427`,
+en nooit de tékst die erin staat: Figma vernoemt een tekstnode standaard naar zijn inhoud, en
+dat is precies de val waarop een eerdere sessie strandde — de naam veranderde mee met de copy
+en de zoekactie erop vond niets meer.
+
+**2. Geen `GROUP`, alleen `FRAME`.** Een groep heeft geen layout, dus spacing kan er niet aan
+binden. Principe 1 en 2 hangen daar samen: geen auto layout betekent een rauw getal in plaats
+van een binding.
+
+**3. Eén component set per component, met de variant-assen van de cva.** Asnamen en waarden
+letterlijk zoals de code ze kent, inclusief de `state`-as uit de vorige sectie. Een as die in
+Figma anders heet dan in de code is een vertaling die iemand later moet raden.
+
+**4. Elke tekstnode hangt aan een text style.** Losse font-instellingen zijn de typografische
+tegenhanger van een hardcoded hex. `figma-sync-check.mjs` toetst sinds 2026-09-07 dat elke
+style zijn getallen uit de tokenschaal haalt; een node zonder style valt daar buiten.
+
+**5. De description draagt het codepad.** `figma_set_description` op de component(set) met het
+pad naar de bron (`packages/ui/components/ui/button.tsx`). Dat is de goedkoopste context die
+bestaat: de terugweg leest hem en weet meteen welk bestand de waarheid is, zonder te zoeken.
+
+**6. Eén sectie per component, geen losse nodes op het canvas.** Een node zonder ouder is niet
+te vinden en niet te verplaatsen zonder iets te breken.
+
+**7. Geen absolute positionering buiten de gevallen waar auto layout structureel niet kan.**
+En kan het niet, zet dan de reden in de laagnaam of de description.
+
+Toets het na de write in dezelfde `figma_execute` als stap 7b:
+
+```js
+const set = await figma.getNodeByIdAsync(NODE_ID);
+const kinderen = set.findAll(() => true);
+return {
+  naamloos: kinderen.filter(n => /^(Frame|Group|Rectangle|Vector) \d+$/.test(n.name)).map(n => n.name),
+  groepen: kinderen.filter(n => n.type === "GROUP").length,
+  zonderAutoLayout: kinderen.filter(n => n.type === "FRAME" && n.layoutMode === "NONE").map(n => n.name),
+  tekstZonderStyle: kinderen.filter(n => n.type === "TEXT" && !n.textStyleId).map(n => n.name),
+  description: set.description || null,
+};
+```
+
+Alle vier de lijsten horen leeg te zijn en `description` gevuld. Is er één niet, meld hem —
+dat is een gat in de leesbaarheid, geen detail.
+
+---
+
+### Stap 7b — Numerieke read-back: meet je eigen schrijfwerk
+
+Stap 6 kijkt naar een capture, stap 7 telt bindingen, stap 8 vergelijkt bindingen met bedoeld.
+Geen van drieën leest een **maat** terug uit wat je zojuist geschreven hebt. Gemeten op
+2026-09-07 over beide skills: `getComputedStyle` komt drie keer voor in `figma-naar-code` en
+**nul keer** in deze skill. De terugweg diff't getallen tegen getallen; de heenweg keek alleen.
+
+Lees daarom na de write de node terug via de **runtime-klasse** (`figma_execute`, nooit een
+REST-tool — die is per definitie stale na een verse edit) en diff de maten tegen de bedoeld-lijst
+uit principe 3:
+
+```js
+// figma_execute — na de write, op de node die je zojuist schreef
+const n = await figma.getNodeByIdAsync(NODE_ID);
+return { naam: n.name, layoutMode: n.layoutMode,
+  padding: [n.paddingTop, n.paddingRight, n.paddingBottom, n.paddingLeft],
+  gap: n.itemSpacing, radius: n.cornerRadius,
+  maat: [Math.round(n.width), Math.round(n.height)],
+  fills: n.fills?.length ?? 0, strokes: n.strokes?.length ?? 0 };
+```
+
+Vergelijk per property en rapporteer elk verschil mét zijn twee waarden, ook 1 px. Twee dingen
+die deze stap moet zeggen in plaats van verzwijgen. Een **tekstgedreven breedte** is niet
+vergelijkbaar: Figma's tekstengine en de browser hebben andere font-metrics, dus alleen een
+expliciete breedte telt mee. En een getal dat niets tékent is óók een groene meting — een
+`cornerRadius` op een node met nul fills en nul strokes verandert niets zichtbaars, dus meld
+`layoutMode`, `fills.length` en `strokes.length` mee.
+
+Bestaat er aan de code-kant een gemeten basislijn (in umanex-apps:
+`packages/ui/figma/geometry.code.json`, geschreven door `pnpm --filter @umanex/ui geometry:write`),
+gebruik díe als bedoeld-kant in plaats van een handmatige grep. Dat is precies het gat dat
+principe 3 beschrijft: "bedoeld" kwam uit een eigen keuze, dus de diff was per constructie groen.
 
 ---
 
