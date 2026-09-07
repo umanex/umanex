@@ -75,7 +75,13 @@ const meet = () => {
     aantal: els.length,
     elementen: els.slice(0, 40).map(e => {
       const s = getComputedStyle(e), r = e.getBoundingClientRect();
-      const expliciet = /\b(w-\d|w-\[|size-)/.test(e.className || '');
+      // Anker op hele klasse-tokens, niet op een substring. De eerste versie testte
+      // /size-/ en matchte daardoor `[&_svg]:size-4` — de icoonmaat, niet de breedte van
+      // de knop. Gevolg: elke knop kreeg een breedte in de basislijn, en die is
+      // tekstgedreven. Mijn macOS-run was groen, CI op Linux gaf zestien verschillen op
+      // font-metrics. Dat is rail 2: groen op een ander doelwit bewijst niets.
+      const tokens = (typeof e.className === 'string' ? e.className : '').split(/\s+/);
+      const expliciet = tokens.some(c => /^w-(\d|\[|full|screen)/.test(c) || /^size-\d/.test(c));
       return {
         tag: e.tagName.toLowerCase(),
         klassen: (typeof e.className === 'string' ? e.className : '').split(/\s+/).filter(Boolean).sort().join(' '),
