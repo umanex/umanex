@@ -92,3 +92,11 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Waarom niet nu:** Buiten de scope van de Storybook-taak; het is een repo-conventie die Jeroen zelf hoort te bekrachtigen.
 - **Eerste zet:** `grep -n "worktree" CLAUDE.md` en de sectie vervangen door: hoofdtree, feature branch vanaf `origin/main`, stage per pad; de poort-tabel (cashflow :3000, PM2) blijft relevant.
 - **Status:** gebouwd — 2026-08-25, PR #306 (`docs/parallel-werk-hoofdtree`); de PR bestond al vóór deze entry geschreven werd. Tegenproef: `grep -n 'umanex-apps-' CLAUDE.md apps/*/CLAUDE.md` levert alleen nog de regel op die de zusmap expliciet afschaft (`.umanex-os/` en dit bestand vallen buiten het meetbereik — die dragen de string als voorbeeld). Onderweg gemeten: de cashflow flow-harness deelt `.next` met PM2, zie `apps/cashflow/BACKLOG.md`.
+
+## 2026-09-07 — CI Node-20-deprecation zit in de actions, niet in node-version · [infra]
+
+- **Wat:** `actions/cache`, `actions/setup-node` en `pnpm/action-setup` in `.github/workflows/ci.yml` en `.github/workflows/tokens-sync.yml` naar de majors bumpen die op Node 24 draaien, en tokens-sync.yml `node-version` 20→22 gelijktrekken met ci.yml — of de niet-blokkerende annotatie expliciet als geaccepteerd noteren.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-15, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: Check gedraaid: `grep -n 'actions/cache@\|actions/setup-node@\|pnpm/action-setup@' .github/workflows/*.yml` → ci.yml:19 `pnpm/action-setup@v4`, :25 `actions/setup-node@v4`, :34 en :135 `actions/cache@v4`; tokens-sync.yml:49/55/64 dezelfde drie op @v4…
+- **Eerste zet:** `for r in actions/setup-node actions/cache pnpm/action-setup; do gh api repos/$r/releases/latest --jq .tag_name; done` om te zien of er Node-24-majors zijn, en `gh run view $(gh run list -w ci.yml -L1 --json databaseId -q '.[0].databaseId')` om te lezen of de 'forced to run on Node.js 24'-annotatie nog verschijnt; dan de @v4-regels (ci.yml:19/25/34/135, tokens-sync.yml:49/55/64) bumpen in één `ci:`-commit.
+- **Check:** `grep -n 'actions/cache@\|actions/setup-node@\|pnpm/action-setup@' .github/workflows/ci.yml` → nog @v4 = de annotatie blijft komen.
+- **Status:** open

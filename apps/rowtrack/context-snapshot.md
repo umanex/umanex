@@ -1,5 +1,5 @@
 # Context Snapshot — rowtrack
-_Gegenereerd op 2026-08-28_
+_Gegenereerd op 2026-09-07_
 
 ## Project
 - **App:** rowtrack
@@ -59,11 +59,11 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+8f32b3d docs(rowtrack): record the FTMS energy measurement and two out-of-scope findings
 7d0f1df fix(rowtrack): retry a clock-skewed token once instead of failing the home fetch
 928f7e7 fix(rowtrack): make the heart-rate path measurable and stop the disconnect-listener leak
 5b9aa03 refactor(ui): extract the shared focus ring into a constant
 529d255 docs(handoff): bring the HANDOFF headers up to the current format
-a15b915 feat(ui): check every Figma variable against the token source
 ```
 
 ## Uncommitted wijzigingen
