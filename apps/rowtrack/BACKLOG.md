@@ -282,3 +282,40 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Eerste zet:** Eerst bevestigen dat de check nog over dezelfde code gaat: `git log --oneline 490b703.. -- apps/rowtrack/components/WheelPicker.tsx apps/rowtrack/components/BottomSheet.tsx` (vandaag alleen `cd09074`, i18n); daarna Profiel → Lengte / Gewicht / Geboortedatum openen op het toestel en per sheet één screenshot naast het Figma-frame leggen.
 - **Check:** Alleen jij kunt dit beantwoorden: heb je Lengte, Gewicht en Geboortedatum op de iPhone naast Figma gelegd? Nee = open — geen commit of screenshot legt een toestel-check vast.
 - **Status:** open
+
+## 2026-09-07 — `fontFamily.sourceSerif` draagt een opzoeksleutel, geen familienaam · [tokens]
+
+- **Wat:** `Core/fontFamily/sourceSerif` staat in `tokens/tokens.json` op `"Source Serif Pro"`,
+  maar de app rendert **Source Serif 4** — de waarde is de `tokenFamily`-sleutel waarmee
+  `style-dictionary.config.mjs` de FONTS-tabel opzoekt (`expoBase: 'SourceSerif4'`,
+  `pkg: '@expo-google-fonts/source-serif-4'`), niet de naam van een lettertype. Adobe hernoemde
+  Source Serif Pro in 2021 naar Source Serif 4; in Figma zijn het twee aparte families met
+  verschillende stijlvoorraad (gemeten 2026-09-07 via `listAvailableFontsAsync`: Pro heeft geen
+  Medium, 4 wél). De nette fix is de tokenwaarde in **Tokens Studio** op `"Source Serif 4"`
+  zetten — handmatig bewerken wordt bij de eerstvolgende plugin-push overschreven.
+- **Waarom niet nu:** Een tokenwijziging hoort via Tokens Studio te lopen en is Jeroens hand.
+  Tot dan draagt de Figma-variabele bewust de gerenderde familie, zodat Figma en app hetzelfde
+  lettertype tonen; `scripts/figma-tokens-payload.mjs` meldt die ene afwijking bij elke run
+  ("AFWIJKING bron -> render") in plaats van hem te verbergen.
+- **Eerste zet:** In Tokens Studio `Core/fontFamily/sourceSerif` op `Source Serif 4` zetten en
+  pushen; daarna `node apps/rowtrack/scripts/figma-tokens-payload.mjs` — de AFWIJKING-regel
+  hoort dan te verdwijnen, en `RENDER_FAMILIE` wordt een no-op in plaats van een correctie.
+- **Check:** `node apps/rowtrack/scripts/figma-tokens-payload.mjs 2>/dev/null | grep -c AFWIJKING`
+  — 1 = de afwijking leeft nog, 0 = het token is gefixt.
+- **Status:** open
+
+## 2026-09-07 — De scoped `figma-naar-code` skill draagt een hardcoded tokentabel · [tooling]
+
+- **Wat:** `apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md` bevat een eigen kleurtabel
+  (`bg: '#0A0E1A'`, `surface: '#1A1F2E'`, `cyan: '#00E5FF'`) en spreekt van "Inter-gewichten".
+  Geen van die waarden komt uit `tokens/tokens.json` (`bg.base` = `#15171C`,
+  `bg.elevated` = `#1A1D24`, `accent.default` = `#F05454`, families Albert Sans / Source Serif).
+  De zusterskill `code-naar-figma` had dezelfde tabel en is op 2026-09-07 verwijderd ten gunste
+  van de umanex-os-versie; die is schoon en verbiedt hardcoded waarden expliciet.
+- **Waarom niet nu:** Jeroen vroeg expliciet om `code-naar-figma`; een tweede skill verwijderen
+  is scope-uitbreiding die zijn woord vraagt.
+- **Eerste zet:** `git rm -r apps/rowtrack/.claude/skills/figma-naar-code` en toetsen dat
+  `.claude/skills/figma-naar-code/SKILL.md` (umanex-os) de RowTrack-context genoeg dekt.
+- **Check:** `grep -c "00E5FF" apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md 2>/dev/null`
+  — een treffer = de tabel leeft nog; "no such file" = opgelost.
+- **Status:** open

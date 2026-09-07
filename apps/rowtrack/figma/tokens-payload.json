@@ -1,0 +1,2615 @@
+{
+ "$comment": "GEGENEREERD door scripts/figma-tokens-payload.mjs uit tokens/tokens.json. Niet met de hand bewerken.",
+ "fileKey": "QkRgMc7Quqtbow71DiYa1n",
+ "collecties": {
+  "Core": {
+   "mode": "Value",
+   "variabelen": [
+    {
+     "naam": "color/neutral/0",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/50",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9490196078431372,
+      "g": 0.9568627450980393,
+      "b": 0.9803921568627451,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/100",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.8784313725490196,
+      "g": 0.8901960784313725,
+      "b": 0.9176470588235294,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/200",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.7098039215686275,
+      "g": 0.7254901960784313,
+      "b": 0.7607843137254902,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/300",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.5411764705882353,
+      "g": 0.5568627450980392,
+      "b": 0.592156862745098,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/400",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.3607843137254902,
+      "g": 0.3764705882352941,
+      "b": 0.4196078431372549,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/500",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.22745098039215686,
+      "g": 0.24313725490196078,
+      "b": 0.2823529411764706,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/600",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.17254901960784313,
+      "g": 0.1843137254901961,
+      "b": 0.21568627450980393,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/700",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.12941176470588237,
+      "g": 0.1411764705882353,
+      "b": 0.17254901960784313,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/800",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.12156862745098039,
+      "g": 0.12941176470588237,
+      "b": 0.1568627450980392,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/900",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.10196078431372549,
+      "g": 0.11372549019607843,
+      "b": 0.1411764705882353,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/950",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.08235294117647059,
+      "g": 0.09019607843137255,
+      "b": 0.10980392156862745,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/neutral/1000",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.03137254901960784,
+      "g": 0.03529411764705882,
+      "b": 0.047058823529411764,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/100",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 0.8980392156862745,
+      "b": 0.8980392156862745,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/200",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 0.7019607843137254,
+      "b": 0.7019607843137254,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/300",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 0.5215686274509804,
+      "b": 0.5215686274509804,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/400",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 0.4627450980392157,
+      "b": 0.4627450980392157,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/450",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9725490196078431,
+      "g": 0.4588235294117647,
+      "b": 0.4588235294117647,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/500",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9647058823529412,
+      "g": 0.38823529411764707,
+      "b": 0.38823529411764707,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/600",
+     "type": "COLOR",
+     "beschrijving": "Brand accent — primary",
+     "waarde": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/700",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.8627450980392157,
+      "g": 0.2823529411764706,
+      "b": 0.2823529411764706,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/800",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.7803921568627451,
+      "g": 0.24313725490196078,
+      "b": 0.24313725490196078,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/red/900",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.6196078431372549,
+      "g": 0.17647058823529413,
+      "b": 0.17647058823529413,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/gold/100",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9607843137254902,
+      "g": 0.9372549019607843,
+      "b": 0.8784313725490196,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/gold/300",
+     "type": "COLOR",
+     "beschrijving": "Achievement / PR gold",
+     "waarde": {
+      "r": 0.9098039215686274,
+      "g": 0.8627450980392157,
+      "b": 0.7686274509803922,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/gold/500",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.788235294117647,
+      "g": 0.7215686274509804,
+      "b": 0.5803921568627451,
+      "a": 1
+     }
+    },
+    {
+     "naam": "color/alpha/white-04",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.04
+     }
+    },
+    {
+     "naam": "color/alpha/white-08",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.08
+     }
+    },
+    {
+     "naam": "color/alpha/white-12",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.12
+     }
+    },
+    {
+     "naam": "color/alpha/white-22",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.22
+     }
+    },
+    {
+     "naam": "color/alpha/black-30",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.3
+     }
+    },
+    {
+     "naam": "color/alpha/black-40",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.4
+     }
+    },
+    {
+     "naam": "color/alpha/red-04",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 0.04
+     }
+    },
+    {
+     "naam": "color/alpha/red-06",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 0.06
+     }
+    },
+    {
+     "naam": "color/alpha/red-08",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 0.08
+     }
+    },
+    {
+     "naam": "color/alpha/red-12",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 0.12
+     }
+    },
+    {
+     "naam": "color/alpha/red-20",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 0.2
+     }
+    },
+    {
+     "naam": "color/alpha/red-deep-30",
+     "type": "COLOR",
+     "beschrijving": "Deep accent for inner shadow",
+     "waarde": {
+      "r": 0.7058823529411765,
+      "g": 0.1568627450980392,
+      "b": 0.1568627450980392,
+      "a": 0.3
+     }
+    },
+    {
+     "naam": "fontFamily/sourceSerif",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "Source Serif Pro",
+     "expoBase": "SourceSerif4",
+     "wijktAfVanBron": true
+    },
+    {
+     "naam": "fontFamily/albertSans",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "Albert Sans",
+     "expoBase": "AlbertSans",
+     "wijktAfVanBron": false
+    },
+    {
+     "naam": "fontWeight/light",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "300"
+    },
+    {
+     "naam": "fontWeight/regular",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "400"
+    },
+    {
+     "naam": "fontWeight/medium",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "500"
+    },
+    {
+     "naam": "fontWeight/semibold",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "600"
+    },
+    {
+     "naam": "fontWeight/italic",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "Italic"
+    },
+    {
+     "naam": "fontWeight/bold",
+     "type": "STRING",
+     "beschrijving": "",
+     "waarde": "Bold"
+    },
+    {
+     "naam": "fontSize/9",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 9
+    },
+    {
+     "naam": "fontSize/10",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 10
+    },
+    {
+     "naam": "fontSize/11",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 11
+    },
+    {
+     "naam": "fontSize/13",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 13
+    },
+    {
+     "naam": "fontSize/14",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 14
+    },
+    {
+     "naam": "fontSize/15",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 15
+    },
+    {
+     "naam": "fontSize/16",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 16
+    },
+    {
+     "naam": "fontSize/17",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 17
+    },
+    {
+     "naam": "fontSize/18",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 18
+    },
+    {
+     "naam": "fontSize/22",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 22
+    },
+    {
+     "naam": "fontSize/26",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 26
+    },
+    {
+     "naam": "fontSize/28",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 28
+    },
+    {
+     "naam": "fontSize/32",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 32
+    },
+    {
+     "naam": "fontSize/34",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 34
+    },
+    {
+     "naam": "fontSize/36",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 36
+    },
+    {
+     "naam": "fontSize/38",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 38
+    },
+    {
+     "naam": "fontSize/44",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 44
+    },
+    {
+     "naam": "fontSize/114",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 114
+    },
+    {
+     "naam": "lineHeight/tight",
+     "type": "FLOAT",
+     "beschrijving": "Hero numerics — slightly compressed",
+     "waarde": 95
+    },
+    {
+     "naam": "lineHeight/compact",
+     "type": "FLOAT",
+     "beschrijving": "Single-line UI elements (KPI rows, buttons, labels)",
+     "waarde": 100
+    },
+    {
+     "naam": "lineHeight/normal",
+     "type": "FLOAT",
+     "beschrijving": "Body text",
+     "waarde": 125
+    },
+    {
+     "naam": "lineHeight/relaxed",
+     "type": "FLOAT",
+     "beschrijving": "Long-form, lede",
+     "waarde": 150
+    },
+    {
+     "naam": "letterSpacing/displayTight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": -4.5
+    },
+    {
+     "naam": "letterSpacing/displayLoose",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": -3
+    },
+    {
+     "naam": "letterSpacing/tighter",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": -2.5
+    },
+    {
+     "naam": "letterSpacing/tight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": -2
+    },
+    {
+     "naam": "letterSpacing/snug",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": -1.5
+    },
+    {
+     "naam": "letterSpacing/subtle",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": -0.5
+    },
+    {
+     "naam": "letterSpacing/normal",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 0
+    },
+    {
+     "naam": "letterSpacing/wide",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 20
+    },
+    {
+     "naam": "letterSpacing/wider",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 30
+    },
+    {
+     "naam": "spacing/0",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 0
+    },
+    {
+     "naam": "spacing/2",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 2
+    },
+    {
+     "naam": "spacing/4",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 4
+    },
+    {
+     "naam": "spacing/6",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 6
+    },
+    {
+     "naam": "spacing/8",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 8
+    },
+    {
+     "naam": "spacing/10",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 10
+    },
+    {
+     "naam": "spacing/12",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 12
+    },
+    {
+     "naam": "spacing/14",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 14
+    },
+    {
+     "naam": "spacing/16",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 16
+    },
+    {
+     "naam": "spacing/18",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 18
+    },
+    {
+     "naam": "spacing/20",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 20
+    },
+    {
+     "naam": "spacing/22",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 22
+    },
+    {
+     "naam": "spacing/24",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 24
+    },
+    {
+     "naam": "spacing/28",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 28
+    },
+    {
+     "naam": "spacing/32",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 32
+    },
+    {
+     "naam": "spacing/40",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 40
+    },
+    {
+     "naam": "spacing/44",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 44
+    },
+    {
+     "naam": "spacing/48",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 48
+    },
+    {
+     "naam": "sizing/0",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 0
+    },
+    {
+     "naam": "sizing/1",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 1
+    },
+    {
+     "naam": "sizing/2",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 2
+    },
+    {
+     "naam": "sizing/4",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 4
+    },
+    {
+     "naam": "sizing/7",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 7
+    },
+    {
+     "naam": "sizing/8",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 8
+    },
+    {
+     "naam": "sizing/44",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 44
+    },
+    {
+     "naam": "sizing/48",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 48
+    },
+    {
+     "naam": "sizing/52",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 52
+    },
+    {
+     "naam": "sizing/56",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 56
+    },
+    {
+     "naam": "borderRadius/none",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 0
+    },
+    {
+     "naam": "borderRadius/xs",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 4
+    },
+    {
+     "naam": "borderRadius/sm",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 8
+    },
+    {
+     "naam": "borderRadius/md",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 16
+    },
+    {
+     "naam": "borderRadius/lg",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 18
+    },
+    {
+     "naam": "borderRadius/xl",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 22
+    },
+    {
+     "naam": "borderRadius/full",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 9999
+    },
+    {
+     "naam": "borderWidth/0",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 0
+    },
+    {
+     "naam": "borderWidth/1",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 1
+    },
+    {
+     "naam": "borderWidth/2",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 2
+    },
+    {
+     "naam": "opacity/0",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 0
+    },
+    {
+     "naam": "opacity/40",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 40
+    },
+    {
+     "naam": "opacity/55",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 55
+    },
+    {
+     "naam": "opacity/100",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "waarde": 100
+    }
+   ]
+  },
+  "Theme": {
+   "mode": "Value",
+   "variabelen": [
+    {
+     "naam": "bg/base",
+     "type": "COLOR",
+     "beschrijving": "App background",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/950"
+     }
+    },
+    {
+     "naam": "bg/elevated",
+     "type": "COLOR",
+     "beschrijving": "Cards raised one step",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/900"
+     }
+    },
+    {
+     "naam": "bg/raised",
+     "type": "COLOR",
+     "beschrijving": "Highest surface — modals, sheets",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/700"
+     }
+    },
+    {
+     "naam": "border/subtle",
+     "type": "COLOR",
+     "beschrijving": "Hairlines between rows",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/800"
+     }
+    },
+    {
+     "naam": "border/default",
+     "type": "COLOR",
+     "beschrijving": "Standard dividers",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/600"
+     }
+    },
+    {
+     "naam": "border/strong",
+     "type": "COLOR",
+     "beschrijving": "Emphasis dividers",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/500"
+     }
+    },
+    {
+     "naam": "fg/primary",
+     "type": "COLOR",
+     "beschrijving": "Body text — full contrast",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/50"
+     }
+    },
+    {
+     "naam": "fg/secondary",
+     "type": "COLOR",
+     "beschrijving": "Subheadings, secondary stats",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/200"
+     }
+    },
+    {
+     "naam": "fg/tertiary",
+     "type": "COLOR",
+     "beschrijving": "Labels, muted body",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/300"
+     }
+    },
+    {
+     "naam": "fg/quaternary",
+     "type": "COLOR",
+     "beschrijving": "Disabled, faintest hints",
+     "alias": {
+      "set": "Core",
+      "naam": "color/neutral/400"
+     }
+    },
+    {
+     "naam": "fg/onAccent",
+     "type": "COLOR",
+     "beschrijving": "Text on filled accent surfaces",
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1
+     }
+    },
+    {
+     "naam": "accent/default",
+     "type": "COLOR",
+     "beschrijving": "Primary accent — F05454",
+     "alias": {
+      "set": "Core",
+      "naam": "color/red/600"
+     }
+    },
+    {
+     "naam": "accent/hover",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "color/red/500"
+     }
+    },
+    {
+     "naam": "accent/pressed",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "color/red/700"
+     }
+    },
+    {
+     "naam": "accent/subtle",
+     "type": "COLOR",
+     "beschrijving": "Tinted fill on outline buttons",
+     "alias": {
+      "set": "Core",
+      "naam": "color/alpha/red-06"
+     }
+    },
+    {
+     "naam": "accent/muted",
+     "type": "COLOR",
+     "beschrijving": "Hover state for outline button",
+     "alias": {
+      "set": "Core",
+      "naam": "color/alpha/red-12"
+     }
+    },
+    {
+     "naam": "achievement/default",
+     "type": "COLOR",
+     "beschrijving": "PR badges only",
+     "alias": {
+      "set": "Core",
+      "naam": "color/gold/300"
+     }
+    },
+    {
+     "naam": "achievement/muted",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "color/gold/500"
+     }
+    },
+    {
+     "naam": "gradient/primaryButtonFrom",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "color/red/500"
+     }
+    },
+    {
+     "naam": "gradient/primaryButtonTo",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "color/red/600"
+     }
+    },
+    {
+     "naam": "radius/input",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/md"
+     }
+    },
+    {
+     "naam": "radius/buttonOutline",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/sm"
+     }
+    },
+    {
+     "naam": "radius/buttonPrimary",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/sm"
+     }
+    },
+    {
+     "naam": "radius/card",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/md"
+     }
+    },
+    {
+     "naam": "radius/highlightRow",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/sm"
+     }
+    },
+    {
+     "naam": "radius/pill",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/full"
+     }
+    },
+    {
+     "naam": "stroke/hairline",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderWidth/1"
+     }
+    },
+    {
+     "naam": "stroke/default",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderWidth/1"
+     }
+    },
+    {
+     "naam": "size/buttonPrimaryHeight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/56"
+     }
+    },
+    {
+     "naam": "size/buttonDestructiveHeight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/52"
+     }
+    },
+    {
+     "naam": "size/statusBarHeight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/44"
+     }
+    }
+   ]
+  },
+  "Component": {
+   "mode": "Value",
+   "variabelen": [
+    {
+     "naam": "button/primary/background",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "button/primary/color",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/onAccent"
+     }
+    },
+    {
+     "naam": "button/primary/border",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "button/primary/borderWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderWidth/1"
+     }
+    },
+    {
+     "naam": "button/primary/radius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "radius/buttonPrimary"
+     }
+    },
+    {
+     "naam": "button/primary/height",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/48"
+     }
+    },
+    {
+     "naam": "button/primary/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/24"
+     }
+    },
+    {
+     "naam": "button/primary/gradientFrom",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "gradient/primaryButtonFrom"
+     }
+    },
+    {
+     "naam": "button/primary/gradientTo",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "gradient/primaryButtonTo"
+     }
+    },
+    {
+     "naam": "button/outline/background",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/subtle"
+     }
+    },
+    {
+     "naam": "button/outline/backgroundHover",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/muted"
+     }
+    },
+    {
+     "naam": "button/outline/color",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "button/outline/border",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "button/outline/borderWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/default"
+     }
+    },
+    {
+     "naam": "button/outline/radius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "radius/buttonOutline"
+     }
+    },
+    {
+     "naam": "button/outline/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/12"
+     }
+    },
+    {
+     "naam": "button/outline/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/22"
+     }
+    },
+    {
+     "naam": "button/outline/gap",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/10"
+     }
+    },
+    {
+     "naam": "button/destructive/background",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/subtle"
+     }
+    },
+    {
+     "naam": "button/destructive/color",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "button/destructive/border",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "button/destructive/borderWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/default"
+     }
+    },
+    {
+     "naam": "button/destructive/radius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "radius/buttonPrimary"
+     }
+    },
+    {
+     "naam": "button/destructive/height",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "size/buttonDestructiveHeight"
+     }
+    },
+    {
+     "naam": "textLink/color",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "textLink/gap",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/4"
+     }
+    },
+    {
+     "naam": "goalPill/border",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "goalPill/borderWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/default"
+     }
+    },
+    {
+     "naam": "goalPill/radius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "radius/pill"
+     }
+    },
+    {
+     "naam": "goalPill/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/8"
+     }
+    },
+    {
+     "naam": "goalPill/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/18"
+     }
+    },
+    {
+     "naam": "goalPill/gap",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/10"
+     }
+    },
+    {
+     "naam": "goalPill/labelColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "goalPill/valueColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "kpiTile/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/14"
+     }
+    },
+    {
+     "naam": "kpiTile/borderTop",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "border/subtle"
+     }
+    },
+    {
+     "naam": "kpiTile/borderTopWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/hairline"
+     }
+    },
+    {
+     "naam": "kpiTile/labelColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/tertiary"
+     }
+    },
+    {
+     "naam": "kpiTile/valueColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/primary"
+     }
+    },
+    {
+     "naam": "kpiTile/unitColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/tertiary"
+     }
+    },
+    {
+     "naam": "kpiTile/unitOffsetLeft",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/6"
+     }
+    },
+    {
+     "naam": "progressBar/trackColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "achievement/muted"
+     }
+    },
+    {
+     "naam": "progressBar/trackHeight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/1"
+     }
+    },
+    {
+     "naam": "progressBar/fillColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "progressBar/fillSucces",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.2980392156862745,
+      "g": 0.6862745098039216,
+      "b": 0.3137254901960784,
+      "a": 1
+     }
+    },
+    {
+     "naam": "progressBar/warningFill",
+     "type": "COLOR",
+     "beschrijving": "",
+     "waarde": {
+      "r": 0.996078431372549,
+      "g": 0.5803921568627451,
+      "b": 0.1607843137254902,
+      "a": 1
+     }
+    },
+    {
+     "naam": "progressBar/fillHeight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/1"
+     }
+    },
+    {
+     "naam": "progressBar/markerSize",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/7"
+     }
+    },
+    {
+     "naam": "progressBar/markerColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "progressBar/markerRadius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "borderRadius/full"
+     }
+    },
+    {
+     "naam": "segmentedControl/borderBottom",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "border/default"
+     }
+    },
+    {
+     "naam": "segmentedControl/borderBottomWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/hairline"
+     }
+    },
+    {
+     "naam": "segmentedControl/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/14"
+     }
+    },
+    {
+     "naam": "segmentedControl/inactiveColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/tertiary"
+     }
+    },
+    {
+     "naam": "segmentedControl/activeColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "segmentedControl/activeIndicatorColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "segmentedControl/activeIndicatorHeight",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "sizing/1"
+     }
+    },
+    {
+     "naam": "tabBar/borderTop",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "border/default"
+     }
+    },
+    {
+     "naam": "tabBar/borderTopWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/hairline"
+     }
+    },
+    {
+     "naam": "tabBar/paddingTop",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/18"
+     }
+    },
+    {
+     "naam": "tabBar/paddingBottom",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/28"
+     }
+    },
+    {
+     "naam": "tabBar/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/28"
+     }
+    },
+    {
+     "naam": "tabBar/itemGap",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/8"
+     }
+    },
+    {
+     "naam": "tabBar/inactiveColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/quaternary"
+     }
+    },
+    {
+     "naam": "tabBar/activeColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "sectionEyebrow/labelColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/tertiary"
+     }
+    },
+    {
+     "naam": "sectionEyebrow/borderBottom",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "border/default"
+     }
+    },
+    {
+     "naam": "sectionEyebrow/borderBottomWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/hairline"
+     }
+    },
+    {
+     "naam": "sectionEyebrow/paddingBottom",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/12"
+     }
+    },
+    {
+     "naam": "sectionEyebrow/marginBottom",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/18"
+     }
+    },
+    {
+     "naam": "sectionEyebrow/linkColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "splitRow/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/12"
+     }
+    },
+    {
+     "naam": "splitRow/borderTop",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "border/subtle"
+     }
+    },
+    {
+     "naam": "splitRow/borderTopWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/hairline"
+     }
+    },
+    {
+     "naam": "splitRow/indexColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/quaternary"
+     }
+    },
+    {
+     "naam": "splitRow/valueColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/primary"
+     }
+    },
+    {
+     "naam": "splitRow/secondaryColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/secondary"
+     }
+    },
+    {
+     "naam": "splitRow/fastestBackground",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "color/alpha/red-08"
+     }
+    },
+    {
+     "naam": "splitRow/fastestColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "accent/default"
+     }
+    },
+    {
+     "naam": "splitRow/fastestRadius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "radius/highlightRow"
+     }
+    },
+    {
+     "naam": "prBadge/border",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "achievement/muted"
+     }
+    },
+    {
+     "naam": "prBadge/borderWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/default"
+     }
+    },
+    {
+     "naam": "prBadge/radius",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "radius/pill"
+     }
+    },
+    {
+     "naam": "prBadge/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/4"
+     }
+    },
+    {
+     "naam": "prBadge/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/10"
+     }
+    },
+    {
+     "naam": "prBadge/gap",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/6"
+     }
+    },
+    {
+     "naam": "prBadge/color",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "achievement/default"
+     }
+    },
+    {
+     "naam": "recentRow/paddingY",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/14"
+     }
+    },
+    {
+     "naam": "recentRow/borderTop",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "border/subtle"
+     }
+    },
+    {
+     "naam": "recentRow/borderTopWidth",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "stroke/hairline"
+     }
+    },
+    {
+     "naam": "recentRow/gap",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/16"
+     }
+    },
+    {
+     "naam": "recentRow/dayColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/secondary"
+     }
+    },
+    {
+     "naam": "recentRow/statsColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/primary"
+     }
+    },
+    {
+     "naam": "recentRow/paceColor",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/primary"
+     }
+    },
+    {
+     "naam": "screen/background",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "bg/base"
+     }
+    },
+    {
+     "naam": "screen/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/24"
+     }
+    },
+    {
+     "naam": "screen/paddingXAlt",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/28"
+     }
+    },
+    {
+     "naam": "statusBar/height",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "size/statusBarHeight"
+     }
+    },
+    {
+     "naam": "statusBar/color",
+     "type": "COLOR",
+     "beschrijving": "",
+     "alias": {
+      "set": "Theme",
+      "naam": "fg/primary"
+     }
+    },
+    {
+     "naam": "statusBar/paddingX",
+     "type": "FLOAT",
+     "beschrijving": "",
+     "alias": {
+      "set": "Core",
+      "naam": "spacing/32"
+     }
+    }
+   ]
+  }
+ },
+ "textStyles": [
+  {
+   "naam": "type/heroNumeric",
+   "expoVariant": "AlbertSans_700Bold",
+   "fontSize": 114,
+   "lineHeight": null,
+   "letterSpacingPct": -4.5,
+   "letterSpacingPx": -5.13,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/114",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/displayTight",
+    "fontWeight": "fontWeight/bold"
+   },
+   "beschrijving": "Active workout hero — 15:00. Tabular lining figures."
+  },
+  {
+   "naam": "type/heroDisplay",
+   "expoVariant": "SourceSerif4_400Regular",
+   "fontSize": 44,
+   "lineHeight": null,
+   "letterSpacingPct": -3,
+   "letterSpacingPx": -1.32,
+   "binding": {
+    "fontFamily": "fontFamily/sourceSerif",
+    "fontSize": "fontSize/44",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/displayLoose",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Dashboard greeting name"
+  },
+  {
+   "naam": "type/activeProgress",
+   "expoVariant": "SourceSerif4_400Regular",
+   "fontSize": 28,
+   "lineHeight": null,
+   "letterSpacingPct": -3,
+   "letterSpacingPx": -0.84,
+   "binding": {
+    "fontFamily": "fontFamily/sourceSerif",
+    "fontSize": "fontSize/28",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/displayLoose",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Active progress"
+  },
+  {
+   "naam": "type/sectionValue",
+   "expoVariant": "AlbertSans_700Bold",
+   "fontSize": 34,
+   "lineHeight": null,
+   "letterSpacingPct": -3,
+   "letterSpacingPx": -1.02,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/34",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/displayLoose",
+    "fontWeight": "fontWeight/bold"
+   },
+   "beschrijving": "PR cell numerics, history summary cells"
+  },
+  {
+   "naam": "type/kpiValue",
+   "expoVariant": "AlbertSans_400Regular",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": -2.5,
+   "letterSpacingPx": -0.4,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/tighter",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "All KPI values inside grids"
+  },
+  {
+   "naam": "type/kpiUnit",
+   "expoVariant": "AlbertSans_400Regular_Italic",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": 0,
+   "letterSpacingPx": null,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/normal",
+    "fontWeight": "fontWeight/italic"
+   },
+   "beschrijving": "Italic units after values — apply italic via fontStyle on element"
+  },
+  {
+   "naam": "type/italicConnector",
+   "expoVariant": "AlbertSans_400Regular_Italic",
+   "fontSize": 17,
+   "lineHeight": 21.25,
+   "letterSpacingPct": -0.5,
+   "letterSpacingPx": -0.085,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/17",
+    "lineHeight": "lineHeight/normal",
+    "letterSpacing": "letterSpacing/subtle",
+    "fontWeight": "fontWeight/italic"
+   },
+   "beschrijving": "Italic verbinders: nog, van, goedemiddag — apply italic on element"
+  },
+  {
+   "naam": "type/buttonPrimary",
+   "expoVariant": "AlbertSans_400Regular",
+   "fontSize": 18,
+   "lineHeight": null,
+   "letterSpacingPct": -1.5,
+   "letterSpacingPx": -0.27,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/18",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/snug",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Primary fill button label"
+  },
+  {
+   "naam": "type/buttonOutline",
+   "expoVariant": "AlbertSans_400Regular",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": -1.5,
+   "letterSpacingPx": -0.24,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/snug",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Outline & destructive button label"
+  },
+  {
+   "naam": "type/textLink",
+   "expoVariant": "AlbertSans_400Regular_Italic",
+   "fontSize": 15,
+   "lineHeight": null,
+   "letterSpacingPct": -0.5,
+   "letterSpacingPx": -0.075,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/15",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/subtle",
+    "fontWeight": "fontWeight/italic"
+   },
+   "beschrijving": "Italic — bekijk alle ↗. Apply italic on element."
+  },
+  {
+   "naam": "type/segmentInactive",
+   "expoVariant": "AlbertSans_400Regular",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": -1.5,
+   "letterSpacingPx": -0.24,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/snug",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Segmented control inactive segment"
+  },
+  {
+   "naam": "type/segmentActive",
+   "expoVariant": "AlbertSans_600SemiBold",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": -1.5,
+   "letterSpacingPx": -0.24,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/snug",
+    "fontWeight": "fontWeight/semibold"
+   },
+   "beschrijving": "Segmented control active segment"
+  },
+  {
+   "naam": "type/splitsRow",
+   "expoVariant": "SourceSerif4_400Regular",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": -1.5,
+   "letterSpacingPx": -0.24,
+   "binding": {
+    "fontFamily": "fontFamily/sourceSerif",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/snug",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Splits table row values"
+  },
+  {
+   "naam": "type/recentRow",
+   "expoVariant": "AlbertSans_400Regular",
+   "fontSize": 16,
+   "lineHeight": null,
+   "letterSpacingPct": -1.5,
+   "letterSpacingPx": -0.24,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/16",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/snug",
+    "fontWeight": "fontWeight/regular"
+   },
+   "beschrijving": "Recent training rows on dashboard"
+  },
+  {
+   "naam": "type/labelSection",
+   "expoVariant": "AlbertSans_600SemiBold",
+   "fontSize": 13,
+   "lineHeight": null,
+   "letterSpacingPct": 20,
+   "letterSpacingPx": 2.6,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/13",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/wide",
+    "fontWeight": "fontWeight/semibold"
+   },
+   "beschrijving": "Section eyebrows (Weekdoel, Persoonlijke records)"
+  },
+  {
+   "naam": "type/labelKpi",
+   "expoVariant": "AlbertSans_500Medium",
+   "fontSize": 10,
+   "lineHeight": null,
+   "letterSpacingPct": 30,
+   "letterSpacingPx": 3,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/10",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/wider",
+    "fontWeight": "fontWeight/medium"
+   },
+   "beschrijving": "KPI row labels"
+  },
+  {
+   "naam": "type/labelMicro",
+   "expoVariant": "AlbertSans_500Medium",
+   "fontSize": 9,
+   "lineHeight": null,
+   "letterSpacingPct": 30,
+   "letterSpacingPx": 2.7,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/9",
+    "lineHeight": null,
+    "letterSpacing": "letterSpacing/wider",
+    "fontWeight": "fontWeight/medium"
+   },
+   "beschrijving": "PR cell labels, tab bar labels"
+  },
+  {
+   "naam": "type/labelGoalPrefix",
+   "expoVariant": "AlbertSans_600SemiBold",
+   "fontSize": 11,
+   "lineHeight": 13.75,
+   "letterSpacingPct": 20,
+   "letterSpacingPx": 2.2,
+   "binding": {
+    "fontFamily": "fontFamily/albertSans",
+    "fontSize": "fontSize/11",
+    "lineHeight": "lineHeight/normal",
+    "letterSpacing": "letterSpacing/wide",
+    "fontWeight": "fontWeight/semibold"
+   },
+   "beschrijving": "DOEL prefix inside the goal pill"
+  }
+ ],
+ "effectStyles": [
+  {
+   "naam": "shadow/buttonPrimary",
+   "lagen": [
+    {
+     "type": "INNER_SHADOW",
+     "offset": {
+      "x": 0,
+      "y": 1
+     },
+     "radius": 0,
+     "spread": 0,
+     "color": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.22
+     },
+     "colorRef": "color/alpha/white-22"
+    },
+    {
+     "type": "INNER_SHADOW",
+     "offset": {
+      "x": 0,
+      "y": -2
+     },
+     "radius": 4,
+     "spread": 0,
+     "color": {
+      "r": 0.7058823529411765,
+      "g": 0.1568627450980392,
+      "b": 0.1568627450980392,
+      "a": 0.3
+     },
+     "colorRef": "color/alpha/red-deep-30"
+    },
+    {
+     "type": "DROP_SHADOW",
+     "offset": {
+      "x": 0,
+      "y": 6
+     },
+     "radius": 20,
+     "spread": 0,
+     "color": {
+      "r": 0.9411764705882353,
+      "g": 0.32941176470588235,
+      "b": 0.32941176470588235,
+      "a": 0.2
+     },
+     "colorRef": "color/alpha/red-20"
+    },
+    {
+     "type": "DROP_SHADOW",
+     "offset": {
+      "x": 0,
+      "y": 1
+     },
+     "radius": 2,
+     "spread": 0,
+     "color": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.3
+     },
+     "colorRef": "color/alpha/black-30"
+    }
+   ],
+   "beschrijving": "Refined depth — 4 layers"
+  },
+  {
+   "naam": "shadow/buttonOutline",
+   "lagen": [
+    {
+     "type": "INNER_SHADOW",
+     "offset": {
+      "x": 0,
+      "y": 1
+     },
+     "radius": 0,
+     "spread": 0,
+     "color": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.04
+     },
+     "colorRef": "color/alpha/white-04"
+    }
+   ],
+   "beschrijving": "Subtle top inner highlight"
+  }
+ ],
+ "styleAliassen": [
+  {
+   "naam": "button/primary/typography",
+   "soort": "typography",
+   "wijstNaar": "type/buttonPrimary"
+  },
+  {
+   "naam": "button/primary/shadow",
+   "soort": "boxShadow",
+   "wijstNaar": "shadow/buttonPrimary"
+  },
+  {
+   "naam": "button/outline/typography",
+   "soort": "typography",
+   "wijstNaar": "type/buttonOutline"
+  },
+  {
+   "naam": "button/outline/shadow",
+   "soort": "boxShadow",
+   "wijstNaar": "shadow/buttonOutline"
+  },
+  {
+   "naam": "button/destructive/typography",
+   "soort": "typography",
+   "wijstNaar": "type/buttonOutline"
+  },
+  {
+   "naam": "button/destructive/shadow",
+   "soort": "boxShadow",
+   "wijstNaar": "shadow/buttonOutline"
+  },
+  {
+   "naam": "textLink/typography",
+   "soort": "typography",
+   "wijstNaar": "type/textLink"
+  },
+  {
+   "naam": "goalPill/labelTypography",
+   "soort": "typography",
+   "wijstNaar": "type/labelGoalPrefix"
+  },
+  {
+   "naam": "goalPill/valueTypography",
+   "soort": "typography",
+   "wijstNaar": "type/kpiUnit"
+  },
+  {
+   "naam": "kpiTile/labelTypography",
+   "soort": "typography",
+   "wijstNaar": "type/labelKpi"
+  },
+  {
+   "naam": "kpiTile/valueTypography",
+   "soort": "typography",
+   "wijstNaar": "type/kpiValue"
+  },
+  {
+   "naam": "kpiTile/unitTypography",
+   "soort": "typography",
+   "wijstNaar": "type/kpiUnit"
+  },
+  {
+   "naam": "segmentedControl/inactiveTypography",
+   "soort": "typography",
+   "wijstNaar": "type/segmentInactive"
+  },
+  {
+   "naam": "segmentedControl/activeTypography",
+   "soort": "typography",
+   "wijstNaar": "type/segmentActive"
+  },
+  {
+   "naam": "tabBar/labelTypography",
+   "soort": "typography",
+   "wijstNaar": "type/labelMicro"
+  },
+  {
+   "naam": "sectionEyebrow/labelTypography",
+   "soort": "typography",
+   "wijstNaar": "type/labelSection"
+  },
+  {
+   "naam": "sectionEyebrow/linkTypography",
+   "soort": "typography",
+   "wijstNaar": "type/textLink"
+  },
+  {
+   "naam": "splitRow/indexTypography",
+   "soort": "typography",
+   "wijstNaar": "type/kpiUnit"
+  },
+  {
+   "naam": "splitRow/valueTypography",
+   "soort": "typography",
+   "wijstNaar": "type/splitsRow"
+  },
+  {
+   "naam": "prBadge/typography",
+   "soort": "typography",
+   "wijstNaar": "type/kpiUnit"
+  },
+  {
+   "naam": "recentRow/dayTypography",
+   "soort": "typography",
+   "wijstNaar": "type/italicConnector"
+  },
+  {
+   "naam": "recentRow/statsTypography",
+   "soort": "typography",
+   "wijstNaar": "type/recentRow"
+  },
+  {
+   "naam": "recentRow/paceTypography",
+   "soort": "typography",
+   "wijstNaar": "type/recentRow"
+  }
+ ]
+}

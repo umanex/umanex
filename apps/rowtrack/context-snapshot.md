@@ -59,23 +59,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+e1c8f2c feat(rowtrack): storybook op react-native-web met token-trouwe render
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
 81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
 6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
 d98be09 fix(ui): breedte-filter ankeren op hele klasse-tokens
-e369003 feat(ui): maat-as — gerenderde doosmaten tegen een basislijn
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.gitignore
-  A  apps/rowtrack/.storybook/main.ts
-  A  apps/rowtrack/.storybook/mocks/supabase.ts
-  A  apps/rowtrack/.storybook/preview.tsx
-  A  apps/rowtrack/briefings/2026-09-07-feature-rowtrack-storybook-figma-sync.tcebc.md
-  A  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/package.json
-  A  apps/rowtrack/scripts/build-web-fonts.mjs
-  A  apps/rowtrack/scripts/render-probe.mjs
+  D  apps/rowtrack/.claude/skills/code-naar-figma/SKILL.md
+  M  apps/rowtrack/.storybook/main.ts
+  M  apps/rowtrack/BACKLOG.md
+  A  apps/rowtrack/components/BleStatusBar.stories.tsx
+  A  apps/rowtrack/components/BottomFade.stories.tsx
+  A  apps/rowtrack/components/BottomSheet.stories.tsx
+  A  apps/rowtrack/components/Chip.stories.tsx
+  A  apps/rowtrack/components/DeviceRow.stories.tsx
+  A  apps/rowtrack/components/Dot.stories.tsx
+  A  apps/rowtrack/components/EmptyState.stories.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -30,7 +30,28 @@ const config: StorybookConfig = {
   stories: ['../docs/**/*.mdx', '../components/**/*.stories.@(ts|tsx)'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
   staticDirs: ['./public'],
-  framework: { name: '@storybook/react-native-web-vite', options: {} },
+  framework: {
+    name: '@storybook/react-native-web-vite',
+    options: {
+      /**
+       * Dezelfde babel-transform als de app zelf draait (`babel.config.js`).
+       *
+       * Reanimated 4 verplaatst zijn worklet-transform naar `react-native-worklets/plugin`,
+       * en zonder die plugin compileert een `useAnimatedStyle`-callback tot een gewone
+       * functie. Dat faalt niet bij de build: `storybook build` gaf exit 0 en pas de
+       * render gooide `[Reanimated] Passed a function that is not a worklet` — gemeten
+       * 2026-09-07 op 26 van 197 stories (WheelPicker en alles wat hem gebruikt:
+       * GoalSheet, IdlePhase), alle 26 met een LEGE render als enige zichtbare symptoom.
+       *
+       * `pluginReactOptions.babel` is de doorgeefluik naar vite-plugin-rnw; gelezen in
+       * node_modules/@storybook/react-native-web-vite/dist/preset.js, niet aangenomen.
+       * De plugin hoort als laatste — zelfde eis als in babel.config.js.
+       */
+      pluginReactOptions: {
+        babel: { plugins: ['react-native-worklets/plugin'] },
+      },
+    },
+  },
   core: { disableTelemetry: true },
   viteFinal: async (config) => {
     config.plugins ??= [];
