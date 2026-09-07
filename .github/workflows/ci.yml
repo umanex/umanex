@@ -121,6 +121,18 @@ jobs:
       # marge-meting bewijst dat zijn tikfout-drempel nog niet aan een echte
       # Tailwind-klasse raakt. Zakt die marge naar nul, dan gaat CI stuk vóór de
       # guard vals alarm begint te slaan.
+      # Elke app declareert in zijn CLAUDE.md welke preset, welke componentbron en welke
+      # Storybook hij gebruikt; deze guard toetst die declaratie tegen wat er op schijf staat.
+      # De as die ertoe doet is [adoptie]: een workspace-dependency die geen enkel app-bestand
+      # importeert leest als adoptie zonder het te zijn. Zo droeg cashflow @umanex/ui maanden
+      # in package.json terwijl de enige importeur een render-script was.
+      #
+      # De tegenproef draait ernaast, want een guard die draait is nog geen guard die meet:
+      # de eerste versie stond groen op precies die app, omdat next.config.mjs de package in
+      # transpilePackages noemt en het meetbereik de app-root meenam.
+      - name: Guard — design-systeem-bron per app (met tegenproef)
+        run: pnpm ds:guard:selftest
+
       - name: Guard — tegenproef op de rol-utility-guard
         run: |
           pnpm --filter @umanex/rowtrack-tokens guard:selftest

@@ -12,7 +12,9 @@
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean && rm -rf node_modules",
-    "plan:model": "node scripts/plan-model.mjs"
+    "plan:model": "node scripts/plan-model.mjs",
+    "ds:guard": "node scripts/design-system-guard.mjs",
+    "ds:guard:selftest": "node scripts/design-system-selftest.mjs && node scripts/design-system-guard.mjs"
   },
   "devDependencies": {
     "turbo": "^2.0.0"

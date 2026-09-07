@@ -38,6 +38,22 @@ mode meer. Een contrastcijfer voor cashflow gaat dus altijd over light.
 
 ---
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `@umanex/config/tailwind/preset`
+- **Componentbron:** `@umanex/ui`
+- **Storybook:** `pnpm --filter @umanex/ui storybook` (:6006)
+
+De app-componenten in `components/cashflow/` zijn composities, geen primitives: ze bouwen op
+`Button`, `Input`, `Label`, `Card`, `Badge` en `Separator` uit `@umanex/ui`. Een nieuwe primitive
+hoort in `packages/ui` met een story ernaast, niet hier.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-07 door alle vijf te draaien, niet door

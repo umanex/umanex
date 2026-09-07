@@ -1,5 +1,5 @@
 # Context Snapshot — vyvey
-_Gegenereerd op 2026-08-08_
+_Gegenereerd op 2026-09-07_
 
 ## Project
 - **App:** vyvey
@@ -13,6 +13,7 @@ _Gegenereerd op 2026-08-08_
 
 ## Packages
 - **@umanex/config:** 0.0.1
+- **@umanex/rowtrack-tokens:** 0.0.1
 - **@umanex/tokens:** 0.0.1
 - **@umanex/ui:** 0.0.1
 
@@ -60,15 +61,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-13ed3ea fix: read the page after the network settles, not at domcontentloaded
-34ef4b4 feat(vyvey): add a flow harness and a measured verify path
-62ab13d chore: prune four orphans, and declare the binary the render scripts need
-e59eaa1 chore(config): remove the dead flat-config eslint files
-5806065 refactor(config): share the token lint rules instead of copying them per app
+5b9aa03 refactor(ui): extract the shared focus ring into a constant
+a15b915 feat(ui): check every Figma variable against the token source
+3c61b21 feat(ui): export Storybook components to Figma with a sync guard
+e270ab1 feat(ui): add Storybook with token-driven docs
+9a2bc2e chore: sync umanex-os layer with global umanex-os
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/vyvey/scripts/flow-harness.mjs
+  M  apps/vyvey/CLAUDE.md
 
 ## Bestanden met TODO/FIXME
   (geen)

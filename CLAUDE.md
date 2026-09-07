@@ -120,6 +120,39 @@ asymmetrie — en gebruik hem als utility.
 `pnpm --filter @umanex/tokens guard` dwingt dit af (draait ook in CI), met ESLint-regels
 per app voor feedback in de editor.
 
+## Design-systeem-bron
+
+**Elke app declareert in zijn eigen `CLAUDE.md` een `## Design-systeem-bron`-sectie**, met drie
+regels: welke Tailwind-preset, welke componentbron, welke Storybook. Zelfde regime als
+`## Verify-pad`: **"geen" is een geldig antwoord en hoort er te staan** — een lege regel laat de
+vraag terugkomen, het woord "geen" maakt de keuze telbaar.
+
+```markdown
+- **Preset:** `@umanex/config/tailwind/preset`
+- **Componentbron:** `@umanex/ui`
+- **Storybook:** `pnpm --filter @umanex/ui storybook` (:6006)
+```
+
+`pnpm ds:guard` toetst die declaratie tegen wat er op schijf staat, en draait in CI met zijn
+tegenproef (`pnpm ds:guard:selftest`). Vijf assen: de sectie bestaat · de drie velden zijn
+ingevuld · de gedeclareerde preset is de preset die `tailwind.config` echt importeert · een app
+op `@umanex/ui` heeft geen lokale kopie van een van zijn exports · en een app op `@umanex/ui`
+importeert hem ook echt, in app-code.
+
+**Die laatste as is de reden dat dit een guard is en geen afspraak.** `@umanex/ui` bestond
+maanden mét Storybook, mét Figma-sync en mét een CI-build, terwijl cashflow — het grootste
+UI-oppervlak van de monorepo — hem in nul app-bestanden importeerde. De dependency stond in
+`package.json`, de enige gebruiker was `scripts/render-screens.tsx`. Storybook maakt de laag
+zichtbaar; hij maakt hem niet gebruikt. `scripts/` telt daarom niet mee voor adoptie, en een
+vermelding in `next.config.mjs` (`transpilePackages`) evenmin.
+
+**Nieuw project: koppelen is de default, niet aanmaken.** Zit de app op
+`@umanex/config/tailwind/preset`, dan krijgt hij géén eigen Storybook — een nieuwe primitive
+gaat naar `packages/ui` mét story, en de app importeert hem. Alleen een app met een eigen
+tokenbron (vyvey's klantthema, rowtrack's mobile-DNA) verantwoordt een eigen componentlaag; de
+vorm is dan een eigen Storybook die als `ref` in die van `packages/ui` hangt, niet een tweede
+losse installatie.
+
 ## Briefings (TC-EBC)
 
 TC-EBC framework staat volledig in `.umanex-os/CLAUDE.md` — werkprincipe, niet hier herhaald.

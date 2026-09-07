@@ -59,16 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+4dac221 docs(rowtrack): triage 22 stale HANDOFF items — 18 to BACKLOG, 3 rephrased, 1 resolved
 8f32b3d docs(rowtrack): record the FTMS energy measurement and two out-of-scope findings
 7d0f1df fix(rowtrack): retry a clock-skewed token once instead of failing the home fetch
 928f7e7 fix(rowtrack): make the heart-rate path measurable and stop the disconnect-listener leak
 5b9aa03 refactor(ui): extract the shared focus ring into a constant
-529d255 docs(handoff): bring the HANDOFF headers up to the current format
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/CLAUDE.md
 
 ## Bestanden met TODO/FIXME
   (geen)

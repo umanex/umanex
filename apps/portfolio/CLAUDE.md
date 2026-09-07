@@ -5,6 +5,22 @@ Portfoliosite. Next.js (App Router), dev op poort 3001.
 Dit bestand is bewust **minimaal**: het bevat alleen wat gemeten is. Vul de rest aan wanneer er
 echt aan deze app gewerkt wordt — verzonnen projectcontext is schadelijker dan geen.
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `@umanex/config/tailwind/preset`
+- **Componentbron:** `@umanex/ui`
+- **Storybook:** `pnpm --filter @umanex/ui storybook` (:6006)
+
+`components/ui/` bevat hier bewust géén primitives: `Reveal`, `RichText`, `AccentBar`,
+`CheckList` en `PhotoPlaceholder` zijn portfolio-eigen presentatiecomponenten zonder
+tegenhanger in `@umanex/ui`. Een `Button` of `Input` hoort hier niet te ontstaan.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-08 door het te draaien, niet door

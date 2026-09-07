@@ -21,6 +21,20 @@ echt aan deze app gewerkt wordt — verzonnen projectcontext is schadelijker dan
 | **Adzuna-limiet** | Adzuna stuurt **geen** limiet-headers mee — geen `X-RateLimit-Remaining`, geen `Retry-After` — dus een 429 is het enige signaal dat je te snel vraagt. De bron haalt regio's daarom serieel op, pauzeert tussen verzoeken en probeert een 429 twee keer opnieuw (`ADZUNA_SEARCH.pauzeMs` / `retriesBij429`). Een sync duurt daardoor ~12s in plaats van een paar seconden; dat is de prijs van volledige data. Een test op `/instellingen` kost 3 verzoeken, een sync er 9 tot 15. |
 | **Pagineringsplafond** | 5 pagina's × 50 per regio (beslissing 2026-08-10). Brussel heeft er meer dan 600, dus dit kápt af — de bron zet dat als waarschuwing in `sourceStatuses`. Ook bewust. |
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `@umanex/config/tailwind/preset`
+- **Componentbron:** `@umanex/ui`
+- **Storybook:** `pnpm --filter @umanex/ui storybook` (:6006)
+
+Een nieuwe primitive hoort in `packages/ui` met een story ernaast, niet in deze app.
+
+---
+
 ## Verify-pad
 
 Wat de `verify`-skill hier kan uitvoeren. Vastgesteld 2026-08-08 en bijgewerkt 2026-08-10, telkens

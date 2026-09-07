@@ -1,5 +1,5 @@
 # Context Snapshot — portfolio
-_Gegenereerd op 2026-08-25_
+_Gegenereerd op 2026-09-07_
 
 ## Project
 - **App:** portfolio
@@ -45,17 +45,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-f1af19f feat(portfolio): drop the scan credit, keep the per-product ladder
-cbaf792 feat(portfolio): price the scan per product instead of flat
-1d4189d feat(portfolio): sell capacity instead of a portfolio
-ea926a1 fix(portfolio): let the header nav fit a 375px screen
-9578c45 test(portfolio): measure narrow screens, dark mode and settled renders
+5b9aa03 refactor(ui): extract the shared focus ring into a constant
+a15b915 feat(ui): check every Figma variable against the token source
+3c61b21 feat(ui): export Storybook components to Figma with a sync guard
+e270ab1 feat(ui): add Storybook with token-driven docs
+5d6aaa0 feat(portfolio): put the cost of doing nothing on the offer page
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/portfolio/app/aanbod/page.tsx
-  M  apps/portfolio/lib/copy.ts
-  M  apps/portfolio/scripts/flow-harness.mjs
+  M  apps/portfolio/CLAUDE.md
 
 ## Bestanden met TODO/FIXME
   (geen)

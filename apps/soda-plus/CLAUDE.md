@@ -30,6 +30,18 @@ opdracht duidelijk wordt — verzonnen projectcontext is schadelijker dan geen.
   fallback-fontstack; het next/font-blok komt er zodra de huisstijl vaststaat.
 - Deliverable-vorm: is dit een klikbaar prototype, een casepresentatie, of allebei?
 
+## Design-systeem-bron
+
+Welke laag deze app zijn vorm van krijgt. Gemeten, niet afgeleid: `scripts/design-system-guard.mjs`
+toetst elke regel hieronder tegen wat er op schijf staat. "geen" is overal een geldig antwoord,
+mits het er staat.
+
+- **Preset:** `@umanex/config/tailwind/preset`
+- **Componentbron:** `@umanex/ui`
+- **Storybook:** `pnpm --filter @umanex/ui storybook` (:6006)
+
+---
+
 ## Verify-pad
 
 **Code:** geen. `pnpm --filter soda-plus type-check` en `build` draaien; er is nog geen flow-harness
