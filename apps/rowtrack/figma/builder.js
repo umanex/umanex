@@ -53,13 +53,15 @@ function gradientTransform(hoek) {
 function gradientPaint(grad, naamPad) {
   const stops = grad.stops.map(st => {
     const stop = { position: st.p, color: { r: st.k.r / 255, g: st.k.g / 255, b: st.k.b / 255, a: st.k.a } };
-    if (st.kVar && V.get(st.kVar)) {
-      // Een stop-binding wordt niet door elke Figma-versie geaccepteerd; melden i.p.v. gokken.
-      try { return figma.variables.setBoundVariableForPaint(stop, 'color', V.get(st.kVar)); }
-      catch (e) { meldingen.push(`${naamPad}: gradientstop niet te binden (${st.kVar})`); return stop; }
-    }
-    meldingen.push(`${naamPad}: gradientstop ongebonden`);
-    return stop;
+    const v = st.kVar ? V.get(st.kVar) : null;
+    if (!v) { meldingen.push(`${naamPad}: gradientstop ongebonden (geen token voor deze waarde)`); return stop; }
+    // De alias HANDMATIG op de stop zetten. `figma.variables.setBoundVariableForPaint`
+    // weigert een ColorStop — hij eist een Paint met een `type`-discriminator — maar de
+    // serialisatievorm die Figma zelf gebruikt werkt wél. Getoetst 2026-09-07 op drie assen:
+    // de binding staat erop, de alias-id matcht, een tweede stop zónder alias blijft
+    // ongebonden (negatieve controle), en de teruggelezen kleur is die van de variabele en
+    // niet de meegegeven waarde — de binding heeft dus effect, hij staat er niet alleen.
+    return { ...stop, boundVariables: { color: { type: 'VARIABLE_ALIAS', id: v.id } } };
   });
   return { type: 'GRADIENT_LINEAR', gradientTransform: gradientTransform(grad.hoek), gradientStops: stops };
 }
@@ -135,6 +137,39 @@ async function maak(n, naamPad) {
   }
   if (n.grad) vullingen.push(gradientPaint(n.grad, naamPad));
   else if (n.gradientRuw) meldingen.push(`${naamPad}: gradient niet ontleed (${n.gradientRuw.slice(0, 40)})`);
+
+  /**
+   * Een absoluut kind dat de ouder volledig bedekt en alléén een vulling draagt, is in CSS
+   * een achtergrondlaag — geen element náást de inhoud. In RN is dat het patroon
+   * `StyleSheet.absoluteFillObject`, en RowTrack gebruikt het voor elke LinearGradient.
+   *
+   * Zonder deze tak belandt zo'n node als gewoon auto-layout-kind in de rij: gemeten
+   * 2026-09-07 stond de rode verloop-pill daardoor NAAST het Button-label in plaats van
+   * erachter, en liep de inhoud buiten de wrapper. Het viel pas op toen de gradients
+   * überhaupt een vulling kregen — daarvóór was de node onzichtbaar leeg.
+   *
+   * Figma tekent `fills` van onder naar boven en áchter de kinderen, dus de vulling van de
+   * overlay hoort in de fills-stapel van de ouder, ná diens eigen achtergrond.
+   */
+  // Meet tegen de CONTENT-box, niet de border-box: een absoluut kind met inset 0 valt
+  // binnen de rand van zijn ouder. Gemeten op Button primary lg: ouder 153,05x44 met een
+  // rand van 1, gradient 151,05x42 op dx=dy=1 — precies twee keer de randbreedte kleiner.
+  // Een check op `w >= ouder.w - 1` mist die dus, en dan belandt de vulling als los kind
+  // in de rij in plaats van als achtergrond.
+  const rand = n.border ?? 0;
+  const bedekt = k => k.abs && !k.k && !k.t && (k.grad || k.bg)
+    && Math.abs(k.dx ?? 0) <= rand + 0.5 && Math.abs(k.dy ?? 0) <= rand + 0.5
+    && k.w >= n.w - 2 * rand - 0.5 && k.h >= n.h - 2 * rand - 0.5;
+  const achtergrondKinderen = (n.k ?? []).filter(bedekt);
+  const echteKinderen = (n.k ?? []).filter(k => !bedekt(k));
+  for (const a of achtergrondKinderen) {
+    if (a.bg) {
+      const p = { type: 'SOLID', color: rgb(a.bg), opacity: a.bg.a };
+      vullingen.push(a.bgVar && V.get(a.bgVar)
+        ? figma.variables.setBoundVariableForPaint(p, 'color', V.get(a.bgVar)) : p);
+    }
+    if (a.grad) vullingen.push(gradientPaint(a.grad, `${naamPad}(achtergrond)`));
+  }
   f.fills = vullingen;
   if (n.border) {
     const p = { type: 'SOLID', color: rgb(n.borderKleur), opacity: n.borderKleur.a };
@@ -153,7 +188,17 @@ async function maak(n, naamPad) {
   }
   if (n.opacity !== undefined) f.opacity = n.opacity;
   if (n.schaduwStyle && ES.get(n.schaduwStyle)) await f.setEffectStyleIdAsync(ES.get(n.schaduwStyle).id);
-  for (const [i, k] of (n.k ?? []).entries()) f.appendChild(await maak(k, `${naamPad}>${i}`));
+  for (const [i, k] of echteKinderen.entries()) {
+    const kind = await maak(k, `${naamPad}>${i}`);
+    f.appendChild(kind);
+    // Een absoluut kind dat de ouder NIET volledig bedekt blijft een echte node, maar valt
+    // buiten de stroom — anders duwt hij de auto-layout uit elkaar.
+    if (k.abs) {
+      try { if (f.layoutMode !== 'NONE') kind.layoutPositioning = 'ABSOLUTE'; } catch (e) { /* geen auto-layout */ }
+      kind.x = k.dx ?? 0;
+      kind.y = k.dy ?? 0;
+    }
+  }
   if (n.t) f.appendChild(await maak({ ...n, k: null }, `${naamPad}>tekst`));
   return f;
 }

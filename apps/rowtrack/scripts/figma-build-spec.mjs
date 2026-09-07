@@ -233,7 +233,7 @@ const WALKER = () => {
     const d = m[1].split(',').map(x => parseFloat(x.trim()));
     return { r: d[0], g: d[1], b: d[2], a: d[3] ?? 1 };
   };
-  function lees(el, diepte) {
+  function lees(el, diepte, ouderRect) {
     const cs = getComputedStyle(el);
     const r = el.getBoundingClientRect();
     const eigenTekst = [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim())
@@ -255,6 +255,10 @@ const WALKER = () => {
       boxShadow: cs.boxShadow !== 'none' ? cs.boxShadow : null,
       overflow: cs.overflow,
       positie: cs.position,
+      // Offset t.o.v. de ouder. Nodig voor een absoluut gepositioneerd kind: dat valt
+      // buiten de auto-layout-stroom en moet in Figma op zijn eigen plek gezet worden.
+      dx: ouderRect ? Math.round((r.left - ouderRect.left) * 100) / 100 : 0,
+      dy: ouderRect ? Math.round((r.top - ouderRect.top) * 100) / 100 : 0,
     };
     if (eigenTekst) {
       o.tekst = {
@@ -274,7 +278,7 @@ const WALKER = () => {
         const c2 = getComputedStyle(k);
         return c2.display !== 'none' && c2.visibility !== 'hidden';
       });
-      if (kids.length) o.kinderen = kids.map(k => lees(k, diepte + 1));
+      if (kids.length) o.kinderen = kids.map(k => lees(k, diepte + 1, r));
     }
     // Een absoluut gepositioneerd kind valt buiten de box van zijn ouder, dus een overlay-
     // wortel meet 0 breed of 0 hoog terwijl er wél iets staat. Gemeten 2026-09-07: tien
@@ -308,7 +312,7 @@ const WALKER = () => {
     }
     return o;
   }
-  return { boom: lees(kinderen[0], 0) };
+  return { boom: lees(kinderen[0], 0, null) };
 };
 
 // ---------------------------------------------------------------------------
@@ -316,12 +320,33 @@ const WALKER = () => {
 // ---------------------------------------------------------------------------
 const spec = { componenten: {}, schermen: {}, ongebonden: [], fouten: [] };
 
+/**
+ * Een absoluut gepositioneerd kind erft een ontbrekende maat van zijn ouder.
+ *
+ * WAAROM. `position: absolute` met `left:0; right:0` krijgt zijn breedte van de ouder. Was
+ * die ouder op meetmoment zelf 0 breed (de overlay-wortels), dan meet het kind óók 0 — en
+ * de wortel-herstelstap die daarna draait raakt het kind niet. Gemeten 2026-09-07: de acht
+ * fade-verlopen in WheelPicker kwamen zo op 0,01 px breed in Figma terecht. De vulling stond
+ * er, hij was alleen onzichtbaar — precies de vorm die een groene bouw verbergt.
+ *
+ * Alleen de as die 0 is wordt overgenomen, en alleen van een ouder die er zelf wél een heeft.
+ */
+function erfMaatVanOuder(node, ouder) {
+  if (ouder && node.positie === 'absolute') {
+    if (node.w < 2 && ouder.w >= 2) { node.geerfd = { ...(node.geerfd ?? {}), w: node.w }; node.w = ouder.w; }
+    if (node.h < 2 && ouder.h >= 2) { node.geerfd = { ...(node.geerfd ?? {}), h: node.h }; node.h = ouder.h; }
+  }
+  for (const k of node.kinderen ?? []) erfMaatVanOuder(k, node);
+}
+
 async function meet(storyId, args) {
   const q = Object.keys(args).length ? `&args=${encodeURIComponent(argsQuery(args))}` : '';
   await page.goto(`http://localhost:${poort}/iframe.html?id=${storyId}&viewMode=story${q}`,
     { waitUntil: 'networkidle', timeout: 20000 });
   await page.waitForTimeout(120);
-  return page.evaluate(WALKER);
+  const r = await page.evaluate(WALKER);
+  if (r.boom) erfMaatVanOuder(r.boom, null);
+  return r;
 }
 
 /**

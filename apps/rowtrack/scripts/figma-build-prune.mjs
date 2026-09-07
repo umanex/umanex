@@ -41,6 +41,9 @@ function snoei(node, diepte, pad, comp) {
     o.grad = { hoek: node.gradientHoek, stops: node.gradientStops.map(st => ({ p: st.positie, k: st.kleur, kVar: st.kleurVar })) };
   } else if (node.backgroundImage?.includes('gradient')) o.gradientRuw = node.backgroundImage.slice(0, 80);
   if (node.herstelde) o.herstelde = node.herstelde;
+  if (node.geerfd) o.geerfd = node.geerfd;
+  // De positie bepaalt of een node in de auto-layout-stroom hoort of eronder ligt.
+  if (node.positie === 'absolute') { o.abs = true; o.dx = r2(node.dx); o.dy = r2(node.dy); }
   if (node.borderWidth > 0) {
     o.border = r2(node.borderWidth); o.borderKleur = node.borderColor;
     if (node.borderColorVar) o.borderKleurVar = node.borderColorVar;
