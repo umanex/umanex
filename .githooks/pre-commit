@@ -177,6 +177,40 @@ if [ -n "$zonder_bewijs" ]; then
   echo "    - [x] CTA's op één hoogte — bewijs: y=612 op 02–08 (figma_execute)"
 fi
 
+# 2b-bis. As-mix-signaal — mengt een acceptatie-item een inhoudelijke claim met een
+#     procedurele? Waarschuwt, blokkeert niet. De commit-tijd tegenhanger van
+#     `~/.claude/hooks/acceptatie-guard.sh`: die vuurt bij het schrijven, deze vangt ook
+#     wat met de hand in een editor is aangepast.
+#
+#     GEMETEN (2026-09-07, 78 briefings / 629 items in umanex-apps): 49% van de items
+#     draagt twee of meer beweringen die elk een eigen meting vragen. Een leestekenregex
+#     vangt daar maar de helft van (recall 51%), want het dominante mechanisme is
+#     juxtapositie zónder voegwoord. Het betrouwbaarste énkele signaal bleek de as-mix:
+#     een inhoudelijke claim geniet aan een procedurele — "Portrait-gedrag ongewijzigd;
+#     tsc groen". Die twee helften delen nooit een instrument, dus het groene commando
+#     draagt routineus het vinkje voor de helft die niemand bekeken heeft.
+#
+#     Bewust NAUW: procedureel woord ÉN scheidingsteken op dezelfde regel. Een variant op
+#     elke puntkomma vuurt op 22% van alle items en leert vooral hoe je hem wegleest.
+as_mix=""
+while IFS= read -r -d '' f; do
+  case "$f" in *.tcebc.md) ;; *) continue ;; esac
+  n_am=$(git diff --cached -U0 -- "$f" | awk '
+    /^\+ *- \[[ xX]\]/ {
+      kop = $0; sub(/— bewijs:.*/, "", kop)
+      if (kop ~ /tsc|type-?check|typecheck|lint|build|exit 0|compileert/ && kop ~ /;|·| \+ /) n++
+    }
+    END { print n + 0 }')
+  [ "${n_am:-0}" -gt 0 ] 2>/dev/null && as_mix="$as_mix $f ($n_am)"
+done < <(staged_paths)
+
+if [ -n "$as_mix" ]; then
+  echo "⚠ Acceptatie-item(s) mengen een inhoudelijke claim met een procedurele in:$as_mix"
+  echo "  Eén item, één meting. \`tsc groen\` en een visuele claim delen nooit een instrument,"
+  echo "  dus het groene commando draagt het vinkje voor de helft die niemand bekeken heeft."
+  echo "  Splits ze — de procedurele helft krijgt zijn eigen regel."
+fi
+
 # 2c. Briefing-status-signaal — draagt een aangeraakte briefing een status uit het
 #     vocabulaire van de triade? Waarschuwt, blokkeert niet. Zelfde plek als 2a/2b: een
 #     briefing kan in de root én in een app staan.
