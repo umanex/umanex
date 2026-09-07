@@ -19,6 +19,8 @@ Elke score en bevinding moet steunen op iets observeerbaars: het scherm/de flow 
 
 De ratings hieronder zijn een **lege schaal die je invult**, geen voorbeeld om over te nemen.
 
+**Elke bevinding draagt haar bewijs ín de regel** — `bewijs: <screenshot-pad | URL + element | gemeten waarde>` — zoals een acceptatie-item in een briefing. Een bevinding zonder dat fragment is een aanname en staat als `[AANNAME]` gemarkeerd, niet als bevinding. Dit is wat de audit toetsbaar maakt: zonder bewijs kan niemand later nagaan of de bevinding klopte, en de audit zelf heeft dan geen kant waarop hij rood kan worden.
+
 ---
 
 ## Inputs
@@ -123,6 +125,10 @@ Sorteer op impact × (omgekeerde) effort. Quick wins (hoge impact, lage effort) 
 
 **P3 is een bestemming, geen etiket.** Schrijf elke P3 weg als entry in de dichtstbijzijnde `BACKLOG.md` (`apps/{app}/` → repo-root → globaal), type `ux`, en noem het pad in je rapport. Een P3 die alleen in het auditrapport staat, verdwijnt met dat rapport.
 
+**P0–P2 hebben óók een huis.** Binnen de triade blokkeren P0/P1 de status `gevalideerd` en landen ze in de fix-lijst van de scheidsrechter. Buiten de triade — een losse audit op bestaand werk — bestond een P0–P2 tot 2026-09-07 alleen in het rapport, terwijl de P3 wél een bestemming had: precies omgekeerd. Elke P0–P2 landt daarom als **`BACKLOG.md`-entry met status `open` en type `ux`** (de bevinding als *Wat*, de aanbeveling als *Eerste zet*), of als **briefing / taak-contract** wanneer hij meteen gebouwd wordt. Het rapport noemt per bevinding de bestemming (pad). Gemeten 2026-09-07: elf ux-audit-rapporten in de klant-repo's, nul learnings, en de enige route van bevinding naar werk liep via P3.
+
+**Brug naar de eval-loop.** Een bevinding die als dezelfde klasse terugkeert — hetzelfde framework-item met dezelfde oorzaak over meerdere schermen, of in een tweede audit van dezelfde app — is een `vastleggen`-trigger: dan faalt niet het scherm maar het werkprincipe of de skill die het bouwde. Losse instanties horen in het rapport, niet in LEARNINGS.
+
 ---
 
 ## Redesign-voorstellen
@@ -152,6 +158,7 @@ Structuur:
 7. **Redesign-voorstellen** — de top-voorstellen uitgewerkt.
 8. **Research-aanbevelingen** — wat de aannames zou valideren.
 9. **Methodiek & limieten** — eerlijk benoemen dat dit een expert-review is, te valideren met echte gebruikers; lijst de aannames.
+10. **Bestemmingen** — per P0–P3 het pad van de `BACKLOG.md`-entry of de briefing waarin hij geland is. Een rapport zonder deze lijst is onaf: de bevindingen bestaan dan alleen hier.
 
 Toon de samenvatting (stap 2) ook inline in de chat, met het bestandspad. Niet stilzwijgend enkel wegschrijven.
 

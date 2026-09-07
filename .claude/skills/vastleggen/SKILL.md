@@ -90,6 +90,17 @@ Toon de zojuist toegevoegde entry inline als codeblock, en vermeld het volledige
 
 ---
 
+## Niet-interactieve aanroep — het contract voor skills die deze skill aanroepen
+
+Drie plekken roepen `vastleggen` aan zonder gebruiker in de lus: de gecontroleerde stop van `cyclus-tot-validatie` (drie iteraties zonder convergentie), de parity-gate van `code-naar-figma` stap 8 en de parity-check van `figma-naar-code` stap 6. Tot 2026-09-07 stond "niet-interactief" wel in de aanroepers, maar nergens hier — stap 3 zegt juist *"verplicht, altijd stellen"*. Dit is de vorm die geldt zodra de aanroeper de velden vooraf invult:
+
+- **Header, Input en Fout** komen van de aanroeper, letterlijk. Stap 1 en 2 vervallen; verzin er niets bij. Levert de aanroeper geen Header, dan is het de naam van de aanroepende skill plus de aanleiding (`cyclus-tot-validatie — geen convergentie na 3 iteraties`).
+- **Routing** wordt uit de cwd afgeleid in plaats van gevraagd: umanex-os zelf → globaal; een klant-repo (`git rev-parse --show-toplevel`) → klant-laag; een cwd binnen `apps/<app>/` → project-laag. Stap 3 stelt dus géén vraag.
+- **Stap 4 tot 7 blijven gelijk.** Ook de laatste: de nieuwe entry wordt inline getoond, mét pad. Niet-interactief betekent geen vragen, niet geen zichtbaarheid.
+- **Een aanroeper die een veld niet kan leveren, valt terug op de interactieve vorm** en zegt dat. Een entry met een verzonnen Input is erger dan geen entry: hij dient later als verificatie-test.
+
+---
+
 ## Bewust niet in deze skill
 
 - **De verify-stap** (input opnieuw afspelen, status → `verified`) en **de promotie-flow** (`LEARNINGS.md` → CLAUDE.md harden, status → `promoted`) horen bij de `learnings-verwerken` skill, niet bij capture. Deze skill zet altijd `open`.
