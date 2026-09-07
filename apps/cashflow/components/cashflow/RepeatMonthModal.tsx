@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@umanex/ui/components/ui/button';
 import { useCashflowStore } from '../../store/cashflow';
 import { useCashflowActions } from '../../hooks/useCashflow';
 import { useDismissOnEscape } from '../../hooks/useDismissOnEscape';
@@ -177,21 +178,24 @@ export function RepeatMonthModal({ monthKey, onClose }: RepeatMonthModalProps) {
         )}
 
         <div className="flex justify-end gap-2 pt-1">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onClose}
-            className="h-9 px-4 rounded-md border border-input text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="px-4"
           >
             Annuleren
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
             onClick={handleConfirm}
             disabled={selected.length === 0}
-            className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="px-4"
           >
             {selected.length === 0
               ? 'Niets geselecteerd'
               : `${selected.length} ${selected.length === 1 ? 'post' : 'posten'} overnemen`}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

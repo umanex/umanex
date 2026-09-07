@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@umanex/ui/components/ui/button';
+import { Input } from '@umanex/ui/components/ui/input';
+import { Label } from '@umanex/ui/components/ui/label';
 import { useCashflowStore } from '../../store/cashflow';
 import { useMonths, useReservationActions } from '../../hooks/useCashflow';
 import { useDismissOnEscape } from '../../hooks/useDismissOnEscape';
@@ -139,14 +142,14 @@ export function ReservationPaymentModal({ monthKey, filterType, onClose }: Reser
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Spaarpot</label>
+            <Label>Spaarpot</Label>
             {activeReservations.length === 0 ? (
               <p className="text-sm text-muted-foreground">Geen actieve spaarpotten voor {monthKey}.</p>
             ) : (
               <select
                 value={reservationId}
                 onChange={(e) => { setReservationId(e.target.value); setError(''); }}
-                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-9"
               >
                 {activeReservations.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -165,48 +168,48 @@ export function ReservationPaymentModal({ monthKey, filterType, onClose }: Reser
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Omschrijving</label>
-            <input
+            <Label>Omschrijving</Label>
+            <Input
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder="Factuur..."
-              className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="h-9"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Factuurbedrag</label>
-              <input
+              <Label>Factuurbedrag</Label>
+              <Input
                 type="text"
                 inputMode="decimal"
                 value={invoiceStr}
                 onChange={(e) => syncInvoice(e.target.value)}
                 placeholder="0"
-                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm tabular-nums text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-9 tabular-nums text-right"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Uit pot</label>
-              <input
+              <Label>Uit pot</Label>
+              <Input
                 type="text"
                 inputMode="decimal"
                 value={fromResStr}
                 onChange={(e) => syncFromReservation(e.target.value)}
                 placeholder="0"
-                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm tabular-nums text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-9 tabular-nums text-right"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Uit cash</label>
-              <input
+              <Label>Uit cash</Label>
+              <Input
                 type="text"
                 inputMode="decimal"
                 value={fromCashStr}
                 onChange={(e) => syncFromCash(e.target.value)}
                 placeholder="0"
-                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm tabular-nums text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-9 tabular-nums text-right"
               />
             </div>
           </div>
@@ -215,19 +218,22 @@ export function ReservationPaymentModal({ monthKey, filterType, onClose }: Reser
         </div>
 
         <div className="flex justify-end gap-2 pt-1">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onClose}
-            className="h-9 px-4 rounded-md border border-input text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="px-4"
           >
             Annuleren
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
             onClick={handleSave}
             disabled={activeReservations.length === 0}
-            className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="px-4"
           >
             Opslaan
-          </button>
+          </Button>
         </div>
       </div>
     </div>
