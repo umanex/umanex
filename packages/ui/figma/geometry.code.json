@@ -1,0 +1,1735 @@
+{
+  "$comment": "Gemeten code-kant. Herschrijf met `pnpm --filter @umanex/ui geometry --write` na een BEDOELDE wijziging.",
+  "stories": 25,
+  "gegenereerd": "2026-09-07",
+  "gemeten": {
+    "componenten-badge--playground": {
+      "aantal": 2,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 72,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-primary border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold hover:bg-primary/80 inline-flex items-center px-2.5 py-0.5 rounded-full text-primary-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-badge--variants": {
+      "aantal": 8,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 70,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-wrap gap-3 items-center",
+          "h": 22,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "12px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-primary border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold hover:bg-primary/80 inline-flex items-center px-2.5 py-0.5 rounded-full text-primary-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-secondary border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold hover:bg-secondary/80 inline-flex items-center px-2.5 py-0.5 rounded-full text-secondary-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold inline-flex items-center px-2.5 py-0.5 rounded-full text-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-success border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold hover:bg-success/80 inline-flex items-center px-2.5 py-0.5 rounded-full text-success-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-warning border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold hover:bg-warning/80 inline-flex items-center px-2.5 py-0.5 rounded-full text-warning-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-destructive border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring font-semibold hover:bg-destructive/80 inline-flex items-center px-2.5 py-0.5 rounded-full text-destructive-foreground text-xs transition-colors",
+          "h": 22,
+          "padding": "2/10/2/10",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 1,
+          "gap": "",
+          "font": "12/16 600",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-button--disabled": {
+      "aantal": 2,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 88,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-primary/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 139.69,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "0.5"
+        }
+      ]
+    },
+    "componenten-button--playground": {
+      "aantal": 2,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 88,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-primary/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 84.11,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-button--sizes": {
+      "aantal": 7,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 92,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-wrap gap-3 items-center",
+          "h": 44,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "12px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-9 hover:bg-primary/90 inline-flex items-center justify-center px-3 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 36,
+          "w": 59.52,
+          "padding": "0/12/0/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-primary/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 78.41,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-11 hover:bg-primary/90 inline-flex items-center justify-center px-8 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 44,
+          "w": 98.88,
+          "padding": "0/32/0/32",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-primary/90 inline-flex items-center justify-center ring-offset-background rounded-md text-primary-foreground text-sm transition-colors w-10 whitespace-nowrap",
+          "h": 40,
+          "w": 40,
+          "padding": "0/0/0/0",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "svg",
+          "klassen": "",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-button--variants": {
+      "aantal": 8,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 88,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-wrap gap-3 items-center",
+          "h": 40,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "12px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-primary/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 78.41,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-secondary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-secondary/80 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-secondary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 98.89,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 80.77,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 69.16,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-destructive disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-destructive/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-destructive-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 104.83,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:underline inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-primary text-sm transition-colors underline-offset-4 whitespace-nowrap",
+          "h": 40,
+          "w": 58.66,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-button--with-icon": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 88,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-wrap gap-3 items-center",
+          "h": 40,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "12px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-primary/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 135.03,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "svg",
+          "klassen": "",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-destructive disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-destructive/90 inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-destructive-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 131.91,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "svg",
+          "klassen": "",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-card--content-only": {
+      "aantal": 4,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 118,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-card border rounded-lg shadow-sm text-card-foreground w-80",
+          "h": 70,
+          "w": 320,
+          "padding": "0/0/0/0",
+          "radius": "8px/8px/8px/8px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "p-6 pt-6",
+          "h": 68,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "p",
+          "klassen": "text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-card--default": {
+      "aantal": 10,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 252,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-card border rounded-lg shadow-sm text-card-foreground w-80",
+          "h": 204,
+          "w": 320,
+          "padding": "0/0/0/0",
+          "radius": "8px/8px/8px/8px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-col p-6 space-y-1.5",
+          "h": 98,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "h3",
+          "klassen": "font-semibold leading-none text-2xl tracking-tight",
+          "h": 24,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "24/24 600",
+          "opacity": "1"
+        },
+        {
+          "tag": "p",
+          "klassen": "text-muted-foreground text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "p-6 pt-0",
+          "h": 44,
+          "padding": "0/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "p",
+          "klassen": "text-muted-foreground text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center p-6 pt-0",
+          "h": 60,
+          "padding": "0/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-9 hover:bg-primary/90 inline-flex items-center justify-center px-3 ring-offset-background rounded-md text-primary-foreground text-sm transition-colors whitespace-nowrap",
+          "h": 36,
+          "w": 78.78,
+          "padding": "0/12/0/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-9 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-3 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 36,
+          "w": 96.08,
+          "padding": "0/12/0/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-checkbox--playground": {
+      "aantal": 4,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 64,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-4 peer ring-offset-background rounded-sm shrink-0 w-4",
+          "h": 16,
+          "w": 16,
+          "padding": "0/0/0/0",
+          "radius": "4px/4px/4px/4px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-checkbox--states": {
+      "aantal": 18,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 148,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-col gap-3",
+          "h": 100,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "12px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-4 peer ring-offset-background rounded-sm shrink-0 w-4",
+          "h": 16,
+          "w": 16,
+          "padding": "0/0/0/0",
+          "radius": "4px/4px/4px/4px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-4 peer ring-offset-background rounded-sm shrink-0 w-4",
+          "h": 16,
+          "w": 16,
+          "padding": "0/0/0/0",
+          "radius": "4px/4px/4px/4px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "flex items-center justify-center text-current",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "svg",
+          "klassen": "",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-4 peer ring-offset-background rounded-sm shrink-0 w-4",
+          "h": 16,
+          "w": 16,
+          "padding": "0/0/0/0",
+          "radius": "4px/4px/4px/4px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "0.5"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "0.7"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-4 peer ring-offset-background rounded-sm shrink-0 w-4",
+          "h": 16,
+          "w": 16,
+          "padding": "0/0/0/0",
+          "radius": "4px/4px/4px/4px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "0.5"
+        },
+        {
+          "tag": "span",
+          "klassen": "flex items-center justify-center text-current",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "svg",
+          "klassen": "",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "0.7"
+        }
+      ]
+    },
+    "componenten-input--playground": {
+      "aantal": 2,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 88,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-72",
+          "h": 40,
+          "w": 288,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-input--states": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 244,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-col gap-3 w-72",
+          "h": 196,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "12px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-full",
+          "h": 40,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-full",
+          "h": 40,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-full",
+          "h": 40,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "0.5"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-full",
+          "h": 40,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-input--with-label": {
+      "aantal": 4,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 110,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-col gap-2 w-72",
+          "h": 62,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-full",
+          "h": 40,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-label--playground": {
+      "aantal": 1,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 72,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-label--with-control": {
+      "aantal": 8,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 142,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-col gap-4 w-72",
+          "h": 94,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "16px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex flex-col gap-2",
+          "h": 62,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "input",
+          "klassen": "bg-background border border-input disabled:cursor-not-allowed disabled:opacity-50 file:bg-transparent file:border-0 file:font-medium file:text-sm flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-10 placeholder:text-muted-foreground px-3 py-2 ring-offset-background rounded-md text-sm w-full",
+          "h": 40,
+          "padding": "8/12/8/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-2 items-center",
+          "h": 16,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "8px",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-4 peer ring-offset-background rounded-sm shrink-0 w-4",
+          "h": 16,
+          "w": 16,
+          "padding": "0/0/0/0",
+          "radius": "4px/4px/4px/4px",
+          "border": 1,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "0.5"
+        },
+        {
+          "tag": "label",
+          "klassen": "font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm",
+          "h": 14,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/14 500",
+          "opacity": "0.7"
+        }
+      ]
+    },
+    "componenten-separator--horizontal": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 141,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "w-72",
+          "h": 93,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "p",
+          "klassen": "font-medium text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "p",
+          "klassen": "text-muted-foreground text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-border h-[1px] my-4 shrink-0 w-full",
+          "h": 1,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "p",
+          "klassen": "text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-separator--vertical": {
+      "aantal": 7,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 68,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex gap-4 h-5 items-center text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "16px",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-border h-full shrink-0 w-[1px]",
+          "h": 20,
+          "w": 1,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-border h-full shrink-0 w-[1px]",
+          "h": 20,
+          "w": 1,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-slider--disabled": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 56,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "flex items-center relative select-none touch-none w-72",
+          "h": 8,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "bg-secondary grow h-2 overflow-hidden relative rounded-full w-full",
+          "h": 8,
+          "padding": "0/0/0/0",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "absolute bg-primary h-full",
+          "h": 8,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "bg-background block border-2 border-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-5 ring-offset-background rounded-full transition-colors w-5",
+          "h": 20,
+          "w": 20,
+          "padding": "0/0/0/0",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 2,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-slider--playground": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 56,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "flex items-center relative select-none touch-none w-72",
+          "h": 8,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "bg-secondary grow h-2 overflow-hidden relative rounded-full w-full",
+          "h": 8,
+          "padding": "0/0/0/0",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "absolute bg-primary h-full",
+          "h": 8,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "bg-background block border-2 border-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-5 ring-offset-background rounded-full transition-colors w-5",
+          "h": 20,
+          "w": 20,
+          "padding": "0/0/0/0",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 2,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-slider--range": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 56,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "flex items-center relative select-none touch-none w-72",
+          "h": 8,
+          "w": 288,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "bg-secondary grow h-2 overflow-hidden relative rounded-full w-full",
+          "h": 8,
+          "padding": "0/0/0/0",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "absolute bg-primary h-full",
+          "h": 8,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "bg-background block border-2 border-primary disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring h-5 ring-offset-background rounded-full transition-colors w-5",
+          "h": 20,
+          "w": 20,
+          "padding": "0/0/0/0",
+          "radius": "9999px/9999px/9999px/9999px",
+          "border": 2,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-tabs--default": {
+      "aantal": 7,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 116,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "w-96",
+          "h": 68,
+          "w": 384,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "bg-muted h-10 inline-flex items-center justify-center p-1 rounded-md text-muted-foreground",
+          "h": 40,
+          "padding": "4/4/4/4",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium inline-flex items-center justify-center px-3 py-1.5 ring-offset-background rounded-sm text-sm transition-all whitespace-nowrap",
+          "h": 32,
+          "padding": "6/12/6/12",
+          "radius": "4px/4px/4px/4px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium inline-flex items-center justify-center px-3 py-1.5 ring-offset-background rounded-sm text-sm transition-all whitespace-nowrap",
+          "h": 32,
+          "padding": "6/12/6/12",
+          "radius": "4px/4px/4px/4px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium inline-flex items-center justify-center px-3 py-1.5 ring-offset-background rounded-sm text-sm transition-all whitespace-nowrap",
+          "h": 32,
+          "padding": "6/12/6/12",
+          "radius": "4px/4px/4px/4px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 500",
+          "opacity": "0.5"
+        },
+        {
+          "tag": "div",
+          "klassen": "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring mt-2 ring-offset-background text-muted-foreground text-sm",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-themetoggle--default": {
+      "aantal": 3,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 88,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-10 hover:bg-muted hover:text-foreground inline-flex items-center justify-center rounded-md text-muted-foreground transition-colors w-10",
+          "h": 40,
+          "w": 40,
+          "padding": "0/0/0/0",
+          "radius": "6px/6px/6px/6px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "svg",
+          "klassen": "",
+          "h": 20,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-tooltip--default": {
+      "aantal": 3,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 176,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex h-32 items-center justify-center",
+          "h": 128,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 125.91,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-tooltip--open": {
+      "aantal": 6,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 176,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex h-32 items-center justify-center",
+          "h": 128,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "w": 130.56,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "",
+          "h": 34,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "animate-in bg-popover border data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 fade-in-0 overflow-hidden px-3 py-1.5 rounded-md shadow-md text-popover-foreground text-sm z-50 zoom-in-95",
+          "h": 34,
+          "padding": "6/12/6/12",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "span",
+          "klassen": "",
+          "h": 1,
+          "padding": "0/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "14/20 400",
+          "opacity": "1"
+        }
+      ]
+    }
+  }
+}
