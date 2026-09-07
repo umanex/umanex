@@ -40,3 +40,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Gegenereerd door scripts/build-web-fonts.mjs
+.storybook/public/fonts/
+.storybook/fonts.css
+storybook-static/
