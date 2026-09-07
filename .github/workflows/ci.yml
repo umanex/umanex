@@ -130,6 +130,21 @@ jobs:
       # De tegenproef draait ernaast, want een guard die draait is nog geen guard die meet:
       # de eerste versie stond groen op precies die app, omdat next.config.mjs de package in
       # transpilePackages noemt en het meetbereik de app-root meenam.
+      # PR-verwijzingen in de markdown: bestaan ze, en zeggen ze uit welke repo ze komen?
+      # Een kaal #N in de gesynchroniseerde laag (.umanex-os/, .claude/skills/) reist mee
+      # naar elke klant-repo en wijst daar naar een andere PR. Het bestáán kan de
+      # pre-commit hook niet toetsen — die heeft geen netwerk en kan een echt nummer niet
+      # van een plausibel nummer onderscheiden. Vandaar deze stap, met zijn zelftest.
+      #
+      # Wat hij NIET vangt: een nummer dat bestaat maar het verkeerde is. Daar helpt alleen
+      # de volgorde — eerst de call, dan het nummer opschrijven. Zie .umanex-os/CLAUDE.md.
+      - name: Guard — PR-verwijzingen gekwalificeerd en bestaand (met zelftest)
+        run: |
+          node scripts/refs-check.mjs --selftest
+          node scripts/refs-check.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Guard — design-systeem-bron per app (met tegenproef)
         run: pnpm ds:guard:selftest
 
