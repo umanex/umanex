@@ -151,7 +151,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De actieve chip (Chip.tsx) én het actieve segment (GoalSegments.tsx) gebruiken `rgba(240,84,84,0.20)` hardcoded; er bestaat enkel `accent.muted` (0.12) en `accent.subtle` (0.06). Twee `// TODO`-markers wijzen ernaar.
 - **Volgende zet:** Een `accent.selected` (0.20) token toevoegen via Tokens Studio → `tokens.json`, rebuilden, beide hardcodes vervangen.
 - **Check:** `grep -rn "rgba(240, 84, 84, 0.20)" apps/rowtrack/components` — treffers = de hardcode staat er nog en `accent.selected` is niet gepusht; leeg = token gepusht en de plekken vervangen.
-- **Status:** open — 2026-07-14: tint-richting bevestigd (0.20 wint van de audit-"solid"); token nog NIET toegevoegd. Er is nu een DERDE hardcode bij: het active segment in `profile.tsx`. Zodra de alias gepusht is → 3 plekken vervangen (Chip, GoalSegments, segmented).
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — 0.20 accent-selectie-fill zonder token · [refactor]*; het is werk dat blijft liggen, geen handoff. De Check slaat nog aan: de 0.20-hardcode staat op drie plekken (Chip, GoalSegments en het gedeelde Segmented — de derde plek is sinds b19f521 van profile.tsx naar components/Segmented.tsx verhuisd),… — 2026-07-14: tint-richting bevestigd (0.20 wint van de audit-"solid"); token nog NIET toegevoegd. Er is nu een DERDE hardcode bij: het active segment in `profile.tsx`. Zodra de alias gepusht is → 3 plekken vervangen (Chip, GoalSegments, segmented).
   2026-08-06: opnieuw gecontroleerd na "tokens zijn aangepast" — er is **niets geland**.
   `tokens.json` staat nog op de push van 14 juli, geen tokens-sync-run, en een lokale
   `pnpm --filter rowtrack tokens:build` is een schone no-op. De wijziging is dus wel in Tokens
@@ -168,7 +168,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** (1) Figma toont Roeitrainer-dot + Hartslag-hartje in accent-rood, ook disconnected; code toont ze grijs (Ble/HrStatusBar state-logica). (2) `buttonTokens.primary.height` = 48 maar `Button.sizeLg` = `space['44']` (44) — Start-knop rendert 44.
 - **Volgende zet:** Bij Jeroen bevestigen of (1) de indicator-kleur gelijkgetrokken moet en (2) `Button.sizeLg` naar `buttonTokens.primary.height` moet.
 - **Check:** `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` — twee regels = 44 (Button.sizeLg) en 48 (buttonTokens.primary) staan nog uiteen; één regel = de keuze is gemaakt.
-- **Status:** open — (1) resolved in v2: nieuwe DeviceRow toont accent-rode dot/hart disconnected (Figma 32:374 bevestigde dit). (2) blijft open — Button.sizeLg (44) vs buttonTokens.primary.height (48) niet aangeraakt.
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Out-of-scope design-vragen IdlePhase · [fix]*; het is werk dat blijft liggen, geen handoff. Deel (1) was al resolved. Deel (2) leeft: de Check geeft nog twee regels (Button.sizeLg = space['44'], buttonTokens.primary.height = 48). De kloof is intussen groter dan de entry wist: tokens.json… — (1) resolved in v2: nieuwe DeviceRow toont accent-rode dot/hart disconnected (Figma 32:374 bevestigde dit). (2) blijft open — Button.sizeLg (44) vs buttonTokens.primary.height (48) niet aangeraakt.
 
 ## 2026-07-10 — Reanimated toegevoegd: schone build vereist prebuild + pods · [next-step]
 - **Bevinding:** De IdlePhase-animaties draaien nu op `react-native-reanimated` ~4.1 + `react-native-worklets` (native module, babel worklets-plugin). `/ios` + `/android` zijn gitignored (prebuild-patroon), dus de native module zit niet in git.
@@ -186,23 +186,24 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De actieve goal-segment verbreedt instant (snap) i.p.v. vloeiend te morphen. Zowel RN `LayoutAnimation` als Reanimated `LinearTransition` herintroduceren de Fabric stale-width clipping (gedeactiveerd segment houdt label-breedte). Enkel de remount ruimt die op, en remount sluit een layout-animatie uit. Verschijning (pill+label) is wél buttery via Reanimated `entering`.
 - **Volgende zet:** Bij een latere Reanimated/Fabric-versie opnieuw proberen, of een gelijk-brede-segmenten + schuivende-pill variant overwegen (wijkt af van de variabele-breedte Figma-look — nu bewust afgewezen door Jeroen).
 - **Check:** `grep -nF '${selected === type}' apps/rowtrack/components/GoalSegments.tsx` — een treffer = de remount-key (en dus de snap) staat er nog; leeg = vervangen door een layout-animatie of door gelijk-brede segmenten.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Segment-breedte snapt (Fabric layout-animatie taboe) · [ux]*; het is werk dat blijft liggen, geen handoff. De remount-key staat er nog (GoalSegments.tsx:120, mét het commentaar waarom). De voorwaarde 'bij een latere Reanimated/Fabric-versie opnieuw proberen' is niet ingetreden: package.json pint nog…
 
 ## 2026-07-10 — Best-2000m: BLE-reconnect midden in workout re-baselinet niet · [debt]
 - **Bevinding:** De nieuwe `{t,d}`-samplereeks (voor de exacte beste-2000m) baselinet `initialElapsed`/`initialDistance` enkel in `resetAll` (bij Start), niet op een auto-reconnect. `ble-service.attemptReconnect()` reset `lastMetrics` ook niet. Reset een erg zijn eigen elapsed/distance-tellers bij reconnect (onbekend voor Concept2, "sommige FTMS"), dan gaan post-reconnect samples negatief → `sanitize()` in `bestDistanceTime.ts` gooit ze weg. Faalmodus is veilig: **nooit een vals-snelle PR**, hooguit data-verlies van het na-reconnect-fragment (best-2k uit het vóór-fragment of `null`). Review reproduceerde de mechaniek maar zette het op `real=false` wegens onzekere trigger + veilige degradatie.
 - **Volgende zet:** Als een reële erg dit ooit vertoont: op reconnect de baseline opnieuw zetten (of `lastMetrics` resetten) en de reeks bewust in een nieuwe run laten starten i.p.v. stil te droppen. Nu bewust niet gebouwd.
 - **Check:** `grep -rn reconnect apps/rowtrack/lib/hooks/useWorkoutMetrics.ts` — geen treffer = het meetpad kent geen reconnect en zet de baseline dus niet opnieuw.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Best-2000m: BLE-reconnect midden in workout re-baselinet niet · [fix]*; het is werk dat blijft liggen, geen handoff. De Check bevestigt dat het meetpad nog geen reconnect kent: useWorkoutMetrics.ts baselinet initialElapsed/initialDistance alleen bij het eerste pakket en reset ze alleen in resetAll. ble-service.ts…
 
 ## 2026-07-10 — Best-2000m capture end-to-end onbevestigd op echte erg · [next-step]
 - **Bevinding:** Het `bestTimeForDistance`-algoritme is machine-geverifieerd (19/19 unittests + 800k fuzz vs O(N²)-referentie), maar de capture in `useWorkoutMetrics` draaide nooit op echte hardware. Drie onbevestigde aannames: (1) Jeroens erg bundelt distance+elapsed in één packet (CLAUDE.md zegt ja, code is er defensief tegen); (2) notificatie-cadans zit ver onder de 3s-dropout-floor (~1Hz) — een trage erg rond 2-3s kan spurious splits geven; (3) de dedup-per-hele-seconde laat de laatste fractionele seconde vóór 2000m vallen (bewust, geschat <1s ruis). `samples`-payloadgrootte op een lange rit ook niet gemeten.
 - **Volgende zet:** Eén echte ≥2000m rit op de fysieke iPhone-build → de opgeslagen `samples` in Supabase inspecteren (vorm, dichtheid, grootte, monotoon), best-2k tegen een handberekening checken, en bevestigen dat de tile een plausibele tijd toont. Bij trage cadans: de 3s-floor heroverwegen. **Dit is de #1 eerste zet.**
 - **Status:** resolved — 2026-07-12: geverifieerd op een echte ≥2000m rit (workout `1cd91154`, 4269m/1288s, 1289 samples). `best_2k_seconds`=583.667 → tile toont **9:43.7** (2:25.9/500m) — happy-path getal rendert ✓. Samples exact 1Hz (min=max Δt=1s), monotoon (0 non-monotoon t, 0 dalende d), 0 dropouts >3s, first `[0,0]`/last `[1288,4269]`. Payload **9.4 KB** jsonb voor 4269m → ruim binnen grenzen (open vraag payloadgrootte beantwoord). Opgeslagen `best_2k_seconds` == herberekening met het échte `bestTimeForDistance` op de opgeslagen samples (delta **0.000s**) → sluit tegelijk de [aanname] dat de bevroren afgeleide betrouwbaar is. Bonus uit dezelfde reeks: 500m 2:24.0 / 1000m 2:24.6 (splits lopen fysiologisch plausibel op); 5000m → `null` (rit te kort, geen crash). Eerdere 657m-verificatie (2026-07-11, workout `ec6844d3`) dekte al de te-korte-sessie edge case en de conservatieve pauze-afhandeling.
 
-## 2026-07-10 — best_2k_seconds is een bevroren afgeleide waarde · [aanname]
+## 2026-09-07 — best_2k_seconds is een bevroren afgeleide waarde (sinds 2026-07-10) · [aanname]
 - **Bevinding:** `best_2k_seconds` wordt bij opslaan berekend en opgeslagen (net als `best_split`). De ruwe `samples` staan er ook, dus herberekening is mogelijk — maar niets herberekent automatisch. Wijzigt de algoritme- of pauze-/moving-time-semantiek later, dan houden bestaande rijen hun oude waarde tot een expliciete backfill.
 - **Volgende zet:** Bij een semantiek-wijziging: een migratie/script dat `best_2k_seconds` (en toekomstige 500m/1k/5k) uit `samples` herberekent voor alle rijen. Nu niet nodig.
-- **Check:** `git log --oneline 3b223b2.. -- apps/rowtrack/lib/bestDistanceTime.ts` — leeg = de afleiding is niet gewijzigd sinds de bevroren waarden ertegen gecontroleerd zijn (2026-07-12, delta 0,000 s); komt hier een commit uit, dan is dat het startsein voor het herbereken-script.
+- **Check:** `git log --oneline 3b223b2.. -- apps/rowtrack/lib/bestDistanceTime.ts; git diff 3b223b2 HEAD -- apps/rowtrack/lib/hooks/useWorkoutMetrics.ts | grep -E '^[+-].*(samplesRef|initialElapsed|initialDistance|lastSampleSecond)'` — beide leeg = afleiding én sample-semantiek ongewijzigd, de bevroren best_2k_seconds-waarden kloppen nog; komt er uit één van beide een regel, dan is dat het startsein voor het herbereken-script over `workouts.samples`.
+- **Herformuleerd:** 2026-09-07 — De Check is leeg: bestDistanceTime.ts is sinds 3b223b2 (2026-07-14) niet gewijzigd, dus de bevroren waarden kloppen nog met de afleiding. Ook de sample-producent (samplesRef.push, baselines, lastSampleSecond in useWorkoutMetrics.ts) is in die periode…
 - **Status:** open
 
 ## 2026-07-13 — Actions read/write-rechten voor tokens-sync workflow · [next-step]
@@ -225,10 +226,11 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Volgende zet:** Ná het aanzetten van de Actions-schrijfrechten: één echte Tokens Studio-push observeren (Actions-tab) en bevestigen dat de constants correct terug-committen; faalt het → workflow-logs nakijken.
 - **Status:** resolved — 2026-07-14: eerst via `workflow_dispatch` groen (run 29327011562, schone no-op commit-back), daarna een échte Tokens Studio-push (hero-tokens, `3646cff`) → CI committe de constants terug (`1b45aff`). Round-trip volledig dicht.
 
-## 2026-07-13 — Live Figma text-style re-verify nog niet gedaan · [onzekerheid]
+## 2026-09-07 — Live Figma text-style re-verify nog niet gedaan (sinds 2026-07-13) · [onzekerheid]
 - **Bevinding:** De typografie-sync (8 typeStyles → Albert Sans) is bevestigd via mijn audit-lezing + jouw autoritaire `tokens.json`-push + de sim-render, maar niet tegen de *live* Figma text styles — de Desktop Bridge plugin was losgekoppeld. Delta klopte exact, dus laag risico, maar niet onafhankelijk tegen de huidige Figma gecheckt.
 - **Volgende zet:** Heropen de Desktop Bridge plugin in Figma (hangt aan geen server-instance; 3 draaien op 9223/9224/9225 door reconnect-churn) → `figma_get_text_styles` lezen en diffen tegen de code-typeStyles.
-- **Check:** Is er ergens een vastlegging van een `figma_get_text_styles`-lezing? `grep -rn figma_get_text_styles apps/rowtrack --include="*.md"` — enkel de TODO- en HANDOFF-regel zelf = niet gedaan; een derde treffer (briefing of figma-map) is het bewijs dat hij wél gebeurd is.
+- **Check:** Met Desktop Bridge actief (`figma_get_status`): `figma_get_text_styles` op file T1bGrvIzSNeLyh5CbarATZ lezen en per stijl fontFamily/fontSize/lineHeight/letterSpacing diffen tegen de 18 entries van `typeStyles` in `apps/rowtrack/constants/typography.ts` (regels 68-165); nul verschillen = resolved en de uitkomst in `apps/rowtrack/figma-map.md` vastleggen, anders is de delta het werk. Geen Bridge = `[NIET TE VERIFIËREN — geen Bridge]`, niet terugvallen op REST.
+- **Herformuleerd:** 2026-09-07 — De Check geeft alleen de TODO- en HANDOFF-regels zelf, dus de live Figma-lezing is nooit gedaan. Erger: het doel is intussen verschoven — constants/typography.ts is ná 2026-07-13 nog drie keer gewijzigd (3646cff 'font size & hero' 07-14, tokens-sync 1b45aff…
 - **Status:** open
 
 ## 2026-07-13 — Split/Watts DOEL-pill copy: code ≠ Figma · [onzekerheid]
@@ -250,7 +252,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** `sheetFieldLabel` (PERIODE/TYPE/WACHTWOORD e.d.) teruggezet naar `fg.tertiary` op basis van het rij-label-patroon uit `52:8768` (main), niet tegen een sheet-frame. Sectie-labels bleken fg.secondary, rij-labels fg.tertiary — sheet-veld-labels zijn niet direct bevestigd.
 - **Volgende zet:** Bij de segmented-check (`52:9155`/`52:9730`) meteen de veld-label-kleur bevestigen.
 - **Check:** `grep -n -A3 'sheetFieldLabel: {' 'apps/rowtrack/app/(tabs)/profile.tsx'` — `fg.tertiary` = de profiel-sheets wijken nog af van de tegen Figma 388:2256 bevestigde veld-labelkleur `fg.secondary` (`components/GoalSheet.tsx:194-199`).
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — sheetFieldLabel-token niet tegen sheet-design geverifieerd · [fix]*; het is werk dat blijft liggen, geen handoff. De aanname leeft nog en het sluiten ervan is klein, concreet werk: één Figma-lezing van een profiel-sheet-frame en daarna (waarschijnlijk) één kleurwissel in profile.tsx. De sheet-frames bestaan…
 
 ## 2026-07-14 — figma-console (Desktop Bridge) MCP viel weg; native als fallback · [risico]
 - **Bevinding:** Midden in de sessie dropte de figma-console MCP-**server**-connectie (harness↔server), niet enkel de plugin. De tools verdwenen uit de toolset en herverbinden van de plugin bracht ze niet terug — dat vergt een Claude Code-**herstart**. Native Figma MCP (`claude_ai_Figma`, fileKey `T1bGrvIzSNeLyh5CbarATZ`) wérkte wél als fallback en gaf getokeniseerde design-context.
@@ -261,13 +263,13 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De re-triage (`briefings/2026-07-14-retriage-audit-design-vs-code.md`, PR #117) zette 130/215 items als obsoleet; van de 7 werkstromen zijn de beslissings-ws (3/4/5/6) genomen en WS1 (Profile-polish) grotendeels gedaan. Open: WS2 (component-tokenlaag exporteren → Tokens Studio), WS7 (off-token design-waarden → Figma tokeniseren) en de dekkingsgaten (auth-schermen login/register zonder Figma-design; GoalSetupModal; connection-overlay).
 - **Volgende zet:** WS2 + WS7 zijn grotendeels jouw Tokens Studio/Figma-hand; de coverage-gaten (auth-schermen designen) apart inplannen.
 - **Check:** `grep -c goalPill apps/rowtrack/tokens/tokens.json apps/rowtrack/constants/colors.ts` — 1 in de bron en 0 in de build-output = WS2 (component-tokenlaag) ligt er nog; WS7 is Figma-zijde en niet uit de repo te lezen.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — 4-jul audit-re-triage: resterende werkstromen · [refactor]*; het is werk dat blijft liggen, geen handoff. De Check zegt dat WS2 (component-tokenlaag) er nog ligt en tokens.json is sinds 2026-07-14 niet meer aangeraakt; WS7 is Figma-zijde en niet uit de repo te lezen. Van de drie dekkingsgaten is er één…
 
 ## 2026-07-15 — Geen privacybeleid / rechtsgrond / consent voor (gezondheids)PII · [next-step]
 - **Bevinding:** Security-audit 2026-07-15 **P1-1** (`apps/rowtrack/audits/2026-07-15-security-audit-rowtrack.md`). RowTrack verzamelt e-mail + voornaam én gezondheids-nabije data (hartslag avg/max + volledige per-tick HR-tijdreeks in `workouts.samples`, gewicht/lengte/geboortedatum/geslacht in `profiles`) zonder privacybeleid, rechtsgrond (AVG art. 6), transparantie-notice (art. 13) of consent. Hartslag+biometrie kunnen als bijzondere categorie (art. 9) gelden.
 - **Volgende zet:** Privacybeleid schrijven (verantwoordelijke = umanex/Jeroen, datacategorieën incl. hartslag, rechtsgrond, retentie, verwerker = Supabase) + linken bij signup en in Profiel; expliciete opt-in voor de gezondheidsdata. Niet-code werk — bij Jeroen.
 - **Check:** `curl -sL -o /dev/null -w '%{http_code}' https://umanex.be/rowtrack/privacy` → 404 = beleid nog niet bereikbaar, 200 = rond. De `-L` is niet optioneel: umanex.be stuurt apex-verkeer met een 308 naar `www`, en zonder volgen leest de check die redirect als antwoord — een derde uitkomst die de legenda niet kent. (Gemeten 2026-08-11: 308 → `www.umanex.be/rowtrack/privacy` → 404.)
-- **Status:** open — sterk versmald. Gebouwd: het toestemmingsscherm met opt-in en intrekken (`451e251`), het privacybeleid (`812240f`) en een publieke pagina in `apps/rowtrack-web`. **Wat rest is één ding:** `PRIVACY_POLICY_URL` moet ook echt bereikbaar zijn — op 2026-08-07 gaf hij 404. Toestemming die naar een onbereikbaar beleid verwijst is niet "geïnformeerd", dus dit blijft de blocker.
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Geen privacybeleid / rechtsgrond / consent voor (gezondheids)PII · [infra]*; het is werk dat blijft liggen, geen handoff. Alles behalve de bereikbaarheid van het beleid is gebouwd (consent-scherm, beleidstekst, publieke pagina). Wat overblijft is infra-werk met een release-blokkerend karakter: rowtrack-web heeft geen… — sterk versmald. Gebouwd: het toestemmingsscherm met opt-in en intrekken (`451e251`), het privacybeleid (`812240f`) en een publieke pagina in `apps/rowtrack-web`. **Wat rest is één ding:** `PRIVACY_POLICY_URL` moet ook echt bereikbaar zijn — op 2026-08-07 gaf hij 404. Toestemming die naar een onbereikbaar beleid verwijst is niet "geïnformeerd", dus dit blijft de blocker.
 
 ## 2026-07-15 — Geen in-app account-verwijdering (AVG art. 17 + store-blocker) · [next-step]
 - **Bevinding:** Security-audit 2026-07-15 **P1-2**. Geen verwijder-actie in de app; `profiles` heeft geen DELETE-RLS-policy, dus het datamodel ondersteunt het niet eens. AVG recht-op-vergetelheid niet invulbaar + **zekere** Apple (Guideline 5.1.1(v))/Play-afwijzing bij store-submission (niet enkel een risico). Vereist het eerste server-side stuk in dit project.
@@ -278,18 +280,19 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** Security-audit 2026-07-15 **P2-3** (geen error-/crash-monitoring). `@sentry/react-native` werd kort geïnstalleerd maar op vraag weer verwijderd — de eigenlijke Sentry-koppeling doen we in een **latere fase**. Er staat nu een console-gebaseerde `reportError()`-shim in `lib/monitoring.ts` die de voorheen stil ingeslikte read-/save-fouten opvangt (P2-2/P2-4); die functie is het aanhechtpunt.
 - **Volgende zet:** Later: `pnpm --filter rowtrack add @sentry/react-native@~7.2.0` + `@sentry/react-native/expo` config-plugin in `app.json` + `Sentry.init({ dsn })` in `initMonitoring()` (DSN via `EXPO_PUBLIC_SENTRY_DSN`, Jeroen levert) + `reportError()` laten doorschrijven naar `Sentry.captureException` + een global `ErrorBoundary` + **native rebuild** (`expo run:ios --device` — cf. de worklets-les: een native module zit anders niet in de dev-client-binary, [[rowtrack-verify-render-path]]).
 - **Check:** `grep -q '@sentry/react-native' apps/rowtrack/package.json` → geen hit = koppeling nog niet gelegd.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Sentry error-/crash-monitoring: koppeling uitgesteld · [infra]*; het is werk dat blijft liggen, geen handoff. Bewust uitgesteld werk met een volledig uitgeschreven bouwplan en een bestaand aanhechtpunt; er is sindsdien niets van gebouwd (geen Sentry-dependency, geen ErrorBoundary, de shim draagt nog de…
 
 ## 2026-07-15 — Wheel-sheets (#131 flexShrink + #133 pill/fade) niet op toestel geverifieerd · [next-step]
 - **Bevinding:** De BottomSheet-herschrijving (`flexShrink:0`, #131) en de WheelPicker pill/fade-parity (#133) zijn naar main gemerged zonder dat ik de Lengte/Gewicht/Geboortedatum-sheets visueel heb gezien — enkel `tsc`-groen + Geslacht/Email geverifieerd. 2026-07-16: de Lengte-sheet is tijdens de UX-audit op de **sim** gezien — wheels clippen niet, pill/fade ok.
 - **Volgende zet:** Op **toestel** Lengte/Gewicht/Geboortedatum naast Figma leggen (sim-check is gedaan, device-check blijft de open helft).
 - **Check:** Alleen jij kunt dit beantwoorden: heb je Lengte, Gewicht en Geboortedatum op de iPhone naast Figma gelegd? Nee = open — geen commit of screenshot legt een toestel-check vast.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Wheel-sheets (#131 flexShrink + #133 pill/fade) niet op toestel geverifieerd · [test]*; het is werk dat blijft liggen, geen handoff. De toestel-check is nooit vastgelegd en de code die hij zou toetsen is sinds 2026-07-15 functioneel niet veranderd (enkel de i18n-extractie raakte BottomSheet). De sim-helft is gedaan (2026-07-16).…
 
-## 2026-07-15 — BottomSheet flexShrink:0 — small-device keyboard-clip mogelijk · [risico]
+## 2026-09-07 — BottomSheet flexShrink:0 — small-device keyboard-clip mogelijk (sinds 2026-07-15) · [risico]
 - **Bevinding:** `bodyScroll` staat op `flexShrink:0` (fix voor de hug-collapse-clip die de segmented-track onderaan afkapte). Bij een keyboard-open sheet met veel content (Email) wordt de sheet omhoog getild (paddingBottom = keyboardhoogte); op een klein toestel kan (content + lift) `maxHeight:90%` overschrijden → de top clipt, want `flexShrink:0` scrollt niet. Niet gezien op iPhone 13/17 Pro (past net).
 - **Volgende zet:** Email-sheet met keyboard testen op een klein toestel (SE); clipt het → body `flexShrink` conditioneel op 1 zetten wanneer keyboard open, of de lift cappen.
-- **Check:** `grep -n 'flexShrink: 0' apps/rowtrack/components/BottomSheet.tsx` → nog aanwezig op `bodyScroll` = geen keyboard-clamp, risico staat er nog.
+- **Check:** Twee stappen in één handeling: (1) `git log --oneline cd09074.. -- apps/rowtrack/components/BottomSheet.tsx` → leeg = het risico gaat nog over deze code; (2) op een iPhone SE (3rd gen, 667pt) simulator: Profiel → E-mail-sheet → wachtwoordveld focussen (toetsenbord open) → screenshot. Sheet-header (titel + sluitknop) volledig in beeld én `emailError` zichtbaar na een fout wachtwoord = resolved (risico bestaat niet op het kleinste toestel); clipt de bovenkant = omzetten naar een fix-item met de formule uit HANDOFF.md:304-308.
+- **Herformuleerd:** 2026-09-07 — Het risico leeft en is nooit bevestigd: op iPhone 13/17 Pro past het net, en een clamp-fix van 2026-08-06 is na review bewust teruggedraaid omdat hij erger was dan het risico (onderkant afgekapt zonder scroll-affordance, foutmelding onder de vouw op iPhone…
 - **Status:** open — 2026-08-06: een fix gebouwd (expliciete `maxHeight` op de body zolang het
   toetsenbord open staat, uit vensterhoogte − toetsenbord − safeTop − gemeten header/footer) en na
   review **teruggedraaid**. Drie bevestigde bevindingen maakten hem een slechtere ruil dan het
@@ -330,7 +333,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De `node-version: 20 → 22`-bump (#135) verhoogt het build-runtime, maar de deprecation-annotatie ("forced to run on Node.js 24") gaat over de *actions* zelf (`actions/cache@v4`, `actions/setup-node@v4`, `pnpm/action-setup@v4`) die intern Node 20 bundelen — niet over `node-version`. Die annotatie blijft dus waarschijnlijk verschijnen. Ik heb dit richting Jeroen aanvankelijk verkeerd toegeschreven aan de bump.
 - **Volgende zet:** Monitoren; de action-majors bumpen zodra ze een Node-24-versie uitbrengen, of de niet-blokkerende warning bewust accepteren.
 - **Check:** `grep -n 'actions/cache@\|actions/setup-node@\|pnpm/action-setup@' .github/workflows/ci.yml` → nog @v4 = de annotatie blijft komen.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `BACKLOG.md` (repo-root) als *2026-09-07 — CI Node-20-deprecation zit in de actions, niet in node-version · [infra]*; het is werk dat blijft liggen, geen handoff. De onzekerheid uit de titel (toeschrijving aan node-version vs. de actions) is in de entry zelf al beslecht; wat overblijft is een dep-bump van drie GitHub Actions naar hun Node-24-majors zodra die…
 
 ## 2026-07-15 — rowtrack CLAUDE.md Supabase-schema is stale · [next-step]
 - **Bevinding:** De schema-tabel in `apps/rowtrack/CLAUDE.md` lijst `created_at`/`distance_m`/`avg_split`; de echte kolommen zijn `started_at`/`distance_meters`/`best_split` (+ `best_2k_seconds`, `samples`) — bevestigd doordat de P2-6 perf-indexes op die kolommen zijn aangemaakt. De doc-tabel misleidt bij DB-werk.
@@ -366,13 +369,13 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** `MotivationalToast.tsx` card-bg is `rgba(33, 36, 44, 0.75)` (= `bg.raised` @ 75%) met `// TODO` — er is geen token voor een translucente `bg.raised`. Drift-gevoelig als `bg.raised` wijzigt.
 - **Volgende zet:** Een `bg.raised`-alpha-token (of overlay-token) toevoegen via Tokens Studio → `tokens.json`, rebuilden, de hardcode vervangen.
 - **Check:** `grep -rn "rgba(33, 36, 44, 0.75)" apps/rowtrack/components` — één treffer (`MotivationalToast.tsx:196`) = er is nog geen translucente `bg.raised`-rol; leeg = token gepusht en vervangen.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Translucente celebration-card gebruikt hardcoded rgba · [refactor]*; het is werk dat blijft liggen, geen handoff. De hardcode staat er nog exact zoals beschreven en tokens.json heeft geen translucente bg.raised-/overlay-rol. Het is een token-push (Tokens Studio) plus één vervanging — bouwwerk dat blijft liggen,…
 
 ## 2026-07-16 — BLE-replay test-harness voor de workout-flow · [idee]
 - **Bevinding:** De workout→save→summary-flow is niet testbaar zonder fysieke erg; deze sessie liep daar herhaaldelijk tegenaan (auto-save flow enkel per stuk geverifieerd).
 - **Volgende zet:** Een harness die een opgenomen FTMS-packetreeks (fixture) door `useWorkoutMetrics` + `useGoalProgress` + de save-flow speelt, zodat dubbel-save/empty-guard/disconnect-timing deterministisch getest worden. Bouwt voort op de bestaande `dev-active`-harness.
 - **Check:** `git ls-files apps/rowtrack | grep -Ei 'replay|fixture|\.test\.ts$'` — alleen `lib/ble/adapterReady.test.ts`, `lib/ble/hrLink.test.ts` en `lib/ble/rowerCandidate.test.ts` (BLE-bedrading, geen flow) = nog geen packetreeks die door `useWorkoutMetrics` en de save-flow loopt.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — BLE-replay test-harness voor de workout-flow · [test]*; het is werk dat blijft liggen, geen handoff. Er is nog geen enkele fixture of packetreeks die door useWorkoutMetrics/useGoalProgress en de save-flow loopt; de zes committed tests zijn allemaal pure-logica/BLE-bedrading (adapterReady, hrLink,…
 
 ## 2026-07-16 — UX-audit P1: WIJZIG-doellink onraakbaar/mogelijk dood + sub-44pt targets · [risico]
 - **Bevinding:** UX-audit 2026-07-16 **F3** (`audits/2026-07-16-ux-audit-rowtrack.md`). De Subtitle-action (WIJZIG op de doel-kaart) is ±16pt hoog zonder padding/hitSlop (`components/Subtitle.tsx:44-53`) en vuurde in 5+ pixel-precieze robot-kliks op Home én Profiel nooit, terwijl het identieke "ALLE" wél werkte. Ook sub-44: chevron-backs 40×40, password-reveal 36×36, Chips 40pt.
@@ -413,7 +416,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** UX-audit 2026-07-16 **F11** (was F8 op 13/07): nul grafieken in een data-product, terwijl `workouts.samples` (1Hz t/d/hr-reeks) er al ligt. Grootste zichtbare waardesprong na de P0's: Useful 4→5, Desirable 4→5.
 - **Volgende zet:** Detail-Hartslag: HR-over-tijd + zones; Detail-Splits: staafjes per 500m; Home: mini-trend. Design eerst (Figma), dan `figma-naar-code`.
 - **Check:** `grep -c react-native-svg apps/rowtrack/package.json` — 0 = geen tekenlaag in de app, dus nog steeds nul grafieken.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — UX-audit P2: geen datavisualisatie (HR-verloop, split-trend) · [feature]*; het is werk dat blijft liggen, geen handoff. Nog steeds geen tekenlaag en geen grafieken; niets in de git-historie sinds 2026-08-06 raakt dataviz. Dit is een feature (design eerst in Figma, dan figma-naar-code), geen onzekerheid.
 
 ## 2026-07-16 — UX-audit P2: mid-workout doel wijzigen is gebouwd maar onbereikbaar · [onzekerheid]
 - **Bevinding:** UX-audit 2026-07-16 **F12**. `GoalSetupModal` is volledig bedraad in `ActivePhase` (state, handlers, render), maar niets roept `setShowGoalModal(true)` aan — de DOEL-pill is een kale View. Feature bestaat in code, geen gebruiker kan hem triggeren.
@@ -471,13 +474,13 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Check:** `grep -c 'requestScan' apps/rowtrack/lib/ble/scan-lock.ts` — 0 = de arbiter is weg of
   teruggedraaid en de HR-scan kan een lopende roeier-scan weer overnemen; ≥1 = de serialisatie staat
   er nog.
-- **Status:** open — code staat, toestel-verificatie ontbreekt
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — HR- en roeier-dienst delen één BleManager-singleton · [test]*; het is werk dat blijft liggen, geen handoff. De code-kant is af en niet teruggedraaid (scan-lock-arbiter staat, plus latere deterministische-test-fix en de HR-meetbaarheidsfix van 28/08). Wat rest is uitsluitend het naspelen van de vier… — code staat, toestel-verificatie ontbreekt
 
 ## 2026-07-16 — UX-audit P3-verzamellijst (F13–F19) · [next-step]
 - **Bevinding:** UX-audit 2026-07-16, §5 P3: "← OVERZICHT"-backlink botst met de tab "Overzicht" (F13); icon-only inactieve doelsegmenten (F14); BPM-rij is onzichtbaar tappable (F15); Android-back genegeerd op 3 modals (F16); geen-doel-variant toont afstand dubbel (F17); dode/ongebruikte UX-lagen — paceZone/pulseAnim/prFlags-props, KPI.tsx, SectionHeader.tsx, live SplitsList, 3× rgba-0.20-hardcode, confetti-kleuren (F18); kcal-asterisk zonder legende (F19).
 - **Volgende zet:** Backlog — oppakken per gelegenheid; details en aanbevelingen staan per item in `audits/2026-07-16-ux-audit-rowtrack.md`.
 - **Check:** `ls apps/rowtrack/components/KPI.tsx apps/rowtrack/components/SectionHeader.tsx && grep -c "backLink: 'OVERZICHT'" apps/rowtrack/i18n/translations/nl.ts` — beide bestanden plus 1 = er is niets van F13–F19 opgepakt; verandert er iets, hertriageer de zeven tegen `audits/2026-07-16-ux-audit-rowtrack.md`.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — UX-audit P3-verzamellijst (F13–F19) · [ux]*; het is werk dat blijft liggen, geen handoff. De Check slaat nog volledig aan: beide dode componenten bestaan en worden nergens geïmporteerd, de '← OVERZICHT'-backlink rendert nog op het detailscherm (F13), en paceZone/pulseAnim worden nog…
 
 ## 2026-07-16 — Live-metric "bevriest" bij rust i.p.v. → 0 · [onzekerheid]
 - **Bevinding:** Sinds de KPI/hero de huidige gesmoothe waarde tonen (i.p.v. gemiddelde), houden watts/spm/split hun laatste actieve waarde vast bij een mid-workout rust: ble-service nult watts/spm/pace bij idle, de EMA stapt dan niet, dus "Huidige kracht" blijft bv. 180 W tonen terwijl je rust. Matcht het pre-existing hero-hold-gedrag; opslag/summary zijn onaangeroerd (P3, review 2026-07-16 wf_5c5eced8-52c).
@@ -500,7 +503,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De red-box "Calling 'getValueWithKeyAsync' has failed → User interaction is not allowed" bij de GoTrue auto-refresh (gelockt scherm) is gefixt: de auth-token wordt nu geschreven met `keychainAccessible: AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY` (`lib/secureStorage.ts`, PR #146). Op de sim niet reproduceerbaar (geen echt keychain-lock-gedrag); enkel geverifieerd dat auth niet regresseert (app boot ingelogd).
 - **Volgende zet:** Op de fysieke iPhone bevestigen: inloggen → app één keer op de voorgrond laten verversen (zodat bestaande items met de nieuwe accessibility herschreven worden) → scherm vergrendelen → wachten op een refresh-tick → red-box mag niet meer verschijnen.
 - **Check:** Alleen jij kunt dit beantwoorden: heb je op de iPhone na inloggen het scherm vergrendeld en een refresh-tick zonder red-box gezien? Nee = open.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Keychain-accessibility auth-refresh-fix nog device-verificatie nodig · [test]*; het is werk dat blijft liggen, geen handoff. De fix staat nog in de code en is sinds PR #146 niet teruggedraaid; de toestel-bevestiging (gelockt scherm → refresh-tick zonder red-box) is nergens vastgelegd. Dat is geen open onzekerheid over de…
 
 ## 2026-07-16 — Profiel-`handleSave` wordt nergens aangeroepen (velden persisteren mogelijk niet) · [risico]
 - **Bevinding:** Ontdekt tijdens de GoalSheet-refactor: `handleSave()` in `app/(tabs)/profile.tsx` (de enige `supabase.from('profiles').update(...)` voor naam/geslacht/lengte/gewicht/geboortedatum/spm_halved) heeft **geen call-site** — de veld-sheets (saveVoornaam/…) stpage'n enkel naar state, er is geen hoofd-save-knop. Enkel email persisteert apart (handleEmailChange). Vermoedelijk persisteren die profiel-velden dus **niet**. Het doel is nu wél veilig (de nieuwe zelf-persisterende GoalSheet, PR ná #147). Grep-geverifieerd, niet op toestel getest.
@@ -545,7 +548,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   `supabase functions deploy --dry-run` als rooktest). Voor deze ene functie is de deploy zelf de
   gate; het punt is dat dat niet schaalt.
 - **Check:** `grep -rq 'deno' .github/workflows/` → geen hit = `supabase/functions` wordt door niets getoetst.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — De Edge Function wordt door niets getypecheckt · [infra]*; het is werk dat blijft liggen, geen handoff. Het risico leeft ongewijzigd: geen deno-stap in CI, de functie valt buiten tsc. De entry stelt de fix uit tot een tweede Edge Function, maar de CI-stap is klein en verandert niet met het aantal…
 
 ## 2026-08-06 — Verloren antwoord bij verwijderen is principieel dubbelzinnig · [aanname]
 - **Bevinding:** Slaagt de verwijdering server-side maar gaat het antwoord verloren (verbinding valt
@@ -557,7 +560,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Volgende zet:** Alleen heropenen als dit in de praktijk opduikt. Een echte oplossing vraagt een
   idempotency-key of een status-endpoint, en dat is voor deze app overkill.
 - **Check:** `grep -c 'verbinding viel weg' apps/rowtrack/i18n/translations/nl.ts` — 1 = de eerlijke copy staat er nog en er is nog steeds geen idempotency-key; dit item slaapt tot iemand de melding in het echt ziet.
-- **Status:** open
+- **Status:** resolved — 2026-09-07 (triage sessie-reflectie stap 1, 32 d open): Dit is een genomen en in de code gedocumenteerde ontwerpbeslissing, geen levende onzekerheid: de `uncertain`-uitkomst bestaat expliciet als type met rationale in lib/auth.ts, en de copy in nl.ts draagt een comment die uitlegt… Bewijs: `grep -c 'verbinding viel weg' apps/rowtrack/i18n/translations/nl.ts` → 1 (nl.ts:333, met comment regels 331-332: 'Verzoek vertrok, antwoord kwam niet aan… Doen alsof er niets gebeurd is zou…
 
 ## 2026-08-10 — Watt-tegel dooft nog uit; de meting die dat beslist staat klaar · [next-step]
 - **Bevinding:** De derde laag van de rust-traagheid: tussen "je stopt met halen" en "de erg meldt
@@ -591,7 +594,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   naar 0 gaan is goed wanneer de **erg zelf** zegt dat je stilstaat (dat blijft, keuze van
   2026-08-07), maar niet wanneer de app dat zelf afleidt en de erg nog niets gezegd heeft. Beide
   eerdere pogingen struikelden over die grens, langs verschillende wegen.
-- **Status:** resolved — bewust geen verdere actie.
+- **Nabeschouwing:** bewust geen verdere actie (tweede statusregel omgezet op 2026-09-07 — één Status per entry).
 
 ## 2026-08-10 — De roeier meldt 'verbonden' op dezelfde onbewezen grond als de band deed · [risico]
 - **Bevinding:** Bovengekomen bij de HR-fix. `ble-service` stuurt 'connected' vlak na een
@@ -718,4 +721,4 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   voor de hand, `test`-task in `turbo.json`, stap in `ci.yml`). Zonder die keuze blijft elke
   verificatie eenmalig.
 - **Check:** `git ls-files 'apps/rowtrack/lib/bestDistanceTime.test.ts' 'apps/rowtrack/lib/secureStorage.test.ts' 'apps/rowtrack/lib/formatters.test.ts'` → leeg = geen van de drie modules heeft een committed test.
-- **Status:** open
+- **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Geen testrunner in de repo · [test]*; het is werk dat blijft liggen, geen handoff. De beslissing waar de entry op wachtte is genomen: er is een testrunner zonder dependency (node:test met type-stripping, `npm run test` in package.json, en een CI-stap die faalt als er géén *.test.ts…

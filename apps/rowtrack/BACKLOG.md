@@ -144,3 +144,141 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Tweede meting (2026-08-25, 11:25):** run 32841975698 faalde op dezelfde test en dezelfde `assert.ok(ownsScan(rower))` (50/51), de parallelle run 32841979970 op dezelfde commit was groen. Tweemaal op één dag; de klok-injectie wordt dringender.
 - **Oorzaak (gemeten 2026-08-25):** geen "trage runner" in het algemeen, maar ms-drift tussen twee `setTimeout`-aanroepen. De hr-guard wordt vóór de wachttimer gepland; valt er een ms-grens tussen, dan verloopt de roeier-guard (hr-start + 20 + 20) één ms vóór de wacht (start + 40) en vuurt hij eerst — lokaal 1/30 zonder geforceerde drift, 18/30 bij 1,5 ms, 29/30 bij 3 ms.
 - **Status:** gebouwd — 2026-08-25, PR `fix/scan-lock-deterministic-test`: test op `t.mock.timers` (node:test), met de grens zelf getoetst (19 ms stil, 20 ms vuurt, ook voor de opvolger). Tegenproef: vangnet ×1000 → rood; `onPreempted` weg → rood; 30× groen; productiecode ongewijzigd.
+
+## 2026-09-07 — 0.20 accent-selectie-fill zonder token · [refactor]
+
+- **Wat:** Een `accent.selected`-alias (rgba(240,84,84,0.20)) toevoegen in Tokens Studio in beide mode-sets, tokens rebuilden en de drie hardcodes in components/Chip.tsx, components/GoalSegments.tsx en components/Segmented.tsx door het token vervangen (TODO's weg).
+- **Waarom niet nu:** HANDOFF-item van 2026-07-09, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -rn "rgba(240, 84, 84, 0.20)" apps/rowtrack/components` → 3 treffers: GoalSegments.tsx:163, Chip.tsx:47, Segmented.tsx:91 (alle drie met `// TODO … accent.selected`). `grep -rn selected apps/rowtrack/tokens/tokens.json apps/rowtrack/constants/colors.ts`…
+- **Eerste zet:** Tokens Studio → `accent.selected` = 0.20 op `accent.default` in beide mode-sets pushen (samen met bg.raised-alpha en de skeleton-rol uit de entry van 2026-08-10), dan `grep -rn "rgba(240, 84, 84, 0.20)" apps/rowtrack/components` moet 0 geven na de vervanging.
+- **Check:** `grep -rn "rgba(240, 84, 84, 0.20)" apps/rowtrack/components` — treffers = de hardcode staat er nog en `accent.selected` is niet gepusht; leeg = token gepusht en de plekken vervangen.
+- **Status:** open
+
+## 2026-09-07 — Out-of-scope design-vragen IdlePhase · [fix]
+
+- **Wat:** Button.sizeLg op de tokenwaarde zetten (buttonTokens.primary.height) in plaats van space['44'], of — als 44 de bedoelde hoogte is — de token in Tokens Studio op 44 zetten; daarbij de Theme-alias buttonPrimaryHeight (56) meenemen zodat er één bron overblijft. Het maxFontSizeMultiplier-commentaar in Button.tsx:107 volgt de gekozen hoogte.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-09, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` → 2 regels (colors.ts:59 `height: 48`, Button.tsx:137 `height: space['44']`). tokens.json (python-walk op `$value`):…
+- **Eerste zet:** Figma node 109-2214 (Button, file T1bGrvIzSNeLyh5CbarATZ) uitlezen op de primary-hoogte en Jeroen laten kiezen tussen 44/48/56; daarna `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` moet 1 regel geven.
+- **Check:** `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` — twee regels = 44 (Button.sizeLg) en 48 (buttonTokens.primary) staan nog uiteen; één regel = de keuze is gemaakt.
+- **Status:** open
+
+## 2026-09-07 — Best-2000m: BLE-reconnect midden in workout re-baselinet niet · [fix]
+
+- **Wat:** Bij een auto-reconnect midden in een workout de baseline (initialElapsed/initialDistance) opnieuw zetten of lastMetrics resetten, en de {t,d}-samplereeks bewust in een nieuwe run laten starten in plaats van negatieve samples stil te laten wegvallen in sanitize().
+- **Waarom niet nu:** HANDOFF-item van 2026-07-10, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -rn reconnect apps/rowtrack/lib/hooks/useWorkoutMetrics.ts` → leeg (rc=1). `grep -n lastMetrics apps/rowtrack/lib/ble/ble-service.ts` → resets alleen op regel 130 (connectKnown) en 203 (startScan); attemptReconnect (626-650) roept connectToDevice aan…
+- **Eerste zet:** Eerst meten of het nodig is: op de Apollo XL tijdens een rit Bluetooth uit/aan zetten om een reconnect te forceren en in de `[BLE]`-log lezen of elapsedTime/totalDistance na de reconnect op 0 herstarten. Herstarten ze niet, dan is dit item met die meting als bewijs te sluiten.
+- **Check:** `grep -rn reconnect apps/rowtrack/lib/hooks/useWorkoutMetrics.ts` — geen treffer = het meetpad kent geen reconnect en zet de baseline dus niet opnieuw.
+- **Status:** open
+
+## 2026-09-07 — Segment-breedte snapt (Fabric layout-animatie taboe) · [ux]
+
+- **Wat:** De actieve goal-segment vloeiend laten morphen in plaats van snappen: ofwel de remount-key vervangen door een Reanimated LinearTransition zodra een nieuwere Reanimated/RN-versie de Fabric stale-width clipping niet meer vertoont, ofwel de door Jeroen afgewezen variant (gelijk-brede segmenten + schuivende pill) alsnog voorleggen.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-10, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -nF '${selected === type}' apps/rowtrack/components/GoalSegments.tsx` → 1 treffer (regel 120, `key={\`${type}-${selected === type}\`}`). package.json: react-native-reanimated ~4.1.1, react-native 0.81.5, expo ~54.0.35; pnpm-lock:…
+- **Eerste zet:** Bij de eerstvolgende bump van react-native-reanimated (major/minor boven 4.1) of react-native boven 0.81: in GoalSegments.tsx de key op regel 120 tijdelijk door `key={type}` + `layout={LinearTransition}` vervangen en op de sim toetsen of een gedeactiveerd segment zijn labelbreedte nog vasthoudt (Split/Watt actief maken en kijken of het laatste segment van het scherm loopt).
+- **Check:** `grep -nF '${selected === type}' apps/rowtrack/components/GoalSegments.tsx` — een treffer = de remount-key (en dus de snap) staat er nog; leeg = vervangen door een layout-animatie of door gelijk-brede segmenten.
+- **Status:** open
+
+## 2026-09-07 — BLE-replay test-harness voor de workout-flow · [test]
+
+- **Wat:** Een replay-harness die een opgenomen FTMS-packetreeks (fixture) deterministisch door useWorkoutMetrics + useGoalProgress + de save-flow speelt, zodat dubbel-save, empty-guard en disconnect-timing zonder fysieke erg getest worden, als node:test-suite in CI.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-16, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `git ls-files apps/rowtrack | grep -Ei 'replay|fixture|\.test\.ts$'` → 6 bestanden: lib/authClockSkew.test.ts, lib/ble/adapterReady.test.ts, lib/ble/hrLink.test.ts, lib/ble/rowerCandidate.test.ts, lib/ble/scan-lock.test.ts, lib/personalRecords.test.ts — geen…
+- **Eerste zet:** Eén type-B-pakketreeks opnemen via de opnameketen uit de referentiepagina (of uit de Metro-log van 2026-08-28), als `lib/ble/__fixtures__/apollo-xl-session.json` committen en een eerste `lib/hooks/useWorkoutMetrics.test.ts` schrijven die de reeks via ftms-parser voert en elapsed/distance/calories tegen de opgeslagen rit controleert; check daarna: `git ls-files apps/rowtrack | grep -Ei 'replay|fixture'` ≥1.
+- **Check:** `git ls-files apps/rowtrack | grep -Ei 'replay|fixture|\.test\.ts$'` — alleen `lib/ble/adapterReady.test.ts`, `lib/ble/hrLink.test.ts` en `lib/ble/rowerCandidate.test.ts` (BLE-bedrading, geen flow) = nog geen packetreeks die door `useWorkoutMetrics` en de save-flow loopt.
+- **Status:** open
+
+## 2026-09-07 — Keychain-accessibility auth-refresh-fix nog device-verificatie nodig · [test]
+
+- **Wat:** Toestel-verificatie van de keychain-accessibility-fix: bevestigen dat de GoTrue auto-refresh bij vergrendeld scherm geen 'User interaction is not allowed'-red-box meer geeft, en de uitkomst met datum vastleggen.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-16, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -n AFTER_FIRST_UNLOCK apps/rowtrack/lib/secureStorage.ts` → regel 147 (comment) en 154 (`keychainAccessible: ss!.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY`). `git log --oneline --since=2026-07-16 -- apps/rowtrack/lib/secureStorage.ts` → 4f63d59 (de fix) en…
+- **Eerste zet:** Op de iPhone met dev-client: inloggen → app één keer naar de voorgrond (herschrijft bestaande keychain-items met de nieuwe accessibility) → scherm vergrendelen → ≥ 1 refresh-tick afwachten (token-TTL) → Metro-log lezen op 'getValueWithKeyAsync'; geen treffer = resolved, treffer = bug-entry.
+- **Check:** Alleen jij kunt dit beantwoorden: heb je op de iPhone na inloggen het scherm vergrendeld en een refresh-tick zonder red-box gezien? Nee = open.
+- **Status:** open
+
+## 2026-09-07 — Translucente celebration-card gebruikt hardcoded rgba · [refactor]
+
+- **Wat:** Een translucente bg.raised-rol (bv. `bg.raisedTranslucent` = `{color.alpha.…}` @ 75%) toevoegen in Tokens Studio → tokens.json in beide mode-sets, rebuilden en de hardcode in MotivationalToast.tsx:196 (en de 0%-variant in WheelPicker.tsx:30) erdoor vervangen.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-16, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -rn 'rgba(33, 36, 44, 0.75)' apps/rowtrack/components` → 1 treffer: components/MotivationalToast.tsx:196. `grep -n -i 'overlay|alpha|0\.75|scrim' apps/rowtrack/tokens/tokens.json` → een `color.alpha`-groep (regel 116) met red-06/08/12/20, white-04/22,…
+- **Eerste zet:** In tokens.json onder `color.alpha` een `raised-75`-primitive toevoegen en onder `bg` een alias ernaar, `pnpm tokens:build`, dan MotivationalToast.tsx:196 op de gebouwde constante zetten; check: `grep -rn 'rgba(33, 36, 44' apps/rowtrack/components` leeg.
+- **Check:** `grep -rn "rgba(33, 36, 44, 0.75)" apps/rowtrack/components` — één treffer (`MotivationalToast.tsx:196`) = er is nog geen translucente `bg.raised`-rol; leeg = token gepusht en vervangen.
+- **Status:** open
+
+## 2026-09-07 — UX-audit P2: geen datavisualisatie (HR-verloop, split-trend) · [feature]
+
+- **Wat:** Datavisualisatie op de ruwe `workouts.samples` (1 Hz t/d/hr): HR-over-tijd met zones op Detail-Hartslag, staafjes per 500 m op Detail-Splits, een mini-trend op Home — eerst als Figma-design, dan via figma-naar-code met react-native-svg (of Skia) als tekenlaag.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-16, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -c react-native-svg apps/rowtrack/package.json` → 0. `grep -rln 'victory|recharts|skia|chart' apps/rowtrack/package.json` → leeg. `git log --oneline --since=2026-08-06 -- apps/rowtrack` bevat geen commit over grafieken/visualisatie.
+- **Eerste zet:** Figma: één detail-scherm ontwerpen (HR-verloop + zones) op basis van een echte rit uit het testaccount; daarna een TC-EBC schrijven en `pnpm --filter rowtrack add react-native-svg` (dependency → eerst bevestigen) plus native rebuild; check: `grep -c react-native-svg apps/rowtrack/package.json` ≥1.
+- **Check:** `grep -c react-native-svg apps/rowtrack/package.json` — 0 = geen tekenlaag in de app, dus nog steeds nul grafieken.
+- **Status:** open
+
+## 2026-09-07 — UX-audit P3-verzamellijst (F13–F19) · [ux]
+
+- **Wat:** De zeven P3-bevindingen uit audits/2026-07-16-ux-audit-rowtrack.md §5 als losse items: backlink-label vs tab-naam (F13), icon-only inactieve doelsegmenten (F14), onzichtbaar tappable BPM-rij (F15), Android-back op 3 modals (F16), dubbele afstand in geen-doel-variant (F17), dode UX-lagen opruimen — KPI.tsx, SectionHeader.tsx, paceZone/pulseAnim/prFlags-props, 3× rgba-0.20, confetti-kleuren (F18), kcal-asterisk-legende (F19).
+- **Waarom niet nu:** HANDOFF-item van 2026-07-16, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `ls apps/rowtrack/components/KPI.tsx apps/rowtrack/components/SectionHeader.tsx` → beide bestaan; `grep -rn "KPI'\|SectionHeader'" apps/rowtrack/app apps/rowtrack/components | grep import` → leeg (alleen de barrel components/index.ts exporteert ze). `grep -c…
+- **Eerste zet:** F18 eerst, want puur opruimwerk zonder designoordeel: KPI.tsx en SectionHeader.tsx verwijderen (bevestigen vóór delete), de barrel bijwerken, `paceZone`/`pulseAnim`/`prFlags` uit ActivePhase-props en workout.tsx/dev-active.tsx halen, `tsc --noEmit`; check daarna: `ls apps/rowtrack/components/KPI.tsx` faalt.
+- **Check:** `ls apps/rowtrack/components/KPI.tsx apps/rowtrack/components/SectionHeader.tsx && grep -c "backLink: 'OVERZICHT'" apps/rowtrack/i18n/translations/nl.ts` — beide bestanden plus 1 = er is niets van F13–F19 opgepakt; verandert er iets, hertriageer de zeven tegen `audits/2026-07-16-ux-audit-rowtrack.md`.
+- **Status:** open
+
+## 2026-09-07 — De Edge Function wordt door niets getypecheckt · [infra]
+
+- **Wat:** Een CI-stap die `supabase/functions/**` typechecked met `deno check` (via denoland/setup-deno), zodat een tikfout in het account-verwijderpad in de PR faalt in plaats van bij deploy of bij de eerste echte aanroep.
+- **Waarom niet nu:** HANDOFF-item van 2026-08-06, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -rn deno .github/workflows/` → leeg (rc=1). `ls apps/rowtrack/supabase/functions/` → alleen `delete-account` (index.ts); nog steeds één functie. `grep -rn 'deno|supabase functions' .github/workflows/*.yml apps/rowtrack/package.json turbo.json` → leeg:…
+- **Eerste zet:** In .github/workflows/ci.yml een job `edge-functions` toevoegen: `denoland/setup-deno@v2` + `deno check apps/rowtrack/supabase/functions/delete-account/index.ts`; tegenproef: een opzettelijke type-fout in index.ts moet de job rood maken; check daarna: `grep -rq deno .github/workflows/`.
+- **Check:** `grep -rq 'deno' .github/workflows/` → geen hit = `supabase/functions` wordt door niets getoetst.
+- **Status:** open
+
+## 2026-09-07 — Geen testrunner in de repo · [test]
+
+- **Wat:** Committed node:test-suites voor de drie pure modules die nu alleen ad hoc geverifieerd zijn: lib/bestDistanceTime.ts (19 cases + fuzz), lib/secureStorage.ts (chunking op bytes, nooit mid-character; 10 cases + fuzz) en lib/formatters.ts (duizendtal-punt, komma-decimaal, spatie vóór eenheid).
+- **Waarom niet nu:** HANDOFF-item van 2026-08-06, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `git ls-files 'apps/rowtrack/lib/bestDistanceTime.test.ts' 'apps/rowtrack/lib/secureStorage.test.ts' 'apps/rowtrack/lib/formatters.test.ts'` → leeg (Check slaat aan). Maar: apps/rowtrack/package.json:11 `"test": "node --test \"lib/**/*.test.ts\""`;…
+- **Eerste zet:** `apps/rowtrack/lib/secureStorage.test.ts` schrijven naar het patroon van lib/ble/scan-lock.test.ts (node:test + assert), met de 10 gerichte cases uit de chunk-fix (d180578) als startpunt; tegenproef: de byte-grens in de chunker één teken verschuiven en eisen dat de suite omvalt; check: `git ls-files apps/rowtrack/lib/secureStorage.test.ts` niet leeg.
+- **Verwant:** `apps/rowtrack/BACKLOG.md` 2026-08-22 *De node:test-suites draaien niet in CI* (gebouwd): de runner en de CI-stap bestaan sinds 2026-08-25, dit item is de inhoud die erdoorheen moet.
+- **Check:** `git ls-files 'apps/rowtrack/lib/bestDistanceTime.test.ts' 'apps/rowtrack/lib/secureStorage.test.ts' 'apps/rowtrack/lib/formatters.test.ts'` → leeg = geen van de drie modules heeft een committed test.
+- **Status:** open
+
+## 2026-09-07 — HR- en roeier-dienst delen één BleManager-singleton · [test]
+
+- **Wat:** Toestel-verificatie van de gedeelde BLE-scan en het tweede verbindingspad: (1) twee taps binnen een seconde in beide volgordes, (2) Stop tijdens een herstelpoging → rij blijft idle, (3) Verbinden + ander toestel tijdens een lopende herstelpoging → oude lus verbindt niet meer (generatie-token), (4) Verbinden terwijl de roeier scant → geen 'geen hartslagmeter gevonden' na een geslaagde directe verbinding. Uitkomst per scenario met datum in HANDOFF.
+- **Waarom niet nu:** HANDOFF-item van 2026-08-06, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -c requestScan apps/rowtrack/lib/ble/scan-lock.ts` → 2 (serialisatie staat er nog). `git log --oneline --since=2026-08-22 -- apps/rowtrack/lib/ble/` → 928f7e7 (28/08, HR-pad meetbaar + disconnect-listener-leak), a79c883 (scan-lock-test deterministisch),…
+- **Eerste zet:** Dev-client op de iPhone met horloge én Apollo XL aan, `rowtrack://dev-ble` open, scenario 1 (HR-tap dan roeier-tap binnen 1 s) rijden en in de `[BLE]`-log controleren dat beide scans binnen het venster een treffer geven (vóór de fix: 25 s stilte na 12:35:57 op 22/08); daarna 2-4.
+- **Verwant:** `apps/rowtrack/BACKLOG.md` 2026-08-28 *Dubbele `destroy()` op één gedeelde BleManager* (open) raakt dezelfde context.
+- **Check:** `grep -c 'requestScan' apps/rowtrack/lib/ble/scan-lock.ts` — 0 = de arbiter is weg of
+- **Status:** open
+
+## 2026-09-07 — sheetFieldLabel-token niet tegen sheet-design geverifieerd · [fix]
+
+- **Wat:** De veld-labelkleur van de profiel-sheets (PERIODE/TYPE/WACHTWOORD e.d., `sheetFieldLabel` in profile.tsx) bevestigen tegen een echt sheet-frame (E-mail 53:10039 of Geslacht 52:9155) en gelijktrekken met de tegen 388:2256 bevestigde `fg.secondary` uit GoalSheet — of documenteren waarom de twee sheet-families bewust verschillen.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-14, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: Check gedraaid: `grep -n -A3 'sheetFieldLabel: {' 'apps/rowtrack/app/(tabs)/profile.tsx'` → regel 993-996: `color: fg.tertiary` (5 gebruikers: emailSheet currentEmail/newEmail/repeatEmail/password + deleteSheet password, regels 686-824). Tegenhanger:…
+- **Eerste zet:** `figma_get_status` → deep-read van `53:10039` (07 – Profile/Mail) via de Desktop Bridge en de fill van het label 'HUIDIG E-MAILADRES' aflezen; daarna `grep -n -A3 'sheetFieldLabel: {' 'apps/rowtrack/app/(tabs)/profile.tsx'` — wijkt hij af, één regel (993-996) naar de bevestigde rol zetten.
+- **Check:** `grep -n -A3 'sheetFieldLabel: {' 'apps/rowtrack/app/(tabs)/profile.tsx'` — `fg.tertiary` = de profiel-sheets wijken nog af van de tegen Figma 388:2256 bevestigde veld-labelkleur `fg.secondary` (`components/GoalSheet.tsx:194-199`).
+- **Status:** open
+
+## 2026-09-07 — 4-jul audit-re-triage: resterende werkstromen · [refactor]
+
+- **Wat:** WS2: de component-tokenlaag (o.a. `goalPill` in tokens.json) door de build laten lopen naar `constants/colors.ts` en als laag in Tokens Studio exporteren; WS7: off-token designwaarden in Figma tokeniseren; dekking: vaststellen of Auth/Login 182-2642 en Auth/Register 182-2660 echte, actuele frames zijn (anders designen) en de stale GoalSetupModal-rij uit figma-map.md halen. Splits bij het aanmaken in drie items — dit is één bundel met drie eigenaars.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-14, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: Check gedraaid: `grep -c goalPill apps/rowtrack/tokens/tokens.json apps/rowtrack/constants/colors.ts` → `tokens.json:1` / `colors.ts:0` = legenda 'WS2 ligt er nog'. `git log --since=2026-07-14 -- apps/rowtrack/tokens/tokens.json` → enkel `3646cff 2026-07-14…
+- **Eerste zet:** `grep -c goalPill apps/rowtrack/tokens/tokens.json apps/rowtrack/constants/colors.ts` (verwacht 1/0) om WS2 te bevestigen; daarna `figma_get_status` en de nodes 182-2642 / 182-2660 lezen om de auth-dekkingsvraag in één keer te sluiten en figma-map.md (Auth-sectie + GoalSetupModal-rij) bij te werken.
+- **Check:** `grep -c goalPill apps/rowtrack/tokens/tokens.json apps/rowtrack/constants/colors.ts` — 1 in de bron en 0 in de build-output = WS2 (component-tokenlaag) ligt er nog; WS7 is Figma-zijde en niet uit de repo te lezen.
+- **Status:** open
+
+## 2026-09-07 — Geen privacybeleid / rechtsgrond / consent voor (gezondheids)PII · [infra]
+
+- **Wat:** `PRIVACY_POLICY_URL` bereikbaar maken: rowtrack-web deployen (Vercel-project per rowtrack-web HANDOFF 2026-08-10) én de URL-mismatch oplossen — ofwel `lib/links.ts:11` naar de echte route (`/nl/privacy` op het domein van rowtrack-web) zetten, ofwel een redirect `/rowtrack/privacy → /nl/privacy` in rowtrack-web. Let op de volgorde-conflict: rowtrack-web zou pas ná de App Store-release live gaan, maar een consent-scherm dat naar een 404 linkt is zelf een pre-release-blocker.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-15, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: Check NIET gedraaid (curl = netwerk, buiten de grens). Wel: `grep -rn PRIVACY_POLICY_URL apps/rowtrack` → `lib/links.ts:11: export const PRIVACY_POLICY_URL = 'https://umanex.be/rowtrack/privacy'`, gebruikt in `components/HealthConsentScreen.tsx:77`. `git log…
+- **Eerste zet:** Beslis eerst het domein/pad met Jeroen, pas `apps/rowtrack/lib/links.ts:11` (of een redirect in `apps/rowtrack-web/middleware.ts`) aan, deploy, en sluit af met de bestaande check `curl -sL -o /dev/null -w '%{http_code}' <PRIVACY_POLICY_URL>` → 200.
+- **Check:** `curl -sL -o /dev/null -w '%{http_code}' https://umanex.be/rowtrack/privacy` → 404 = beleid nog niet bereikbaar, 200 = rond. De `-L` is niet optioneel: umanex.be stuurt apex-verkeer met een 308 naar `www`, en zonder volgen leest de check die redirect als antwoord — een derde uitkomst die de legenda niet kent. (Gemeten 2026-08-11: 308 → `www.umanex.be/rowtrack/privacy` → 404.)
+- **Status:** open
+
+## 2026-09-07 — Sentry error-/crash-monitoring: koppeling uitgesteld · [infra]
+
+- **Wat:** Sentry-koppeling voor rowtrack: `@sentry/react-native` + expo config-plugin in app.json, `Sentry.init({ dsn })` in `initMonitoring()` (DSN via `EXPO_PUBLIC_SENTRY_DSN`, door Jeroen geleverd), `reportError()` in `lib/monitoring.ts` laten doorschrijven naar `Sentry.captureException`, een globale ErrorBoundary, en een native rebuild (`expo run:ios --device`) omdat een native module anders niet in de dev-client zit.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-15, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: Check gedraaid: `grep -n 'sentry' apps/rowtrack/package.json` → geen treffer (rc=1) = koppeling niet gelegd. `apps/rowtrack/lib/monitoring.ts` bestaat; regel 4-11: 'De echte Sentry-koppeling volgt in een latere fase (zie HANDOFF 2026-07-15…' en `//…
+- **Eerste zet:** Dependency-install vraagt eerst bevestiging (CLAUDE.md 'altijd eerst bevestigen'): `pnpm --filter rowtrack add @sentry/react-native@~7.2.0` + `@sentry/react-native/expo` in `apps/rowtrack/app.json`; daarna de TODO op `apps/rowtrack/lib/monitoring.ts:11` invullen. Klaar-check: `grep -q '@sentry/react-native' apps/rowtrack/package.json`.
+- **Check:** `grep -q '@sentry/react-native' apps/rowtrack/package.json` → geen hit = koppeling nog niet gelegd.
+- **Status:** open
+
+## 2026-09-07 — Wheel-sheets (#131 flexShrink + #133 pill/fade) niet op toestel geverifieerd · [test]
+
+- **Wat:** De drie wheel-sheets (Lengte 52:9286, Gewicht 52:9424, Geboortedatum 52:9538) op de fysieke iPhone naast Figma leggen — wheels clippen niet, pill/fade conform #133 — en de uitkomst als gedateerd toestel-blok in HANDOFF/figma-map vastleggen.
+- **Waarom niet nu:** HANDOFF-item van 2026-07-15, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: Check NIET gedraaid (vraag aan Jeroen, geen commando). Wel: `git log --since=2026-07-15 -- apps/rowtrack/components/WheelPicker.tsx` → alleen `490b703 2026-07-15 fix(rowtrack): visible WheelPicker pill + surface-synced fade` (= #133 zelf); `--…
+- **Eerste zet:** Eerst bevestigen dat de check nog over dezelfde code gaat: `git log --oneline 490b703.. -- apps/rowtrack/components/WheelPicker.tsx apps/rowtrack/components/BottomSheet.tsx` (vandaag alleen `cd09074`, i18n); daarna Profiel → Lengte / Gewicht / Geboortedatum openen op het toestel en per sheet één screenshot naast het Figma-frame leggen.
+- **Check:** Alleen jij kunt dit beantwoorden: heb je Lengte, Gewicht en Geboortedatum op de iPhone naast Figma gelegd? Nee = open — geen commit of screenshot legt een toestel-check vast.
+- **Status:** open
