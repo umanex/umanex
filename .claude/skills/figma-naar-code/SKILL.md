@@ -11,6 +11,37 @@ Dit is een **Figma → Code** operatie. Pas NOOIT Figma nodes aan tijdens deze o
 
 ---
 
+## Bronnen-poort — verplicht vóór je bouwt
+
+Bouw nooit op een leeg vel wanneer er al een bron ligt. Stel eerst vast welke van de drie
+bestaan, en noem ze in je antwoord. De app-eigen `CLAUDE.md` draagt dat sinds 2026-09-07 in
+een `## Design-systeem-bron`-sectie: welke Tailwind-preset, welke componentbron, welke Storybook.
+Ontbreekt die sectie, dan is dát je eerste bevinding — `pnpm ds:guard` toetst hem hard in CI.
+
+| Bron | Wat het betekent voor deze taak | Harde check |
+|---|---|---|
+| **Design system** (tokens + preset) | elke kleur, spacing, radius en typografie bindt aan een rol; nooit een rauwe waarde, nooit een primitive | `pnpm --filter @umanex/tokens guard` |
+| **Figma library** (component library-bestand) | het component bestáát daar mogelijk al: instantieer in plaats van na te tekenen | `pnpm --filter @umanex/ui figma:check` |
+| **Storybook** | de gerenderde component is het meetbare doelwit, en zijn maten liggen vast in een basislijn | `pnpm --filter @umanex/ui geometry` |
+
+Drie regels die daaruit volgen.
+
+**Bestaat het component al in de library, dan bouw je het niet opnieuw.** Zoek eerst
+(`figma_search_components` aan de Figma-kant, de `exports` van de componentpackage aan de
+code-kant). Een nagetekend component is een tweede bron van waarheid, precies zoals een
+variabele zonder token.
+
+**Bestaat er een Storybook, dan is die de bedoeld-kant.** Niet je eigen lezing van de code, en
+niet een grep. In umanex-apps ligt de gemeten code-kant in `packages/ui/figma/geometry.code.json`
+(`pnpm --filter @umanex/ui geometry:write`); dat bestand draagt per story de doosmaten van elk
+element. Gebruik díe getallen als vergelijkingsbron.
+
+**Ontbreekt een van de drie, zeg dat.** "Geen Storybook in deze app" is een geldig antwoord dat
+de meetbare as verzwakt, en dat hoort in je rapport te staan — niet weggelaten te worden. Zelfde
+regime als "geen" in het `## Verify-pad`.
+
+---
+
 ## Kernprincipe — mapping moet semantisch correct zijn, niet alleen tokenized
 
 De waarde van deze skill zit niet in "geen hardcoded waarden" alleen. Een token dat *bestaat* maar de verkeerde betekenis draagt is even fout als een hardcoded hex — het compileert, het ziet er juist uit, en het breekt stilletjes bij de volgende theme- of token-wijziging.
@@ -20,6 +51,30 @@ Twee regels die de hele skill sturen:
 1. **Kies altijd het semantisch juiste token, niet het eerste token met de juiste waarde.** Dezelfde hex-waarde komt vaak voor op meerdere tokens over meerdere lagen heen — een achtergrond-, tekst-, border- en component-token kunnen dezelfde kleur delen. Alleen één is correct per context.
 2. **Bij twijfel: voorstel + bevestiging, nooit gokken.** Een verkeerde stille mapping is duurder dan een extra vraag.
 3. **Identificeer het scherm aan zijn inhoud, niet aan zijn laagnaam.** Een laagnaam is een bewering van de designer, geen eigenschap van het scherm — en hij groeit zelden mee. Lees de titel, de velden en de knoppen vóór je een Figma-frame aan een code-scherm koppelt. Gemeten op LQB (2026-08-18): frame `604:42883` heet `unit:04-contact`, zijn kind `screen:d1-account-manager-handoff`, en de kaart erin draagt de titel "Add your company details" met de velden `Company name` en `Street` — de naam wees een bedankscherm aan, de inhoud een invulformulier. Spreekt een tweede signaal de naam tegen (een connector-label in het flow-diagram, de node-id in de `@figma`-header van een bestaand component), dan is die tegenspraak het alarm: verklaar hem vóór je koppelt, en trek een onbevestigde koppeling nooit door naar zusterschermen "voor de consistentie".
+
+---
+
+### Leesbaarheidscontract — wat je mag verwachten, en wat je meldt
+
+`code-naar-figma` schrijft volgens een contract van zeven regels: laagnaam is de code-naam,
+geen `GROUP`, één component set met de variant-assen van de cva, elke tekstnode aan een text
+style, de description draagt het codepad, één sectie per component, geen losse absolute
+positionering.
+
+Toets dat vóór je vertaalt, want het bepaalt hoeveel je mag afleiden en hoeveel je moet vragen:
+
+| Aanwezig | Dan mag je | Ontbreekt het | Dan |
+|---|---|---|---|
+| description met codepad | dat bestand als bron nemen | — | zoek zelf, en meld dat je gezocht hebt |
+| `state`-variant-as | de states daaruit lezen | — | val terug op `reactions`, dan op "geen states" |
+| text styles | typografie uit de style nemen | — | lees de losse waarden en meld ze als ongebonden |
+| auto layout | padding en gap als spacing-tokens lezen | — | de maten zijn rauwe getallen; meld dat |
+
+**Een laagnaam blijft een bewering, ook onder dit contract.** Gemeten op 2026-08-18: een
+framenaam wees naar het scherm `account-manager` terwijl het frame `account-manager-details`
+toonde, en twee onafhankelijke signalen spraken die naam tegen zonder dat ik er één meldde.
+Het contract maakt de naam bruikbaar, niet waar. Spreken naam en inhoud elkaar tegen, dan is
+díe tegenspraak het alarm — verklaar hem of meld beide.
 
 ---
 
@@ -39,25 +94,6 @@ Staat die sectie er niet → vraag de notatie en laag-structuur op voor je code 
 ### Stap 1 — Controleer Desktop Bridge
 
 Controleer of de Console MCP beschikbaar is via `figma_get_status`.
-
-**Verkeerd bestand actief? Schakelen, niet stoppen.** De Bridge is multi-client: meerdere
-bestanden kunnen tegelijk verbonden zijn, elk met een eigen WebSocket-verbinding. Het "actieve
-doel" is dus een instelling, geen lot — en deze skill werkt per definitie over meerdere klanten,
-projecten en libraries.
-
-1. `figma_list_open_files` — welke bestanden zijn verbonden, en welk is actief?
-2. `figma_navigate` met de URL van het doelbestand — schakelt het actieve doel om zodra dat
-   bestand verbonden is. Alle volgende tool-calls raken dan dát bestand.
-3. Antwoordt hij `websocket_file_not_connected`, dan draait de plugin daar niet. Vraag de
-   gebruiker de Desktop Bridge plugin te openen in **dat specifieke bestand**, bij naam — hij
-   verbindt vanzelf en verschijnt daarna in `figma_list_open_files`. Vraag niet of hij "de
-   Bridge wil activeren": die draait al.
-
-Gemeten op 2026-09-07: de status meldde de Bridge verbonden en responsief, maar met een ander
-klantbestand als actief doel. Zonder schakelstap leest dat als een blokkade terwijl het een
-instelling is. De fileKey-assert blijft nodig náást deze stap — het actieve doel kan bij een
-reconnect stil terugwisselen.
-
 
 - Als Bridge actief: ga verder naar Stap 2
 - Als Bridge **niet** actief: vraag "Wil je Desktop Bridge activeren, of overschakelen naar native MCP?" — wacht op antwoord, ga nooit stilzwijgend verder
@@ -175,6 +211,21 @@ Regels:
 - Gebruik de CSS-notatie uit de klant-CLAUDE.md (separator + laag-prefix exact zoals daar gedefinieerd)
 - Bij ontbrekende tokens: placeholder + voorstel (zie stap 4, niveau 4)
 - Zet (of behoud) de `// @figma [node-URL]` header bovenaan het bestand — dat is de bron voor de gegenereerde component-inventaris (`gen-snapshot.sh`) en houdt de traceability naar de Figma-node
+
+**States: eerst de `state`-variant-as, dan pas `reactions`.**
+Dit is de afspraak die deze skill met `code-naar-figma` deelt. Een component die door die skill
+geëxporteerd is, draagt zijn states als **variantframes op een `state`-as** en heeft géén
+reactions. Lees je alleen `reactions`, dan concludeer je dat zo'n component geen states heeft —
+gemeten op 2026-09-07, en het is de scherpste breuk in de round-trip.
+
+Volgorde:
+1. `variantGroupProperties` van de component set — draagt hij een `state`-as, dan zijn dié
+   waarden de states, en de visuele waarden per state komen uit de `boundVariables` van het
+   bijbehorende variantframe.
+2. Pas als die as ontbreekt: `reactions`, zoals hieronder. Een handgetekend prototype draagt
+   zijn states daar, en die bron blijft geldig.
+3. Ontbreken ze allebei, dan heeft het component geen states in Figma. Verzin ze niet — meld
+   het als gat, en vraag of ze erbij moeten.
 
 **States afleiden uit `reactions` — niet verzinnen.**
 De `reactions` uit de deep-response (stap 3) zijn de bron-van-waarheid voor welke interactie-states het component heeft. Genereer state-handling op basis daarvan, niet op basis van een aanname:
