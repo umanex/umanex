@@ -227,12 +227,72 @@ fi
 # vermelden dat niet meer bestaat. Zonder de D sloeg zo'n commit alle vier de app-blokken
 # hieronder over — geen snapshot, geen token-sync, geen parallel-werk- en geen
 # verify-pad-signaal. De zusterguard `.githooks/commit-msg` telde deletes al wél mee.
+# 3. Naamruimte-signaal — een kaal `#N` is dubbelzinnig zodra de tekst reist.
+#
+#    Waarschuwt, blokkeert niet, en kijkt alleen naar regels die je in DEZE commit
+#    tóevoegt — niet naar wat er al stond. Een oud bestand aanraken mag geen lawine
+#    van legacy-treffers geven; dezelfde "op aanraking"-logica als de signalen hieronder.
+#
+#    Waarom: umanex-os reist naar elke klant-repo, en een PR-nummer is per repo. Gemeten
+#    op 2026-09-07: van de verwijzingen in umanex-os bestónden er **19 van 19** óók in
+#    umanex-apps, en zes wezen aantoonbaar naar umanex-apps terwijl umanex-os dat nummer
+#    niet eens kán hebben. Een lezer in Columba lost `#112` dus op naar een derde PR die
+#    niemand bedoeld heeft, zonder één foutmelding.
+#
+#    Code-spans op één regel gaan eruit (de `sed` hieronder), want een tekst die uitlegt
+#    wat een kaal nummer is, draagt er per definitie eentje als voorbeeld — een guard die
+#    op zijn eigen uitleg blaft, leert vooral dat je hem mag negeren. Meerregelige
+#    codeblokken ziet deze regel-voor-regel-check niet; die dekt scripts/refs-check.mjs,
+#    dat óók aan GitHub vraagt of het nummer bestaat.
+#
+#    De fix is GitHub's eigen cross-repo-syntax: `umanex-apps#372` in plaats van `#372`.
+#    Die rendert als een echte link én noemt het systeem dat het nummer uitgaf.
+#
+#    Scope: precies wat de sync kopieert — in umanex-os `CLAUDE.md`, `profiles/` en de
+#    skills; in een klant-repo `.umanex-os/` en `.claude/skills/`.
+#    De eigen backlog van een klant-repo verwijst legitiem kaal naar zijn eigen PR's en
+#    blijft dus buiten schot.
+#    Alleen `.md`: anders zou dít bestand bij zijn eigen commit klagen over de
+#    voorbeeldnummers in de uitleg hierboven — het meetbereik dat de meting bevat.
+#    De pathspec gaat via `set --` zodat een pad met een glob niet door woordsplitsing hoeft.
+if [ -f templates/githooks-pre-commit ]; then
+  # umanex-os zelf: alleen wat de sync naar een klant-repo kopieert. Zijn eigen
+  # BACKLOG/HANDOFF/LEARNINGS blijven lokaal — daar dekt refs-check.mjs de bestaans-as
+  # af tegen de eigen repo, en waarschuwen zou hier alleen ruis op legacy opleveren.
+  set -- 'CLAUDE.md' 'profiles/*.md' '.claude/skills/*.md'
+elif [ -f .umanex-os/profile ]; then
+  set -- '.umanex-os/*.md' '.claude/skills/*.md'       # klant-repo: wat meereist
+else
+  set --
+fi
+
+if [ "$#" -gt 0 ]; then
+  # Alleen toegevoegde regels (-U0, `^+`), en de `+++`-header eruit. Twee tot vier cijfers
+  # — het laagste ooit aangehaalde PR-nummer is #19, en één cijfer is hier altijd een
+  # rangtelwoord ("de #1 eerste zet"):
+  # een hex-kleur valt zo buiten bereik (#123456 heeft zes cijfers, #1a2b3c een letter
+  # direct achter het cijfer), `umanex-apps#372` ook want daar staat
+  # een woordteken vóór de #, en een markdown-kop `## ` heeft geen cijfer direct achter de #.
+  ns_treffers="$(git diff --cached -U0 --diff-filter=ACMR -- "$@" 2>/dev/null \
+    | grep -E '^[+]' | grep -v -E '^[+][+][+]' \
+    | sed 's/`[^`]*`/ /g' \
+    | grep -oE '(^|[^A-Za-z0-9_/#-])#[0-9]{2,4}([^0-9A-Za-z]|$)' \
+    | grep -oE '#[0-9]{2,4}' | sort -u | tr '\n' ' ')"
+
+  if [ -n "$ns_treffers" ]; then
+    echo "⚠ Kaal PR-nummer in de gedeelde laag: $ns_treffers"
+    echo "  Deze tekst reist naar elke klant-repo, en daar wijst hetzelfde nummer naar een"
+    echo "  andere PR. Schrijf de repo erbij: umanex-apps#372 — GitHub maakt daar een link van."
+    echo "  Harde toets: node scripts/refs-check.mjs (draait in CI, vraagt of de PR bestaat)."
+  fi
+fi
+
 changed_apps="$(git diff --cached --name-only --diff-filter=ACMRD \
   | sed -n 's#^apps/\([^/]*\)/.*#\1#p' | sort -u)"
 
 [ -z "$changed_apps" ] && exit 0
 
-# 3. Context-snapshots.
+# 4. Context-snapshots.
 #
 # De uitkomst van gen-snapshot.sh wordt gecontroleerd, en de ✅ komt alleen als er ook echt
 # iets gelukt is. Voorheen draaide de generator, mocht hij falen, werd de `git add` met
@@ -263,7 +323,7 @@ if [ -f ./scripts/gen-snapshot.sh ]; then
   fi
 fi
 
-# 4. Design tokens — constants/ in sync houden met tokens.json.
+# 5. Design tokens — constants/ in sync houden met tokens.json.
 #    Strikt gegateerd: alleen apps die een tokens:build-script én constants/ hebben.
 for app in $changed_apps; do
   [ -d "apps/$app/constants" ] || continue
@@ -281,7 +341,7 @@ for app in $changed_apps; do
   fi
 done
 
-# 5. Parallel-werk-signaal — onvastgelegd werk in apps buiten deze commit.
+# 6. Parallel-werk-signaal — onvastgelegd werk in apps buiten deze commit.
 #    Dat is op zichzelf legitiem (je bent aan twee dingen bezig), dus dit blokkeert niet.
 #    Het maakt alleen het moment zichtbaar waarop een tweede taak in dezelfde working tree
 #    leeft — het moment om die andere taak eerst af te ronden of te stashen, niet om een
@@ -303,7 +363,7 @@ if [ -n "$parallel_apps" ]; then
   echo "  Twee taken in één working tree? Rond de andere eerst af of parkeer hem: git stash push -u -- apps/<app> — zie CLAUDE.md, Git workflow."
 fi
 
-# 6. Verify-pad-signaal — heeft de app die je aanraakt een uitvoerbaar verificatiepad?
+# 7. Verify-pad-signaal — heeft de app die je aanraakt een uitvoerbaar verificatiepad?
 #    Waarschuwt, blokkeert niet. Toen deze guard gebouwd werd had 1 van de 11 apps een
 #    `## Verify-pad`-sectie; hard falen zou dus op dag één tien apps blokkeren en vooral
 #    aanleren hoe je `--no-verify` typt. Door op *aanraking* te waarschuwen komt de druk
@@ -334,7 +394,7 @@ if [ -n "$zonder_pad" ]; then
   echo "  'geen' is een geldig antwoord, mits zichtbaar. Zie de \`verify\` skill."
 fi
 
-# 7. Design-systeem-bron-signaal — welke laag geeft de app die je aanraakt zijn vorm?
+# 8. Design-systeem-bron-signaal — welke laag geeft de app die je aanraakt zijn vorm?
 #    Waarschuwt, blokkeert niet, en precies zoals blok 6 alleen voor apps die in DEZE
 #    commit veranderen. De harde toets staat in CI (`pnpm ds:guard`, met tegenproef);
 #    dit is het vroege signaal, want CI spreekt pas ná de push.

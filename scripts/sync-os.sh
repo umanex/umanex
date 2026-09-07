@@ -23,6 +23,7 @@
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
 # - scripts/gen-snapshot.sh + .githooks/pre-commit   (context-snapshots, incl. core.hooksPath-activatie)
+# - scripts/refs-check.mjs        (PR-verwijzingen: gekwalificeerd en bestaand — CI-check)
 # - .githooks/commit-msg           (commit-scope guard: een app-scope mag geen andere app raken)
 #
 # SKILLS ZIJN REPO-BESTANDEN, GEEN USER-LEVEL KOPIEËN. Tot 2026-08-17 stonden de globale
@@ -455,6 +456,7 @@ GEN_SNAPSHOT="$UMANEX_OS_PATH/templates/gen-snapshot.sh"
 GITHOOK="$UMANEX_OS_PATH/templates/githooks-pre-commit"
 CONTEXT_TEMPLATE="$UMANEX_OS_PATH/templates/context.json.template"
 TOKEN_COVERAGE="$UMANEX_OS_PATH/templates/figma-token-coverage.mjs"
+REFS_CHECK="$UMANEX_OS_PATH/templates/refs-check.mjs"
 
 if [ "$SELF_MODE" -eq 1 ]; then
   # In de bron is een kópie van de hook een tweede waarheid die wegdrijft van het
@@ -491,6 +493,18 @@ else
     echo "  ✓ scripts/figma-token-coverage.mjs"
   else
     echo "  ⚠ templates/figma-token-coverage.mjs niet gevonden — overgeslagen"
+  fi
+
+  # Referentie-checker: toetst of elke PR-verwijzing in de markdown bestaat én zegt uit
+  # welke repo ze komt. Draait in CI (netwerk nodig), naast de vorm-waarschuwing die de
+  # pre-commit hook geeft. Config-vrij, dus één kopie volstaat over de klanten heen.
+  if [ -f "$REFS_CHECK" ]; then
+    mkdir -p scripts
+    cp "$REFS_CHECK" scripts/refs-check.mjs
+    chmod +x scripts/refs-check.mjs
+    echo "  ✓ scripts/refs-check.mjs"
+  else
+    echo "  ⚠ templates/refs-check.mjs niet gevonden — overgeslagen"
   fi
 
   if [ -f "$GITHOOK" ]; then
