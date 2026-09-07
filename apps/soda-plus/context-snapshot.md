@@ -26,15 +26,19 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-eaaf0d9 docs(soda-plus): record that the counter is gone entirely
-53a880f fix(soda-plus): drop the stepper graphic, keep the count as text
-76850bd feat(soda-plus): make 00 part of the flow, it carries the evidence
-bdcae70 fix(soda-plus): stop using the empty box as evidence
-e007052 fix(soda-plus): read the actual report, revert the wrong correction
+46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
+81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
+6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
+d98be09 fix(ui): breedte-filter ankeren op hele klasse-tokens
+e369003 feat(ui): maat-as — gerenderde doosmaten tegen een basislijn
 ```
 
 ## Uncommitted wijzigingen
   M  apps/soda-plus/CLAUDE.md
+  M  apps/soda-plus/package.json
+   M packages/ui/package.json
+  ?? packages/ui/components/ui/dropdown-menu.stories.tsx
+  ?? packages/ui/components/ui/dropdown-menu.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

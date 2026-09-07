@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3004",
+    "dev": "next dev --port 3005",
     "build": "next build",
-    "start": "next start --port 3004",
+    "start": "next start --port 3005",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next"

@@ -1,6 +1,6 @@
 # soda-plus — projectcontext
 
-Designopdracht voor de sollicitatie bij **soda+**. Next.js (App Router), dev op poort 3004.
+Designopdracht voor de sollicitatie bij **soda+**. Next.js (App Router), dev op poort 3005.
 
 Dit bestand is bewust **minimaal**: het bevat alleen wat vaststaat. Vul aan naarmate de
 opdracht duidelijk wordt — verzonnen projectcontext is schadelijker dan geen.
