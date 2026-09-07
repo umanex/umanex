@@ -76,6 +76,10 @@ export type AppStatus = {
 
 export type RepoStatus = {
   branch: string;
+  /** Pad van de tree die beheerd wordt. */
+  root: string;
+  /** True als dat een andere tree is dan waarin het dashboard zelf draait. */
+  vreemdeTree: boolean;
   voor: number;   // commits op HEAD die origin/main niet heeft
   achter: number; // commits op origin/main die HEAD niet heeft
 };

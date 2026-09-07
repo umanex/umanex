@@ -1,10 +1,10 @@
 import { execFileSync } from 'node:child_process';
-import { repoRoot } from './paths';
+import { beheerdeRoot, beheertVreemdeTree } from './paths';
 import type { RepoStatus } from './types';
 
 function git(args: string[]): string {
   try {
-    return execFileSync('git', ['-C', repoRoot(), ...args], {
+    return execFileSync('git', ['-C', beheerdeRoot(), ...args], {
       encoding: 'utf8',
       timeout: 4000,
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -26,7 +26,13 @@ export function repoStatus(): RepoStatus {
   const branch = git(['rev-parse', '--abbrev-ref', 'HEAD']) || 'onbekend';
   const telling = git(['rev-list', '--left-right', '--count', 'origin/main...HEAD']);
   const [achter, voor] = telling.split(/\s+/).map((n) => Number(n) || 0);
-  return { branch, voor: voor ?? 0, achter: achter ?? 0 };
+  return {
+    branch,
+    root: beheerdeRoot(),
+    vreemdeTree: beheertVreemdeTree(),
+    voor: voor ?? 0,
+    achter: achter ?? 0,
+  };
 }
 
 /**

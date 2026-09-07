@@ -1,4 +1,4 @@
-import { GitBranch } from 'lucide-react';
+import { FolderTree, GitBranch } from 'lucide-react';
 import { ThemeToggle } from '@umanex/ui/components/ui/theme-toggle';
 import type { RepoStatus } from '@/lib/types';
 
@@ -16,6 +16,14 @@ export const RepoBar = ({ repo, gemetenOp }: Props) => (
           <GitBranch className="h-4 w-4" aria-hidden="true" />
           <span className="font-mono">{repo ? repo.branch : '…'}</span>
         </span>
+        {/* Welke tree beheerd wordt hoort zichtbaar te zijn zodra het niet de eigen is:
+            een dashboard dat een ándere tree stuurt dan waar hij draait, moet dat zeggen. */}
+        {repo?.vreemdeTree ? (
+          <span className="inline-flex items-center gap-1.5">
+            <FolderTree className="h-4 w-4" aria-hidden="true" />
+            <span className="font-mono">{repo.root}</span>
+          </span>
+        ) : null}
         {/* Geen `git fetch` in de poll — die achterstand is zo vers als je laatste
             fetch, en dat hoort er dan ook bij te staan. Zonder getal is die
             voetnoot betekenisloos, dus dan tonen we hem ook niet. */}
