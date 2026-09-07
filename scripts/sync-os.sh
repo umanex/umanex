@@ -18,6 +18,7 @@
 # - ~/.claude/hooks/tcebc-reminder.sh + settings.json  (TC-EBC UserPromptSubmit hook, user-level)
 # - ~/.claude/hooks/session-start-handoff.sh + settings.json  (SessionStart handoff-hook, user-level)
 # - ~/.claude/hooks/askquestion-estimate-guard.sh + settings.json  (PreToolUse schatting-guard, user-level)
+# - ~/.claude/hooks/bron-assertie-guard.sh + settings.json          (PreToolUse bron-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -658,6 +659,41 @@ else
       if jq --arg cmd "$ASKQ_CMD" '.hooks.PreToolUse += [{"matcher":"AskUserQuestion","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Schatting-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         # Zie de toelichting bij de UserPromptSubmit-hook hierboven: schrijf dóór een
         # eventuele symlink heen in plaats van hem te vervangen.
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PreToolUse-hook toegevoegd aan settings.json (open /hooks of herstart om te activeren)"
+      else
+        rm -f "$_tmp"
+        echo "  ⚠ kon settings.json niet bewerken — controleer of het geldige JSON is"
+      fi
+    fi
+  fi
+fi
+
+# Bron-assertie-guard: PreToolUse op Write|Edit|NotebookEdit, user-level, zelfde patroon als de
+# AskUserQuestion-guard hierboven. Waarschuwt wanneer een feitenbron (audits/, LEARNINGS, HANDOFF,
+# BACKLOG, strategie/, *.tcebc.md) een ongemarkeerde "ik heb het nooit gezien"-zin krijgt — de
+# faalklasse uit LEARNINGS 2026-09-02. Instructie alleen bleek daar niet genoeg: de replay ná de
+# CLAUDE.md-harding reproduceerde de fout identiek.
+echo ""
+echo "→ Installeer bron-assertie-guard (PreToolUse, user-level)..."
+BRON_SRC="$UMANEX_OS_PATH/templates/bron-assertie-guard.sh"
+BRON_CMD="$USER_HOOKS/bron-assertie-guard.sh"
+if [ ! -f "$BRON_SRC" ]; then
+  echo "  ⚠ templates/bron-assertie-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$BRON_SRC" "$BRON_CMD"
+  chmod +x "$BRON_CMD"
+  echo "  ✓ ~/.claude/hooks/bron-assertie-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast. Voeg de PreToolUse-hook handmatig toe (zie docs/architecture.md)."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$BRON_CMD" '.hooks.PreToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$BRON_CMD" '.hooks.PreToolUse += [{"matcher":"Write|Edit|NotebookEdit","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Bron-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
         echo "  ✓ PreToolUse-hook toegevoegd aan settings.json (open /hooks of herstart om te activeren)"
       else
