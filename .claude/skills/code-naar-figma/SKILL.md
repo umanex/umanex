@@ -125,6 +125,15 @@ Structureel in te stellen:
 - `layoutSizingVertical = 'HUG'` expliciet zetten op een frame in een auto-layout parent voorkomt dat het de volledige hoogte vult.
 - Een verse `figma.createFrame()` start op 100×100 met **FIXED** sizing; enkel `layoutMode` zetten hugt de inhoud niet — zet expliciet `counterAxisSizingMode = 'AUTO'` (en waar nodig `primaryAxisSizingMode = 'AUTO'`) **ná** `layoutMode`, anders houdt het frame zijn 100px. (Zie stap 4b: bij een bestaande DS-component instantiëren i.p.v. dit hand-frame vermijdt dit probleem sowieso.)
 - **Kolombreedtes verdeel je uit een budget dat de padding meetelt:** `budget = container.width − padLeft − padRight − (n−1)·gap`. Zonder de padding-term verdeel je te veel, valt de laatste kolom buiten het frame en slaagt de build zonder error — dezelfde klasse als de DTCG-`$value`-val (geslaagde exit, kapotte output). Assert de som van de kolombreedtes tegen het budget vóór je resiz't, en bewijs na afloop geometrisch dat `lastChild.x + lastChild.width ≤ container.width`. Die assert ving op fleet-manager twee echte mismatches vóór ze schade deden (Luminus, 2026-08-17).
+- **Een kloppend kolombudget zegt niets over de cel.** De budget-assert hierboven dekt
+  *container*-overloop; *cel*-overloop is een aparte klasse. Gemeten in Luminus
+  `fleet-manager` (2026-09-04): acht kolommen proportioneel gekrompen om een checkbox in te
+  passen, som exact 1000 zoals FM/10, assert groen — en `Order number` droeg 94px tekst in een
+  cel van 84, dus de kop liep in de buurkolom. Alleen de runtime-screenshot toonde het. Toets
+  daarom ná elke kolombreedte-wijziging per cel dat de breedste tekstnode past, over kop én
+  rijen: `cell.findAll(n => n.type === 'TEXT')` → `max(ceil(width)) ≤ cell.width`. Een
+  proportionele krimp raakt de smalste kolom het hardst, en dat is meestal de kolom met het
+  langste label ten opzichte van zijn inhoud — verplaats breedte vanuit een kolom met speling.
 - **"Geen wees-nodes" is niet hetzelfde als "geen dubbele nodes".** Een opruimcheck die naar
   *lege* frames en losse restanten zoekt, ziet een blok dat twee keer is aangemaakt niet: geen
   van die nodes is leeg, ze zijn allemaal gevuld en kloppen op zichzelf. Tel daarom bij
