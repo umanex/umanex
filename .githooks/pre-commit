@@ -333,3 +333,37 @@ if [ -n "$zonder_pad" ]; then
   echo "  Vul de vijf capabilities in (render · flow · state · invariant · verse build);"
   echo "  'geen' is een geldig antwoord, mits zichtbaar. Zie de \`verify\` skill."
 fi
+
+# 7. Design-systeem-bron-signaal — welke laag geeft de app die je aanraakt zijn vorm?
+#    Waarschuwt, blokkeert niet, en precies zoals blok 6 alleen voor apps die in DEZE
+#    commit veranderen. De harde toets staat in CI (`pnpm ds:guard`, met tegenproef);
+#    dit is het vroege signaal, want CI spreekt pas ná de push.
+#
+#    Waarom dit een guard is en geen afspraak: `@umanex/ui` bestond in umanex-apps
+#    maanden mét Storybook, mét Figma-sync en mét een CI-build, terwijl cashflow — het
+#    grootste UI-oppervlak van die monorepo — hem in nul app-bestanden importeerde. De
+#    dependency stond in package.json, `transpilePackages` stond in next.config.mjs, en
+#    de enige importeur was een render-script. Een gedeelde componentlaag zichtbaar
+#    maken is niet hetzelfde als hem gebruikt krijgen; zonder een sectie die zegt wat
+#    de bron ís, valt dat verschil aan niets op.
+#
+#    Het contract is drie regels in `apps/<app>/CLAUDE.md`, onder `## Design-systeem-bron`:
+#    Preset · Componentbron · Storybook. "geen" is overal een geldig antwoord zolang het
+#    er staat — zelfde regime als het Verify-pad hierboven. Een lege regel laat de vraag
+#    terugkomen, het woord "geen" maakt de keuze telbaar.
+zonder_ds=""
+for app in $changed_apps; do
+  [ -d "apps/$app" ] || continue
+  md="apps/$app/CLAUDE.md"
+  if [ ! -f "$md" ] || ! grep -q '^## Design-systeem-bron' "$md"; then
+    zonder_ds="$zonder_ds $app"
+  fi
+done
+
+if [ -n "$zonder_ds" ]; then
+  echo "⚠ Geen '## Design-systeem-bron'-sectie in de CLAUDE.md van:$zonder_ds"
+  echo "  Zonder die sectie is niet te zien welke preset, welke componentbron en welke"
+  echo "  Storybook deze app gebruikt — en drift naar een eigen kopie valt aan niets op."
+  echo "  Drie regels: - **Preset:** · - **Componentbron:** · - **Storybook:**"
+  echo "  'geen' is een geldig antwoord, mits zichtbaar. De harde toets is 'pnpm ds:guard'."
+fi

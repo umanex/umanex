@@ -197,6 +197,28 @@ Uitzondering: als een component evident in het design system thuishoort (Button,
 
 Bij twijfel of iets in de design system thuishoort: vraag het.
 
+**Elke app declareert zijn design-systeem-bron**
+
+In `apps/<app>/CLAUDE.md`, onder `## Design-systeem-bron`, drie regels: welke Tailwind-preset,
+welke componentbron, welke Storybook. Zelfde regime als het Verify-pad hierboven — **"geen" is
+een geldig antwoord en hoort er te staan**; een lege regel laat de vraag terugkomen, het woord
+"geen" maakt de keuze telbaar. `.githooks/pre-commit` waarschuwt bij een aangeraakte app zonder
+sectie; waar de repo er een guard voor heeft (umanex-apps: `pnpm ds:guard`, met tegenproef in
+CI) is het een harde toets die de declaratie tegen de schijf legt.
+
+**Waarom dit niet vanzelf gaat.** Een gedeelde componentlaag zichtbaar maken is niet hetzelfde
+als hem gebruikt krijgen. Gemeten in umanex-apps (2026-09-07): `@umanex/ui` had Storybook, een
+Figma-sync-guard en een CI-build, en cashflow — het grootste UI-oppervlak van de monorepo —
+importeerde hem in **nul** app-bestanden. De dependency stond in `package.json`,
+`transpilePackages` stond in `next.config.mjs`, en de enige importeur was een render-script.
+Zonder een sectie die zegt wat de bron ís, valt dat verschil aan niets op.
+
+**En bij een nieuw project is koppelen de default, niet aanmaken.** Zit de app op de gedeelde
+preset, dan krijgt hij géén eigen Storybook: een nieuwe primitive gaat naar de gedeelde package
+mét story, en de app importeert hem. Alleen een app met een eigen tokenbron verantwoordt een
+eigen componentlaag; de vorm is dan een eigen Storybook die als `ref` in de gedeelde hangt, niet
+een tweede losse installatie.
+
 **Acties die altijd eerst moeten worden bevestigd**
 
 1. Bestanden of folders verwijderen
@@ -286,7 +308,7 @@ git -C <map> pull --ff-only origin main
 
 `git worktree list` is de vinder, niet `lsof`: een lege `lsof` betekent "geen listener", niet "geen gat" — en een tree op een losse HEAD kan geen `pull --ff-only` aannemen. De `fetch` is niet optioneel: `origin/main` is een lokale ref die alleen door een fetch beweegt, en `gh pr merge` merget server-side, dus zonder fetch meet je 0 terwijl de tree 16 commits achterloopt (gemeten). Wil je weten wélke tree serveert: `PID=$(lsof -t -nP -iTCP:<poort> -sTCP:LISTEN | head -1)`, dan `lsof -a -p "$PID" -d cwd -Fn | sed -n 's/^n//p'` — het `n`-prefix moet eraf vóór je het pad doorgeeft. En een bijgetrokken bron is nog geen bijgetrokken scherm: serveert die map een build (PM2, `next start`), dan hoort de rebuild+restart bij het sluiten (zie *De Beoordeel-stap schrijft*). Eén keer terloops noemen telt niet: een gat dat je meldt maar niet dicht, blijft een gat.
 
-**Twee hooks, zeven signalen.** `.githooks/pre-commit` weigert een commit op `main`/`master` en op een losse HEAD — de veiligheidsklep is daarmee afdwingbaar in plaats van een goed voornemen, en een linked worktree op een losse HEAD kan geen commit stil kwijtraken. Rebase, cherry-pick en een lopende merge laat hij met rust. Daarnaast *waarschuwt* hij (zonder te blokkeren) over vijf dingen: onvastgelegd werk in een ándere app dan deze commit — het signaal om die andere taak eerst af te ronden of te stashen, niet om een tweede tree te maken — een aangeraakte app zonder `## Verify-pad`-sectie, een nieuwe open HANDOFF-entry zonder `Check`-regel, een nieuw `- [x]` zonder `bewijs:` in een `*.tcebc.md`, en een aangeraakte briefing met een Status buiten `gepland → gebouwd → gevalideerd`. `.githooks/commit-msg` blokkeert een commit met een app-scope die een ándere app raakt — `fix(cashflow):` mag niet aan `apps/rowtrack/` komen. Scopes die géén app zijn (`chore:`, `feat(tokens):`, `refactor(config):`) blijven vrij: een gedeelde laag hoort in één commit met de apps die hij aanpast. Is een cross-app commit écht bedoeld, zet dan een `Cross-app: <reden>` trailer in de body — expliciet en greppable. `--no-verify` is de slechtere weg: dat slaat álle hooks over, ook de snapshot- en token-sync.
+**Twee hooks, acht signalen.** `.githooks/pre-commit` weigert een commit op `main`/`master` en op een losse HEAD — de veiligheidsklep is daarmee afdwingbaar in plaats van een goed voornemen, en een linked worktree op een losse HEAD kan geen commit stil kwijtraken. Rebase, cherry-pick en een lopende merge laat hij met rust. Daarnaast *waarschuwt* hij (zonder te blokkeren) over zes dingen: onvastgelegd werk in een ándere app dan deze commit — het signaal om die andere taak eerst af te ronden of te stashen, niet om een tweede tree te maken — een aangeraakte app zonder `## Verify-pad`-sectie, een aangeraakte app zonder `## Design-systeem-bron`-sectie, een nieuwe open HANDOFF-entry zonder `Check`-regel, een nieuw `- [x]` zonder `bewijs:` in een `*.tcebc.md`, en een aangeraakte briefing met een Status buiten `gepland → gebouwd → gevalideerd`. `.githooks/commit-msg` blokkeert een commit met een app-scope die een ándere app raakt — `fix(cashflow):` mag niet aan `apps/rowtrack/` komen. Scopes die géén app zijn (`chore:`, `feat(tokens):`, `refactor(config):`) blijven vrij: een gedeelde laag hoort in één commit met de apps die hij aanpast. Is een cross-app commit écht bedoeld, zet dan een `Cross-app: <reden>` trailer in de body — expliciet en greppable. `--no-verify` is de slechtere weg: dat slaat álle hooks over, ook de snapshot- en token-sync.
 
 ### Cross-repo review — normaliseer eerst naar main
 
