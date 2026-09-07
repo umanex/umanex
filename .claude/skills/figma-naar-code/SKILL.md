@@ -40,6 +40,25 @@ Staat die sectie er niet → vraag de notatie en laag-structuur op voor je code 
 
 Controleer of de Console MCP beschikbaar is via `figma_get_status`.
 
+**Verkeerd bestand actief? Schakelen, niet stoppen.** De Bridge is multi-client: meerdere
+bestanden kunnen tegelijk verbonden zijn, elk met een eigen WebSocket-verbinding. Het "actieve
+doel" is dus een instelling, geen lot — en deze skill werkt per definitie over meerdere klanten,
+projecten en libraries.
+
+1. `figma_list_open_files` — welke bestanden zijn verbonden, en welk is actief?
+2. `figma_navigate` met de URL van het doelbestand — schakelt het actieve doel om zodra dat
+   bestand verbonden is. Alle volgende tool-calls raken dan dát bestand.
+3. Antwoordt hij `websocket_file_not_connected`, dan draait de plugin daar niet. Vraag de
+   gebruiker de Desktop Bridge plugin te openen in **dat specifieke bestand**, bij naam — hij
+   verbindt vanzelf en verschijnt daarna in `figma_list_open_files`. Vraag niet of hij "de
+   Bridge wil activeren": die draait al.
+
+Gemeten op 2026-09-07: de status meldde de Bridge verbonden en responsief, maar met een ander
+klantbestand als actief doel. Zonder schakelstap leest dat als een blokkade terwijl het een
+instelling is. De fileKey-assert blijft nodig náást deze stap — het actieve doel kan bij een
+reconnect stil terugwisselen.
+
+
 - Als Bridge actief: ga verder naar Stap 2
 - Als Bridge **niet** actief: vraag "Wil je Desktop Bridge activeren, of overschakelen naar native MCP?" — wacht op antwoord, ga nooit stilzwijgend verder
 

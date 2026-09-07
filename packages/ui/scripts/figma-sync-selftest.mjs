@@ -21,6 +21,10 @@ function verseKopie() {
   cpSync(join(ui, 'components/ui'), join(tmp, 'ui/components/ui'), { recursive: true });
   cpSync(join(ui, 'figma'), join(tmp, 'ui/figma'), { recursive: true });
   cpSync(join(ui, '../tokens/build/roles.mjs'), join(tmp, 'tokens/build/roles.mjs'));
+  // De twee nieuwe assen lezen deze bronnen. Zonder de kopie slaan ze over, en een
+  // overgeslagen as ziet er in het rapport uit als een groene.
+  cpSync(join(ui, '../tokens/build/typography.mjs'), join(tmp, 'tokens/build/typography.mjs'));
+  cpSync(join(ui, '../tokens/build/theme.css'), join(tmp, 'tokens/build/theme.css'));
   cpSync(join(ui, '../tokens/tokens.json'), join(tmp, 'tokens/tokens.json'));
   return { tmp, uiRoot: join(tmp, 'ui') };
 }
@@ -43,6 +47,45 @@ const gevallen = [
       schrijf(p, lees(p).replace(
         "        outline: 'text-foreground',",
         "        outline: 'text-foreground',\n        info: 'border-transparent bg-primary text-primary-foreground',"));
+    },
+  },
+  {
+    naam: 'text style wijkt af van de tokenschaal',
+    as: '[typografie]',
+    muteer: uiRoot => {
+      const p = join(uiRoot, 'figma/manifest.json');
+      const m = JSON.parse(lees(p)); m.textStyles[0].fontSize = 99;
+      schrijf(p, JSON.stringify(m, null, 2));
+    },
+  },
+  {
+    naam: 'text style draagt een family buiten fontFamily',
+    as: '[typografie]',
+    muteer: uiRoot => {
+      const p = join(uiRoot, 'figma/manifest.json');
+      const m = JSON.parse(lees(p)); m.textStyles[1].family = 'Comic Sans MS';
+      schrijf(p, JSON.stringify(m, null, 2));
+    },
+  },
+  {
+    naam: 'themawaarde wijkt af van theme.css (schema 2)',
+    as: '[themawaarde]',
+    muteer: uiRoot => {
+      // Bouw eerst een schema-2-manifest uit theme.css zelf zodat de as kán draaien, en
+      // muteer dan één waarde. Zonder die eerste helft toets je de skip-tak, niet de as.
+      const p = join(uiRoot, 'figma/manifest.json');
+      const css = lees(join(uiRoot, '../tokens/build/theme.css'));
+      const blok = sel => {
+        const mm = css.match(new RegExp(sel.replace('.', '\\.') + '\\s*\\{([^}]*)\\}'));
+        return Object.fromEntries([...mm[1].matchAll(/--([\w-]+):\s*([^;]+);/g)].map(x => [x[1], x[2].trim()]));
+      };
+      const lt = blok(':root'), dk = blok('.dark');
+      const m = JSON.parse(lees(p));
+      m.schemaVersie = 2;
+      m.collections.Theme.waarden = Object.fromEntries(
+        Object.keys(lt).filter(k => k in dk).map(k => [k, { Light: lt[k], Dark: dk[k] }]));
+      m.collections.Theme.waarden[Object.keys(m.collections.Theme.waarden)[0]].Light = '240 100% 50%';
+      schrijf(p, JSON.stringify(m, null, 2));
     },
   },
   {

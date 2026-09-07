@@ -6,9 +6,21 @@
  * zonder Figma-pagina, een ontbrekende of overtollige tokenrol, een kapotte deep-link,
  * een radius/spacing-afgeleide die niet meer uit de bron volgt.
  *
- * Wat dit NIET vangt: iemand die in Figma iets wijzigt zonder de manifest te
- * verversen. De manifest is een neergeslagen meting, geen live verbinding — CI heeft
- * geen Figma-toegang. Het verversen staat in packages/ui/CLAUDE.md (## Verify-pad).
+ * Wat dit NIET vangt, en dat is breder dan het lijkt:
+ *
+ *  (a) Iemand die in Figma iets wijzigt zonder de manifest te verversen. De manifest is
+ *      een neergeslagen meting, geen live verbinding — CI heeft geen Figma-toegang.
+ *  (b) Elke eigenschap die bepaalt hoe een node ERUITZIET en die niet in de manifest
+ *      staat: fills en strokes per node, auto-layout, padding, gap, radius per node,
+ *      afmetingen, welk effect waar hangt, opacity, constraints en de kinderstructuur.
+ *      GEMETEN op 2026-09-07 met een mutatietest op een wegwerpkopie: tien mutaties op
+ *      manifest-velden die deze guard niet leest gaven alle tien exit 0 en "checks
+ *      groen"; drie controle-mutaties op velden die hij wél leest gaven alle drie exit 1.
+ *      Zelfde harnas, tegengestelde uitkomst — het harnas kán rood worden, die velden
+ *      maken het niet rood.
+ *
+ * Daarom noemt de slotregel de assen en het bereik, en niet "in sync": die zin claimde
+ * meer dan de assen dragen (HANDOFF 2026-08-25).
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 // Gesynct vanuit umanex-os (templates/figma-token-coverage.mjs). Onderhoud hem daar:
@@ -26,6 +38,7 @@ const componentsDir = join(root, 'components/ui');
 
 const fails = [];
 const checks = [];
+const overgeslagen = [];   // assen die niets konden meten — zichtbaar, niet stil
 const fail = (as, msg) => fails.push(`[${as}] ${msg}`);
 const ok = (as, msg) => checks.push(`[${as}] ${msg}`);
 
@@ -139,12 +152,17 @@ for (const { component, src: storySrc } of storyComponents) {
     if (NIET_VISUEEL[`${component}.${as}`]) { uitgesloten.push(`${component}.${as} — ${NIET_VISUEEL[`${component}.${as}`]}`); continue; }
     verwacht[as] ??= waarden;
   }
-  for (const sleutel of Object.keys(FIGMA_ONLY)) {
-    const [comp, as] = sleutel.split('.');
-    if (comp === component) verwacht[as] = manifest.pages[comp]?.primary?.variantProperties?.[as] ?? [];
-  }
+  // FIGMA_ONLY-assen worden aan BEIDE kanten weggelaten, niet uit de manifest gekopieerd.
+  // Tot 2026-09-07 stond hier `verwacht[as] = manifest…variantProperties[as]` — dat maakt
+  // verwacht gelijk aan werkelijk per constructie, dus die as kon nooit rood worden. Een
+  // check die zichzelf bevestigt telde mee in het totaal.
+  const figmaOnlyAssen = Object.keys(FIGMA_ONLY)
+    .filter(k => k.split('.')[0] === component).map(k => k.split('.')[1]);
 
-  const werkelijk = page.primary?.variantProperties ?? null;
+  const werkelijkRuw = page.primary?.variantProperties ?? null;
+  const werkelijk = werkelijkRuw
+    ? Object.fromEntries(Object.entries(werkelijkRuw).filter(([a]) => !figmaOnlyAssen.includes(a)))
+    : null;
   const codeAssen = Object.keys(verwacht).sort();
   const figmaAssen = werkelijk ? Object.keys(werkelijk).sort() : [];
 
@@ -266,6 +284,77 @@ if (!existsSync(tokensPad)) {
   }
 }
 
+// ---- 5c. Typografie: elke Figma text style komt uit de tokenschaal ----
+//
+// De vijf text styles stonden sinds 2026-08-25 in de manifest en werden door niets gelezen
+// (gemeten: `textStyles` kwam nul keer voor in dit bestand; fontSize 14→99 en family →
+// "Comic Sans MS" gaven allebei exit 0). Een style is de typografische tegenhanger van een
+// variabele: zijn getallen horen uit `packages/tokens/build/typography.mjs` te komen, anders
+// is Figma een tweede bron van waarheid — precies wat CLAUDE.md verbiedt.
+//
+// Wat deze as NIET zegt: dat élk component een style gebruikt. Een palet mag ruimer zijn dan
+// zijn consumenten, en een component mag een regelhoogte overschrijven (`CardTitle` draagt
+// `leading-none` bij een 2xl-style van 24/32). Dat is geen drift; de as toetst de herkomst
+// van de getallen, niet de dekking van het palet.
+const typo = await import(new URL('../../tokens/build/typography.mjs', import.meta.url + '/../').href)
+  .catch(() => null);
+if (!typo) {
+  overgeslagen.push('[typografie] packages/tokens/build/typography.mjs niet gevonden — draai `pnpm --filter @umanex/tokens build`');
+} else if (!Array.isArray(manifest.textStyles)) {
+  overgeslagen.push('[typografie] manifest draagt geen textStyles — ververs via packages/ui/CLAUDE.md → Verify-pad');
+} else {
+  const px = v => Math.round(parseFloat(v) * 16);          // rem → px, basis 16
+  const schaal = Object.fromEntries(Object.entries(typo.fontSize)
+    .map(([k, v]) => [k, [px(v[0]), px(v[1].lineHeight)]]));
+  const families = Object.values(typo.fontFamily);
+  const typoFout = [];
+  for (const st of manifest.textStyles) {
+    const stap = String(st.name).split('/')[1]?.split('-')[0];
+    const w = schaal[stap];
+    if (!w) { typoFout.push(`${st.name}: stap '${stap}' bestaat niet in de tokenschaal`); continue; }
+    if (w[0] !== st.fontSize || w[1] !== st.lineHeight)
+      typoFout.push(`${st.name}: ${st.fontSize}/${st.lineHeight} tegen token ${stap} = ${w[0]}/${w[1]}`);
+    if (!families.includes(st.family))
+      typoFout.push(`${st.name}: family '${st.family}' staat niet in fontFamily`);
+  }
+  if (typoFout.length) for (const f of typoFout) fail('typografie', f);
+  else ok('typografie', `${manifest.textStyles.length} text styles volgen de tokenschaal (grootte, regelhoogte, family)`);
+}
+
+// ---- 5d. Themawaarden: de kleur zelf, niet enkel de naam ----
+//
+// De [token]-as vergelijkt NAMEN. Verandert iemand `--primary` in Figma van rood naar blauw,
+// dan blijft die as groen tot in de eeuwigheid. Deze as vergelijkt de waarde per mode met
+// `packages/tokens/build/theme.css`, en is daarmee de enige as die "Figma ziet eruit als de
+// code" afdwingt zonder pixels.
+//
+// Hij vraagt een manifest van schema 2: `collections.Theme.waarden` als naam → {Light, Dark}.
+// Zolang die er niet is slaat hij zichtbaar over in plaats van groen te melden — een as die
+// niets meet mag geen dekking suggereren.
+const themaWaarden = manifest.collections?.Theme?.waarden;
+if (!themaWaarden) {
+  overgeslagen.push('[themawaarde] manifest schema 1 draagt alleen namen — ververs met het schema-2-commando in packages/ui/CLAUDE.md');
+} else {
+  const css = readFileSync(join(root, '../tokens/build/theme.css'), 'utf8');
+  const blokVan = sel => {
+    const m = css.match(new RegExp(sel.replace('.', '\\.') + '\\s*\\{([^}]*)\\}'));
+    if (!m) return null;
+    return Object.fromEntries([...m[1].matchAll(/--([\w-]+):\s*([^;]+);/g)].map(x => [x[1], x[2].trim()]));
+  };
+  const modi = { Light: blokVan(':root'), Dark: blokVan('.dark') };
+  const waardeFout = [];
+  for (const [naam, perMode] of Object.entries(themaWaarden)) {
+    for (const [mode, waarde] of Object.entries(perMode)) {
+      const bron = modi[mode]?.[naam];
+      if (bron === undefined) { waardeFout.push(`${naam} (${mode}): geen tegenhanger in theme.css`); continue; }
+      if (String(bron).replace(/\s+/g, ' ') !== String(waarde).replace(/\s+/g, ' '))
+        waardeFout.push(`${naam} (${mode}): Figma ${waarde} tegen theme.css ${bron}`);
+    }
+  }
+  if (waardeFout.length) for (const f of waardeFout.slice(0, 12)) fail('themawaarde', f);
+  else ok('themawaarde', `${Object.keys(themaWaarden).length} rollen × 2 modes gelijk aan theme.css`);
+}
+
 // ---- 5. Deep-links wijzen naar een bestaande node ----
 const alleNodeIds = new Set();
 for (const p of Object.values(manifest.pages)) {
@@ -292,6 +381,7 @@ console.log('figma-sync-check — packages/ui ↔ Figma "%s" (%s)\n', manifest.f
 for (const c of checks) console.log('  ok   ' + c);
 for (const u of uitgesloten) console.log('  --   [uitgesloten] ' + u);
 for (const [k, v] of Object.entries(FIGMA_ONLY)) console.log('  --   [figma-only]  ' + k + ' — ' + v);
+for (const o of overgeslagen) console.log('  ~~   ' + o);
 if (fails.length) {
   console.log('');
   for (const f of fails) console.log('  FAIL ' + f);
@@ -299,4 +389,7 @@ if (fails.length) {
   console.log('Fix de code, of werk Figma bij en ververs figma/manifest.json (zie packages/ui/CLAUDE.md → Verify-pad).');
   process.exit(1);
 }
-console.log(`\n${checks.length} checks groen. Code en Figma staan in sync.`);
+console.log(`\n${checks.length} checks groen — structuur, namen, schaal-waarden en typografie-herkomst.`);
+console.log('Niet gemeten: maten per node, kleur per node, auto-layout, schaduw, icoonvorm,');
+console.log('hover/focus, en elke Figma-wijziging sinds ' + (manifest.gegenereerd ?? 'de laatste ververs') + '.');
+if (overgeslagen.length) console.log(`${overgeslagen.length} as(sen) overgeslagen — zie de ~~-regels hierboven.`);

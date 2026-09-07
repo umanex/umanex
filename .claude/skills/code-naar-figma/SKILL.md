@@ -41,6 +41,24 @@ figma_get_status
 
 - Actief → ga verder
 - Niet actief → stop. Vraag: "Wil je de Figma Desktop Bridge activeren, of overschakelen naar native MCP?" — wacht op antwoord, ga nooit stilzwijgend verder.
+**Verkeerd bestand actief? Schakelen, niet stoppen.** De Bridge is multi-client: meerdere
+bestanden kunnen tegelijk verbonden zijn, elk met een eigen WebSocket-verbinding. Het "actieve
+doel" is dus een instelling, geen lot — en deze skill werkt per definitie over meerdere klanten,
+projecten en libraries.
+
+1. `figma_list_open_files` — welke bestanden zijn verbonden, en welk is actief?
+2. `figma_navigate` met de URL van het doelbestand — schakelt het actieve doel om zodra dat
+   bestand verbonden is. Alle volgende tool-calls raken dan dát bestand.
+3. Antwoordt hij `websocket_file_not_connected`, dan draait de plugin daar niet. Vraag de
+   gebruiker de Desktop Bridge plugin te openen in **dat specifieke bestand**, bij naam — hij
+   verbindt vanzelf en verschijnt daarna in `figma_list_open_files`. Vraag niet of hij "de
+   Bridge wil activeren": die draait al.
+
+Gemeten op 2026-09-07: de status meldde de Bridge verbonden en responsief, maar met een ander
+klantbestand als actief doel. Zonder schakelstap leest dat als een blokkade terwijl het een
+instelling is. De fileKey-assert blijft nodig náást deze stap — het actieve doel kan bij een
+reconnect stil terugwisselen.
+
 - **Meerdere bestanden verbonden?** De actieve file kan stil terugwisselen (reconnects). Assert het doelbestand in élke `figma_execute` — zeker vóór schrijfacties; een write in het verkeerde klantbestand is de duurste stille fout van deze skill (les 2026-08-18). Toets op **identiteit, niet op naam**: `figma.fileKey` (de key uit de URL van het doelbestand, `figma.com/design/<fileKey>/…`), niet `figma.root.name`. Een naam is een bewering die iemand ooit typte — gemeten op 2026-08-25 aan béide kanten: de gebruiker hernoemde het bestand in Desktop en de naam-assert blokkeerde de export van het júiste bestand (vals alarm), en het spiegelbeeld is duurder — twee klantbestanden mogen dezelfde naam dragen, dan zwijgt de naam-assert terwijl de write in het verkeerde bestand landt. Het skelet staat in stap 6.
 
 ---
