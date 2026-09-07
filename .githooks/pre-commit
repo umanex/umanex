@@ -268,16 +268,17 @@ fi
 
 if [ "$#" -gt 0 ]; then
   # Alleen toegevoegde regels (-U0, `^+`), en de `+++`-header eruit. Twee tot vier cijfers
-  # — het laagste ooit aangehaalde PR-nummer is #19, en één cijfer is hier altijd een
-  # rangtelwoord ("de #1 eerste zet"):
+  # — het laagste ooit aangehaalde PR-nummer is 19, en één cijfer is hier altijd een
+  # rangtelwoord ("de #1 eerste zet"). Geen leidende nul: een PR-nummer begint nooit met
+  # een 0, een hex-kleur vaak wel (`#000@30%` in een rowtrack-briefing las anders als 0):
   # een hex-kleur valt zo buiten bereik (#123456 heeft zes cijfers, #1a2b3c een letter
   # direct achter het cijfer), `umanex-apps#372` ook want daar staat
   # een woordteken vóór de #, en een markdown-kop `## ` heeft geen cijfer direct achter de #.
   ns_treffers="$(git diff --cached -U0 --diff-filter=ACMR -- "$@" 2>/dev/null \
     | grep -E '^[+]' | grep -v -E '^[+][+][+]' \
     | sed 's/`[^`]*`/ /g' \
-    | grep -oE '(^|[^A-Za-z0-9_/#-])#[0-9]{2,4}([^0-9A-Za-z]|$)' \
-    | grep -oE '#[0-9]{2,4}' | sort -u | tr '\n' ' ')"
+    | grep -oE '(^|[^A-Za-z0-9_/#-])#[1-9][0-9]{1,3}([^0-9A-Za-z]|$)' \
+    | grep -oE '#[1-9][0-9]{1,3}' | sort -u | tr '\n' ' ')"
 
   if [ -n "$ns_treffers" ]; then
     echo "⚠ Kaal PR-nummer in de gedeelde laag: $ns_treffers"
