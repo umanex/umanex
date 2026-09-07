@@ -159,6 +159,12 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Waarom niet nu:** HANDOFF-item van 2026-07-09, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` → 2 regels (colors.ts:59 `height: 48`, Button.tsx:137 `height: space['44']`). tokens.json (python-walk op `$value`):…
 - **Eerste zet:** Figma node 109-2214 (Button, file T1bGrvIzSNeLyh5CbarATZ) uitlezen op de primary-hoogte en Jeroen laten kiezen tussen 44/48/56; daarna `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` moet 1 regel geven.
 - **Check:** `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` — twee regels = 44 (Button.sizeLg) en 48 (buttonTokens.primary) staan nog uiteen; één regel = de keuze is gemaakt.
+- **Aanvulling 2026-09-07 (Figma-sync):** de keuze raakt ook `size="md"`, en die kant is nog
+  niet benoemd. Gemeten op de Figma-variantnodes én de browser-render: **`lg` is 44px, `md`
+  is 48px** — md is dus hóger dan lg. `styles.sizeLg` zet een vaste hoogte
+  (`height: space['44']`), `styles.sizeMd` alleen `paddingVertical: space['12']`, dus de
+  hoogte volgt daar uit de regelhoogte van 18px tekst plus 2×12. Neem `md` mee in dezelfde
+  beslissing; anders wordt lg gefixt en blijft de omkering staan.
 - **Status:** open
 
 ## 2026-09-07 — Best-2000m: BLE-reconnect midden in workout re-baselinet niet · [fix]
@@ -318,4 +324,29 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   `.claude/skills/figma-naar-code/SKILL.md` (umanex-os) de RowTrack-context genoeg dekt.
 - **Check:** `grep -c "00E5FF" apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md 2>/dev/null`
   — een treffer = de tabel leeft nog; "no such file" = opgelost.
+- **Status:** open
+
+
+## 2026-09-07 — Iconen staan als placeholder in het Figma design system · [design-system]
+
+- **Wat:** In het bestand `QkRgMc7Quqtbow71DiYa1n` staan alle Ionicons als gestippeld
+  placeholder-frame (`Icon <maat>`) in plaats van als icoon. react-native-web rendert een
+  Ionicon als een tekstglyph in de font-familie `ionicons`, en die familie bestaat niet in
+  Figma — `listAvailableFontsAsync()` kent hem niet, dus de builder valt terug op een
+  zichtbaar slot in plaats van stil niets te tekenen. Raakt o.a. `Icon` (het hele component),
+  `EmptyState`, `ErrorState`, `HrStatusBar` (5 varianten), `BleStatusBar`, `DeviceRow`,
+  `GoalSegments` en de CTA-pijl in beide schermen; 8 maten in gebruik (14, 15, 16, 18, 20,
+  24, 48, 64).
+- **Waarom niet nu:** De oplossing vraagt een handeling op Jeroens machine (een font
+  installeren), niet een codewijziging. Er zijn geen SVG's beschikbaar: `@expo/vector-icons`
+  levert alleen de TTF plus een glyphmap, geen paden.
+- **Eerste zet:** `Ionicons.ttf` in Font Book installeren vanaf
+  `node_modules/.pnpm/@expo+vector-icons@*/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf`,
+  Figma Desktop herstarten, en dan `figma/builder.js` zijn familie-match case-insensitief
+  maken (de DOM meldt `ionicons`, Figma zal `Ionicons` heten). Daarna de bouw opnieuw:
+  de placeholders worden dan echte glyphs, want de glyphmap (1357 tekens) zit in hetzelfde
+  pakket en de tekstinhoud staat al in de bouwspec.
+- **Check:** `figma_execute` met
+  `(await figma.listAvailableFontsAsync()).some(f => /ionicons/i.test(f.fontName.family))`
+  — false = het font staat er nog niet.
 - **Status:** open

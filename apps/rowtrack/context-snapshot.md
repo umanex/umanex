@@ -59,18 +59,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+5ae050f feat(rowtrack): tokenlaag in Figma en de bouwspec uit de render
 1269fe4 feat(rowtrack): 33 stories, alle 197 renderen schoon
 e1c8f2c feat(rowtrack): storybook op react-native-web met token-trouwe render
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
 81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
-6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
 ```
 
 ## Uncommitted wijzigingen
-  A  apps/rowtrack/figma/build-spec.json
-  A  apps/rowtrack/figma/story-axes.json
-  A  apps/rowtrack/scripts/figma-build-spec.mjs
-  A  apps/rowtrack/scripts/story-axes.mjs
+  M  apps/rowtrack/.gitignore
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/CLAUDE.md
+  D  apps/rowtrack/figma/build-spec.json
+  A  apps/rowtrack/figma/build-spec.min.json
+  A  apps/rowtrack/figma/builder.js
+  A  apps/rowtrack/figma/ongebonden.json
+  M  apps/rowtrack/package.json
+  A  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/scripts/figma-build-spec.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

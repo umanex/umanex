@@ -56,36 +56,104 @@ const NIET_VISUEEL = {
 // ---------------------------------------------------------------------------
 // Waarde -> variabele. Exacte match; specifiek vóór algemeen.
 // ---------------------------------------------------------------------------
-const VOLGORDE = ['Component', 'Theme', 'Core'];
-const platteWaarde = new Map();   // 'COLOR|rgba' of 'FLOAT|12' -> 'Set:naam'
+/**
+ * Waarde -> variabele, BEPERKT PER EIGENSCHAPSSOORT.
+ *
+ * Een kale waarde-match is fout, en de Chip liet zien hoe fout: `padding: 0` matchte op
+ * `Core/letterSpacing/normal` (ook 0) en `padding: 8` op `Component/button/primary/radius`
+ * (ook 8). Semantisch onzin, en in Figma niet te zien — de binding staat er, dus de gate
+ * meldt groen. Gemeten 2026-09-07.
+ *
+ * Daarom eerst een KANDIDATENPOOL per soort, en pas daarbinnen de waarde-match. De volgorde
+ * binnen de pool volgt hoe de code consumeert: een Component-token waarvan het eerste
+ * padsegment dít component is wint (Button gebruikt buttonTokens.*), anders de Theme-rol
+ * (de laag waar app-code hoort te zitten), anders Core, en pas als laatste een willekeurig
+ * Component-token — dat laatste wordt als zwakke match gemeld.
+ */
+const alleVars = [];
 {
-  // Los aliassen op tot hun letterlijke waarde, zodat ook een alias matcht.
   const perSet = {};
-  for (const [set, c] of Object.entries(payload.collecties)) {
-    perSet[set] = new Map(c.variabelen.map(v => [v.naam, v]));
-  }
+  for (const [set, c] of Object.entries(payload.collecties)) perSet[set] = new Map(c.variabelen.map(v => [v.naam, v]));
   const los = (set, naam, d = 0) => {
     if (d > 12) return null;
     const v = perSet[set]?.get(naam);
     if (!v) return null;
-    if (v.alias) return los(v.alias.set, v.alias.naam, d + 1);
-    return v;
+    return v.alias ? los(v.alias.set, v.alias.naam, d + 1) : v;
   };
-  for (const set of VOLGORDE) {
+  for (const set of ['Core', 'Theme', 'Component']) {
     for (const v of payload.collecties[set].variabelen) {
       const w = los(set, v.naam);
       if (!w) continue;
-      let sleutel = null;
-      if (w.type === 'COLOR') {
-        const c = w.waarde;
-        sleutel = `COLOR|${Math.round(c.r*255)},${Math.round(c.g*255)},${Math.round(c.b*255)},${Math.round((c.a??1)*1000)/1000}`;
-      } else if (w.type === 'FLOAT') sleutel = `FLOAT|${w.waarde}`;
-      if (sleutel && !platteWaarde.has(sleutel)) platteWaarde.set(sleutel, `${set}:${v.naam}`);
+      alleVars.push({ ref: `${set}:${v.naam}`, set, naam: v.naam, type: w.type, waarde: w.waarde });
     }
   }
 }
-const varVoorKleur = (r, g, b, a) => platteWaarde.get(`COLOR|${r},${g},${b},${Math.round(a*1000)/1000}`) ?? null;
-const varVoorGetal = (n) => platteWaarde.get(`FLOAT|${n}`) ?? null;
+
+/** Welke tokenpaden mogen voor welke eigenschap in aanmerking komen. */
+const POOL = {
+  spacing: v => /^spacing\//.test(v.naam) || /\/(padding|paddingX|paddingY|paddingTop|paddingBottom|paddingLeft|paddingRight|gap|itemGap|marginBottom|unitOffsetLeft)$/i.test(v.naam),
+  radius:  v => /^borderRadius\//.test(v.naam) || /^radius\//.test(v.naam) || /\/radius$/i.test(v.naam),
+  breedte: v => /^borderWidth\//.test(v.naam) || /^stroke\//.test(v.naam) || /Width$/i.test(v.naam),
+  maat:    v => /^sizing\//.test(v.naam) || /^size\//.test(v.naam) || /\/(height|markerSize|trackHeight|fillHeight|indicatorHeight)$/i.test(v.naam),
+};
+
+const normComp = s2 => String(s2).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** Kies de beste variabele voor een waarde binnen een pool. */
+function kies(pool, test, comp, zwakMelden) {
+  const kandidaten = alleVars.filter(v => POOL[pool](v) && test(v));
+  if (!kandidaten.length) return null;
+  const c = normComp(comp);
+  const eigen = kandidaten.find(v => v.set === 'Component' && normComp(v.naam.split('/')[0]) === c);
+  if (eigen) return eigen.ref;
+  const theme = kandidaten.find(v => v.set === 'Theme');
+  if (theme) return theme.ref;
+  const core = kandidaten.find(v => v.set === 'Core');
+  if (core) return core.ref;
+  if (zwakMelden) zwakMelden(kandidaten[0].ref);
+  return kandidaten[0].ref;
+}
+
+/** 'linear-gradient(90deg, rgb(a), rgba(b))' -> { hoek, stops[] }. Geen hoek = 180 (naar onder). */
+function ontleedGradient(css) {
+  const m = String(css).match(/linear-gradient\(([^]*)\)\s*$/);
+  if (!m) return null;
+  // Splits op komma's die NIET binnen rgb()/rgba() staan.
+  const delen = [];
+  let diepte = 0, huidig = '';
+  for (const ch of m[1]) {
+    if (ch === '(') diepte++;
+    if (ch === ')') diepte--;
+    if (ch === ',' && diepte === 0) { delen.push(huidig.trim()); huidig = ''; continue; }
+    huidig += ch;
+  }
+  if (huidig.trim()) delen.push(huidig.trim());
+  let hoek = 180;
+  if (/^-?[\d.]+deg$/.test(delen[0])) hoek = parseFloat(delen.shift());
+  else if (/^to\s/.test(delen[0])) { const r = delen.shift(); hoek = /right/.test(r) ? 90 : /left/.test(r) ? 270 : /top/.test(r) ? 0 : 180; }
+  const stops = delen.map(d => {
+    const c = d.match(/rgba?\(([^)]+)\)/);
+    if (!c) return null;
+    const v = c[1].split(',').map(x => parseFloat(x.trim()));
+    return { r: v[0], g: v[1], b: v[2], a: v[3] ?? 1 };
+  }).filter(Boolean);
+  return stops.length >= 2 ? { hoek, stops } : null;
+}
+
+const gelijkKleur = (a, b) => a && b && Math.abs(a.r * 255 - b.r) < 0.6 && Math.abs(a.g * 255 - b.g) < 0.6
+  && Math.abs(a.b * 255 - b.b) < 0.6 && Math.abs((a.a ?? 1) - b.a) < 0.01;
+
+/** Kleur: geen pool-beperking (elke COLOR mag), wel dezelfde voorkeursvolgorde. */
+function kiesKleur(k, comp) {
+  const kandidaten = alleVars.filter(v => v.type === 'COLOR' && gelijkKleur(v.waarde, k));
+  if (!kandidaten.length) return null;
+  const c = normComp(comp);
+  return (kandidaten.find(v => v.set === 'Component' && normComp(v.naam.split('/')[0]) === c)
+       ?? kandidaten.find(v => v.set === 'Theme')
+       ?? kandidaten.find(v => v.set === 'Core')
+       ?? kandidaten[0]).ref;
+}
+const kiesGetal = (pool, n, comp) => kies(pool, v => v.type === 'FLOAT' && v.waarde === n, comp);
 
 // ---------------------------------------------------------------------------
 // Statische server + browser
@@ -137,6 +205,13 @@ const WALKER = () => {
   // Gemeten 2026-09-07: MotivationalToast en DeviceSelectionModal gaven dan "0 kinderen"
   // terwijl ze prima renderden. Zonder deze tak zou een overlay-component stil als leeg
   // gelezen worden — dezelfde vorm als een echte lege render.
+  // Ook een <Modal>-sheet die WEL een kind achterlaat in de decorator, maar een leeg kind
+  // van 0x0: BottomSheet, GoalSheet en HealthConsentScreen deden dat (gemeten 2026-09-07).
+  // De portal-tak vuurde niet omdat kinderen.length 1 was.
+  if (kinderen.length === 1) {
+    const r0 = kinderen[0].getBoundingClientRect();
+    if (r0.width < 2 && r0.height < 2 && kinderen[0].children.length === 0) kinderen = [];
+  }
   if (kinderen.length === 0) {
     // Anker op INHOUD, niet op afmeting: de portal-wortel heeft hoogte 0 omdat de modal
     // erin absoluut gepositioneerd is. Een filter op `height > 0` sneed hem precies weg
@@ -201,6 +276,36 @@ const WALKER = () => {
       });
       if (kids.length) o.kinderen = kids.map(k => lees(k, diepte + 1));
     }
+    // Een absoluut gepositioneerd kind valt buiten de box van zijn ouder, dus een overlay-
+    // wortel meet 0 breed of 0 hoog terwijl er wél iets staat. Gemeten 2026-09-07: tien
+    // variant-nodes kwamen zo op 0x0 in Figma (BottomSheet, GoalSheet, HealthConsentScreen,
+    // MotivationalToast, DeviceSelectionModal, alle vier de WheelPickers). Herstel de box
+    // uit de vereniging van de kinderen — en markeer dat, want een herstelde maat is een
+    // afleiding en geen meting.
+    if (o.w < 2 || o.h < 2) {
+      // Vereniging van ALLE afstammelingen, niet alleen de directe kinderen: bij WheelPicker
+      // zit de zichtbare inhoud twee niveaus diep, en een unie over de directe kinderen
+      // maakte de box juist kleiner (0x250 -> 2x60, gemeten). En alleen toepassen als het
+      // resultaat GROTER is — een herstel dat krimpt is geen herstel.
+      const boxen = [...el.querySelectorAll('*')].map(k => k.getBoundingClientRect())
+        .filter(b => b.width > 0 && b.height > 0);
+      if (boxen.length) {
+        const l = Math.min(...boxen.map(b => b.left)), r2 = Math.max(...boxen.map(b => b.right));
+        const t = Math.min(...boxen.map(b => b.top)), bo = Math.max(...boxen.map(b => b.bottom));
+        // PER AS, en geklemd op het viewport. Twee redenen, allebei gemeten 2026-09-07:
+        //  · WheelPicker is 0 breed maar wél 250 hoog; beide assen vervangen maakte hem
+        //    97x4191 — de volledige scrollhoogte in plaats van het zichtbare venster.
+        //  · Een sheet met een scrollgebied gaf 430x25100 om dezelfde reden (GoalSheet).
+        // Een component is nooit groter dan het scherm waarop hij staat, dus het viewport
+        // is de bovengrens. Alleen de as die 0 was wordt vervangen.
+        const nw = Math.min(Math.round((r2 - l) * 100) / 100, window.innerWidth);
+        const nh = Math.min(Math.round((bo - t) * 100) / 100, window.innerHeight);
+        const was = [o.w, o.h];
+        if (o.w < 2 && nw >= 2) o.w = nw;
+        if (o.h < 2 && nh >= 2) o.h = nh;
+        if (o.w !== was[0] || o.h !== was[1]) o.herstelde = { was };
+      }
+    }
     return o;
   }
   return { boom: lees(kinderen[0], 0) };
@@ -219,25 +324,61 @@ async function meet(storyId, args) {
   return page.evaluate(WALKER);
 }
 
-/** Voegt variabele-verwijzingen toe aan een gemeten boom. */
+/**
+ * Nodes die per render ANDERS zijn en dus geen stabiel Figma-artefact kunnen zijn.
+ *
+ * MotivationalToast tekent 60 confettideeltjes met `size: 6 + Math.random() * 8`, dus
+ * radius = size/2 levert 60 gebroken waarden op die bij elke render verschillen. Die als
+ * 60 tokengaten rapporteren is ruis: het is één ontwerpbeslissing (gerandomiseerde
+ * decoratie), geen zestig ontbrekende tokens. Ze worden geteld als decoratief en niet
+ * als gat — expliciet, want stil weglaten ziet er identiek uit als "geen probleem".
+ */
+const decoratief = (comp, node) =>
+  comp === 'MotivationalToast' && node.radius?.[0] > 0 && !Number.isInteger(node.radius[0]);
+
+/** Voegt variabele-verwijzingen toe aan een gemeten boom, per eigenschapssoort. */
 function bind(node, pad, comp) {
+  if (decoratief(comp, node)) {
+    node.decoratief = 'gerandomiseerde confetti (size = 6 + random*8) — geen stabiel artefact';
+    spec.decoratief = (spec.decoratief ?? 0) + 1;
+    for (const k of node.kinderen ?? []) bind(k, pad + '>d', comp);
+    return;
+  }
   const meld = (wat, waarde) => spec.ongebonden.push(`${comp} ${pad}: ${wat} = ${waarde}`);
   if (node.bg && node.bg.a > 0) {
-    node.bgVar = varVoorKleur(node.bg.r, node.bg.g, node.bg.b, node.bg.a);
+    node.bgVar = kiesKleur(node.bg, comp);
     if (!node.bgVar) meld('achtergrond', JSON.stringify(node.bg));
   }
   if (node.borderColor && node.borderWidth > 0) {
-    node.borderColorVar = varVoorKleur(node.borderColor.r, node.borderColor.g, node.borderColor.b, node.borderColor.a);
+    node.borderColorVar = kiesKleur(node.borderColor, comp);
     if (!node.borderColorVar) meld('randkleur', JSON.stringify(node.borderColor));
-    node.borderWidthVar = varVoorGetal(node.borderWidth);
+    node.borderWidthVar = kiesGetal('breedte', node.borderWidth, comp);
+    if (!node.borderWidthVar) meld('randbreedte', node.borderWidth);
   }
-  node.radiusVar = node.radius.every(r => r === node.radius[0]) ? varVoorGetal(node.radius[0]) : null;
-  node.paddingVar = node.padding.map(varVoorGetal);
-  node.gapVar = node.gap ? varVoorGetal(node.gap) : null;
+  node.radiusVar = node.radius.every(r => r === node.radius[0]) && node.radius[0] > 0
+    ? kiesGetal('radius', node.radius[0], comp) : null;
+  if (node.radius[0] > 0 && !node.radiusVar) meld('radius', node.radius[0]);
+  node.paddingVar = node.padding.map(p => p === 0 ? null : kiesGetal('spacing', p, comp));
+  node.padding.forEach((p, i) => { if (p > 0 && !node.paddingVar[i]) meld('padding', p); });
+  node.gapVar = node.gap ? kiesGetal('spacing', node.gap, comp) : null;
+  if (node.gap > 0 && !node.gapVar) meld('gap', node.gap);
+  // Gradients: CSS-string -> stops met hun eigen binding. Alle vijf de vormen in deze
+  // codebase zijn tweestops-lineair (gemeten), vier verticaal en één op 90deg.
+  if (node.backgroundImage?.includes('linear-gradient')) {
+    const g = ontleedGradient(node.backgroundImage);
+    if (!g) meld('gradient', node.backgroundImage.slice(0, 60));
+    else {
+      node.gradientStops = g.stops.map((st, i) => ({
+        positie: g.stops.length === 1 ? 0 : i / (g.stops.length - 1),
+        kleur: st, kleurVar: kiesKleur(st, comp),
+      }));
+      node.gradientHoek = g.hoek;
+      for (const st of node.gradientStops) if (!st.kleurVar) meld('gradientstop', JSON.stringify(st.kleur));
+    }
+  }
   if (node.tekst) {
-    node.tekst.kleurVar = varVoorKleur(node.tekst.kleur.r, node.tekst.kleur.g, node.tekst.kleur.b, node.tekst.kleur.a);
+    node.tekst.kleurVar = kiesKleur(node.tekst.kleur, comp);
     if (!node.tekst.kleurVar) meld('tekstkleur', JSON.stringify(node.tekst.kleur));
-    // Welke text style hoort hierbij? Match op family + size + letterSpacing-px.
     const kandidaten = payload.textStyles.filter(t =>
       t.expoVariant === node.tekst.family && t.fontSize === node.tekst.size);
     node.tekst.styleRef = kandidaten.length === 1 ? kandidaten[0].naam
@@ -293,6 +434,7 @@ console.log(`\ncomponent sets : ${Object.keys(spec.componenten).length}  (${nVar
 console.log(`schermen       : ${Object.keys(spec.schermen).length}  (${Object.values(spec.schermen).reduce((n,s)=>n+s.frames.length,0)} frames)`);
 console.log(`uitgesloten    : ${spec.uitgesloten.length} as(sen)`);
 for (const u of spec.uitgesloten) console.log('   -- ' + u);
+console.log(`decoratief     : ${spec.decoratief ?? 0} nodes (gerandomiseerd, niet als gat geteld)`);
 console.log(`ongebonden     : ${spec.ongebonden.length}`);
 console.log(`fouten         : ${spec.fouten.length}`);
 for (const f of spec.fouten.slice(0, 20)) console.log('  FOUT ' + f);
