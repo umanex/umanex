@@ -201,6 +201,7 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
     alleenWerkgevers: true,
     herkomst: 'beide' as const,
     alleenWinstgevend: false,
+    sortering: 'oprichting' as const,
     pagina: 1,
   }
   const varianten = [
@@ -219,6 +220,8 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
     { naam: 'herkomst csv + winstgevend', f: { ...basis, regions: [...basis.regions], herkomst: 'csv' as const, alleenWinstgevend: true } },
     { naam: 'winstgevend', f: { ...basis, regions: [...basis.regions], alleenWinstgevend: true } },
     { naam: 'winstgevend + zoekterm + één regio', f: { ...basis, regions: ['WVL' as const], alleenWinstgevend: true, zoek: 'studio' } },
+    { naam: 'sortering omvang', f: { ...basis, regions: [...basis.regions], sortering: 'omvang' as const } },
+    { naam: 'sortering ebitda', f: { ...basis, regions: [...basis.regions], sortering: 'ebitda' as const } },
   ]
 
   for (const { naam, f } of varianten) {
@@ -383,10 +386,98 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
   }
   const buiten = bouwZonderKboSql({ ...basis, regions: [...basis.regions] })
   check('de zonder-KBO-telling kent geen regiofilter', !/Zipcode/.test(buiten.sql))
+  {
+    // Bij herkomst `kbo` is de melding niet van toepassing: dan kijkt de gebruiker bewust
+    // niet naar de aangeleverde lijst.
+    const db = new Database(':memory:')
+    db.exec(`ATTACH DATABASE ':memory:' AS jr;
+      CREATE TABLE enterprise ("EnterpriseNumber" TEXT PRIMARY KEY);
+      CREATE TABLE jr.csv_prospects (enterprise_number TEXT PRIMARY KEY, name TEXT, ebitda REAL);
+      INSERT INTO jr.csv_prospects VALUES ('9999999999', 'Buiten de spiegel', 100);`)
+    const tel = (herkomst: 'kbo' | 'csv' | 'beide') => {
+      const q = bouwZonderKboSql({ ...basis, regions: [...basis.regions], herkomst })
+      return (db.prepare(q.sql).get(...(q.params as never[])) as { n: number }).n
+    }
+    check('herkomst csv telt de rij buiten de spiegel', tel('csv') === 1, String(tel('csv')))
+    check('herkomst beide telt hem ook', tel('beide') === 1, String(tel('beide')))
+    check('herkomst kbo telt hem niet — dan is de melding ruis', tel('kbo') === 0, String(tel('kbo')))
+    db.close()
+  }
   check(
     'de zonder-KBO-telling sluit alles uit wat wél in de spiegel staat',
     /NOT EXISTS \(SELECT 1 FROM enterprise/.test(buiten.sql)
   )
+
+  // ── De ordening ────────────────────────────────────────────────────────────
+  // Gedragschecks op de fixture-database: de volgorde die eruit komt, niet de string die
+  // erin staat. Dezelfde les als bij de winstzeef.
+  {
+    const db = new Database(':memory:')
+    db.exec(`
+      CREATE TABLE enterprise ("EnterpriseNumber" TEXT PRIMARY KEY, "Status" TEXT, "StartDate" TEXT);
+      CREATE TABLE address ("EntityNumber" TEXT, "TypeOfAddress" TEXT, "Zipcode" TEXT, "MunicipalityNL" TEXT);
+      CREATE TABLE activity ("EntityNumber" TEXT, "ActivityGroup" TEXT, "NaceVersion" TEXT, "NaceCode" TEXT, "Classification" TEXT);
+      CREATE TABLE denomination ("EntityNumber" TEXT, "Language" TEXT, "TypeOfDenomination" TEXT, "Denomination" TEXT);
+      CREATE TABLE contact ("EntityNumber" TEXT, "EntityContact" TEXT, "ContactType" TEXT, "Value" TEXT);
+      ATTACH DATABASE ':memory:' AS jr;
+      CREATE TABLE jr.csv_prospects (
+        enterprise_number TEXT PRIMARY KEY, name TEXT, nace_label TEXT, city TEXT,
+        employee_count REAL, ebitda REAL, valuation_multiple REAL,
+        enterprise_value REAL, equity_value REAL, bestandsnaam TEXT, imported_at TEXT);
+    `)
+    const zet = (nr: string, start: string, werknemers: number | null, ebitda: number | null) => {
+      db.prepare(`INSERT INTO enterprise VALUES (?, 'AC', ?)`).run(nr, start)
+      db.prepare(`INSERT INTO address VALUES (?, 'REGO', '8000', 'Brugge')`).run(nr)
+      db.prepare(`INSERT INTO activity VALUES (?, '006', ?, '62100', 'MAIN')`).run(nr, NACE_VERSIE)
+      if (werknemers !== null) {
+        db.prepare(`INSERT INTO jr.csv_prospects (enterprise_number, name, employee_count, ebitda, bestandsnaam, imported_at)
+                    VALUES (?, ?, ?, ?, 'x', 'x')`).run(nr, 'Firma ' + nr, werknemers, ebitda)
+      }
+    }
+    // Het jóngste bedrijf is het kléinste, zodat elke sortering een andere kop geeft.
+    zet('2000000001', '2024-01-01', 5, 100)      // jongst, klein, lage ebitda
+    zet('2000000002', '2010-01-01', 50, 900)     // oudst, grootst, hoogste ebitda
+    zet('2000000003', '2015-01-01', 20, 400)
+    zet('2000000004', '2012-01-01', null, null)  // alleen KBO, geen cijfers
+
+    const eerste = (sortering: 'oprichting' | 'omvang' | 'ebitda') => {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering })
+      const rijen = db.prepare(q.sql).all(...(q.params as never[])) as { nummer: string }[]
+      return rijen[0]?.nummer
+    }
+    check('sortering oprichting zet het jongste bedrijf bovenaan', eerste('oprichting') === '2000000001', String(eerste('oprichting')))
+    check('sortering omvang zet het grootste bovenaan', eerste('omvang') === '2000000002', String(eerste('omvang')))
+    check('sortering ebitda zet de hoogste bovenaan', eerste('ebitda') === '2000000002', String(eerste('ebitda')))
+
+    const laatste = (sortering: 'omvang' | 'ebitda') => {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering })
+      const rijen = db.prepare(q.sql).all(...(q.params as never[])) as { nummer: string }[]
+      return rijen[rijen.length - 1]?.nummer
+    }
+    check('een rij zonder cijfers zakt naar onderen bij omvang', laatste('omvang') === '2000000004', String(laatste('omvang')))
+    check('een rij zonder cijfers zakt naar onderen bij ebitda', laatste('ebitda') === '2000000004', String(laatste('ebitda')))
+
+    // Zonder vaste tiebreak mag SQLite gelijke waarden per query anders ordenen.
+    for (const s of ['oprichting', 'omvang', 'ebitda'] as const) {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering: s })
+      // Ankeren op de LÁÁTSTE `ORDER BY`: de naam-subquery draagt er zelf ook een, dus
+      // `split('ORDER BY')[1]` levert die van de denominatie in plaats van die van de
+      // lijst — en dan meet je een andere clausule dan je denkt (gemeten 2026-09-08).
+      const delen = q.sql.split('ORDER BY')
+      const clausule = (delen[delen.length - 1] ?? '').split('LIMIT')[0]!.trim()
+      check(
+        `sortering ${s} eindigt op een unieke tiebreak`,
+        clausule.endsWith('e.EnterpriseNumber'),
+        `laatste ORDER BY: "${clausule}"`
+      )
+    }
+
+    // Een onbekende waarde mag niet in de SQL belanden.
+    const onzin = bouwProspectSql({ ...basis, regions: ['WVL'], sortering: 'drop table' as never })
+    check('een onbekende sortering valt terug op oprichting', /e\.StartDate DESC/.test(onzin.sql) && !/drop table/i.test(onzin.sql))
+
+    db.close()
+  }
 
   for (const code of PROSPECT_NACE) {
     check(`NACE ${code} heeft een label voor de kaart`, typeof NACE_LABEL[code] === 'string')

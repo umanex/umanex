@@ -20,6 +20,14 @@ export type Prospect = {
   website: string | null
   werkgever: number
   status: ItemStatus
+  /** 1 wanneer dit bedrijf ook in de aangeleverde lijst staat. */
+  uitCsv: number
+  csvNaam: string | null
+  werknemers: number | null
+  ebitda: number | null
+  multiple: number | null
+  ondernemingswaarde: number | null
+  eigenVermogen: number | null
 }
 
 type ProspectCardProps = {
@@ -28,6 +36,23 @@ type ProspectCardProps = {
   heeftVacatures: boolean
   vandaag: string
   onStatusChange: (status: ItemStatus) => void
+}
+
+/**
+ * Bedragen afgerond, want de kaart is geen jaarrekening: `18695779.31` leest als ruis waar
+ * `18,7 mln` een orde van grootte geeft. De ruwe waarde blijft in de database staan.
+ *
+ * Een negatief bedrag houdt zijn teken en krijgt geen eigen kleur: 44 van de 218 bedrijven
+ * in het geleverde bestand draaien verlies, en dat rood kleuren zou van een feit een oordeel
+ * maken op een kaart die verder geen oordeel velt (dezelfde reden dat er geen scorepil op
+ * staat).
+ */
+function bedrag(waarde: number): string {
+  const abs = Math.abs(waarde)
+  const teken = waarde < 0 ? '−' : ''
+  if (abs >= 1_000_000) return `${teken}${(abs / 1_000_000).toLocaleString('nl-BE', { maximumFractionDigits: 1 })} mln`
+  if (abs >= 1_000) return `${teken}${Math.round(abs / 1_000).toLocaleString('nl-BE')} k`
+  return `${teken}${Math.round(abs).toLocaleString('nl-BE')}`
 }
 
 /** `0417238867` → `0417.238.867`, de vorm waarin een ondernemingsnummer geschreven wordt. */
@@ -59,6 +84,11 @@ export function ProspectCard({ prospect, heeftVacatures, vandaag, onStatusChange
                   heeft vacatures
                 </Badge>
               )}
+              {prospect.uitCsv === 1 && (
+                <Badge variant="secondary" className="shrink-0 text-2xs">
+                  uit lijst
+                </Badge>
+              )}
             </div>
             {prospect.handelsnaam && prospect.handelsnaam !== prospect.naam && (
               <p className="mt-0.5 truncate text-sm text-muted-foreground">{prospect.handelsnaam}</p>
@@ -84,6 +114,24 @@ export function ProspectCard({ prospect, heeftVacatures, vandaag, onStatusChange
           {!prospect.werkgever && <span>geen personeel bekend</span>}
           <span className="tabular-nums">{metPunten(prospect.nummer)}</span>
         </div>
+
+        {prospect.uitCsv === 1 && (
+          <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {prospect.werknemers !== null && (
+              <span className="tabular-nums">
+                {prospect.werknemers.toLocaleString('nl-BE', { maximumFractionDigits: 1 })} medewerkers
+              </span>
+            )}
+            {prospect.ebitda !== null && (
+              <span className="tabular-nums">EBITDA {bedrag(prospect.ebitda)}</span>
+            )}
+            {/* Geen waarde tonen is hier informatie, geen gat: bij een negatieve EBITDA is de
+                multiple niet toepasbaar, dus staat er niets — en dat is precies wat we weten. */}
+            {prospect.ondernemingswaarde !== null && (
+              <span className="tabular-nums">waarde {bedrag(prospect.ondernemingswaarde)}</span>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-2">

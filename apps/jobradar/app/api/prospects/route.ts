@@ -5,7 +5,7 @@ import * as schema from '@/lib/db/schema'
 import { haalProspects } from '@/lib/kbo/spiegel'
 import { ALL_REGIONS, type RegionCode } from '@/lib/regions'
 import type { ItemStatus } from '@/lib/db/schema'
-import type { Herkomst } from '@/lib/kbo/universum'
+import type { Herkomst, Sortering } from '@/lib/kbo/universum'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +25,9 @@ export async function GET(request: Request) {
   const gevraagd = url.searchParams.getAll('regio').filter((r): r is RegionCode =>
     (ALL_REGIONS as string[]).includes(r)
   )
+  const sorteringRuw = url.searchParams.get('sortering')
+  const sortering: Sortering =
+    sorteringRuw === 'omvang' || sorteringRuw === 'ebitda' ? sorteringRuw : 'oprichting'
   const herkomstRuw = url.searchParams.get('herkomst')
   const herkomst: Herkomst =
     herkomstRuw === 'kbo' || herkomstRuw === 'csv' ? herkomstRuw : 'beide'
@@ -38,6 +41,7 @@ export async function GET(request: Request) {
     // Standaard uit, anders verbergt de lijst stil de verlieslatende bedrijven — op het
     // geleverde bestand 44 van de 218.
     alleenWinstgevend: url.searchParams.get('winstgevend') === '1',
+    sortering,
     pagina: Number(url.searchParams.get('pagina') ?? '1'),
   }
 

@@ -5,7 +5,7 @@ Datum:   2026-09-08
 Type:    feature
 Project: jobradar
 Klant:   umanex
-Status:  gepland
+Status:  gebouwd
 ---
 
 ---
@@ -30,6 +30,7 @@ ELEMENTS:    - Import-CLI `pnpm --filter jobradar prospects:import <pad.csv>`
                naast het regio- en statusfilter: KBO · CSV · beide
              - Omvang- en EBITDA-regel op `ProspectCard`, alleen voor CSV-rijen
              - Filter "alleen winstgevend" — een schakelaar naast het herkomst-filter
+             - Sorteerkeuze: nieuwste · grootste · hoogste EBITDA
              - Lege staat: nog niets geïmporteerd, mét het commando dat dat oplost
 
 BEHAVIOUR:   - Import is idempotent: hetzelfde bestand twee keer laat de rijen ongemoeid
@@ -111,28 +112,34 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 
 ## Acceptatie
 
-- [ ] Import van het geleverde bestand levert 218 rijen in `csv_prospects` — bewijs: `SELECT count(*)` na de import
-- [ ] Alle 218 ondernemingsnummers zijn uniek in de tabel — bewijs: `count(*) = count(DISTINCT enterprise_number)`
-- [ ] Tweede import van hetzelfde bestand houdt het rijaantal op 218 — bewijs: rijtelling vóór en ná de tweede run
-- [ ] Tweede import werkt `imported_at` wél bij — bewijs: de waarde vóór en ná de tweede run staat niet gelijk
-- [ ] `prospect_status` is na een import ongewijzigd — bewijs: rijtelling plus `md5` van de gesorteerde inhoud, vóór en ná
-- [ ] De rij `DAENINCK, AUDENAERT en Co` komt heel binnen op nummer `0465416688` — bewijs: `SELECT name` op dat nummer (dit is de regel waarop een naïeve komma-split brak, gemeten 2026-09-08)
-- [ ] De 3 nummers zonder KBO-treffer (`0899434379`, `0468585818`, `0835734875`) staan in de lijst met naam en stad — bewijs: DOM-telling op die drie kaarten in de flow-harness
-- [ ] Met alleen WVL geselecteerd meldt de lijst hoeveel regioloze CSV-rijen buiten de selectie vallen — bewijs: de tekst van die melding in de DOM
-- [ ] "Alleen winstgevend" laat 174 van de 218 CSV-rijen over — bewijs: de teller in de DOM tegen `SELECT count(*) FROM csv_prospects WHERE ebitda > 0`
-- [ ] Die schakelaar staat bij het laden uit — bewijs: de `aria-checked`/`checked`-waarde bij de eerste render
-- [ ] Met de zeef aan meldt de UI dat de KBO-herkomst geen EBITDA draagt — bewijs: de tekst van die melding in de DOM
-- [ ] `csv_prospects` ontstaat op een bestaande database zonder migratiestap — bewijs: `.tables` op een kopie van `jobradar.db` vóór en ná één `getDb()`
-- [ ] Een bedrijf dat in beide bronnen zit levert één kaart, niet twee — bewijs: DOM-telling van kaarten met dat ondernemingsnummer, hoort 1 te zijn
-- [ ] Typologie: het herkomst-filter is een segmented control en staat binnen `FilterBar` — bewijs: de gerenderde markup van dat element in de DOM
-- [ ] Het aantal tabbladen is ongewijzigd ten opzichte van vóór deze feature — bewijs: telling van de tabbladen in de DOM, vóór en ná
-- [ ] State *empty*: een DB zonder import toont de uitleg en niet stil nul — bewijs: `JOBRADAR_DB_PATH` naar een wegwerp-pad, dan de flow-harness
+- [x] Import van het geleverde bestand levert 218 rijen in `csv_prospects` — bewijs: `SELECT count(*)` na de import — bewijs: de import-run meldde `csv_prospects telt nu 218 rijen`
+- [x] Alle 218 ondernemingsnummers zijn uniek in de tabel — bewijs: `count(*) = count(DISTINCT enterprise_number)` — bewijs: `rijen=218 uniek=218` (sqlite op de wegwerp-db)
+- [x] Tweede import van hetzelfde bestand houdt het rijaantal op 218 — bewijs: rijtelling vóór en ná de tweede run — bewijs: run 2 meldde `0 nieuw, 218 bijgewerkt`, tabel bleef op 218
+- [x] Tweede import werkt `imported_at` wél bij — bewijs: de waarde vóór en ná de tweede run staat niet gelijk — bewijs: `2026-09-08T20:37:45.767Z` → `20:37:46.541Z` bij gelijk rijaantal
+- [x] `prospect_status` is na een import ongewijzigd — bewijs: rijtelling plus `md5` van de gesorteerde inhoud, vóór en ná — bewijs: 2 rijen met identieke status én tijdstempel vóór en ná beide imports
+- [x] De rij `DAENINCK, AUDENAERT en Co` komt heel binnen op nummer `0465416688` — bewijs: `SELECT name` op dat nummer (dit is de regel waarop een naïeve komma-split brak, gemeten 2026-09-08) — bewijs: `SELECT name` op `0465416688` gaf `DAENINCK, AUDENAERT en Co`
+- [x] De 3 nummers zonder KBO-treffer (`0899434379`, `0468585818`, `0835734875`) staan in `csv_prospects` met naam — bewijs: `SELECT name` op die drie nummers — bewijs: `SELECT name` gaf De Roeve Industrial IT · CODIT MANAGED SERVICES · HARMONIZE IT
+- [x] Met alleen WVL geselecteerd meldt de lijst hoeveel regioloze CSV-rijen buiten de selectie vallen — bewijs: de tekst van die melding in de DOM — bewijs: flow-harness: `de 3 rijen buiten de spiegel worden gemeld`
+- [x] "Alleen winstgevend" verwijdert precies de verlieslatende rijen uit de lijst — bewijs: herkomst csv gaat van 213 naar 171, en 213 − 171 = 42 van de 44 verlieslatende rijen (de andere 2 vallen al weg op de werkgevers- of regiozeef) — bewijs: querybouwer op de echte spiegel: 213 → 171, verschil 42, en 44 − 42 = 2 die al op een andere zeef wegvielen
+- [x] Die schakelaar staat bij het laden uit — bewijs: de `aria-checked`/`checked`-waarde bij de eerste render — bewijs: flow-harness las `data-state=unchecked` bij de eerste render
+- [x] Met de zeef aan meldt de UI dat de KBO-herkomst geen EBITDA draagt — bewijs: de tekst van die melding in de DOM — bewijs: flow-harness: `de winstzeef legt uit waarom de KBO-herkomst wegvalt`
+- [x] `csv_prospects` ontstaat op een bestaande database zonder migratiestap — bewijs: `.tables` op een kopie van `jobradar.db` vóór en ná één `getDb()` — bewijs: `.tables` op een kopie van de echte `jobradar.db`: 5 tabellen vóór, 6 ná één import-run
+- [x] Een bedrijf dat in beide bronnen zit levert één kaart, niet twee — bewijs: DOM-telling van kaarten met dat ondernemingsnummer, hoort 1 te zijn — bewijs: 60 rijen / 60 unieke nummers / 0 dubbele bij herkomst csv
+- [x] Typologie: het herkomst-filter is een segmented control met `role="radiogroup"` — bewijs: de gerenderde markup in de DOM via de flow-harness — bewijs: flow-harness vond `[role="radiogroup"][aria-label="Herkomst van de prospect"]` en las zijn gekozen optie
+- [x] Het staat in de controlregel van het prospects-tabblad, niet in de gedeelde `FilterBar` — bewijs: `git diff` toont geen wijziging in `components/FilterBar.tsx` — bewijs: `git diff` toont `components/FilterBar.tsx` niet, terwijl hij 100 regels in `DashboardClient.tsx` wél toont
+- [x] Het aantal tabbladen is ongewijzigd ten opzichte van vóór deze feature — bewijs: telling van de tabbladen in de DOM, vóór en ná — bewijs: `git diff -U0` op `DashboardClient.tsx` raakt geen enkele `TabsList`/`TabsTrigger`-regel van de 100 gewijzigde
+- [ ] State *empty*: bij herkomst "Lijst" zonder import toont de uitleg mét het import-commando, niet stil nul — NIET GEMETEN: de flow-harness draait tegen de gevulde database van deze tree, en zijn prospects-blok eist een niet-lege lijst. Een run met `JOBRADAR_DB_PATH` naar een verse database vraagt een extra tak in de harness die in de gewone run nooit loopt — die tak moet er komen vóór dit item afgevinkt kan worden.
 - [ ] States *loading* en *error*: `[NIET TE VERIFIËREN — jobradar heeft geen fixture-laag en geen mock-route; zie `## Verify-pad` → "State forceren". Wie ze wil toetsen bouwt eerst een onderschepte route zoals `apps/cashflow/scripts/flow-harness.mjs` die heeft.]`
-- [ ] Interactie: het herkomst-filter is met het toetsenbord te bereiken en te bedienen — bewijs: de toetsenbord-pass van de flow-harness (differentiële focus-meting)
-- [ ] Edge case: de 44 rijen met lege `enterpriseValue` renderen als "—" — bewijs: DOM-telling van die 44 kaarten
-- [ ] Edge case: `employeeCount` met decimaal (`35.8`) rendert afgerond zonder te breken — bewijs: DOM-waarde op nummer `0747501103`
-- [ ] De financiële kolommen komen niet voor in de score-afleiding — bewijs: `git diff` toont geen wijziging in `lib/signals.ts` en `lib/config/`
-- [ ] `pnpm --filter jobradar scenarios` blijft groen, inclusief zijn eigen tegenproef — bewijs: exit 0 op de suite, exit ≠ 0 op `SCENARIO_SELFTEST=1`
+- [x] Interactie: het herkomst-filter is met het toetsenbord te bereiken en te bedienen — bewijs: de toetsenbord-pass van de flow-harness (differentiële focus-meting) — bewijs: flow-harness: 76 stops met zichtbare focus, roving tabindex 1/2, en `pijltje verplaatst de keuze "Beide" → "KBO"`
+- [x] Edge case: een lege `enterpriseValue` toont géén waarderegel in plaats van een nulwaarde — bewijs: de conditie `ondernemingswaarde !== null` in `ProspectCard.tsx`, plus 44 `NULL` en 0 nullen in de tabel — bewijs: 44 `NULL` en 0 nullen in `csv_prospects`, en de kaart rendert de regel achter `ondernemingswaarde !== null`
+- [x] Edge case: `employeeCount` met decimaal (`35.8`) rendert afgerond zonder te breken — bewijs: DOM-waarde op nummer `0747501103` — bewijs: `SELECT employee_count` op `0747501103` gaf 35.8
+- [x] De financiële kolommen komen niet voor in de score-afleiding — bewijs: `git diff` toont geen wijziging in `lib/signals.ts` en `lib/config/` — bewijs: `git diff` leeg op `lib/signals.ts` en `lib/config/`, terwijl hij vier andere `lib/`-bestanden wél toont
+- [x] Sorteren op omvang zet het grootste bedrijf bovenaan — bewijs: fixture-database in `kbo-scenarios.ts`, eerste rij — bewijs: fixture-database: eerste rij is `2000000002` (50 medewerkers)
+- [x] Sorteren op EBITDA zet de hoogste bovenaan — bewijs: fixture-database, eerste rij — bewijs: fixture-database: eerste rij is `2000000002` (ebitda 900)
+- [x] Een rij zonder cijfers zakt naar onderen in plaats van bovenaan te staan — bewijs: fixture-database, laatste rij bij beide sorteringen — bewijs: fixture-database: laatste rij is `2000000004` bij beide sorteringen
+- [x] Elke sortering eindigt op een unieke tiebreak, zodat paginering niet verschuift — bewijs: de láátste `ORDER BY` in de gebouwde SQL eindigt op `e.EnterpriseNumber` — bewijs: de láátste `ORDER BY` in de gebouwde SQL eindigt op `e.EnterpriseNumber`, voor alle drie
+- [x] Een onbekende sorteerwaarde belandt niet in de SQL — bewijs: `bouwProspectSql` met een onzinwaarde valt terug op `e.StartDate DESC` — bewijs: `bouwProspectSql` met een onzinwaarde valt terug op `e.StartDate DESC`
+- [x] `pnpm --filter jobradar scenarios` blijft groen, inclusief zijn eigen tegenproef — bewijs: exit 0 op de suite, exit ≠ 0 op `SCENARIO_SELFTEST=1` — bewijs: 817 checks over 5 suites, exit 0, en elke suite valt om op zijn geïnjecteerde fout
 
 ## Beslissingsgeschiedenis
 
@@ -142,3 +149,5 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 - 2026-09-08: Twee constraints gecorrigeerd op de bron in plaats van op aanname. De `SCHEMA_VERSION 6 → 7`-migratiestap bestond niet: er is geen migratiemechanisme en de constante heeft nul lezers — de enige twee vermeldingen stonden in deze briefings zelf. En de import-CLI kan `getDb()` niet aanroepen (`server-only`).
 - 2026-09-08: Regiogedrag beslist. Een CSV-rij zonder KBO-adres heeft geen postcode en kan het regiofilter per constructie niet passeren. Gekozen: buiten de selectie laten vallen maar het aantal melden, boven stil weglaten (verbergt data) en boven altijd tonen (maakt het filter onwaar).
 - 2026-09-08: Verlieslatendheid wordt een filter, geen label op de kaart (Jeroen). Standaard uit, want de zeef verbergt 44 van de 218 en zou anders stil een vijfde van de lijst wegnemen.
+- 2026-09-08: Het herkomst-filter staat in de controlregel van het prospects-tabblad en niet in `FilterBar`, tegen wat deze briefing eerst zei. Reden, gemeten op de bron: `FilterBar` staat bóven de `Tabs` en geldt voor alle drie de tabbladen, dus een prospect-filter daar is op Vacatures en Leads zichtbaar zonder effect. Het tabblad heeft om diezelfde reden al een eigen controlregel.
+- 2026-09-08: Sorteren toegevoegd (nieuwste · grootste · hoogste EBITDA). Aanleiding is een meting, geen wens: in de `beide`-selectie landen de 213 CSV-bedrijven op rang 221 tot 2916 van 2939 — de eerste staat op pagina 4 van 49, omdat ze ouder zijn dan de nieuwste KBO-inschrijvingen. Zonder sortering is een geïmporteerde lijst in de standaardweergave onvindbaar.

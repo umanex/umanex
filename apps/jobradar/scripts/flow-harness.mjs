@@ -344,6 +344,114 @@ async function main() {
         const tb = await toetsenbord(page);
         if (tb.problemen.length) for (const p of tb.problemen) fail(`prospects toetsenbord: ${p}`);
         else ok(`prospects toetsenbord: ${tb.stops} stops, elk met zichtbare focus`);
+
+        // ── De herkomst- en winstfilters ─────────────────────────────────────
+        // Deze twee zijn interne controls: ze veranderen een querystring naar de eigen
+        // origin, dus de origin-guard hierboven blijft geldig. Een `select` is het niet —
+        // de herkomst is een segmented control uit knoppen — dus de select-interactie
+        // eerder in deze run verhuist er niet stil naartoe.
+        if (body?.staat?.soort !== 'ontbreekt') {
+          const groep = page.locator('[role="radiogroup"][aria-label="Herkomst van de prospect"]');
+          if (!(await groep.count())) {
+            fail('prospects: geen herkomst-filter gevonden');
+          } else {
+            const gekozen = await groep.locator('[role="radio"][aria-checked="true"]').innerText();
+            if (gekozen.trim() === 'Beide') ok('prospects: herkomst staat standaard op "Beide"');
+            else fail(`prospects: herkomst staat bij het laden op "${gekozen.trim()}", verwacht "Beide"`);
+
+            // Roving tabindex: één stop in de tabvolgorde, niet drie. Dat is wat een
+            // radiogroup onderscheidt van een rij losse knoppen, en het is meetbaar.
+            const inTab = await groep.locator('[role="radio"][tabindex="0"]').count();
+            const buitenTab = await groep.locator('[role="radio"][tabindex="-1"]').count();
+            if (inTab === 1 && buitenTab === 2) ok('prospects: herkomst is één tabstop (roving tabindex 1/2)');
+            else fail(`prospects: herkomst heeft ${inTab} tabstop(s) en ${buitenTab} buiten de volgorde, verwacht 1 en 2`);
+
+            // Pijltjesbediening: de interactie-as van de briefing. Focus de gekozen optie
+            // en stap één naar rechts; de selectie hoort mee te verspringen.
+            await groep.locator('[role="radio"][tabindex="0"]').focus();
+            await page.keyboard.press('ArrowRight');
+            await page.waitForTimeout(200);
+            const naPijl = (await groep.locator('[role="radio"][aria-checked="true"]').innerText()).trim();
+            if (naPijl !== gekozen.trim()) ok(`prospects: pijltje verplaatst de keuze "${gekozen.trim()}" → "${naPijl}"`);
+            else fail(`prospects: pijltje veranderde de keuze niet, blijft "${naPijl}"`);
+
+            const lijstAntwoord = page
+              .waitForResponse((r) => r.url().includes('/api/prospects') && r.url().includes('herkomst=csv'), { timeout: 20_000 })
+              .catch(() => null);
+            await groep.locator('[role="radio"]', { hasText: 'Lijst' }).click();
+            const lijstRes = await lijstAntwoord;
+            if (!lijstRes) {
+              fail('prospects: klik op "Lijst" leverde geen verzoek met herkomst=csv');
+            } else {
+              const lijstBody = await lijstRes.json().catch(() => null);
+              const totaalCsv = lijstBody?.totaal ?? -1;
+              if (totaalCsv > 0 && totaalCsv < (body?.totaal ?? Infinity)) {
+                ok(`prospects: herkomst "Lijst" versmalt ${body?.totaal} → ${totaalCsv}`);
+              } else {
+                fail(`prospects: herkomst "Lijst" gaf ${totaalCsv}, verwacht een kleiner getal dan ${body?.totaal}`);
+              }
+              // De rijen zonder KBO-tegenhanger horen gemeld te worden, niet verzwegen.
+              if ((lijstBody?.zonderKbo ?? 0) > 0) {
+                await page.waitForTimeout(400);
+                const melding = await page
+                  .locator('[role="tabpanel"]:visible', { hasText: 'niet in de KBO-spiegel' })
+                  .count();
+                if (melding) ok(`prospects: de ${lijstBody.zonderKbo} rijen buiten de spiegel worden gemeld`);
+                else fail(`prospects: ${lijstBody.zonderKbo} rijen vallen buiten de selectie zonder melding`);
+              }
+            }
+
+            // Sortering: de reden dat dit bestaat is dat de aangeleverde lijst anders
+            // onvindbaar is — de CSV-bedrijven landen op rang 221+ van 2939 wanneer er op
+            // oprichtingsdatum geordend wordt.
+            const sorteer = page.locator('#prospect-sortering');
+            if (!(await sorteer.count())) {
+              fail('prospects: geen sorteerkeuze gevonden');
+            } else {
+              const eersteVoor = await page.locator('[role="tabpanel"]:visible h3').first().innerText();
+              const sorteerAntwoord = page
+                .waitForResponse((r) => r.url().includes('/api/prospects') && r.url().includes('sortering=omvang'), { timeout: 20_000 })
+                .catch(() => null);
+              await sorteer.selectOption('omvang');
+              const sortRes = await sorteerAntwoord;
+              if (!sortRes) {
+                fail('prospects: sorteren op omvang leverde geen verzoek met sortering=omvang');
+              } else {
+                await page.waitForTimeout(600);
+                const eersteNa = await page.locator('[role="tabpanel"]:visible h3').first().innerText();
+                if (eersteNa !== eersteVoor) ok(`prospects: sorteren op omvang verandert de kop "${eersteVoor.trim()}" → "${eersteNa.trim()}"`);
+                else fail(`prospects: sorteren op omvang liet de kop op "${eersteVoor.trim()}" staan`);
+              }
+            }
+
+            // Winstzeef: hij hoort UIT te staan bij het laden, en aangezet hoort hij
+            // te melden dat de KBO-herkomst geen EBITDA draagt.
+            const winst = page.locator('#alleen-winstgevend');
+            if (!(await winst.count())) {
+              fail('prospects: geen winstgevendheidsfilter gevonden');
+            } else {
+              const aanBijStart = await winst.getAttribute('data-state');
+              if (aanBijStart === 'unchecked') ok('prospects: "Alleen winstgevend" staat bij het laden uit');
+              else fail(`prospects: "Alleen winstgevend" staat bij het laden op "${aanBijStart}", verwacht uit`);
+
+              const winstAntwoord = page
+                .waitForResponse((r) => r.url().includes('/api/prospects') && r.url().includes('winstgevend=1'), { timeout: 20_000 })
+                .catch(() => null);
+              await winst.click();
+              const winstRes = await winstAntwoord;
+              if (!winstRes) {
+                fail('prospects: winstfilter leverde geen verzoek met winstgevend=1');
+              } else {
+                await page.waitForTimeout(400);
+                const uitleg = await page
+                  .locator('[role="tabpanel"]:visible', { hasText: 'zeeft op EBITDA' })
+                  .count();
+                if (uitleg) ok('prospects: de winstzeef legt uit waarom de KBO-herkomst wegvalt');
+                else fail('prospects: winstzeef aan zonder uitleg over de wegvallende KBO-herkomst');
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -83,8 +83,34 @@ export type ProspectFilter = {
    * verdwijnt die herkomst volledig — dat is bedoeld, en de UI zegt het.
    */
   alleenWinstgevend: boolean
+  /**
+   * Waarop de lijst geordend wordt.
+   *
+   * `oprichting` is de standaard en het bestaande gedrag. De twee andere bestaan omdat de
+   * aangeleverde lijst anders onvindbaar is: gemeten 2026-09-08 landen de 213 CSV-bedrijven
+   * in de `beide`-selectie op rang 221 tot 2916 van 2939 — de eerste staat op pagina 4 van
+   * 49, omdat ze ouder zijn dan de nieuwste KBO-inschrijvingen. Een bron die je zelf
+   * importeert en dan niet ziet, is geen bron.
+   */
+  sortering: Sortering
   /** 1-gebaseerd. */
   pagina: number
+}
+
+export type Sortering = 'oprichting' | 'omvang' | 'ebitda'
+
+/**
+ * De ORDER BY per sortering. Altijd met `e.EnterpriseNumber` als laatste sleutel: zonder
+ * die vaste tiebreak mag SQLite gelijke waarden per query anders ordenen, en dan verschuift
+ * een rij tussen pagina 2 en 3 zonder dat er iets veranderd is.
+ *
+ * `DESC` zet NULL in SQLite achteraan, dus een KBO-rij zonder cijfers zakt vanzelf naar
+ * onderen in plaats van de kop van de lijst te bezetten.
+ */
+const ORDENING: Record<Sortering, string> = {
+  oprichting: 'e.StartDate DESC, e.EnterpriseNumber',
+  omvang: 'cp.employee_count DESC, e.StartDate DESC, e.EnterpriseNumber',
+  ebitda: 'cp.ebitda DESC, e.StartDate DESC, e.EnterpriseNumber',
 }
 
 export type ProspectRij = {
@@ -239,7 +265,7 @@ export function bouwProspectSql(
              cp.enterprise_value AS ondernemingswaarde,
              cp.equity_value AS eigenVermogen
         ${van}
-        ORDER BY e.StartDate DESC, e.EnterpriseNumber
+        ORDER BY ${ORDENING[filter.sortering] ?? ORDENING.oprichting}
         LIMIT ? OFFSET ?`,
     params: [...selectParams, ...params, ...paginaParams],
   }
@@ -255,6 +281,11 @@ export function bouwProspectSql(
  * app vermijdt; daarom komen ze hier als telling terug en meldt de UI ze boven de lijst.
  */
 export function bouwZonderKboSql(filter: ProspectFilter): { sql: string; params: unknown[] } {
+  // Bij herkomst `kbo` kijkt de gebruiker bewust niet naar de aangeleverde lijst. Rijen die
+  // daarbuiten vallen zijn dan geen weggelaten resultaat maar een andere vraag, en een
+  // melding erover is ruis die de echte melding devalueert.
+  if (filter.herkomst === 'kbo') return { sql: 'SELECT 0 AS n', params: [] }
+
   const waar = ['NOT EXISTS (SELECT 1 FROM enterprise e WHERE e.EnterpriseNumber = cp.enterprise_number)']
   const params: unknown[] = []
 
