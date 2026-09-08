@@ -24,6 +24,7 @@
 # - ~/.claude/hooks/nulmeting-guard.sh + settings.json              (PostToolUse nulmeting-guard, user-level)
 # - ~/.claude/hooks/identifier-bron-guard.sh + settings.json        (PreToolUse identifier-guard, user-level)
 # - ~/.claude/hooks/tegenspraak-guard.sh + settings.json            (PostToolUse tegenspraak-guard, user-level)
+# - ~/.claude/hooks/tegenproef-guard.sh + settings.json             (PostToolUse tegenproef-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -878,6 +879,38 @@ else
     else
       _tmp="$(mktemp)"
       if jq --arg cmd "$TGS_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Tegenspraak-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
+      fi
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Tegenproef-guard: PostToolUse op Bash. Vuurt wanneer een tegenproef een mutatie
+# aankondigt en daarna "geen verschil" meldt — een tegenproef die slaagt bewijst niets.
+# ---------------------------------------------------------------------------
+echo "→ Installeer tegenproef-guard (PostToolUse, user-level)..."
+TPF_SRC="$UMANEX_OS_PATH/templates/tegenproef-guard.sh"
+TPF_CMD="$USER_HOOKS/tegenproef-guard.sh"
+if [ ! -f "$TPF_SRC" ]; then
+  echo "  ⚠ templates/tegenproef-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$TPF_SRC" "$TPF_CMD"
+  chmod +x "$TPF_CMD"
+  echo "  ✓ ~/.claude/hooks/tegenproef-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$TPF_CMD" '.hooks.PostToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$TPF_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Tegenproef-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
         echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
       else

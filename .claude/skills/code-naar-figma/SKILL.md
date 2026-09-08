@@ -141,6 +141,28 @@ Alleen wanneer er géén passende bestaande component is, bouw je een nieuw fram
 
 Bouw en schrijf de component. Twee dingen staan voorop: de structuur is auto layout (principe 1), en alle waarden binden via tokens (principe 2) — nooit hardcoded.
 
+#### Doorvoer: de Bridge is een tweerichtingskanaal, geen doorgeefluik
+
+Bij een grote spec (tientallen KB's) is de kostbare vraag niet *hoe* je bouwt maar *hoe de spec binnenkomt*. Plakken door `figma_execute` betekent dat elke byte twee keer door je context reist — één keer om te lezen, één keer om te plakken — en dat is precies de weg die je niet hoeft te nemen.
+
+**De 30 seconden zijn een wachtlimiet, geen uitvoeringslimiet.** Loopt een `figma_execute` in zijn timeout, dan is de plugin gewoon dóór aan het bouwen; de tool-call geeft alleen op. Behandel zo'n timeout dus **nooit** als een mislukking en start de batch niet opnieuw — lees eerst de runtime uit om te zien wat er intussen ontstaan is. GEMETEN 2026-09-08 (rowtrack): batches van ~25 KB liepen structureel in die wachtlimiet, waarna agents in wachtlussen van 150, 180 en 240 seconden belandden; één workflow draaide 2,9 uur en viel om met *"agent stalled on all 6 attempts"*.
+
+**De efficiënte weg: laat de plugin zélf ophalen.** Serveer de bouwspec over HTTP op een toegestane poort en laat de plugin hem met `fetch` binnenhalen; met een `POST`-endpoint schrijft ze het resultaat rechtstreeks naar schijf. In dezelfde sessie gingen 34 KB manifest en 25 KB geometrie zo naar disk **zonder één byte door een tool-call**.
+
+De allowlist staat in het plugin-manifest en is geen gok:
+
+```bash
+python3 -c "import json;print(json.load(open('$HOME/.figma-console-mcp/plugin/manifest.json'))['networkAccess']['allowedDomains'])"
+```
+
+GEMETEN 2026-09-08: `http://localhost:9223` t/m `:9232` (en `ws://` idem). Twee vallen daarbij. `http://localhost` staat er óók zonder poort — dat matcht poort **80**, niet "elke poort". En de Bridge bezet zelf een deel van die band: op de meetmachine waren 9223, 9224, 9231 en 9232 in gebruik en 9225–9230 vrij. **Kies dus een vrije poort uit de band, neem er geen aan:**
+
+```bash
+for p in $(seq 9225 9230); do lsof -t -nP -iTCP:$p -sTCP:LISTEN >/dev/null 2>&1 || { echo "vrij: $p"; break; }; done
+```
+
+**En de val die dit uren kostte:** één gefaalde `fetch` bewijst niet dat de weg dicht is. Mijn test gaf *"Failed to fetch"* en ik noteerde dat de sandbox localhost niet bereikt — terwijl er **twee onafhankelijke gebreken** waren die allebei exact dat symptoom geven: de server was al gestopt (`run_in_background` sloot hem meteen af) én de poort stond niet op de allowlist. Een afgewezen uitkomst vraagt een positieve controle: laat dezelfde `fetch` eerst iets ophalen waarvan je wéét dat het er staat, vóór je er een onmogelijkheid uit afleidt.
+
 #### Structuur: auto layout eerst
 
 Bouw elk frame in auto layout. Stel `layoutMode` altijd expliciet in vóór je children toevoegt. Dit is geen optionele afwerking — het is de voorwaarde waarop spacing-tokens kunnen binden (`itemSpacing`, `padding*`). Een frame zonder auto layout kan die tokens niet dragen.
@@ -388,6 +410,26 @@ vergelijkbaar: Figma's tekstengine en de browser hebben andere font-metrics, dus
 expliciete breedte telt mee. En een getal dat niets tékent is óók een groene meting — een
 `cornerRadius` op een node met nul fills en nul strokes verandert niets zichtbaars, dus meld
 `layoutMode`, `fills.length` en `strokes.length` mee.
+
+**Lees de eenheid, plak hem er nooit achter.** Een read-back die een letterlijke `'%'`,
+`'px'` of `'PIXELS'` achter een waarde zet, rapporteert je verwachting en niet je meting — en
+het ziet er dan uit als een geslaagde controle. GEMETEN 2026-09-08 (rowtrack, 18 text styles):
+de regel `ls: s.letterSpacing.value + '%'` toonde `-4.5%`, `20%`, `30%`, precies zoals bedoeld,
+terwijl alle 18 styles op **PIXELS** stonden — een gebonden variabele dwingt die unit af.
+`type/labelSection` droeg daardoor 20px tracking op 13px tekst in plaats van 20% = 2,6px, drie
+label-styles stonden 8 à 10× te ruim, en `TabLabel` werd 181px breed in plaats van 69. Het
+defect overleefde twee volledige verificatierondes en kwam pas boven toen de geometrie-parity
+een breedteverschil meldde. Elke Figma-waarde met een eenheid (`letterSpacing`, `lineHeight`,
+`fontSize` in een variabele) lees je als paar:
+
+```js
+// fout: bakt het antwoord in     goed: leest het antwoord
+ls: s.letterSpacing.value + '%'   ls: `${s.letterSpacing.value} ${s.letterSpacing.unit}`
+```
+
+Zet naast de gemeten waarde altijd de **bedoelde** waarde in dezelfde regel, zodat een verschil
+niet weggelezen kan worden. Een rapportageformaat dat maar één van de twee toont, kan alleen
+bevestigen.
 
 Bestaat er aan de code-kant een gemeten basislijn (in umanex-apps:
 `packages/ui/figma/geometry.code.json`, geschreven door `pnpm --filter @umanex/ui geometry:write`),
