@@ -56,9 +56,36 @@ Deze drie regels sturen elke stap hieronder. Bij twijfel onderweg vallen ze teru
 
 **3. Transcriptie, geen benadering.** Elke afmeting, spacing-stap en structuurkeuze komt **uit de component-code**, niet uit een eigen layoutoordeel. Principe 2 verbiedt de *rauwe* waarde; dit principe verbiedt de *verzonnen* waarde — een frame dat netjes aan `spacing/4` bindt is 100% token-conform én alsnog fout als de code `spacing/8` zegt. Gemeten op Columba verkeersanalyse (2026-08-26): sidebar op 240px waar `Sidebar.tsx` `w-[304px]` zegt · sidebar-padding gebonden aan `spacing/4` waar de code `spacing/8` bindt · rijen onderling `spacing/4` waar `PvLijst` de `<ul>` op `spacing/1` zet · zelfgetekende ellipsen van 8px als statusmerk waar de code `ColumbaIcon` van 20px (`spacing/5`) rendert · paneel-padding vrij gekozen waar `SidePanel` 32/24 hardcodeert. **Geen enkele gate ving dit**, en dat is structureel: stap 7 toetst of er een binding *is*, en stap 8 toetst de write tegen de **bedoeld**-set — maar "bedoeld" kwam uit mijn eigen keuze in plaats van uit de code, dus de diff was per constructie groen. Lees daarom de maten uit de bron **vóór** je bouwt (`grep -nE '(padding|gap|borderRadius|fontSize|width):' <bronbestanden>`, plus de Tailwind-klassen: `grep -n 'w-\[' …`), noteer ze per scherm, en gebruik díe lijst als de bedoeld-kant van stap 8. Wijk je bewust af, meld het — een stille benadering is een tweede bron van waarheid, precies zoals een variabele zonder token.
 
+**4. Een doorloop-budget hoort bij ontwerpinformatie, niet bij structuur.** Loop je een boom af
+met een grens — diepte, aantal broers, aantal nodes — dan bepaalt die grens *wat er in Figma
+belandt*. Besteed hem daarom aan lagen die iets zeggen, en laat de rest niet meetellen:
+
+- Een **doorvoer-wrapper** — precies één kind, geen eigen tekst, geen eigen verf (achtergrond,
+  verloop, rand, schaduw, radius, opacity) — draagt geen ontwerpinformatie en mag géén diepte
+  kosten. React Native levert er één per `<View>`, en een `<Modal>`-portal stapelt er drie tot
+  vier op elkaar.
+- **Decoratieve of gerandomiseerde kinderen** mogen het broer-budget niet opeten. Sorteer
+  betekenisvolle kinderen vooruit en houd hoogstens een paar decoratieve als representant.
+
+Gemeten op RowTrack (2026-09-08): met een vaste diepte van 6 gingen vijf overlay-componenten
+— BottomSheet, GoalSheet, HealthConsentScreen, MotivationalToast, DeviceSelectionModal — als
+**leeg frame** het Figma-bestand in. Nul tekstnodes; het budget was op vóór de sheet begon.
+MotivationalToast verloor zijn kaart bovendien aan een broer-grens van 8, want de eerste 60
+kinderen waren confettideeltjes. Na de correctie: 16 tot 24 nodes per component met hun echte
+tekst ("Doel bereikt!", "Bekijk samenvatting", de veldlabels).
+
+**Waarom dit zo lang onzichtbaar bleef, en wat je daartegen doet.** Geen enkele gate ving het.
+De structuur-assen waren groen — elke pagina had zijn component, elk variant-aantal klopte met
+het product van zijn assen, elke maat kwam overeen met de browser — want een leeg frame heeft
+een correcte maat. De parity-as vergeleek de wrapper, niet de inhoud. Het defect was pas te
+zien door er naar te kíjken. **Tel daarom na de export per component zijn tekstnodes**, en leg
+dat naast de bron: een component dat in de code tekst rendert en in Figma nul tekstnodes heeft,
+is leeg — hoe groen de rest ook staat. Een lijst van componenten die *terecht* geen tekst hebben
+(een fade, een dot, een skeleton) hoort daarbij, anders is de telling niet af te lezen.
+
 **Principes 1 en 2 hangen samen.** Spacing-tokens (`paddingTop`, `itemSpacing`, …) kunnen *alleen* binden op een auto-layout frame. Een frame zonder auto layout breekt spacing-token-binding stil: de waarde wordt dan een raw getal in plaats van een binding. Auto layout is daarom geen losse stijlkeuze maar een **voorwaarde** voor principe 2. Geen auto layout → geen optimale token-mapping.
 
-Een geslaagde export (zie stap 7 en 8) voldoet aan alle drie: 100% van de token-waarden gebonden, auto layout op alle composietframes, en elke maat en structuur teruggelezen uit de code — én elke binding matcht het token dat de code bedoelde (de parity-gate, stap 8).
+Een geslaagde export (zie stap 7 en 8) voldoet aan alle vier: 100% van de token-waarden gebonden, auto layout op alle composietframes, elke maat en structuur teruggelezen uit de code — én elke binding matcht het token dat de code bedoelde (de parity-gate, stap 8) — en elk component draagt de inhoud die de code rendert, geteld en niet aangenomen (principe 4).
 
 ---
 
