@@ -30,15 +30,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
-17b174c feat(dashboard): let REPO_ROOT point the dashboard at another tree
-0e2a1d3 feat(dashboard): local dev dashboard for starting the monorepo apps
-ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
+239539d feat(rowtrack): sync-guard, parity-as en gradient-ondersteuning
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
+81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
+6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
+d98be09 fix(ui): breedte-filter ankeren op hele klasse-tokens
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/dashboard/lib/appsConfig.ts
+  A  apps/dashboard/.eslintrc.js
+  A  apps/dashboard/.gitignore
+  A  apps/dashboard/CLAUDE.md
+  A  apps/dashboard/app/api/script/route.ts
+  A  apps/dashboard/app/api/start/route.ts
+  A  apps/dashboard/app/api/status/route.ts
+  A  apps/dashboard/app/api/stop/route.ts
+  A  apps/dashboard/app/layout.tsx
+  A  apps/dashboard/app/page.tsx
+  A  apps/dashboard/briefings/2026-09-07-feature-dev-dashboard.tcebc.md
 
 ## Bestanden met TODO/FIXME
   (geen)

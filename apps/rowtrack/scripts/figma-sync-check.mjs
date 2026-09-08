@@ -1,0 +1,329 @@
+#!/usr/bin/env node
+/**
+ * Toetst of de RowTrack-code en het Figma-bestand "RowTrack — Design System" één op één
+ * staan. Draait via `pnpm --filter rowtrack figma:check`.
+ *
+ * WAT DIT WEL VANGT: een component zonder story of zonder Figma-pagina · een variant-as die
+ * bijkomt of wegvalt · een variant-nodelijst die half is · een Figma-variabele die niet uit
+ * tokens.json volgt · een tokenwaarde die in Figma anders staat · een text style waarvan de
+ * getallen niet uit de tokenschaal komen · een deep-link naar een node die niet bestaat of
+ * bij een ander component hoort · een hardcoded kleur of maat in een story · een groeiend
+ * aantal ongebonden waarden.
+ *
+ * WAT DIT NIET VANGT, en dat is breder dan het lijkt:
+ *  (a) Een wijziging die iemand in Figma maakt zonder de manifest te verversen. De manifest
+ *      is een NEERGESLAGEN METING, geen live verbinding — CI heeft geen Figma-toegang.
+ *  (b) Of een component er in Figma hetzelfde UITZIET als in de browser. Daarvoor is
+ *      `pnpm --filter rowtrack parity`; die vergelijkt maten per variant-node.
+ *  (c) Alles wat de bouwspec afkapte: kinderen voorbij diepte 4 of voorbij 8 broers.
+ *
+ * Daarom noemt de slotregel de assen en het bereik, en niet "in sync": die zin claimt meer
+ * dan de assen dragen (umanex-apps HANDOFF 2026-08-25).
+ */
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const rootFlag = process.argv.find(a => a.startsWith('--root='));
+const APP = rootFlag ? rootFlag.slice('--root='.length) : join(dirname(fileURLToPath(import.meta.url)), '..');
+
+const fails = [], checks = [], overgeslagen = [], uitgesloten = [];
+const fail = (as, m) => fails.push(`[${as}] ${m}`);
+const ok = (as, m) => checks.push(`[${as}] ${m}`);
+const sla = (as, m) => overgeslagen.push(`[${as}] ${m}`);
+
+const lees = (p, verplicht = true) => {
+  const pad = join(APP, p);
+  if (!existsSync(pad)) { if (verplicht) sla('bestand', `${p} ontbreekt`); return null; }
+  return JSON.parse(readFileSync(pad, 'utf8'));
+};
+
+const manifest = lees('figma/manifest.json');
+const assenSpec = lees('figma/story-axes.json');
+const payload   = lees('figma/tokens-payload.json');
+const gaten     = lees('figma/ongebonden.json');
+const tokens    = lees('tokens/tokens.json');
+
+/**
+ * Componenten die met reden GEEN component set zijn. Elke uitsluiting is een oordeel dat
+ * deze guard daarna als waarheid vastlegt, dus hij staat hier met zijn reden en niet in
+ * een configbestand — bij het lezen van de guard komt hij vanzelf langs.
+ */
+const SCHERMEN = {
+  ActivePhase: 'schermcompositie — bleStatus × hrStatus × phase × hasProfileWeight zou 160 nodes eisen voor één scherm, en die assen zijn in beeld niet orthogonaal',
+  IdlePhase: 'schermcompositie — idem, 320 nodes',
+};
+const GEEN_COMPONENT = {
+  PaceZone: 'exporteert getPaceZone, een pure functie zonder JSX — geen component, dus geen story en geen pagina',
+};
+const NIET_VISUEEL = {
+  'BottomSheet.visible': 'mount-schakelaar — bij false rendert het component niets',
+  'GoalSheet.visible': 'mount-schakelaar — bij false rendert het component niets',
+  'HealthConsentScreen.visible': 'mount-schakelaar — bij false rendert het component niets',
+  'DeviceSelectionModal.visible': 'mount-schakelaar — bij false rendert het component niets',
+};
+/**
+ * Waarden die de CODE gebruikt en waarvoor geen token bestaat. Ze staan hier als GETAL,
+ * niet als lijst-van-uitzonderingen: de as toetst dat het aantal niet GROEIT. Zo blijft een
+ * nieuw gat zichtbaar terwijl de bekende gaten de as niet elke run rood maken.
+ * Elk gat heeft een item in apps/rowtrack/BACKLOG.md.
+ */
+const BEKENDE_GATEN = 46;
+// Verdeling op 2026-09-08: 18 typografie-combinaties zonder Theme/type-token · 8 icoonmaten
+// (Ionicons als glyph, geen Figma-font) · 5 achtergrondkleuren · 3 paddings (3, 50, 100) ·
+// 3 radii (2, 12, 24) · 3 emoji/systeemfont (bedoeld — een emoji hoort de systeem-emojifont
+// te gebruiken) · 2 gaps (1, 3) · 2 gradient-stops op alpha 0 (er is geen token voor "deze
+// rol, maar doorzichtig") · 2 tekstkleuren.
+//
+// Het waren er 38 tot de doorvoer-fix van 2026-09-08. Dat aantal STEEG omdat er meer inhoud
+// gemeten werd, niet omdat er iets kapotging: vijf overlay-componenten stonden daarvóór met
+// nul tekstnodes in de spec, dus hun typografie werd nooit geteld.
+
+// ---- 1. Dekking: elk component een story ----------------------------------
+function bestanden(map, prefix = '') {
+  const uit = [];
+  for (const d of readdirSync(map, { withFileTypes: true })) {
+    if (d.isDirectory()) { uit.push(...bestanden(join(map, d.name), prefix + d.name + '/')); continue; }
+    if (d.name.endsWith('.tsx')) uit.push({ rel: prefix + d.name, pad: join(map, d.name) });
+  }
+  return uit;
+}
+const alle = bestanden(join(APP, 'components'));
+const componentBestanden = alle.filter(f => !f.rel.endsWith('.stories.tsx'));
+const storyBestanden = alle.filter(f => f.rel.endsWith('.stories.tsx'));
+const zonderStory = componentBestanden
+  .filter(f => !storyBestanden.some(s => s.rel === f.rel.replace(/\.tsx$/, '.stories.tsx')))
+  .map(f => f.rel.replace(/\.tsx$/, ''));
+const onverwacht = zonderStory.filter(n => !GEEN_COMPONENT[n.split('/').pop()]);
+if (onverwacht.length) fail('dekking', `zonder story: ${onverwacht.join(', ')}`);
+else ok('dekking', `${storyBestanden.length} van ${componentBestanden.length} bestanden hebben een story`);
+for (const [n, r] of Object.entries(GEEN_COMPONENT)) uitgesloten.push(`${n} — ${r}`);
+
+// ---- 2. Pagina: elk component één primary node ------------------------------
+if (!manifest) sla('pagina', 'geen manifest');
+else {
+  const paginas = Object.keys(manifest.pages);
+  const verwacht = storyBestanden.map(s => {
+    const src = readFileSync(s.pad, 'utf8');
+    return src.match(/title:\s*'Componenten\/([^']+)'/)?.[1] ?? null;
+  }).filter(Boolean);
+  const mist = verwacht.filter(c => !paginas.includes(c));
+  const teveel = paginas.filter(p => !verwacht.includes(p) && p !== 'Tokens');
+  const zonderPrimary = paginas.filter(p => manifest.pages[p] && !manifest.pages[p].primary);
+  if (mist.length) fail('pagina', `geen Figma-pagina voor: ${mist.join(', ')}`);
+  if (teveel.length) fail('pagina', `Figma-pagina zonder component: ${teveel.join(', ')}`);
+  if (zonderPrimary.length) fail('pagina', `pagina zonder primary node: ${zonderPrimary.join(', ')}`);
+  if (!mist.length && !teveel.length && !zonderPrimary.length)
+    ok('pagina', `${verwacht.length} componenten hebben elk één Figma-pagina met een primary node`);
+}
+
+// ---- 3. Variant-assen: Figma == story-argTypes ------------------------------
+if (!manifest || !assenSpec) sla('variant', 'manifest of story-axes ontbreekt');
+else {
+  const fouten = [];
+  for (const [comp, d] of Object.entries(assenSpec.componenten)) {
+    if (SCHERMEN[comp]) continue;
+    const codeAssen = {};
+    for (const [as, w] of Object.entries(d.assen)) {
+      if (NIET_VISUEEL[`${comp}.${as}`]) continue;
+      codeAssen[as] = [...w].map(String).sort();
+    }
+    const p = manifest.pages[comp];
+    if (!p?.primary) { fouten.push(`${comp}: geen primary in de manifest`); continue; }
+    const figmaAssen = p.primary.variantProperties ?? null;
+    const codeNamen = Object.keys(codeAssen).sort();
+    const figmaNamen = figmaAssen ? Object.keys(figmaAssen).sort() : [];
+    if (codeNamen.join(',') !== figmaNamen.join(',')) {
+      fouten.push(`${comp}: assen verschillen — code [${codeNamen}] vs Figma [${figmaNamen}]`);
+      continue;
+    }
+    for (const as of codeNamen) {
+      const c = codeAssen[as].join(',');
+      const f = [...(figmaAssen[as].values ?? figmaAssen[as])].map(String).sort().join(',');
+      if (c !== f) fouten.push(`${comp}.${as}: code [${c}] vs Figma [${f}]`);
+    }
+  }
+  if (fouten.length) for (const f of fouten) fail('variant', f);
+  else ok('variant', `${Object.keys(assenSpec.componenten).length - Object.keys(SCHERMEN).length} componenten: variant-assen gelijk aan de story-argTypes`);
+  for (const [k, r] of Object.entries(NIET_VISUEEL)) uitgesloten.push(`${k} — ${r}`);
+  for (const [k, r] of Object.entries(SCHERMEN)) uitgesloten.push(`${k} — ${r}`);
+}
+
+// ---- 4. Variant-nodes: het aantal volgt uit de assen ------------------------
+if (!manifest) sla('varianten', 'geen manifest');
+else if ((manifest.schemaVersie ?? 1) < 2) sla('varianten', 'manifest schema 1 kent geen variant-nodes');
+else {
+  const fouten = [];
+  let telNodes = 0;
+  for (const [pagina, p] of Object.entries(manifest.pages)) {
+    const n = p.primary;
+    if (!n) continue;
+    if (n.type !== 'COMPONENT_SET') {
+      if (n.varianten?.length) fouten.push(`${pagina}/${n.name}: geen COMPONENT_SET maar wel ${n.varianten.length} varianten`);
+      continue;
+    }
+    const assen = n.variantProperties;
+    if (!assen || !Object.keys(assen).length) { fouten.push(`${pagina}: COMPONENT_SET zonder assen`); continue; }
+    const verwacht = Object.values(assen).reduce((a, w) => a * (w.values ?? w).length, 1);
+    const werkelijk = n.varianten?.length ?? 0;
+    telNodes += werkelijk;
+    if (werkelijk !== verwacht) {
+      const t = Object.entries(assen).map(([a, w]) => `${a}=${(w.values ?? w).length}`).join(' × ');
+      fouten.push(`${pagina}: ${werkelijk} variant-nodes, ${t} = ${verwacht} verwacht`);
+    }
+    const dubbel = (n.varianten ?? []).map(v => v.id).filter((id, i, a) => a.indexOf(id) !== i);
+    if (dubbel.length) fouten.push(`${pagina}: dubbele node-id ${[...new Set(dubbel)].join(', ')}`);
+  }
+  if (fouten.length) for (const f of fouten) fail('varianten', f);
+  else ok('varianten', `${telNodes} variant-nodes, elk aantal gelijk aan het product van zijn assen`);
+}
+
+// ---- 5. Token: elke Figma-variabele volgt uit tokens.json (beide richtingen) --
+if (!manifest || !payload) sla('token', 'manifest of payload ontbreekt');
+else {
+  const verwacht = new Set();
+  for (const [set, c] of Object.entries(payload.collecties))
+    for (const v of c.variabelen) verwacht.add(`${set}/${v.naam}`);
+  const inFigma = new Set();
+  for (const [set, c] of Object.entries(manifest.collections ?? {}))
+    for (const naam of c.variables ?? []) inFigma.add(`${set}/${naam}`);
+  const tekort = [...verwacht].filter(x => !inFigma.has(x));
+  const teveel = [...inFigma].filter(x => !verwacht.has(x));
+  if (tekort.length) fail('token', `${tekort.length} tokens zonder Figma-variabele, o.a. ${tekort.slice(0, 4).join(', ')}`);
+  if (teveel.length) fail('token', `${teveel.length} Figma-variabelen zonder token, o.a. ${teveel.slice(0, 4).join(', ')}`);
+  if (!tekort.length && !teveel.length) ok('token', `${verwacht.size} variabelen: elke Figma-variabele heeft een pad in tokens.json en omgekeerd`);
+}
+
+// ---- 5b. Tokenwaarde: de waarde zelf, niet enkel de naam --------------------
+const TOL = 0.6;  // 8-bit RGB-kwantisatie; een echte kleurwijziging schuift veel verder
+if (!manifest?.collections || !payload) sla('tokenwaarde', 'manifest zonder waarden — ververs met het schema-2-recept');
+else {
+  const bron = new Map();
+  for (const [set, c] of Object.entries(payload.collecties))
+    for (const v of c.variabelen) bron.set(`${set}/${v.naam}`, v);
+  const fouten = [];
+  let geteld = 0;
+  for (const [set, c] of Object.entries(manifest.collections)) {
+    for (const [naam, w] of Object.entries(c.waarden ?? {})) {
+      const b = bron.get(`${set}/${naam}`);
+      if (!b) continue;
+      geteld++;
+      if (b.alias) {
+        if (w.alias !== `${b.alias.set}/${b.alias.naam}`)
+          fouten.push(`${set}/${naam}: Figma wijst naar ${w.alias ?? '(geen alias)'}, bron zegt ${b.alias.set}/${b.alias.naam}`);
+      } else if (b.type === 'COLOR') {
+        const k = w.waarde;
+        if (!k || Math.abs(k.r * 255 - b.waarde.r * 255) > TOL || Math.abs(k.g * 255 - b.waarde.g * 255) > TOL
+            || Math.abs(k.b * 255 - b.waarde.b * 255) > TOL || Math.abs((k.a ?? 1) - (b.waarde.a ?? 1)) > 0.01)
+          fouten.push(`${set}/${naam}: Figma ${JSON.stringify(k)} tegen bron ${JSON.stringify(b.waarde)}`);
+      } else if (b.type === 'FLOAT') {
+        if (w.waarde !== b.waarde) fouten.push(`${set}/${naam}: Figma ${w.waarde} tegen bron ${b.waarde}`);
+      } else if (b.type === 'STRING' && !b.expoBase) {
+        if (w.waarde !== b.waarde) fouten.push(`${set}/${naam}: Figma "${w.waarde}" tegen bron "${b.waarde}"`);
+      }
+    }
+  }
+  if (!geteld) sla('tokenwaarde', 'manifest draagt geen variabelewaarden');
+  else if (fouten.length) for (const f of fouten.slice(0, 10)) fail('tokenwaarde', f);
+  else ok('tokenwaarde', `${geteld} variabelewaarden gelijk aan tokens.json (kleurtolerantie ${TOL}/255)`);
+}
+
+// ---- 5c. Typografie: elke text style volgt Theme/type ------------------------
+if (!manifest || !payload) sla('typografie', 'manifest of payload ontbreekt');
+else if (!Array.isArray(manifest.textStyles)) sla('typografie', 'manifest draagt geen textStyles');
+else {
+  const bron = new Map(payload.textStyles.map(t => [t.naam, t]));
+  const fouten = [];
+  for (const st of manifest.textStyles) {
+    const b = bron.get(st.name);
+    if (!b) { fouten.push(`${st.name}: geen Theme/type-token met deze naam`); continue; }
+    if (st.fontSize !== b.fontSize) fouten.push(`${st.name}: fontSize ${st.fontSize} tegen token ${b.fontSize}`);
+    const lhVerwacht = b.lineHeight === null ? 'AUTO' : b.lineHeight;
+    if (String(st.lineHeight) !== String(lhVerwacht)) fouten.push(`${st.name}: lineHeight ${st.lineHeight} tegen ${lhVerwacht}`);
+    if (Math.abs((st.letterSpacing ?? 0) - (b.letterSpacingPct ?? 0)) > 0.01)
+      fouten.push(`${st.name}: letterSpacing ${st.letterSpacing}% tegen token ${b.letterSpacingPct}%`);
+    // De familie hoort de GERENDERDE familie te zijn, niet de tokenstring — zie
+    // scripts/figma-tokens-payload.mjs, RENDER_FAMILIE.
+    const verwachteFamilie = b.expoVariant.split('_')[0];
+    if (String(st.family).replace(/\s+/g, '') !== verwachteFamilie)
+      fouten.push(`${st.name}: family "${st.family}" tegen gerenderde ${verwachteFamilie}`);
+  }
+  const mist = payload.textStyles.filter(t => !manifest.textStyles.some(s => s.name === t.naam));
+  if (mist.length) fouten.push(`${mist.length} type-tokens zonder text style: ${mist.map(t => t.naam).join(', ')}`);
+  if (fouten.length) for (const f of fouten.slice(0, 10)) fail('typografie', f);
+  else ok('typografie', `${manifest.textStyles.length} text styles volgen Theme/type (grootte, regelhoogte, spatiëring, gerenderde familie)`);
+}
+
+// ---- 6. Deep-links ----------------------------------------------------------
+if (!manifest) sla('link', 'geen manifest');
+else {
+  const nodeIds = new Set();
+  for (const p of Object.values(manifest.pages)) {
+    if (p.primary) nodeIds.add(p.primary.id);
+    for (const e of p.extra ?? []) nodeIds.add(e.id);
+  }
+  let geteld = 0;
+  for (const s of storyBestanden) {
+    const src = readFileSync(s.pad, 'utf8');
+    const comp = src.match(/title:\s*'Componenten\/([^']+)'/)?.[1];
+    if (!comp) { fail('link', `${s.rel}: geen title`); continue; }
+    const m = src.match(/figma:\s*\{\s*url:\s*'([^']+)'/);
+    if (!m) { fail('link', `${s.rel}: geen parameters.figma.url`); continue; }
+    if (!m[1].includes(manifest.fileKey)) { fail('link', `${s.rel}: URL wijst niet naar fileKey ${manifest.fileKey}`); continue; }
+    const id = m[1].match(/node-id=([\w-]+)/)?.[1]?.replace('-', ':');
+    if (!id) { fail('link', `${s.rel}: geen node-id in de URL`); continue; }
+    if (!nodeIds.has(id)) { fail('link', `${s.rel}: node-id ${id} bestaat niet in de manifest`); continue; }
+    const verwacht = manifest.pages[comp]?.primary?.id;
+    if (id !== verwacht) { fail('link', `${s.rel}: linkt naar ${id}, maar ${comp} staat op ${verwacht}`); continue; }
+    geteld++;
+  }
+  if (!fails.some(f => f.startsWith('[link]'))) ok('link', `${geteld} deep-links wijzen naar de primary node van hun eigen pagina`);
+}
+
+// ---- 7. Hardcoded waarden in stories ----------------------------------------
+{
+  const fouten = [];
+  for (const s of storyBestanden) {
+    const src = readFileSync(s.pad, 'utf8')
+      .split('\n').filter(r => !/^\s*(\/\/|\*|\/\*)/.test(r)).join('\n');   // commentaar telt niet mee
+    const hex = src.match(/#[0-9A-Fa-f]{6}\b/g) ?? [];
+    // Een deep-link-URL bevat geen hex-kleur; een fontnaam wel nooit. Alleen echte waarden.
+    if (hex.length) fouten.push(`${s.rel}: ${hex.length} hardcoded hex (${[...new Set(hex)].slice(0, 3).join(', ')})`);
+    const fontnaam = src.match(/fontFamily:\s*'[^']+'/g) ?? [];
+    if (fontnaam.length) fouten.push(`${s.rel}: ${fontnaam.length} hardcoded fontFamily`);
+  }
+  if (fouten.length) for (const f of fouten) fail('hardcoded', f);
+  else ok('hardcoded', `${storyBestanden.length} stories zonder hardcoded hex of fontnaam`);
+}
+
+// ---- 8. Binding: het aantal ongebonden waarden mag niet groeien --------------
+if (!gaten) sla('binding', 'geen figma/ongebonden.json — draai `pnpm --filter rowtrack figma:spec`');
+else {
+  const n = gaten.aantalUniek;
+  if (n > BEKENDE_GATEN)
+    fail('binding', `${n} unieke ongebonden waarden, ${BEKENDE_GATEN} bekend — ${n - BEKENDE_GATEN} nieuw(e). Zie BACKLOG.md.`);
+  else if (n < BEKENDE_GATEN)
+    fail('binding', `${n} unieke ongebonden waarden tegen ${BEKENDE_GATEN} bekend — een gat is opgelost; zet BEKENDE_GATEN op ${n}.`);
+  else ok('binding', `${n} unieke ongebonden waarden, gelijk aan de ${BEKENDE_GATEN} bekende gaten (elk met een BACKLOG-item)`);
+  if (gaten.decoratiefGenegeerd) uitgesloten.push(`${gaten.decoratiefGenegeerd} confetti-nodes — gerandomiseerd (size = 6 + random*8), geen stabiel artefact`);
+}
+
+// ---- Rapport ----------------------------------------------------------------
+console.log('figma-sync-check — apps/rowtrack ↔ Figma "%s" (%s)\n',
+  manifest?.fileName ?? '?', manifest?.fileKey ?? '?');
+for (const c of checks) console.log('  ok   ' + c);
+for (const u of uitgesloten) console.log('  --   [uitgesloten] ' + u);
+for (const o of overgeslagen) console.log('  ~~   ' + o);
+if (fails.length) {
+  console.log('');
+  for (const f of fails) console.log('  FAIL ' + f);
+  console.log(`\n${fails.length} verschil(len). Code en Figma staan niet in sync.`);
+  console.log('Fix de code, of werk Figma bij en ververs figma/manifest.json (zie apps/rowtrack/CLAUDE.md → Verify-pad).');
+  process.exit(1);
+}
+console.log(`\n${checks.length} checks groen — dekking, pagina's, variant-assen, variant-nodes, tokennamen,`);
+console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden en het aantal ongebonden waarden.');
+console.log('Niet gemeten: of Figma er hetzelfde UITZIET als de browser (dat is `pnpm --filter rowtrack parity`),');
+console.log('wat de bouwspec afkapte (voorbij diepte 4 of 8 broers), en elke Figma-wijziging sinds '
+  + (manifest?.gegenereerd ?? 'de laatste ververs') + '.');
+if (overgeslagen.length) console.log(`${overgeslagen.length} as(sen) overgeslagen — zie de ~~-regels hierboven.`);

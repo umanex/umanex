@@ -1,5 +1,5 @@
 # Context Snapshot — jobradar
-_Gegenereerd op 2026-09-07_
+_Gegenereerd op 2026-09-08_
 
 ## Project
 - **App:** jobradar
@@ -37,15 +37,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-9f8b8d7 refactor(jobradar): remove the KBO lead source that never had a live branch
-4936599 feat(jobradar): link leads to prospects on the enterprise number
-c2b353c feat(jobradar): add a Prospects tab fed by the KBO mirror
-3b118d4 docs(jobradar): log the KBO mirror's disk footprint and the open wiring
-09c733a feat(jobradar): mirror the KBO open data drop into a local SQLite
+259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
+9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
+653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
+1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/CLAUDE.md
+  M  apps/jobradar/BACKLOG.md
 
 ## Bestanden met TODO/FIXME
   (geen)

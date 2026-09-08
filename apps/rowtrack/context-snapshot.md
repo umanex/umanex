@@ -1,5 +1,5 @@
 # Context Snapshot — rowtrack
-_Gegenereerd op 2026-09-07_
+_Gegenereerd op 2026-09-08_
 
 ## Project
 - **App:** rowtrack
@@ -59,15 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
-fa1ff0a docs(rowtrack): log the 17 untracked generated files as a backlog item
-ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
-46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
-81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
+6c9338f fix(rowtrack): volledige inhoud in Figma — 613 van 613 tekstnodes
+259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
+9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
+653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
+9d54aa0 fix(rowtrack): lege frames verholpen in Figma, 33 van 33 kloppen
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/HANDOFF.md
 
 ## Bestanden met TODO/FIXME
   (geen)

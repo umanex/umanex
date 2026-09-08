@@ -72,3 +72,23 @@ Briefing: `briefings/2026-08-27-feature-jobradar-a11y-afronding.tcebc.md` aan de
   afloopt en per stop differentieel meet of de focus zichtbaar is, met een tegenproef in
   `--selftest`. Dat is de "andere harness" uit dit item — Playwright krijgt `Tab` wél in de
   pagina.
+
+## 2026-09-08 — score-pill: eigen rol `score/mid` bouwen (besluit is gevallen) · [design-system]
+
+- **Wat:** De score-pill hangt aan `bg-warning` (Warning.700, bruin) sinds de contrastfix van
+  2026-08-08. Het besluit viel op 2026-08-27: een **eigen rol**, geen bruin. De rol is gebouwd
+  en gemeten maar bewust niet gemerged — `Semantic/light|dark → score/mid` (+ `-foreground`),
+  Warning.500 met Neutral.900 respectievelijk Neutral.950 erop. Gemeten op een lokale build:
+  `#F59F0B` met `#101828` = **8,32:1** in light, met `#0C111D` = **8,84:1** in dark. In dark
+  verandert er feitelijk niets — `--warning` stond daar al op Warning.500.
+- **Waarom niet nu:** `pnpm --filter @umanex/ui figma:check` eist een Figma-variabele per
+  tokenrol en draait in CI, dus de rol vraagt éérst twee variabelen in de collectie `Theme` van
+  **Component library** (`ko2OuasYxyY2YRD69MYhWX`) met Light/Dark-modes, plus een verse
+  `figma/manifest.json`. Dat kan alleen met de Desktop Bridge op dát bestand.
+- **Eerste zet:** Volgorde is dwingend: `score-mid` en `score-mid-foreground` in Figma →
+  manifest verversen → `tokens.json` + `ScoreBadge.tsx` in één PR. Verplaatst uit `HANDOFF.md`
+  (entry 2026-08-08) bij de sessie-reflectie van 2026-09-08 — 31 dagen open, besluit genomen,
+  dus werk in plaats van sessie-context.
+- **Check:** `grep -n "'warning'" apps/jobradar/components/ScoreBadge.tsx` — treffer = de pill
+  hangt nog aan de generieke warning-rol; leeg = de eigen rol is er.
+- **Status:** open

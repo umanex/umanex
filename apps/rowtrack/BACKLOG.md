@@ -159,6 +159,12 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Waarom niet nu:** HANDOFF-item van 2026-07-09, ouder dan 30 dagen bij de triage van 2026-09-07 (sessie-reflectie stap 1): werk dat blijft liggen, geen sessie-context. Triage-bewijs: `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` → 2 regels (colors.ts:59 `height: 48`, Button.tsx:137 `height: space['44']`). tokens.json (python-walk op `$value`):…
 - **Eerste zet:** Figma node 109-2214 (Button, file T1bGrvIzSNeLyh5CbarATZ) uitlezen op de primary-hoogte en Jeroen laten kiezen tussen 44/48/56; daarna `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` moet 1 regel geven.
 - **Check:** `grep -n "height:" apps/rowtrack/components/Button.tsx apps/rowtrack/constants/colors.ts | grep -E "space\['44'\]|height: 48"` — twee regels = 44 (Button.sizeLg) en 48 (buttonTokens.primary) staan nog uiteen; één regel = de keuze is gemaakt.
+- **Aanvulling 2026-09-07 (Figma-sync):** de keuze raakt ook `size="md"`, en die kant is nog
+  niet benoemd. Gemeten op de Figma-variantnodes én de browser-render: **`lg` is 44px, `md`
+  is 48px** — md is dus hóger dan lg. `styles.sizeLg` zet een vaste hoogte
+  (`height: space['44']`), `styles.sizeMd` alleen `paddingVertical: space['12']`, dus de
+  hoogte volgt daar uit de regelhoogte van 18px tekst plus 2×12. Neem `md` mee in dezelfde
+  beslissing; anders wordt lg gefixt en blijft de omkering staan.
 - **Status:** open
 
 ## 2026-09-07 — Best-2000m: BLE-reconnect midden in workout re-baselinet niet · [fix]
@@ -283,6 +289,68 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Check:** Alleen jij kunt dit beantwoorden: heb je Lengte, Gewicht en Geboortedatum op de iPhone naast Figma gelegd? Nee = open — geen commit of screenshot legt een toestel-check vast.
 - **Status:** open
 
+## 2026-09-07 — `fontFamily.sourceSerif` draagt een opzoeksleutel, geen familienaam · [tokens]
+
+- **Wat:** `Core/fontFamily/sourceSerif` staat in `tokens/tokens.json` op `"Source Serif Pro"`,
+  maar de app rendert **Source Serif 4** — de waarde is de `tokenFamily`-sleutel waarmee
+  `style-dictionary.config.mjs` de FONTS-tabel opzoekt (`expoBase: 'SourceSerif4'`,
+  `pkg: '@expo-google-fonts/source-serif-4'`), niet de naam van een lettertype. Adobe hernoemde
+  Source Serif Pro in 2021 naar Source Serif 4; in Figma zijn het twee aparte families met
+  verschillende stijlvoorraad (gemeten 2026-09-07 via `listAvailableFontsAsync`: Pro heeft geen
+  Medium, 4 wél). De nette fix is de tokenwaarde in **Tokens Studio** op `"Source Serif 4"`
+  zetten — handmatig bewerken wordt bij de eerstvolgende plugin-push overschreven.
+- **Waarom niet nu:** Een tokenwijziging hoort via Tokens Studio te lopen en is Jeroens hand.
+  Tot dan draagt de Figma-variabele bewust de gerenderde familie, zodat Figma en app hetzelfde
+  lettertype tonen; `scripts/figma-tokens-payload.mjs` meldt die ene afwijking bij elke run
+  ("AFWIJKING bron -> render") in plaats van hem te verbergen.
+- **Eerste zet:** In Tokens Studio `Core/fontFamily/sourceSerif` op `Source Serif 4` zetten en
+  pushen; daarna `node apps/rowtrack/scripts/figma-tokens-payload.mjs` — de AFWIJKING-regel
+  hoort dan te verdwijnen, en `RENDER_FAMILIE` wordt een no-op in plaats van een correctie.
+- **Check:** `node apps/rowtrack/scripts/figma-tokens-payload.mjs 2>/dev/null | grep -c AFWIJKING`
+  — 1 = de afwijking leeft nog, 0 = het token is gefixt.
+- **Status:** open
+
+## 2026-09-07 — De scoped `figma-naar-code` skill draagt een hardcoded tokentabel · [tooling]
+
+- **Wat:** `apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md` bevat een eigen kleurtabel
+  (`bg: '#0A0E1A'`, `surface: '#1A1F2E'`, `cyan: '#00E5FF'`) en spreekt van "Inter-gewichten".
+  Geen van die waarden komt uit `tokens/tokens.json` (`bg.base` = `#15171C`,
+  `bg.elevated` = `#1A1D24`, `accent.default` = `#F05454`, families Albert Sans / Source Serif).
+  De zusterskill `code-naar-figma` had dezelfde tabel en is op 2026-09-07 verwijderd ten gunste
+  van de umanex-os-versie; die is schoon en verbiedt hardcoded waarden expliciet.
+- **Waarom niet nu:** Jeroen vroeg expliciet om `code-naar-figma`; een tweede skill verwijderen
+  is scope-uitbreiding die zijn woord vraagt.
+- **Eerste zet:** `git rm -r apps/rowtrack/.claude/skills/figma-naar-code` en toetsen dat
+  `.claude/skills/figma-naar-code/SKILL.md` (umanex-os) de RowTrack-context genoeg dekt.
+- **Check:** `grep -c "00E5FF" apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md 2>/dev/null`
+  — een treffer = de tabel leeft nog; "no such file" = opgelost.
+- **Status:** open
+
+
+## 2026-09-07 — Iconen staan als placeholder in het Figma design system · [design-system]
+
+- **Wat:** In het bestand `QkRgMc7Quqtbow71DiYa1n` staan alle Ionicons als gestippeld
+  placeholder-frame (`Icon <maat>`) in plaats van als icoon. react-native-web rendert een
+  Ionicon als een tekstglyph in de font-familie `ionicons`, en die familie bestaat niet in
+  Figma — `listAvailableFontsAsync()` kent hem niet, dus de builder valt terug op een
+  zichtbaar slot in plaats van stil niets te tekenen. Raakt o.a. `Icon` (het hele component),
+  `EmptyState`, `ErrorState`, `HrStatusBar` (5 varianten), `BleStatusBar`, `DeviceRow`,
+  `GoalSegments` en de CTA-pijl in beide schermen; 8 maten in gebruik (14, 15, 16, 18, 20,
+  24, 48, 64).
+- **Waarom niet nu:** De oplossing vraagt een handeling op Jeroens machine (een font
+  installeren), niet een codewijziging. Er zijn geen SVG's beschikbaar: `@expo/vector-icons`
+  levert alleen de TTF plus een glyphmap, geen paden.
+- **Eerste zet:** `Ionicons.ttf` in Font Book installeren vanaf
+  `node_modules/.pnpm/@expo+vector-icons@*/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf`,
+  Figma Desktop herstarten, en dan `figma/builder.js` zijn familie-match case-insensitief
+  maken (de DOM meldt `ionicons`, Figma zal `Ionicons` heten). Daarna de bouw opnieuw:
+  de placeholders worden dan echte glyphs, want de glyphmap (1357 tekens) zit in hetzelfde
+  pakket en de tekstinhoud staat al in de bouwspec.
+- **Check:** `figma_execute` met
+  `(await figma.listAvailableFontsAsync()).some(f => /ionicons/i.test(f.fontName.family))`
+  — false = het font staat er nog niet.
+- **Status:** open
+
 ## 2026-09-07 — 17 gegenereerde bestanden staan ongetrackt in de tree · [infra]
 
 - **Wat:** Beslissen of `apps/rowtrack/.storybook/fonts.css`, de 15 `.ttf`-bestanden onder `.storybook/public/fonts/` en `apps/rowtrack/figma/build-spec.json` in git horen of in `.gitignore`. Ze zijn alle drie output: de fonts uit `scripts/build-web-fonts.mjs` (`pnpm --filter rowtrack fonts:web`), de spec uit `scripts/figma-build-spec.mjs` (`pnpm --filter rowtrack figma:spec`). Vandaag zijn ze ongetrackt én ongenegeerd, wat de slechtste van de drie opties is: ze reizen mee bij elke `git checkout` naar een andere branch, precies het mechanisme uit CLAUDE.md → Git workflow.
@@ -291,3 +359,22 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Eerste zet:** geen — er is niets te doen. Wat overblijft is een les over de meting, niet over de repo: een uitspraak over "ongetrackte bestanden" is altijd relatief aan de uitgecheckte `.gitignore`, dus hij hoort de branch te noemen waarop hij gemeten is. Vastgelegd als LEARNINGS-entry op globaal niveau (2026-09-07, dev-server/branch-eigen-map-klasse).
 - **Check:** `git show feature/rowtrack-storybook-figma:apps/rowtrack/.gitignore | grep -c 'fonts\|build-spec'` → `≥ 2` = de regels staan er, item terecht verworpen.
 - **Status:** verworpen
+## 2026-09-08 — RowTracks Figma-guards draaien niet in CI · [ci]
+
+- **Wat:** `ci.yml` draait de guards van `packages/ui` (`figma:check`, `figma:check:selftest`,
+  `parity`) maar niet die van rowtrack. De Storybook-build komt er wél doorheen, want
+  `pnpm turbo build-storybook` pakt elke package met dat script — dus een story die niet meer
+  compileert maakt de PR nu al rood. Wat níet gedekt is: `figma:check` (tien assen),
+  `figma:check:selftest` (13 mutaties), `parity`, en `render:sweep` (197 stories renderen).
+  Die laatste is de enige die een lege render vangt, en dat is precies de fout die een groene
+  build verbergt — gemeten 2026-09-07 op 26 stories.
+- **Waarom niet nu:** `ci.yml` is een configbestand dat vooraf bevestigd hoort te worden
+  (CLAUDE.md → acties die altijd eerst bevestigd moeten worden), en deze PR is al groot.
+- **Eerste zet:** Vier stappen naast de bestaande `@umanex/ui`-guards, in dezelfde vorm:
+  `pnpm --filter rowtrack figma:check` · `figma:check:selftest` · `parity` · `render:sweep`.
+  Let op de volgorde: `render:sweep` en `parity` vragen een gebouwde Storybook, dus ze horen
+  ná de `build-storybook`-stap. Playwright-browsers moeten in CI geïnstalleerd zijn
+  (`npx playwright install chromium`), net als bij `@umanex/ui parity`.
+- **Check:** `grep -c 'filter rowtrack figma:check' .github/workflows/ci.yml` — 0 = het gat
+  leeft nog.
+- **Status:** open

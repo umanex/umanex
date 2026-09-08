@@ -8,7 +8,18 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "tokens:build": "style-dictionary build --config style-dictionary.config.mjs",
-    "test": "node --test \"lib/**/*.test.ts\""
+    "test": "node --test \"lib/**/*.test.ts\"",
+    "storybook": "node scripts/build-web-fonts.mjs && storybook dev -p 6007",
+    "build-storybook": "node scripts/build-web-fonts.mjs && storybook build",
+    "fonts:web": "node scripts/build-web-fonts.mjs",
+    "figma:spec": "node scripts/story-axes.mjs && node scripts/figma-build-spec.mjs && node scripts/figma-build-prune.mjs",
+    "figma:tokens": "node scripts/figma-tokens-payload.mjs",
+    "figma:links": "node scripts/figma-links.mjs",
+    "figma:check": "node scripts/figma-sync-check.mjs",
+    "figma:check:selftest": "node scripts/figma-sync-selftest.mjs",
+    "parity": "node scripts/geometry-parity.mjs",
+    "render:sweep": "node scripts/render-sweep.mjs",
+    "parity:selftest": "node scripts/geometry-parity.mjs --selftest"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
@@ -46,9 +57,17 @@
   },
   "devDependencies": {
     "@expo/ngrok": "^4.1.3",
+    "@storybook/addon-a11y": "^10.6.0",
+    "@storybook/addon-docs": "^10.6.0",
+    "@storybook/react-native-web-vite": "^10.6.0",
     "@types/react": "~19.1.0",
+    "playwright": "^1.62.1",
+    "react-dom": "19.1.0",
+    "react-native-web": "^0.21.2",
+    "storybook": "^10.6.0",
     "style-dictionary": "^4.4.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vite": "^8"
   },
   "expo": {
     "nodeModulesPath": "../../node_modules"

@@ -1,0 +1,2363 @@
+{
+ "$comment": "Neergeslagen Figma-staat. NIET met de hand bewerken — ververs via apps/rowtrack/CLAUDE.md.",
+ "schemaVersie": 2,
+ "fileKey": "QkRgMc7Quqtbow71DiYa1n",
+ "fileName": "RowTrack -  Design System",
+ "gegenereerd": "2026-09-08",
+ "collections": {
+  "Core": {
+   "modes": [
+    "Value"
+   ],
+   "variables": [
+    "color/neutral/0",
+    "color/neutral/50",
+    "color/neutral/100",
+    "color/neutral/200",
+    "color/neutral/300",
+    "color/neutral/400",
+    "color/neutral/500",
+    "color/neutral/600",
+    "color/neutral/700",
+    "color/neutral/800",
+    "color/neutral/900",
+    "color/neutral/950",
+    "color/neutral/1000",
+    "color/red/100",
+    "color/red/200",
+    "color/red/300",
+    "color/red/400",
+    "color/red/450",
+    "color/red/500",
+    "color/red/600",
+    "color/red/700",
+    "color/red/800",
+    "color/red/900",
+    "color/gold/100",
+    "color/gold/300",
+    "color/gold/500",
+    "color/alpha/white-04",
+    "color/alpha/white-08",
+    "color/alpha/white-12",
+    "color/alpha/white-22",
+    "color/alpha/black-30",
+    "color/alpha/black-40",
+    "color/alpha/red-04",
+    "color/alpha/red-06",
+    "color/alpha/red-08",
+    "color/alpha/red-12",
+    "color/alpha/red-20",
+    "color/alpha/red-deep-30",
+    "fontFamily/sourceSerif",
+    "fontFamily/albertSans",
+    "fontWeight/light",
+    "fontWeight/regular",
+    "fontWeight/medium",
+    "fontWeight/semibold",
+    "fontWeight/italic",
+    "fontWeight/bold",
+    "fontSize/9",
+    "fontSize/10",
+    "fontSize/11",
+    "fontSize/13",
+    "fontSize/14",
+    "fontSize/15",
+    "fontSize/16",
+    "fontSize/17",
+    "fontSize/18",
+    "fontSize/22",
+    "fontSize/26",
+    "fontSize/28",
+    "fontSize/32",
+    "fontSize/34",
+    "fontSize/36",
+    "fontSize/38",
+    "fontSize/44",
+    "fontSize/114",
+    "lineHeight/tight",
+    "lineHeight/compact",
+    "lineHeight/normal",
+    "lineHeight/relaxed",
+    "letterSpacing/displayTight",
+    "letterSpacing/displayLoose",
+    "letterSpacing/tighter",
+    "letterSpacing/tight",
+    "letterSpacing/snug",
+    "letterSpacing/subtle",
+    "letterSpacing/normal",
+    "letterSpacing/wide",
+    "letterSpacing/wider",
+    "spacing/0",
+    "spacing/2",
+    "spacing/4",
+    "spacing/6",
+    "spacing/8",
+    "spacing/10",
+    "spacing/12",
+    "spacing/14",
+    "spacing/16",
+    "spacing/18",
+    "spacing/20",
+    "spacing/22",
+    "spacing/24",
+    "spacing/28",
+    "spacing/32",
+    "spacing/40",
+    "spacing/44",
+    "spacing/48",
+    "sizing/0",
+    "sizing/1",
+    "sizing/2",
+    "sizing/4",
+    "sizing/7",
+    "sizing/8",
+    "sizing/44",
+    "sizing/48",
+    "sizing/52",
+    "sizing/56",
+    "borderRadius/none",
+    "borderRadius/xs",
+    "borderRadius/sm",
+    "borderRadius/md",
+    "borderRadius/lg",
+    "borderRadius/xl",
+    "borderRadius/full",
+    "borderWidth/0",
+    "borderWidth/1",
+    "borderWidth/2",
+    "opacity/0",
+    "opacity/40",
+    "opacity/55",
+    "opacity/100"
+   ],
+   "waarden": {
+    "color/neutral/0": {
+     "waarde": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1
+     }
+    },
+    "color/neutral/50": {
+     "waarde": {
+      "r": 0.9490196108818054,
+      "g": 0.95686274766922,
+      "b": 0.9803921580314636,
+      "a": 1
+     }
+    },
+    "color/neutral/100": {
+     "waarde": {
+      "r": 0.8784313797950745,
+      "g": 0.8901960849761963,
+      "b": 0.9176470637321472,
+      "a": 1
+     }
+    },
+    "color/neutral/200": {
+     "waarde": {
+      "r": 0.7098039388656616,
+      "g": 0.7254902124404907,
+      "b": 0.7607843279838562,
+      "a": 1
+     }
+    },
+    "color/neutral/300": {
+     "waarde": {
+      "r": 0.5411764979362488,
+      "g": 0.5568627715110779,
+      "b": 0.5921568870544434,
+      "a": 1
+     }
+    },
+    "color/neutral/400": {
+     "waarde": {
+      "r": 0.3607843220233917,
+      "g": 0.3764705955982208,
+      "b": 0.41960784792900085,
+      "a": 1
+     }
+    },
+    "color/neutral/500": {
+     "waarde": {
+      "r": 0.22745098173618317,
+      "g": 0.24313725531101227,
+      "b": 0.2823529541492462,
+      "a": 1
+     }
+    },
+    "color/neutral/600": {
+     "waarde": {
+      "r": 0.1725490242242813,
+      "g": 0.18431372940540314,
+      "b": 0.21568627655506134,
+      "a": 1
+     }
+    },
+    "color/neutral/700": {
+     "waarde": {
+      "r": 0.12941177189350128,
+      "g": 0.1411764770746231,
+      "b": 0.1725490242242813,
+      "a": 1
+     }
+    },
+    "color/neutral/800": {
+     "waarde": {
+      "r": 0.12156862765550613,
+      "g": 0.12941177189350128,
+      "b": 0.1568627506494522,
+      "a": 1
+     }
+    },
+    "color/neutral/900": {
+     "waarde": {
+      "r": 0.10196078568696976,
+      "g": 0.11372549086809158,
+      "b": 0.1411764770746231,
+      "a": 1
+     }
+    },
+    "color/neutral/950": {
+     "waarde": {
+      "r": 0.08235294371843338,
+      "g": 0.09019608050584793,
+      "b": 0.10980392247438431,
+      "a": 1
+     }
+    },
+    "color/neutral/1000": {
+     "waarde": {
+      "r": 0.0313725508749485,
+      "g": 0.03529411926865578,
+      "b": 0.0470588244497776,
+      "a": 1
+     }
+    },
+    "color/red/100": {
+     "waarde": {
+      "r": 1,
+      "g": 0.8980392217636108,
+      "b": 0.8980392217636108,
+      "a": 1
+     }
+    },
+    "color/red/200": {
+     "waarde": {
+      "r": 1,
+      "g": 0.7019608020782471,
+      "b": 0.7019608020782471,
+      "a": 1
+     }
+    },
+    "color/red/300": {
+     "waarde": {
+      "r": 1,
+      "g": 0.5215686559677124,
+      "b": 0.5215686559677124,
+      "a": 1
+     }
+    },
+    "color/red/400": {
+     "waarde": {
+      "r": 1,
+      "g": 0.4627451002597809,
+      "b": 0.4627451002597809,
+      "a": 1
+     }
+    },
+    "color/red/450": {
+     "waarde": {
+      "r": 0.9725490212440491,
+      "g": 0.4588235318660736,
+      "b": 0.4588235318660736,
+      "a": 1
+     }
+    },
+    "color/red/500": {
+     "waarde": {
+      "r": 0.9647058844566345,
+      "g": 0.38823530077934265,
+      "b": 0.38823530077934265,
+      "a": 1
+     }
+    },
+    "color/red/600": {
+     "waarde": {
+      "r": 0.9411764740943909,
+      "g": 0.3294117748737335,
+      "b": 0.3294117748737335,
+      "a": 1
+     }
+    },
+    "color/red/700": {
+     "waarde": {
+      "r": 0.8627451062202454,
+      "g": 0.2823529541492462,
+      "b": 0.2823529541492462,
+      "a": 1
+     }
+    },
+    "color/red/800": {
+     "waarde": {
+      "r": 0.7803921699523926,
+      "g": 0.24313725531101227,
+      "b": 0.24313725531101227,
+      "a": 1
+     }
+    },
+    "color/red/900": {
+     "waarde": {
+      "r": 0.6196078658103943,
+      "g": 0.1764705926179886,
+      "b": 0.1764705926179886,
+      "a": 1
+     }
+    },
+    "color/gold/100": {
+     "waarde": {
+      "r": 0.9607843160629272,
+      "g": 0.9372549057006836,
+      "b": 0.8784313797950745,
+      "a": 1
+     }
+    },
+    "color/gold/300": {
+     "waarde": {
+      "r": 0.9098039269447327,
+      "g": 0.8627451062202454,
+      "b": 0.7686274647712708,
+      "a": 1
+     }
+    },
+    "color/gold/500": {
+     "waarde": {
+      "r": 0.7882353067398071,
+      "g": 0.7215686440467834,
+      "b": 0.5803921818733215,
+      "a": 1
+     }
+    },
+    "color/alpha/white-04": {
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.03921568766236305
+     }
+    },
+    "color/alpha/white-08": {
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.0784313753247261
+     }
+    },
+    "color/alpha/white-12": {
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.12156862765550613
+     }
+    },
+    "color/alpha/white-22": {
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 0.21960784494876862
+     }
+    },
+    "color/alpha/black-30": {
+     "waarde": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.3019607961177826
+     }
+    },
+    "color/alpha/black-40": {
+     "waarde": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.4000000059604645
+     }
+    },
+    "color/alpha/red-04": {
+     "waarde": {
+      "r": 0.9411764740943909,
+      "g": 0.3294117748737335,
+      "b": 0.3294117748737335,
+      "a": 0.03921568766236305
+     }
+    },
+    "color/alpha/red-06": {
+     "waarde": {
+      "r": 0.9411764740943909,
+      "g": 0.3294117748737335,
+      "b": 0.3294117748737335,
+      "a": 0.05882352963089943
+     }
+    },
+    "color/alpha/red-08": {
+     "waarde": {
+      "r": 0.9411764740943909,
+      "g": 0.3294117748737335,
+      "b": 0.3294117748737335,
+      "a": 0.0784313753247261
+     }
+    },
+    "color/alpha/red-12": {
+     "waarde": {
+      "r": 0.9411764740943909,
+      "g": 0.3294117748737335,
+      "b": 0.3294117748737335,
+      "a": 0.12156862765550613
+     }
+    },
+    "color/alpha/red-20": {
+     "waarde": {
+      "r": 0.9411764740943909,
+      "g": 0.3294117748737335,
+      "b": 0.3294117748737335,
+      "a": 0.20000000298023224
+     }
+    },
+    "color/alpha/red-deep-30": {
+     "waarde": {
+      "r": 0.7058823704719543,
+      "g": 0.1568627506494522,
+      "b": 0.1568627506494522,
+      "a": 0.3019607961177826
+     }
+    },
+    "fontFamily/sourceSerif": {
+     "waarde": "Source Serif 4"
+    },
+    "fontFamily/albertSans": {
+     "waarde": "Albert Sans"
+    },
+    "fontWeight/light": {
+     "waarde": "300"
+    },
+    "fontWeight/regular": {
+     "waarde": "400"
+    },
+    "fontWeight/medium": {
+     "waarde": "500"
+    },
+    "fontWeight/semibold": {
+     "waarde": "600"
+    },
+    "fontWeight/italic": {
+     "waarde": "Italic"
+    },
+    "fontWeight/bold": {
+     "waarde": "Bold"
+    },
+    "fontSize/9": {
+     "waarde": 9
+    },
+    "fontSize/10": {
+     "waarde": 10
+    },
+    "fontSize/11": {
+     "waarde": 11
+    },
+    "fontSize/13": {
+     "waarde": 13
+    },
+    "fontSize/14": {
+     "waarde": 14
+    },
+    "fontSize/15": {
+     "waarde": 15
+    },
+    "fontSize/16": {
+     "waarde": 16
+    },
+    "fontSize/17": {
+     "waarde": 17
+    },
+    "fontSize/18": {
+     "waarde": 18
+    },
+    "fontSize/22": {
+     "waarde": 22
+    },
+    "fontSize/26": {
+     "waarde": 26
+    },
+    "fontSize/28": {
+     "waarde": 28
+    },
+    "fontSize/32": {
+     "waarde": 32
+    },
+    "fontSize/34": {
+     "waarde": 34
+    },
+    "fontSize/36": {
+     "waarde": 36
+    },
+    "fontSize/38": {
+     "waarde": 38
+    },
+    "fontSize/44": {
+     "waarde": 44
+    },
+    "fontSize/114": {
+     "waarde": 114
+    },
+    "lineHeight/tight": {
+     "waarde": 95
+    },
+    "lineHeight/compact": {
+     "waarde": 100
+    },
+    "lineHeight/normal": {
+     "waarde": 125
+    },
+    "lineHeight/relaxed": {
+     "waarde": 150
+    },
+    "letterSpacing/displayTight": {
+     "waarde": -4.5
+    },
+    "letterSpacing/displayLoose": {
+     "waarde": -3
+    },
+    "letterSpacing/tighter": {
+     "waarde": -2.5
+    },
+    "letterSpacing/tight": {
+     "waarde": -2
+    },
+    "letterSpacing/snug": {
+     "waarde": -1.5
+    },
+    "letterSpacing/subtle": {
+     "waarde": -0.5
+    },
+    "letterSpacing/normal": {
+     "waarde": 0
+    },
+    "letterSpacing/wide": {
+     "waarde": 20
+    },
+    "letterSpacing/wider": {
+     "waarde": 30
+    },
+    "spacing/0": {
+     "waarde": 0
+    },
+    "spacing/2": {
+     "waarde": 2
+    },
+    "spacing/4": {
+     "waarde": 4
+    },
+    "spacing/6": {
+     "waarde": 6
+    },
+    "spacing/8": {
+     "waarde": 8
+    },
+    "spacing/10": {
+     "waarde": 10
+    },
+    "spacing/12": {
+     "waarde": 12
+    },
+    "spacing/14": {
+     "waarde": 14
+    },
+    "spacing/16": {
+     "waarde": 16
+    },
+    "spacing/18": {
+     "waarde": 18
+    },
+    "spacing/20": {
+     "waarde": 20
+    },
+    "spacing/22": {
+     "waarde": 22
+    },
+    "spacing/24": {
+     "waarde": 24
+    },
+    "spacing/28": {
+     "waarde": 28
+    },
+    "spacing/32": {
+     "waarde": 32
+    },
+    "spacing/40": {
+     "waarde": 40
+    },
+    "spacing/44": {
+     "waarde": 44
+    },
+    "spacing/48": {
+     "waarde": 48
+    },
+    "sizing/0": {
+     "waarde": 0
+    },
+    "sizing/1": {
+     "waarde": 1
+    },
+    "sizing/2": {
+     "waarde": 2
+    },
+    "sizing/4": {
+     "waarde": 4
+    },
+    "sizing/7": {
+     "waarde": 7
+    },
+    "sizing/8": {
+     "waarde": 8
+    },
+    "sizing/44": {
+     "waarde": 44
+    },
+    "sizing/48": {
+     "waarde": 48
+    },
+    "sizing/52": {
+     "waarde": 52
+    },
+    "sizing/56": {
+     "waarde": 56
+    },
+    "borderRadius/none": {
+     "waarde": 0
+    },
+    "borderRadius/xs": {
+     "waarde": 4
+    },
+    "borderRadius/sm": {
+     "waarde": 8
+    },
+    "borderRadius/md": {
+     "waarde": 16
+    },
+    "borderRadius/lg": {
+     "waarde": 18
+    },
+    "borderRadius/xl": {
+     "waarde": 22
+    },
+    "borderRadius/full": {
+     "waarde": 9999
+    },
+    "borderWidth/0": {
+     "waarde": 0
+    },
+    "borderWidth/1": {
+     "waarde": 1
+    },
+    "borderWidth/2": {
+     "waarde": 2
+    },
+    "opacity/0": {
+     "waarde": 0
+    },
+    "opacity/40": {
+     "waarde": 40
+    },
+    "opacity/55": {
+     "waarde": 55
+    },
+    "opacity/100": {
+     "waarde": 100
+    }
+   }
+  },
+  "Theme": {
+   "modes": [
+    "Value"
+   ],
+   "variables": [
+    "bg/base",
+    "bg/elevated",
+    "bg/raised",
+    "border/subtle",
+    "border/default",
+    "border/strong",
+    "fg/primary",
+    "fg/secondary",
+    "fg/tertiary",
+    "fg/quaternary",
+    "fg/onAccent",
+    "accent/default",
+    "accent/hover",
+    "accent/pressed",
+    "accent/subtle",
+    "accent/muted",
+    "achievement/default",
+    "achievement/muted",
+    "gradient/primaryButtonFrom",
+    "gradient/primaryButtonTo",
+    "radius/input",
+    "radius/buttonOutline",
+    "radius/buttonPrimary",
+    "radius/card",
+    "radius/highlightRow",
+    "radius/pill",
+    "stroke/hairline",
+    "stroke/default",
+    "size/buttonPrimaryHeight",
+    "size/buttonDestructiveHeight",
+    "size/statusBarHeight"
+   ],
+   "waarden": {
+    "bg/base": {
+     "alias": "Core/color/neutral/950"
+    },
+    "bg/elevated": {
+     "alias": "Core/color/neutral/900"
+    },
+    "bg/raised": {
+     "alias": "Core/color/neutral/700"
+    },
+    "border/subtle": {
+     "alias": "Core/color/neutral/800"
+    },
+    "border/default": {
+     "alias": "Core/color/neutral/600"
+    },
+    "border/strong": {
+     "alias": "Core/color/neutral/500"
+    },
+    "fg/primary": {
+     "alias": "Core/color/neutral/50"
+    },
+    "fg/secondary": {
+     "alias": "Core/color/neutral/200"
+    },
+    "fg/tertiary": {
+     "alias": "Core/color/neutral/300"
+    },
+    "fg/quaternary": {
+     "alias": "Core/color/neutral/400"
+    },
+    "fg/onAccent": {
+     "waarde": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1
+     }
+    },
+    "accent/default": {
+     "alias": "Core/color/red/600"
+    },
+    "accent/hover": {
+     "alias": "Core/color/red/500"
+    },
+    "accent/pressed": {
+     "alias": "Core/color/red/700"
+    },
+    "accent/subtle": {
+     "alias": "Core/color/alpha/red-06"
+    },
+    "accent/muted": {
+     "alias": "Core/color/alpha/red-12"
+    },
+    "achievement/default": {
+     "alias": "Core/color/gold/300"
+    },
+    "achievement/muted": {
+     "alias": "Core/color/gold/500"
+    },
+    "gradient/primaryButtonFrom": {
+     "alias": "Core/color/red/500"
+    },
+    "gradient/primaryButtonTo": {
+     "alias": "Core/color/red/600"
+    },
+    "radius/input": {
+     "alias": "Core/borderRadius/md"
+    },
+    "radius/buttonOutline": {
+     "alias": "Core/borderRadius/sm"
+    },
+    "radius/buttonPrimary": {
+     "alias": "Core/borderRadius/sm"
+    },
+    "radius/card": {
+     "alias": "Core/borderRadius/md"
+    },
+    "radius/highlightRow": {
+     "alias": "Core/borderRadius/sm"
+    },
+    "radius/pill": {
+     "alias": "Core/borderRadius/full"
+    },
+    "stroke/hairline": {
+     "alias": "Core/borderWidth/1"
+    },
+    "stroke/default": {
+     "alias": "Core/borderWidth/1"
+    },
+    "size/buttonPrimaryHeight": {
+     "alias": "Core/sizing/56"
+    },
+    "size/buttonDestructiveHeight": {
+     "alias": "Core/sizing/52"
+    },
+    "size/statusBarHeight": {
+     "alias": "Core/sizing/44"
+    }
+   }
+  },
+  "Component": {
+   "modes": [
+    "Value"
+   ],
+   "variables": [
+    "button/primary/background",
+    "button/primary/color",
+    "button/primary/border",
+    "button/primary/borderWidth",
+    "button/primary/radius",
+    "button/primary/height",
+    "button/primary/paddingX",
+    "button/primary/gradientFrom",
+    "button/primary/gradientTo",
+    "button/outline/background",
+    "button/outline/backgroundHover",
+    "button/outline/color",
+    "button/outline/border",
+    "button/outline/borderWidth",
+    "button/outline/radius",
+    "button/outline/paddingY",
+    "button/outline/paddingX",
+    "button/outline/gap",
+    "button/destructive/background",
+    "button/destructive/color",
+    "button/destructive/border",
+    "button/destructive/borderWidth",
+    "button/destructive/radius",
+    "button/destructive/height",
+    "textLink/color",
+    "textLink/gap",
+    "goalPill/border",
+    "goalPill/borderWidth",
+    "goalPill/radius",
+    "goalPill/paddingY",
+    "goalPill/paddingX",
+    "goalPill/gap",
+    "goalPill/labelColor",
+    "goalPill/valueColor",
+    "kpiTile/paddingY",
+    "kpiTile/borderTop",
+    "kpiTile/borderTopWidth",
+    "kpiTile/labelColor",
+    "kpiTile/valueColor",
+    "kpiTile/unitColor",
+    "kpiTile/unitOffsetLeft",
+    "progressBar/trackColor",
+    "progressBar/trackHeight",
+    "progressBar/fillColor",
+    "progressBar/fillSucces",
+    "progressBar/warningFill",
+    "progressBar/fillHeight",
+    "progressBar/markerSize",
+    "progressBar/markerColor",
+    "progressBar/markerRadius",
+    "segmentedControl/borderBottom",
+    "segmentedControl/borderBottomWidth",
+    "segmentedControl/paddingY",
+    "segmentedControl/inactiveColor",
+    "segmentedControl/activeColor",
+    "segmentedControl/activeIndicatorColor",
+    "segmentedControl/activeIndicatorHeight",
+    "tabBar/borderTop",
+    "tabBar/borderTopWidth",
+    "tabBar/paddingTop",
+    "tabBar/paddingBottom",
+    "tabBar/paddingX",
+    "tabBar/itemGap",
+    "tabBar/inactiveColor",
+    "tabBar/activeColor",
+    "sectionEyebrow/labelColor",
+    "sectionEyebrow/borderBottom",
+    "sectionEyebrow/borderBottomWidth",
+    "sectionEyebrow/paddingBottom",
+    "sectionEyebrow/marginBottom",
+    "sectionEyebrow/linkColor",
+    "splitRow/paddingY",
+    "splitRow/borderTop",
+    "splitRow/borderTopWidth",
+    "splitRow/indexColor",
+    "splitRow/valueColor",
+    "splitRow/secondaryColor",
+    "splitRow/fastestBackground",
+    "splitRow/fastestColor",
+    "splitRow/fastestRadius",
+    "prBadge/border",
+    "prBadge/borderWidth",
+    "prBadge/radius",
+    "prBadge/paddingY",
+    "prBadge/paddingX",
+    "prBadge/gap",
+    "prBadge/color",
+    "recentRow/paddingY",
+    "recentRow/borderTop",
+    "recentRow/borderTopWidth",
+    "recentRow/gap",
+    "recentRow/dayColor",
+    "recentRow/statsColor",
+    "recentRow/paceColor",
+    "screen/background",
+    "screen/paddingX",
+    "screen/paddingXAlt",
+    "statusBar/height",
+    "statusBar/color",
+    "statusBar/paddingX"
+   ],
+   "waarden": {
+    "button/primary/background": {
+     "alias": "Theme/accent/default"
+    },
+    "button/primary/color": {
+     "alias": "Theme/fg/onAccent"
+    },
+    "button/primary/border": {
+     "alias": "Theme/accent/default"
+    },
+    "button/primary/borderWidth": {
+     "alias": "Core/borderWidth/1"
+    },
+    "button/primary/radius": {
+     "alias": "Theme/radius/buttonPrimary"
+    },
+    "button/primary/height": {
+     "alias": "Core/sizing/48"
+    },
+    "button/primary/paddingX": {
+     "alias": "Core/spacing/24"
+    },
+    "button/primary/gradientFrom": {
+     "alias": "Theme/gradient/primaryButtonFrom"
+    },
+    "button/primary/gradientTo": {
+     "alias": "Theme/gradient/primaryButtonTo"
+    },
+    "button/outline/background": {
+     "alias": "Theme/accent/subtle"
+    },
+    "button/outline/backgroundHover": {
+     "alias": "Theme/accent/muted"
+    },
+    "button/outline/color": {
+     "alias": "Theme/accent/default"
+    },
+    "button/outline/border": {
+     "alias": "Theme/accent/default"
+    },
+    "button/outline/borderWidth": {
+     "alias": "Theme/stroke/default"
+    },
+    "button/outline/radius": {
+     "alias": "Theme/radius/buttonOutline"
+    },
+    "button/outline/paddingY": {
+     "alias": "Core/spacing/12"
+    },
+    "button/outline/paddingX": {
+     "alias": "Core/spacing/22"
+    },
+    "button/outline/gap": {
+     "alias": "Core/spacing/10"
+    },
+    "button/destructive/background": {
+     "alias": "Theme/accent/subtle"
+    },
+    "button/destructive/color": {
+     "alias": "Theme/accent/default"
+    },
+    "button/destructive/border": {
+     "alias": "Theme/accent/default"
+    },
+    "button/destructive/borderWidth": {
+     "alias": "Theme/stroke/default"
+    },
+    "button/destructive/radius": {
+     "alias": "Theme/radius/buttonPrimary"
+    },
+    "button/destructive/height": {
+     "alias": "Theme/size/buttonDestructiveHeight"
+    },
+    "textLink/color": {
+     "alias": "Theme/accent/default"
+    },
+    "textLink/gap": {
+     "alias": "Core/spacing/4"
+    },
+    "goalPill/border": {
+     "alias": "Theme/accent/default"
+    },
+    "goalPill/borderWidth": {
+     "alias": "Theme/stroke/default"
+    },
+    "goalPill/radius": {
+     "alias": "Theme/radius/pill"
+    },
+    "goalPill/paddingY": {
+     "alias": "Core/spacing/8"
+    },
+    "goalPill/paddingX": {
+     "alias": "Core/spacing/18"
+    },
+    "goalPill/gap": {
+     "alias": "Core/spacing/10"
+    },
+    "goalPill/labelColor": {
+     "alias": "Theme/accent/default"
+    },
+    "goalPill/valueColor": {
+     "alias": "Theme/accent/default"
+    },
+    "kpiTile/paddingY": {
+     "alias": "Core/spacing/14"
+    },
+    "kpiTile/borderTop": {
+     "alias": "Theme/border/subtle"
+    },
+    "kpiTile/borderTopWidth": {
+     "alias": "Theme/stroke/hairline"
+    },
+    "kpiTile/labelColor": {
+     "alias": "Theme/fg/tertiary"
+    },
+    "kpiTile/valueColor": {
+     "alias": "Theme/fg/primary"
+    },
+    "kpiTile/unitColor": {
+     "alias": "Theme/fg/tertiary"
+    },
+    "kpiTile/unitOffsetLeft": {
+     "alias": "Core/spacing/6"
+    },
+    "progressBar/trackColor": {
+     "alias": "Theme/achievement/muted"
+    },
+    "progressBar/trackHeight": {
+     "alias": "Core/sizing/1"
+    },
+    "progressBar/fillColor": {
+     "alias": "Theme/accent/default"
+    },
+    "progressBar/fillSucces": {
+     "waarde": {
+      "r": 0.2980392277240753,
+      "g": 0.686274528503418,
+      "b": 0.3137255012989044,
+      "a": 1
+     }
+    },
+    "progressBar/warningFill": {
+     "waarde": {
+      "r": 0.9960784316062927,
+      "g": 0.5803921818733215,
+      "b": 0.16078431904315948,
+      "a": 1
+     }
+    },
+    "progressBar/fillHeight": {
+     "alias": "Core/sizing/1"
+    },
+    "progressBar/markerSize": {
+     "alias": "Core/sizing/7"
+    },
+    "progressBar/markerColor": {
+     "alias": "Theme/accent/default"
+    },
+    "progressBar/markerRadius": {
+     "alias": "Core/borderRadius/full"
+    },
+    "segmentedControl/borderBottom": {
+     "alias": "Theme/border/default"
+    },
+    "segmentedControl/borderBottomWidth": {
+     "alias": "Theme/stroke/hairline"
+    },
+    "segmentedControl/paddingY": {
+     "alias": "Core/spacing/14"
+    },
+    "segmentedControl/inactiveColor": {
+     "alias": "Theme/fg/tertiary"
+    },
+    "segmentedControl/activeColor": {
+     "alias": "Theme/accent/default"
+    },
+    "segmentedControl/activeIndicatorColor": {
+     "alias": "Theme/accent/default"
+    },
+    "segmentedControl/activeIndicatorHeight": {
+     "alias": "Core/sizing/1"
+    },
+    "tabBar/borderTop": {
+     "alias": "Theme/border/default"
+    },
+    "tabBar/borderTopWidth": {
+     "alias": "Theme/stroke/hairline"
+    },
+    "tabBar/paddingTop": {
+     "alias": "Core/spacing/18"
+    },
+    "tabBar/paddingBottom": {
+     "alias": "Core/spacing/28"
+    },
+    "tabBar/paddingX": {
+     "alias": "Core/spacing/28"
+    },
+    "tabBar/itemGap": {
+     "alias": "Core/spacing/8"
+    },
+    "tabBar/inactiveColor": {
+     "alias": "Theme/fg/quaternary"
+    },
+    "tabBar/activeColor": {
+     "alias": "Theme/accent/default"
+    },
+    "sectionEyebrow/labelColor": {
+     "alias": "Theme/fg/tertiary"
+    },
+    "sectionEyebrow/borderBottom": {
+     "alias": "Theme/border/default"
+    },
+    "sectionEyebrow/borderBottomWidth": {
+     "alias": "Theme/stroke/hairline"
+    },
+    "sectionEyebrow/paddingBottom": {
+     "alias": "Core/spacing/12"
+    },
+    "sectionEyebrow/marginBottom": {
+     "alias": "Core/spacing/18"
+    },
+    "sectionEyebrow/linkColor": {
+     "alias": "Theme/accent/default"
+    },
+    "splitRow/paddingY": {
+     "alias": "Core/spacing/12"
+    },
+    "splitRow/borderTop": {
+     "alias": "Theme/border/subtle"
+    },
+    "splitRow/borderTopWidth": {
+     "alias": "Theme/stroke/hairline"
+    },
+    "splitRow/indexColor": {
+     "alias": "Theme/fg/quaternary"
+    },
+    "splitRow/valueColor": {
+     "alias": "Theme/fg/primary"
+    },
+    "splitRow/secondaryColor": {
+     "alias": "Theme/fg/secondary"
+    },
+    "splitRow/fastestBackground": {
+     "alias": "Core/color/alpha/red-08"
+    },
+    "splitRow/fastestColor": {
+     "alias": "Theme/accent/default"
+    },
+    "splitRow/fastestRadius": {
+     "alias": "Theme/radius/highlightRow"
+    },
+    "prBadge/border": {
+     "alias": "Theme/achievement/muted"
+    },
+    "prBadge/borderWidth": {
+     "alias": "Theme/stroke/default"
+    },
+    "prBadge/radius": {
+     "alias": "Theme/radius/pill"
+    },
+    "prBadge/paddingY": {
+     "alias": "Core/spacing/4"
+    },
+    "prBadge/paddingX": {
+     "alias": "Core/spacing/10"
+    },
+    "prBadge/gap": {
+     "alias": "Core/spacing/6"
+    },
+    "prBadge/color": {
+     "alias": "Theme/achievement/default"
+    },
+    "recentRow/paddingY": {
+     "alias": "Core/spacing/14"
+    },
+    "recentRow/borderTop": {
+     "alias": "Theme/border/subtle"
+    },
+    "recentRow/borderTopWidth": {
+     "alias": "Theme/stroke/hairline"
+    },
+    "recentRow/gap": {
+     "alias": "Core/spacing/16"
+    },
+    "recentRow/dayColor": {
+     "alias": "Theme/fg/secondary"
+    },
+    "recentRow/statsColor": {
+     "alias": "Theme/fg/primary"
+    },
+    "recentRow/paceColor": {
+     "alias": "Theme/fg/primary"
+    },
+    "screen/background": {
+     "alias": "Theme/bg/base"
+    },
+    "screen/paddingX": {
+     "alias": "Core/spacing/24"
+    },
+    "screen/paddingXAlt": {
+     "alias": "Core/spacing/28"
+    },
+    "statusBar/height": {
+     "alias": "Theme/size/statusBarHeight"
+    },
+    "statusBar/color": {
+     "alias": "Theme/fg/primary"
+    },
+    "statusBar/paddingX": {
+     "alias": "Core/spacing/32"
+    }
+   }
+  }
+ },
+ "textStyles": [
+  {
+   "name": "type/heroNumeric",
+   "family": "Albert Sans",
+   "style": "Bold",
+   "fontSize": 114,
+   "lineHeight": "AUTO",
+   "letterSpacing": -4.5
+  },
+  {
+   "name": "type/heroDisplay",
+   "family": "Source Serif 4",
+   "style": "Regular",
+   "fontSize": 44,
+   "lineHeight": "AUTO",
+   "letterSpacing": -3
+  },
+  {
+   "name": "type/activeProgress",
+   "family": "Source Serif 4",
+   "style": "Regular",
+   "fontSize": 28,
+   "lineHeight": "AUTO",
+   "letterSpacing": -3
+  },
+  {
+   "name": "type/sectionValue",
+   "family": "Albert Sans",
+   "style": "Bold",
+   "fontSize": 34,
+   "lineHeight": "AUTO",
+   "letterSpacing": -3
+  },
+  {
+   "name": "type/kpiValue",
+   "family": "Albert Sans",
+   "style": "Regular",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": -2.5
+  },
+  {
+   "name": "type/kpiUnit",
+   "family": "Albert Sans",
+   "style": "Italic",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": 0
+  },
+  {
+   "name": "type/italicConnector",
+   "family": "Albert Sans",
+   "style": "Italic",
+   "fontSize": 17,
+   "lineHeight": 21.25,
+   "letterSpacing": -0.5
+  },
+  {
+   "name": "type/buttonPrimary",
+   "family": "Albert Sans",
+   "style": "Regular",
+   "fontSize": 18,
+   "lineHeight": "AUTO",
+   "letterSpacing": -1.5
+  },
+  {
+   "name": "type/buttonOutline",
+   "family": "Albert Sans",
+   "style": "Regular",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": -1.5
+  },
+  {
+   "name": "type/textLink",
+   "family": "Albert Sans",
+   "style": "Italic",
+   "fontSize": 15,
+   "lineHeight": "AUTO",
+   "letterSpacing": -0.5
+  },
+  {
+   "name": "type/segmentInactive",
+   "family": "Albert Sans",
+   "style": "Regular",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": -1.5
+  },
+  {
+   "name": "type/segmentActive",
+   "family": "Albert Sans",
+   "style": "SemiBold",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": -1.5
+  },
+  {
+   "name": "type/splitsRow",
+   "family": "Source Serif 4",
+   "style": "Regular",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": -1.5
+  },
+  {
+   "name": "type/recentRow",
+   "family": "Albert Sans",
+   "style": "Regular",
+   "fontSize": 16,
+   "lineHeight": "AUTO",
+   "letterSpacing": -1.5
+  },
+  {
+   "name": "type/labelSection",
+   "family": "Albert Sans",
+   "style": "SemiBold",
+   "fontSize": 13,
+   "lineHeight": "AUTO",
+   "letterSpacing": 20
+  },
+  {
+   "name": "type/labelKpi",
+   "family": "Albert Sans",
+   "style": "Medium",
+   "fontSize": 10,
+   "lineHeight": "AUTO",
+   "letterSpacing": 30
+  },
+  {
+   "name": "type/labelMicro",
+   "family": "Albert Sans",
+   "style": "Medium",
+   "fontSize": 9,
+   "lineHeight": "AUTO",
+   "letterSpacing": 30
+  },
+  {
+   "name": "type/labelGoalPrefix",
+   "family": "Albert Sans",
+   "style": "SemiBold",
+   "fontSize": 11,
+   "lineHeight": 13.75,
+   "letterSpacing": 20
+  }
+ ],
+ "effectStyles": [
+  {
+   "name": "shadow/buttonPrimary",
+   "lagen": 4
+  },
+  {
+   "name": "shadow/buttonOutline",
+   "lagen": 1
+  }
+ ],
+ "pages": {
+  "Chip": {
+   "pageId": "2001:275",
+   "primary": {
+    "name": "Chip",
+    "id": "2013:7988",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "active": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "active=true",
+      "id": "2013:7982"
+     },
+     {
+      "name": "active=false",
+      "id": "2013:7987"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "BottomSheet": {
+   "pageId": "2001:287",
+   "primary": {
+    "name": "default",
+    "id": "2013:8044",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "GoalSheet": {
+   "pageId": "2001:290",
+   "primary": {
+    "name": "default",
+    "id": "2013:8134",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "HealthConsentScreen": {
+   "pageId": "2001:293",
+   "primary": {
+    "name": "default",
+    "id": "2013:8166",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "BottomFade": {
+   "pageId": "2001:296",
+   "primary": {
+    "name": "default",
+    "id": "2013:7942",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "Dot": {
+   "pageId": "2001:299",
+   "primary": {
+    "name": "default",
+    "id": "2013:7944",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "Icon": {
+   "pageId": "2001:302",
+   "primary": {
+    "name": "default",
+    "id": "2013:7946",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "SectionHeader": {
+   "pageId": "2001:305",
+   "primary": {
+    "name": "default",
+    "id": "2013:7948",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "Subtitle": {
+   "pageId": "2001:308",
+   "primary": {
+    "name": "default",
+    "id": "2013:7951",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "Skeleton": {
+   "pageId": "2001:312",
+   "primary": {
+    "name": "default",
+    "id": "2013:7955",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "TabLabel": {
+   "pageId": "2001:317",
+   "primary": {
+    "name": "TabLabel",
+    "id": "2013:7977",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "focused": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "focused=true",
+      "id": "2013:7974"
+     },
+     {
+      "name": "focused=false",
+      "id": "2013:7976"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "KpiSingle": {
+   "pageId": "2001:323",
+   "primary": {
+    "name": "default",
+    "id": "2013:7972",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "ErrorMessage": {
+   "pageId": "2001:330",
+   "primary": {
+    "name": "default",
+    "id": "2013:7959",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "GoalCardSkeleton": {
+   "pageId": "2001:335",
+   "primary": {
+    "name": "default",
+    "id": "2013:7966",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "MotivationalToast": {
+   "pageId": "2001:343",
+   "primary": {
+    "name": "default",
+    "id": "2013:8185",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "DeviceSelectionModal": {
+   "pageId": "2001:352",
+   "primary": {
+    "name": "DeviceSelectionModal",
+    "id": "2013:8876",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "kind": {
+      "values": [
+       "rower",
+       "hr"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "kind=rower",
+      "id": "2013:8842"
+     },
+     {
+      "name": "kind=hr",
+      "id": "2013:8875"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "EmptyState": {
+   "pageId": "2001:370",
+   "primary": {
+    "name": "EmptyState",
+    "id": "2013:8008",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "size": {
+      "values": [
+       "sm",
+       "lg"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "size=sm",
+      "id": "2013:8002"
+     },
+     {
+      "name": "size=lg",
+      "id": "2013:8007"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "PrBadge": {
+   "pageId": "2001:382",
+   "primary": {
+    "name": "PrBadge",
+    "id": "2013:7997",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "size": {
+      "values": [
+       "sm",
+       "md"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "size=sm",
+      "id": "2013:7992"
+     },
+     {
+      "name": "size=md",
+      "id": "2013:7996"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "FormField": {
+   "pageId": "2001:403",
+   "primary": {
+    "name": "FormField",
+    "id": "2013:8021",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "secureTextEntry": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "secureTextEntry=true",
+      "id": "2013:8015"
+     },
+     {
+      "name": "secureTextEntry=false",
+      "id": "2013:8020"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "WorkoutCard": {
+   "pageId": "2001:417",
+   "primary": {
+    "name": "default",
+    "id": "2013:8204",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "ErrorState": {
+   "pageId": "2001:437",
+   "primary": {
+    "name": "ErrorState",
+    "id": "2013:8059",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "size": {
+      "values": [
+       "sm",
+       "lg"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "size=sm",
+      "id": "2013:8051"
+     },
+     {
+      "name": "size=lg",
+      "id": "2013:8058"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "SplitsList": {
+   "pageId": "2001:453",
+   "primary": {
+    "name": "default",
+    "id": "2013:8221",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "GoalProgressCard": {
+   "pageId": "2001:471",
+   "primary": {
+    "name": "default",
+    "id": "2013:8240",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": []
+  },
+  "Segmented": {
+   "pageId": "2001:491",
+   "primary": {
+    "name": "Segmented",
+    "id": "2013:8257",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "variant": {
+      "values": [
+       "filled",
+       "band"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "variant=filled",
+      "id": "2013:8248"
+     },
+     {
+      "name": "variant=band",
+      "id": "2013:8256"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "HrStatusBar": {
+   "pageId": "2001:509",
+   "primary": {
+    "name": "HrStatusBar",
+    "id": "2013:8311",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "hrStatus": {
+      "values": [
+       "idle",
+       "scanning",
+       "waiting",
+       "connected",
+       "error"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "hrStatus=idle",
+      "id": "2013:8266"
+     },
+     {
+      "name": "hrStatus=scanning",
+      "id": "2013:8279"
+     },
+     {
+      "name": "hrStatus=waiting",
+      "id": "2013:8292"
+     },
+     {
+      "name": "hrStatus=connected",
+      "id": "2013:8301"
+     },
+     {
+      "name": "hrStatus=error",
+      "id": "2013:8310"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "WheelPicker": {
+   "pageId": "2001:558",
+   "primary": {
+    "name": "WheelPicker",
+    "id": "2013:9191",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "showPill": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "surface": {
+      "values": [
+       "base",
+       "raised"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "showPill=true, surface=base",
+      "id": "2013:8955"
+     },
+     {
+      "name": "showPill=true, surface=raised",
+      "id": "2013:9034"
+     },
+     {
+      "name": "showPill=false, surface=base",
+      "id": "2013:9112"
+     },
+     {
+      "name": "showPill=false, surface=raised",
+      "id": "2013:9190"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "IdlePhase": {
+   "pageId": "2001:682",
+   "primary": {
+    "name": "Playground",
+    "id": "2013:9551",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "Niet Verbonden",
+     "id": "2013:9691",
+     "type": "COMPONENT"
+    },
+    {
+     "name": "Doel Afstand",
+     "id": "2013:9831",
+     "type": "COMPONENT"
+    },
+    {
+     "name": "Toestel Keuze",
+     "id": "2013:9975",
+     "type": "COMPONENT"
+    }
+   ]
+  },
+  "BleStatusBar": {
+   "pageId": "2001:743",
+   "primary": {
+    "name": "BleStatusBar",
+    "id": "2013:8396",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "bleStatus": {
+      "values": [
+       "idle",
+       "scanning",
+       "connecting",
+       "discovering",
+       "connected",
+       "disconnecting",
+       "reconnecting",
+       "error"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "bleStatus=idle",
+      "id": "2013:8320"
+     },
+     {
+      "name": "bleStatus=scanning",
+      "id": "2013:8333"
+     },
+     {
+      "name": "bleStatus=connecting",
+      "id": "2013:8346"
+     },
+     {
+      "name": "bleStatus=discovering",
+      "id": "2013:8359"
+     },
+     {
+      "name": "bleStatus=connected",
+      "id": "2013:8368"
+     },
+     {
+      "name": "bleStatus=disconnecting",
+      "id": "2013:8377"
+     },
+     {
+      "name": "bleStatus=reconnecting",
+      "id": "2013:8386"
+     },
+     {
+      "name": "bleStatus=error",
+      "id": "2013:8395"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "DeviceRow": {
+   "pageId": "2001:820",
+   "primary": {
+    "name": "DeviceRow",
+    "id": "2013:8485",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "icon": {
+      "values": [
+       "dot",
+       "heart"
+      ]
+     },
+     "loading": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "actionDisabled": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "icon=dot, loading=true, actionDisabled=true",
+      "id": "2013:8409"
+     },
+     {
+      "name": "icon=dot, loading=true, actionDisabled=false",
+      "id": "2013:8422"
+     },
+     {
+      "name": "icon=dot, loading=false, actionDisabled=true",
+      "id": "2013:8431"
+     },
+     {
+      "name": "icon=dot, loading=false, actionDisabled=false",
+      "id": "2013:8440"
+     },
+     {
+      "name": "icon=heart, loading=true, actionDisabled=true",
+      "id": "2013:8453"
+     },
+     {
+      "name": "icon=heart, loading=true, actionDisabled=false",
+      "id": "2013:8466"
+     },
+     {
+      "name": "icon=heart, loading=false, actionDisabled=true",
+      "id": "2013:8475"
+     },
+     {
+      "name": "icon=heart, loading=false, actionDisabled=false",
+      "id": "2013:8484"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "GoalSegments": {
+   "pageId": "2001:898",
+   "primary": {
+    "name": "GoalSegments",
+    "id": "2013:8551",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "selected": {
+      "values": [
+       "none",
+       "duration",
+       "distance",
+       "split",
+       "watts"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "selected=none",
+      "id": "2013:8498"
+     },
+     {
+      "name": "selected=duration",
+      "id": "2013:8511"
+     },
+     {
+      "name": "selected=distance",
+      "id": "2013:8524"
+     },
+     {
+      "name": "selected=split",
+      "id": "2013:8537"
+     },
+     {
+      "name": "selected=watts",
+      "id": "2013:8550"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "KPI": {
+   "pageId": "2001:970",
+   "primary": {
+    "name": "KPI",
+    "id": "2013:8648",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "highlighted": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "compact": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "fill": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "loading": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "highlighted=true, compact=true, fill=true, loading=true",
+      "id": "2013:8559"
+     },
+     {
+      "name": "highlighted=true, compact=true, fill=true, loading=false",
+      "id": "2013:8563"
+     },
+     {
+      "name": "highlighted=true, compact=true, fill=false, loading=true",
+      "id": "2013:8571"
+     },
+     {
+      "name": "highlighted=true, compact=true, fill=false, loading=false",
+      "id": "2013:8575"
+     },
+     {
+      "name": "highlighted=true, compact=false, fill=true, loading=true",
+      "id": "2013:8583"
+     },
+     {
+      "name": "highlighted=true, compact=false, fill=true, loading=false",
+      "id": "2013:8587"
+     },
+     {
+      "name": "highlighted=true, compact=false, fill=false, loading=true",
+      "id": "2013:8595"
+     },
+     {
+      "name": "highlighted=true, compact=false, fill=false, loading=false",
+      "id": "2013:8599"
+     },
+     {
+      "name": "highlighted=false, compact=true, fill=true, loading=true",
+      "id": "2013:8607"
+     },
+     {
+      "name": "highlighted=false, compact=true, fill=true, loading=false",
+      "id": "2013:8611"
+     },
+     {
+      "name": "highlighted=false, compact=true, fill=false, loading=true",
+      "id": "2013:8619"
+     },
+     {
+      "name": "highlighted=false, compact=true, fill=false, loading=false",
+      "id": "2013:8623"
+     },
+     {
+      "name": "highlighted=false, compact=false, fill=true, loading=true",
+      "id": "2013:8631"
+     },
+     {
+      "name": "highlighted=false, compact=false, fill=true, loading=false",
+      "id": "2013:8635"
+     },
+     {
+      "name": "highlighted=false, compact=false, fill=false, loading=true",
+      "id": "2013:8643"
+     },
+     {
+      "name": "highlighted=false, compact=false, fill=false, loading=false",
+      "id": "2013:8647"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "Button": {
+   "pageId": "2001:1068",
+   "primary": {
+    "name": "Button",
+    "id": "2013:8809",
+    "type": "COMPONENT_SET",
+    "variantProperties": {
+     "variant": {
+      "values": [
+       "primary",
+       "destructive",
+       "ghost",
+       "outline"
+      ]
+     },
+     "size": {
+      "values": [
+       "md",
+       "lg"
+      ]
+     },
+     "loading": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "disabled": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "variant=primary, size=md, loading=true, disabled=true",
+      "id": "2013:8655"
+     },
+     {
+      "name": "variant=primary, size=md, loading=true, disabled=false",
+      "id": "2013:8662"
+     },
+     {
+      "name": "variant=primary, size=md, loading=false, disabled=true",
+      "id": "2013:8665"
+     },
+     {
+      "name": "variant=primary, size=md, loading=false, disabled=false",
+      "id": "2013:8668"
+     },
+     {
+      "name": "variant=primary, size=lg, loading=true, disabled=true",
+      "id": "2013:8675"
+     },
+     {
+      "name": "variant=primary, size=lg, loading=true, disabled=false",
+      "id": "2013:8682"
+     },
+     {
+      "name": "variant=primary, size=lg, loading=false, disabled=true",
+      "id": "2013:8685"
+     },
+     {
+      "name": "variant=primary, size=lg, loading=false, disabled=false",
+      "id": "2013:8688"
+     },
+     {
+      "name": "variant=destructive, size=md, loading=true, disabled=true",
+      "id": "2013:8695"
+     },
+     {
+      "name": "variant=destructive, size=md, loading=true, disabled=false",
+      "id": "2013:8702"
+     },
+     {
+      "name": "variant=destructive, size=md, loading=false, disabled=true",
+      "id": "2013:8705"
+     },
+     {
+      "name": "variant=destructive, size=md, loading=false, disabled=false",
+      "id": "2013:8708"
+     },
+     {
+      "name": "variant=destructive, size=lg, loading=true, disabled=true",
+      "id": "2013:8715"
+     },
+     {
+      "name": "variant=destructive, size=lg, loading=true, disabled=false",
+      "id": "2013:8722"
+     },
+     {
+      "name": "variant=destructive, size=lg, loading=false, disabled=true",
+      "id": "2013:8725"
+     },
+     {
+      "name": "variant=destructive, size=lg, loading=false, disabled=false",
+      "id": "2013:8728"
+     },
+     {
+      "name": "variant=ghost, size=md, loading=true, disabled=true",
+      "id": "2013:8735"
+     },
+     {
+      "name": "variant=ghost, size=md, loading=true, disabled=false",
+      "id": "2013:8742"
+     },
+     {
+      "name": "variant=ghost, size=md, loading=false, disabled=true",
+      "id": "2013:8745"
+     },
+     {
+      "name": "variant=ghost, size=md, loading=false, disabled=false",
+      "id": "2013:8748"
+     },
+     {
+      "name": "variant=ghost, size=lg, loading=true, disabled=true",
+      "id": "2013:8755"
+     },
+     {
+      "name": "variant=ghost, size=lg, loading=true, disabled=false",
+      "id": "2013:8762"
+     },
+     {
+      "name": "variant=ghost, size=lg, loading=false, disabled=true",
+      "id": "2013:8765"
+     },
+     {
+      "name": "variant=ghost, size=lg, loading=false, disabled=false",
+      "id": "2013:8768"
+     },
+     {
+      "name": "variant=outline, size=md, loading=true, disabled=true",
+      "id": "2013:8775"
+     },
+     {
+      "name": "variant=outline, size=md, loading=true, disabled=false",
+      "id": "2013:8782"
+     },
+     {
+      "name": "variant=outline, size=md, loading=false, disabled=true",
+      "id": "2013:8785"
+     },
+     {
+      "name": "variant=outline, size=md, loading=false, disabled=false",
+      "id": "2013:8788"
+     },
+     {
+      "name": "variant=outline, size=lg, loading=true, disabled=true",
+      "id": "2013:8795"
+     },
+     {
+      "name": "variant=outline, size=lg, loading=true, disabled=false",
+      "id": "2013:8802"
+     },
+     {
+      "name": "variant=outline, size=lg, loading=false, disabled=true",
+      "id": "2013:8805"
+     },
+     {
+      "name": "variant=outline, size=lg, loading=false, disabled=false",
+      "id": "2013:8808"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "ActivePhase": {
+   "pageId": "2001:1238",
+   "primary": {
+    "name": "Playground",
+    "id": "2013:9235",
+    "type": "COMPONENT",
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "Doel Afstand",
+     "id": "2013:9279",
+     "type": "COMPONENT"
+    },
+    {
+     "name": "Zonder Hartslagband",
+     "id": "2013:9323",
+     "type": "COMPONENT"
+    },
+    {
+     "name": "Doel Bereikt",
+     "id": "2013:9367",
+     "type": "COMPONENT"
+    },
+    {
+     "name": "Samenvatting",
+     "id": "2013:9411",
+     "type": "COMPONENT"
+    }
+   ]
+  }
+ }
+}
