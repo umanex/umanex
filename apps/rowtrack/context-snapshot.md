@@ -59,15 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+02acf5f chore(rowtrack): manifest na de herpublicatie
 c9388ea chore(rowtrack): manifest en geometrie na de achtergrondmigratie
 d0373df fix(rowtrack): de app-achtergrond hoort achter de component, niet erin
 1e5e31c docs(rowtrack): de poort geweigerd gemeten, en de instance-toets als gat benoemd
 59d38ee docs(rowtrack): bewijs bij de twee afgeschreven acceptatie-assen
-10cf9a2 feat(rowtrack): slots als component properties, en de herbouw met leesbare laagnamen
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
 
 ## Bestanden met TODO/FIXME
   (geen)
