@@ -113,7 +113,25 @@ async function maak(n, naamPad) {
     t.fills = n.t.kVar && V.get(n.t.kVar)
       ? [figma.variables.setBoundVariableForPaint(p, 'color', V.get(n.t.kVar))] : [p];
     if (!n.t.kVar) meldingen.push(`${naamPad}: tekstkleur ongebonden`);
-    t.textAutoResize = 'WIDTH_AND_HEIGHT';
+    // De browser BREEKT tekst af op de beschikbare breedte; Figma rekt met
+    // WIDTH_AND_HEIGHT tot één lange regel. Gemeten 2026-09-08 op HealthConsentScreen:
+    // een alinea van 390px liep in Figma door tot ~1340px, ver buiten het frame.
+    //
+    // Maar de breedte vastzetten mag NIET overal. Figma's tekstengine meet dezelfde tekst
+    // iets breder dan Chromium, dus een label dat in de browser NET op één regel past,
+    // breekt in Figma alsnog af — gemeten op dezelfde pagina: "Ja, ik geef toestemming"
+    // (193x22 in de browser) stond in Figma over twee regels.
+    //
+    // Dus: alleen vastzetten waar de browser ZELF afbrak. Dat is af te lezen aan de
+    // gemeten hoogte tegen één regelhoogte (de tokenwaarde als die er is, anders 1,35x de
+    // fontgrootte — de natuurlijke regelhoogte van deze families).
+    const enkeleRegel = n.t.lh ?? n.t.px * 1.35;
+    if (n.h > enkeleRegel * 1.5) {
+      t.textAutoResize = 'HEIGHT';
+      t.resize(Math.max(1, n.w), Math.max(1, n.h));
+    } else {
+      t.textAutoResize = 'WIDTH_AND_HEIGHT';
+    }
     return t;
   }
 

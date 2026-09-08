@@ -59,24 +59,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
+9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
+653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
 9d54aa0 fix(rowtrack): lege frames verholpen in Figma, 33 van 33 kloppen
 134273b fix(rowtrack): vijf componenten stonden als leeg frame in Figma
-9a0e90c docs(rowtrack): CI dekt de nieuwe Figma-guards nog niet
-9f92a30 feat(rowtrack): sync gevalideerd — guard, tegenproef en parity groen
-d3f5026 fix(rowtrack): achtergrondlagen, herstelde fades en gebonden gradient-stops
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/context-snapshot.md
-   M apps/rowtrack/figma/build-spec.min.json
-   M apps/rowtrack/figma/builder.js
-   M apps/rowtrack/scripts/figma-build-prune.mjs
-  A  packages/ui/components/ui/dropdown-menu.stories.tsx
-  A  packages/ui/components/ui/dropdown-menu.tsx
-  M  packages/ui/figma/geometry.code.json
-  M  packages/ui/figma/manifest.json
-  M  packages/ui/package.json
+  M  apps/rowtrack/components/BleStatusBar.stories.tsx
+  M  apps/rowtrack/components/BottomFade.stories.tsx
+  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/components/Button.stories.tsx
+  M  apps/rowtrack/components/Chip.stories.tsx
+  M  apps/rowtrack/components/DeviceRow.stories.tsx
+  M  apps/rowtrack/components/Dot.stories.tsx
+  M  apps/rowtrack/components/EmptyState.stories.tsx
+  M  apps/rowtrack/components/ErrorMessage.stories.tsx
+  M  apps/rowtrack/components/ErrorState.stories.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

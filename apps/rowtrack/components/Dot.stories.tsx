@@ -18,7 +18,7 @@ const meta = {
   },
   args: {},
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2008-4553' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2013-7944' },
   },
 } satisfies Meta<typeof Dot>;
 

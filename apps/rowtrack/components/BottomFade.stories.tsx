@@ -22,7 +22,7 @@ const meta = {
   },
   args: {},
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2009-4949' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2013-7942' },
   },
 } satisfies Meta<typeof BottomFade>;
 

@@ -21,7 +21,11 @@ const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
 const spec = JSON.parse(readFileSync(join(APP, 'figma/build-spec.json'), 'utf8'));
 
 const MAX_BROERS = 8;
-const MAX_DIEPTE = 4;
+// Vier ontwerplagen bleek te ondiep voor een schermcompositie: scherm -> scrollgebied ->
+// inhoud -> knop -> LABEL is er al vijf. Gemeten 2026-09-08 op HealthConsentScreen, waar
+// beide CTA-knoppen als lege omlijnde pillen in Figma stonden omdat hun label net buiten
+// het budget viel. Doorvoer-wrappers tellen niet mee, dus zes telt écht zes ontwerplagen.
+const MAX_DIEPTE = 8;
 let afgekaptTotaal = 0;
 const afkappingen = [];
 
