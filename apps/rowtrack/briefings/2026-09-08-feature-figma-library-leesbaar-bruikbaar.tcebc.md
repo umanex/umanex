@@ -99,8 +99,8 @@ Geen. De vier kritische items zijn beantwoord in de Aannames en de Acceptatie hi
 
 **Afgeschreven assen**
 
-- [x] States n.v.t. — dit spoor voegt geen data-laag toe; loading, empty en error bestaan al als eigen componenten (`Skeleton`, `EmptyState`, `ErrorState`) met hun eigen stories, en veranderen hier niet
-- [x] Edge case *iconen* afgeschreven — INSTANCE_SWAP blijft geblokkeerd op de ontbrekende Ionicons-TTF, bestaand BACKLOG-item; iconen blijven gestippelde placeholders, maar krijgen wél de naam `icon` in plaats van `Icon 24`
+- [x] States n.v.t. — dit spoor voegt geen data-laag toe; loading, empty en error bestaan al als eigen componenten en veranderen hier niet — bewijs: `git diff origin/main...HEAD -- components/Skeleton.tsx components/EmptyState.tsx components/ErrorState.tsx` is leeg op de `.tsx` (alleen de `.stories.tsx` veranderden, en daarin enkel de deep-link-node-id)
+- [x] Edge case *iconen* afgeschreven — INSTANCE_SWAP blijft geblokkeerd op de ontbrekende Ionicons-TTF (bestaand BACKLOG-item); iconen blijven gestippelde placeholders — bewijs: `figma:check` telt 0 nodes met een naam van de vorm `Icon <maat>` en `laagnamen.json` geeft 177 nodes met de naam `icon`
 
 ## Beslissingsgeschiedenis
 

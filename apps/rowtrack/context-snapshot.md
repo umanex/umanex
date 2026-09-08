@@ -59,24 +59,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+10cf9a2 feat(rowtrack): slots als component properties, en de herbouw met leesbare laagnamen
 5e2e43d feat(rowtrack): laagnamen uit de code in plaats van de broer-index
 2a877ee feat(rowtrack): RowTrack - Design draait op de gepubliceerde library
 c8ad872 fix(rowtrack): fontWeights krijgt zijn Figma-type uit de waarde, niet uit de tokengroep
 549eb47 feat(rowtrack): publicatie- en handwerkpoort vóór elke Figma-herbouw
-798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Chip.stories.tsx
-  M  apps/rowtrack/components/DeviceRow.stories.tsx
-  M  apps/rowtrack/components/Dot.stories.tsx
-  M  apps/rowtrack/components/EmptyState.stories.tsx
+  ?? apps/rowtrack/figma/bouwresultaat.json
 
 ## Bestanden met TODO/FIXME
   (geen)
