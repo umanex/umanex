@@ -65,22 +65,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+945ffa1 refactor(rowtrack): cut 6 — ConnectionOverlay
 784c2bd refactor(rowtrack): cut 5 — ProgressBar
 db48bdc refactor(rowtrack): cut 4 — ActiveHeader
 b437d03 refactor(rowtrack): cut 3 — HeroPanel
 ae2646c refactor(rowtrack): cut 2 — SubtitleProgress
-371870d feat(rowtrack): a gate for the cuts, and cut 1 — GoalPill
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/workout/ActivePhase.tsx
-  A  apps/rowtrack/components/workout/active/ConnectionOverlay.stories.tsx
-  A  apps/rowtrack/components/workout/active/ConnectionOverlay.tsx
-  M  apps/rowtrack/components/workout/workout.styles.ts
   M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/ongebonden.json
-  M  apps/rowtrack/figma/story-axes.json
+  M  apps/rowtrack/figma/niet-reproduceerbaar.json
 
 ## Bestanden met TODO/FIXME
   (geen)
