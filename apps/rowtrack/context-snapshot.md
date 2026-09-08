@@ -59,24 +59,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+05f33bb chore(rowtrack): Figma round A — rebuild the library on the new layer names
 cebd5da test(rowtrack): three levels of counter-proof for the naming ladder
 642b820 refactor(rowtrack): direct imports instead of the barrel inside components
 849f532 feat(rowtrack): the naming ladder uses the declared boundary, not a guess
 ffe034c feat(rowtrack): the walker reads the component boundary, and proves it landed
-1c8cbd5 refactor(rowtrack): testID on every component root, and KpiSingle renamed
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Chip.stories.tsx
-  M  apps/rowtrack/components/DeviceRow.stories.tsx
-  M  apps/rowtrack/components/Dot.stories.tsx
-  M  apps/rowtrack/components/EmptyState.stories.tsx
-  M  apps/rowtrack/components/ErrorMessage.stories.tsx
-  M  apps/rowtrack/components/ErrorState.stories.tsx
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)
