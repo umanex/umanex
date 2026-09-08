@@ -27,7 +27,11 @@ import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
-const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
+// --root=<map> laat beide passen op een KOPIE van de repo draaien. Nodig voor de
+// producent-tegenproef: die muteert een kopie van de spec, draait de echte naamgevingspas
+// erover en eist dat de guard omvalt — met het echte script, niet met een nabouw ervan.
+const rootFlag = process.argv.find(a => a.startsWith('--root='));
+const APP = rootFlag ? rootFlag.slice('--root='.length) : join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
  * `--hernoem` draait ALLEEN de naamgevingspas opnieuw, op de bestaande figma/build-spec.json.
@@ -39,6 +43,14 @@ const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
 if (process.argv.includes('--hernoem')) {
   const specPad = join(APP, 'figma/build-spec.json');
   const spec = JSON.parse(readFileSync(specPad, 'utf8'));
+  // Een spec van vóór de componentgrens draagt geen `component` per node. De ladder zou hem
+  // dan lezen als "geen enkel component declareert een grens" en netjes terugvallen op de
+  // heuristiek — een gevulde, geloofwaardige, verkeerde uitkomst. Weigeren dus.
+  if (spec.walkerVersie !== 2) {
+    console.error(`figma/build-spec.json draagt walkerVersie ${spec.walkerVersie ?? 1}, deze pas eist 2 `
+      + '(mét `component` en `laag` per node). Draai `figma:spec` opnieuw.');
+    process.exit(2);
+  }
   let n = 0;
   spec.naamStats = [];
   for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(...benoemAlles(comp, d.varianten)); n++; }

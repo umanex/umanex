@@ -254,7 +254,7 @@ if (basis.code !== 0) {
   process.exit(2);
 }
 
-let goed = 0, fout = 0;
+let goed = 0, fout = 0, totaal = MUTATIES.length;
 for (const m of MUTATIES) {
   const map = kopie();
   let r;
@@ -281,5 +281,57 @@ for (const m of MUTATIES) {
   rmSync(map, { recursive: true, force: true });
 }
 
-console.log(`\n${goed} van ${MUTATIES.length} mutaties gedroegen zich zoals bedoeld.`);
+// ── De PRODUCENT-tegenproef ───────────────────────────────────────────────────────────────
+// De mutaties hierboven zetten een JSON-veld en bewijzen dat de GUARD het leest — dat was
+// reviewbevinding R06, en het is een echte beperking: ze raken de producent niet aan. Deze
+// twee draaien de ECHTE naamgevingspas (`--hernoem`) plus de echte snoei op een kopie:
+//
+//  · MUTATIE — strip `component` van élke node, alsof geen enkel bestand een testID draagt.
+//    De heuristische tak moet het gat opvullen en `componentZonderTestID` moet de ratel
+//    voorbijschieten, dus de guard hoort om te vallen.
+//  · CONTROLE — dezelfde twee passen op een ONgemuteerde kopie, met een groene guard erna.
+//    Dat toetst twee dingen tegelijk die geen enkele andere check dekt: dat de pas
+//    deterministisch is, en dat `figma/laagnamen.json` op schijf ís wat de producent nu zou
+//    schrijven (een driftcheck).
+//
+// `figma/build-spec.json` is gitignored (39 MB), dus dit werkt alleen lokaal. In CI wordt het
+// als OVERGESLAGEN gemeld en niet als ok — een ontbrekend instrument is geen groen resultaat.
+const SPEC = join(APP, 'figma/build-spec.json');
+if (!existsSync(SPEC)) {
+  console.log('  -- producent          OVERGESLAGEN: figma/build-spec.json ontbreekt (gitignored). '
+    + 'Draai `figma:spec` lokaal; in CI kan deze tegenproef niet draaien.');
+} else {
+  const passen = (map) => {
+    execFileSync(process.execPath, [join(APP, 'scripts/figma-build-spec.mjs'), '--hernoem', `--root=${map}`], { stdio: 'ignore' });
+    execFileSync(process.execPath, [join(APP, 'scripts/figma-build-prune.mjs'), `--root=${map}`], { stdio: 'ignore' });
+  };
+  for (const [naam, muteer, hoort] of [
+    ['producent-controle', null, 0],
+    ['producent-grensweg', (x) => { (function loop(n) { delete n.component; for (const k of n.kinderen ?? []) loop(k); })(x); }, 1],
+  ]) {
+    const map = kopie();
+    try {
+      if (muteer) {
+        const x = JSON.parse(readFileSync(join(map, 'figma/build-spec.json'), 'utf8'));
+        for (const d of Object.values(x.componenten)) for (const v of d.varianten) { muteer(v.boom); (v.overlays ?? []).forEach(muteer); }
+        for (const d of Object.values(x.schermen)) for (const v of d.frames) { muteer(v.boom); (v.overlays ?? []).forEach(muteer); }
+        writeFileSync(join(map, 'figma/build-spec.json'), JSON.stringify(x));
+      }
+      passen(map);
+      const r = draai(map);
+      const geslaagd = r.code === hoort;
+      const hr = JSON.parse(readFileSync(join(map, 'figma/laagnamen.json'), 'utf8')).componentZonderTestID;
+      console.log(`  ${geslaagd ? 'ok' : 'XX'} ${naam.padEnd(20)} echte hernoem+snoei → exit ${r.code} (hoort ${hoort}), `
+        + `componentZonderTestID=${hr}`);
+      geslaagd ? goed++ : fout++;
+      totaal++;
+    } catch (e) {
+      console.log(`  ?? ${naam.padEnd(20)} draaide niet: ${e.message.split('\n')[0]}`);
+      fout++; totaal++;
+    }
+    rmSync(map, { recursive: true, force: true });
+  }
+}
+
+console.log(`\n${goed} van ${totaal} mutaties gedroegen zich zoals bedoeld.`);
 if (fout) { console.log(`${fout} niet — die as meet niet wat hij beweert te meten.`); process.exit(1); }

@@ -59,20 +59,19 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+642b820 refactor(rowtrack): direct imports instead of the barrel inside components
 849f532 feat(rowtrack): the naming ladder uses the declared boundary, not a guess
 ffe034c feat(rowtrack): the walker reads the component boundary, and proves it landed
 1c8cbd5 refactor(rowtrack): testID on every component root, and KpiSingle renamed
 9d1016e feat(rowtrack): screens out of the library, and parity green on every node
-fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/MotivationalToast.tsx
-  M  apps/rowtrack/components/workout/ActivePhase.tsx
-  M  apps/rowtrack/components/workout/IdlePhase.tsx
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/package.json
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/scripts/figma-build-spec.mjs
+  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
+  A  apps/rowtrack/scripts/laagnamen-selftest.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -17,7 +17,9 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
+// --root=<map>: zie figma-build-spec.mjs. De producent-tegenproef draait beide passen op een kopie.
+const rootFlag = process.argv.find(a => a.startsWith('--root='));
+const APP = rootFlag ? rootFlag.slice('--root='.length) : join(dirname(fileURLToPath(import.meta.url)), '..');
 const spec = JSON.parse(readFileSync(join(APP, 'figma/build-spec.json'), 'utf8'));
 
 const MAX_BROERS = 8;
