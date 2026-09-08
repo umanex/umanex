@@ -14,7 +14,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { EdgeInsets } from 'react-native-safe-area-context';
 import type { ConnectionStatus, HRStatus } from '@/lib/ble/types';
 import type { WorkoutGoal } from '@/lib/workout-goals';
-import { Button, KpiSingle } from '@/components';
+// Directe imports, geen barrel — zie IdlePhase.tsx voor het waarom.
+import { Button } from '@/components/Button';
+import { KpiSingle } from '@/components/KpiSingle';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
 import { formatTimer, formatTimerFull, formatSplit, formatDistanceDynamic, formatInt, formatDecimal, correctSpm } from '@/lib/formatters';
@@ -489,7 +491,7 @@ export function ActivePhase({
   const padH = Math.max(layout.screenHorizontal, insets.left, insets.right);
 
   return (
-    <View style={[styles.container, { paddingHorizontal: 0 }]}>
+    <View testID="ActivePhase" style={[styles.container, { paddingHorizontal: 0 }]}>
       {/* Connection status overlay */}
       {isConnecting && (
         <View style={[styles.connectionOverlay, { paddingHorizontal: padH }]}>

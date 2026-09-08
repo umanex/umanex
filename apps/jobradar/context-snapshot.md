@@ -48,6 +48,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
   A  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
   A  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
   A  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
+  M  apps/jobradar/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)

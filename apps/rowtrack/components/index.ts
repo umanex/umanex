@@ -36,7 +36,7 @@ export type { WorkoutCardProps } from './WorkoutCard';
 export { BottomFade } from './BottomFade';
 
 export { KPI } from './KPI';
-export { KpiSingle } from './KPI_single';
+export { KpiSingle } from './KpiSingle';
 
 export { GoalProgressCard } from './GoalProgressCard';
 export { GoalCardSkeleton } from './GoalCardSkeleton';

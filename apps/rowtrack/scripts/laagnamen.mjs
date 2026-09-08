@@ -152,9 +152,10 @@ export function stabiliseer(bomen) {
       const tel = new Map();
       for (const r of rijen) tel.set(r[i].naam, (tel.get(r[i].naam) ?? 0) + 1);
       if (tel.size < 2) continue;
-      // Een rnw-naam is een feit over de DOM, geen sleutelgok. Hem naar een meerderheid
-      // gladstrijken spreekt de bron tegen die hem heeft opgeleverd.
-      if (rijen.some(r => r[i].naamBron === 'rnw')) continue;
+      // Een naam uit de DOM — `data-testid`, `data-laag` of een herkende rnw-hostlaag — is een
+      // FEIT, geen sleutelgok. Hem naar een meerderheid gladstrijken spreekt de bron tegen die
+      // hem heeft opgeleverd.
+      if (rijen.some(r => ['rnw', 'testid', 'laag'].includes(r[i].naamBron))) continue;
       posities++;
       const winnaar = [...tel.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0][0];
       for (const r of rijen) if (r[i].naam !== winnaar) { r[i].naam = winnaar; r[i].naamGestabiliseerd = true; verschoven++; }
@@ -194,6 +195,7 @@ function terugval(n, ouder) {
  * @param {object[]} bomen     de boom van elke variant
  */
 export function benoem(comp, bomen) {
+  const heuristiekTreffers = [];
   // Universeel = de sleutel komt in ELKE variant ergens boven de drempel voor. Een
   // universele sleutel is de identiteit van het element, een conditionele de modifier —
   // en de modifier is precies wat de variant-as al uitdrukt.
@@ -204,14 +206,36 @@ export function benoem(comp, bomen) {
         .map(c => vouw.get(sleutelId(c)) ?? sleutelId(c)))));
     return new Set([...(perVariant[0] ?? [])].filter(s => perVariant.every(p => p.has(s))));
   };
+  /**
+   * `o` — komt deze sleutel uit het bestand van het component dat deze node OMSLUIT?
+   *
+   * Hij staat als EERSTE sorteersleutel, niet als tiebreaker. Als tiebreaker zou hij alleen de
+   * exacte gelijkspelen oplossen; als eerste sleutel verslaat een sleutel binnen de verklaarde
+   * grens óók een vreemde sleutel met hógere dekking. Dat laatste is de bron van de ambigue
+   * namen: atomaire klassen zijn globaal gedeeld over élke `StyleSheet.create` in de
+   * preview-iframe, dus `doelPillValueRow` in ActivePhase won `row` uit Chip.tsx.
+   *
+   * De grens komt uit `data-testid` (een feit), niet uit `naamBronId` — dat is zelf een gok.
+   */
   const rangschik = (n, vouw, universeel) => (n.kandidaten ?? [])
     .map(c => {
       const id = sleutelId(c);
       return { ...c, id, naam: vouw.get(id) ?? c.s, cov: c.eigen.length / c.n, d: c.eigen.length,
-               u: universeel.has(vouw.get(id) ?? id) ? 0 : 1 };
+               u: universeel.has(vouw.get(id) ?? id) ? 0 : 1,
+               o: n.omsluit && c.bron.endsWith(`/${n.omsluit}.tsx`) ? 0 : 1 };
     })
     .filter(c => c.cov >= DREMPEL)
-    .sort((a, b) => a.u - b.u || b.cov - a.cov || b.d - a.d || a.v - b.v);
+    .sort((a, b) => a.o - b.o || a.u - b.u || b.cov - a.cov || b.d - a.d || a.v - b.v);
+
+  // VOORPAS — welk component omsluit elke node? Top-down uit de dichtstbijzijnde `data-testid`,
+  // anders het story-component. Dit moet vóór pas 1, want `rangschik` gebruikt het in beide
+  // passen en een verschil ertussen maakt het vouwen-bewijs onbetrouwbaar.
+  const zetOmsluit = (n, erfenis) => {
+    const eigen = n.component ?? erfenis;
+    n.omsluit = eigen;
+    for (const k of n.kinderen ?? []) zetOmsluit(k, eigen);
+  };
+  for (const b of bomen) zetOmsluit(b, comp);
 
   // PAS 1 — een rauwe winnaar per node, zonder vouwen. Die is nodig om te zien welke twee
   // sleutels om de beurt op DEZELFDE POSITIE winnen; dat is het positieve bewijs dat ze
@@ -256,6 +280,16 @@ export function benoem(comp, bomen) {
     n.naamAmbigu = !!(w && k[1] && k[1].u === w.u && k[1].cov === w.cov && k[1].d === w.d && k[1].naam !== w.naam);
 
     if (isWortel) { n.naam = comp; n.naamBron = 'component'; }
+    // EEN FEIT UIT DE DOM. `testID` op de componentwortel komt als `data-testid` terug
+    // (react-native-web createDOMProps:831) en zegt letterlijk welk component hier begint —
+    // geen sleutel-gok, geen dekkingsdrempel. `!== ouder.omsluit` sluit de zelf-nesting uit:
+    // een component dat een ánder component als zijn eigen wortel rendert (BleStatusBar geeft
+    // zijn naam door aan DeviceRow) heeft de grens al op de wortel staan.
+    else if (n.component && n.component !== ouder?.omsluit) { n.naam = n.component; n.naamBron = 'testid'; }
+    // Idem voor `dataSet={{ laag: '…' }}` op een node die Reanimated inline stylet — daar
+    // bestaat geen StyleSheet-sleutel om op te matchen. Alleen camelCase telt; een andere vorm
+    // is een typfout en wordt gemeld in plaats van gebruikt.
+    else if (n.laag && /^[a-z][A-Za-z0-9]*$/.test(n.laag)) { n.naam = n.laag; n.naamBron = 'laag'; }
     // DOM die react-native-web zelf schrijft, herkend aan zijn eigen bron (zie `rnwRol` in
     // figma-build-spec.mjs). Dit is een FEIT over de node, geen sleutelgok — en het staat
     // hier bewust vóór de sleutelmatching. Atomaire klassen zijn globaal gedeeld, dus zonder
@@ -286,7 +320,13 @@ export function benoem(comp, bomen) {
     // in een subboom halen de telling hierboven zonder dat er iets van dat component staat.
     else if (w && w.d >= 2 && w.b !== ouder?.naamBronId && componentVan(w.bron) && componentVan(w.bron) !== comp
              && bronnenInSubboom(n).get(w.b) >= 2) {
-      n.naam = componentVan(w.bron); n.naamBron = 'component';
+      // EEN GOK, en sinds 2026-09-08 een telbare. Vóór de testID-ronde was dit de enige manier
+      // om een geneste componentgrens te vinden; nu staat de grens als feit in de DOM en is elke
+      // keer dat deze tak vuurt een node waar de code hem niet declareert. Het getal gaat naar
+      // `componentZonderTestID` en ratelt naar 0; op 0 mag de tak weg (met `bronnenInSubboom`
+      // en `naamBronId` erbij).
+      n.naam = componentVan(w.bron); n.naamBron = 'heuristiek';
+      heuristiekTreffers.push(`${comp}:${n.naam}`);
     } else if (w) {
       n.naam = w.naam; n.naamBron = vouw.has(w.id) ? 'gefold' : 'sleutel';
     } else if (n.rnw) {
@@ -299,12 +339,13 @@ export function benoem(comp, bomen) {
     for (const kind of n.kinderen ?? []) loop(kind, n, false);
   }
 
-  return { component: comp, gestabiliseerd: stab.verschoven, instabielePosities: stab.posities };
+  return { component: comp, gestabiliseerd: stab.verschoven, instabielePosities: stab.posities,
+           heuristiek: heuristiekTreffers.length, heuristiekTreffers };
 }
 
 /** Meet de dekking en de variant-stabiliteit over een verzameling benoemde bomen. */
 export function meet(perComponent) {
-  const perBron = { sleutel: 0, gefold: 0, component: 0, rnw: 0, rol: 0, terugval: 0 };
+  const perBron = { sleutel: 0, gefold: 0, component: 0, testid: 0, laag: 0, heuristiek: 0, rnw: 0, rol: 0, terugval: 0 };
   let nodes = 0, doorvoer = 0, ambigu = 0, indexNamen = 0, copyNamen = 0, gestabiliseerd = 0, rnwNodes = 0;
   const hist = new Array(11).fill(0);
   const instabiel = [];
@@ -340,7 +381,7 @@ export function meet(perComponent) {
         if (x.namen !== g[0].namen) instabiel.push({ comp, varianten: [g[0].i, x.i] });
   }
 
-  const echt = perBron.sleutel + perBron.gefold + perBron.component;
+  const echt = perBron.sleutel + perBron.gefold + perBron.component + perBron.testid + perBron.laag + perBron.heuristiek;
   // De EERLIJKE noemer: nodes die de app zelf schrijft. Tot 2026-09-08 stond `echteNaamPct`
   // over álle niet-doorvoer-nodes, dus 125-plus nodes die nooit een code-naam kúnnen krijgen
   // drukten het percentage permanent omlaag — een plafond dat als tekortkoming las.

@@ -31,6 +31,12 @@ export type BottomSheetProps = {
   children: ReactNode;
   /** Vaste actie onderaan (buiten de scroll) — blijft altijd zichtbaar, ook bij hoge content zoals een wheel. */
   footer?: ReactNode;
+  /**
+   * De componentgrens in de DOM (`data-testid` via react-native-web). Een component dat deze
+   * sheet als zijn eigen wortel rendert — GoalSheet — geeft hier zijn eigen naam mee, anders
+   * staat zijn grens nergens. Zie scripts/figma-build-spec.mjs.
+   */
+  testID?: string;
 };
 
 const ANIM_MS = 220;
@@ -41,6 +47,7 @@ export const BottomSheet = memo(function BottomSheet({
   onClose,
   children,
   footer,
+  testID = 'BottomSheet',
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
   // useSafeAreaInsets() geeft binnen een RN <Modal> vaak bottom: 0 terug (de SafeAreaProvider-
@@ -120,7 +127,7 @@ export const BottomSheet = memo(function BottomSheet({
       statusBarTranslucent
       onRequestClose={handleClose}
     >
-      <View style={styles.root}>
+      <View testID={testID} style={styles.root}>
         <Animated.View style={[styles.scrim, { opacity: fade }]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         </Animated.View>

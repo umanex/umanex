@@ -29,7 +29,7 @@ export const ErrorState = memo(function ErrorState({
   size = 'sm',
 }: ErrorStateProps) {
   return (
-    <View style={size === 'lg' ? styles.containerLg : styles.containerSm}>
+    <View testID="ErrorState" style={size === 'lg' ? styles.containerLg : styles.containerSm}>
       <Ionicons name={icon} size={size === 'lg' ? 64 : 48} color={fg.tertiary} />
       <Text style={size === 'lg' ? styles.titleLg : styles.titleSm}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}

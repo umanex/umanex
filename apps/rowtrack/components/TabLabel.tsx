@@ -11,7 +11,7 @@ type TabLabelProps = {
 // verschilt, en die komt via de `color`-prop van de tab-navigator.
 export function TabLabel({ label, color }: TabLabelProps) {
   return (
-    <Text style={[styles.label, { color }]} maxFontSizeMultiplier={1.2}>
+    <Text testID="TabLabel" style={[styles.label, { color }]} maxFontSizeMultiplier={1.2}>
       {label}
     </Text>
   );

@@ -10,7 +10,7 @@ type IconProps = {
 }
 
 export function Icon({ name, size = 24, color = '#FFFFFF' }: IconProps) {
-  return <Ionicons name={name} size={size} color={color} />;
+  return <Ionicons testID="Icon" name={name} size={size} color={color} />;
 }
 
 export type { IoniconsName };

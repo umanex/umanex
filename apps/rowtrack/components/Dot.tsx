@@ -7,7 +7,7 @@ type DotProps = {
 
 export function Dot({ color }: DotProps) {
   return (
-    <View style={[styles.dot, color !== undefined ? { backgroundColor: color } : undefined]} />
+    <View testID="Dot" style={[styles.dot, color !== undefined ? { backgroundColor: color } : undefined]} />
   );
 }
 

@@ -132,6 +132,7 @@ export function GoalSheet({ visible, currentGoal, userId, onClose, onSaved }: Go
 
   return (
     <BottomSheet
+      testID="GoalSheet"
       visible={visible}
       onClose={onClose}
       title={t.goals.sheetTitle}

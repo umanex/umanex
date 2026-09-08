@@ -375,6 +375,15 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   Let op de volgorde: `render:sweep` en `parity` vragen een gebouwde Storybook, dus ze horen
   ná de `build-storybook`-stap. Playwright-browsers moeten in CI geïnstalleerd zijn
   (`npx playwright install chromium`), net als bij `@umanex/ui parity`.
+
+  **Bijgesteld 2026-09-08: er is een vijfde stap.** `scripts/dev-sweep.mjs` meet het dev-pad, en
+  dat is de enige stap die deze klasse kan vangen — gemeten die dag: `build-storybook` +
+  `render:sweep` gaf 197/197 groen terwijl `storybook dev` niet eens startte. Hij vraagt wel een
+  ándere vorm dan de vier hierboven: een draaiende server in plaats van een gebouwde map. In CI
+  dus `pnpm --filter rowtrack storybook &`, wachten tot `:6007` luistert, `node scripts/dev-sweep.mjs`,
+  en het proces daarna afbreken. Draai hem met een koude dep-cache
+  (`rm -rf apps/rowtrack/node_modules/.cache/storybook`) — let op de map, die staat onder de app
+  en niet in de repo-root, en `rm -rf` op het verkeerde pad geeft exit 0 zonder iets te zeggen.
 - **Check:** `grep -c 'filter rowtrack figma:check' .github/workflows/ci.yml` — 0 = het gat
   leeft nog.
 - **Status:** open
@@ -399,4 +408,10 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   `.storybook/main.ts` en meet met de dev-sweep of hij nog dragend is — dezelfde tegenproef
   als op 2026-09-08 (vijf van zes rails werden toen rood, één bleek niet dragend en is
   daarop verwijderd).
+- **Status:** open
+
+## 2026-09-08 — De bouwspec verandert bij elke run door de roterende spinner · [refactor]
+- **Wat:** `figma/build-spec.min.json` is een gecommit artefact dat bij élke `figma:spec` een diff geeft, ook zonder codewijziging. Gemeten 2026-09-08 na de `testID`-ronde: 244 velden verschilden ten opzichte van HEAD, en alle 244 zaten binnen een `spinnerBox`-subboom — `getBoundingClientRect()` op de roterende `<ActivityIndicator>` geeft een as-gelijnde doos die per meetmoment anders is. Voorstel: de walker normaliseert die subboom naar de ongeroteerde maat (die staat op de `spinner`-ouder), zodat de spec deterministisch is en een diff erop weer iets betekent. Bijvangst: Figma bouwt de spinner dan op zijn echte maat in plaats van een willekeurige rotatiehoek.
+- **Waarom niet nu:** `parity` is er al tegen beschermd via `figma/niet-reproduceerbaar.json` (gemeten, twee walker-runs), dus het is een leesbaarheids- en review-probleem, geen correctheidsprobleem. Het raakt bovendien de walker midden in de sneden-reeks van ingreep 2, en dat is precies het moment waarop je de meting niet wil verplaatsen.
+- **Eerste zet:** In `scripts/figma-build-spec.mjs`, in `lees()`: is `rnwRol` gelijk aan `spinnerBox` of dieper, neem dan de maat van de dichtstbijzijnde `spinner`-ouder over in plaats van de eigen `getBoundingClientRect()`. Daarna `node scripts/instabiele-nodes.mjs` opnieuw draaien — die hoort dan alleen de vier confetti-nodes nog te vinden, en dat is de tegenproef.
 - **Status:** open

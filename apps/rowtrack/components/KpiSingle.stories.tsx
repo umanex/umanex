@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
-import { KpiSingle } from './KPI_single';
+import { KpiSingle } from './KpiSingle';
 
 /**
  * Geen variant-assen. `value`, `unit` en `label` zijn tekst-slots en `style` is de
@@ -23,7 +23,7 @@ const meta = {
     label: 'Totaal afstand',
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-12335' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2025-14523' },
   },
 } satisfies Meta<typeof KpiSingle>;
 

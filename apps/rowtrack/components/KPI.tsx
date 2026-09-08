@@ -27,6 +27,7 @@ export function KPI({ label, value, highlighted = false, compact = false, fill =
   if (onPress) {
     return (
       <TouchableOpacity
+        testID="KPI"
         style={[styles.container, fill ? styles.containerFill : compact ? styles.containerCompact : styles.containerFixed]}
         onPress={onPress}
         activeOpacity={0.8}
@@ -37,7 +38,7 @@ export function KPI({ label, value, highlighted = false, compact = false, fill =
   }
 
   return (
-    <View style={[styles.container, compact && styles.containerCompact]}>
+    <View testID="KPI" style={[styles.container, compact && styles.containerCompact]}>
       {content}
     </View>
   );

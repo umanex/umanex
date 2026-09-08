@@ -14,7 +14,7 @@ type SubtitleProps = {
 
 export function Subtitle({ label, action }: SubtitleProps) {
   return (
-    <View style={styles.container}>
+    <View testID="Subtitle" style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       {action && (
         <TouchableOpacity

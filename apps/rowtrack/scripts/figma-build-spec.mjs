@@ -20,13 +20,18 @@ import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { benoem } from './laagnamen.mjs';
 import { SCHERMEN as SCHERMEN_BRON } from './schermen.mjs';
+import { DREMPEL } from './laagnamen.mjs';
 
 
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
-const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
+// --root=<map> laat beide passen op een KOPIE van de repo draaien. Nodig voor de
+// producent-tegenproef: die muteert een kopie van de spec, draait de echte naamgevingspas
+// erover en eist dat de guard omvalt — met het echte script, niet met een nabouw ervan.
+const rootFlag = process.argv.find(a => a.startsWith('--root='));
+const APP = rootFlag ? rootFlag.slice('--root='.length) : join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
  * `--hernoem` draait ALLEEN de naamgevingspas opnieuw, op de bestaande figma/build-spec.json.
@@ -38,6 +43,14 @@ const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
 if (process.argv.includes('--hernoem')) {
   const specPad = join(APP, 'figma/build-spec.json');
   const spec = JSON.parse(readFileSync(specPad, 'utf8'));
+  // Een spec van vóór de componentgrens draagt geen `component` per node. De ladder zou hem
+  // dan lezen als "geen enkel component declareert een grens" en netjes terugvallen op de
+  // heuristiek — een gevulde, geloofwaardige, verkeerde uitkomst. Weigeren dus.
+  if (spec.walkerVersie !== 2) {
+    console.error(`figma/build-spec.json draagt walkerVersie ${spec.walkerVersie ?? 1}, deze pas eist 2 `
+      + '(mét `component` en `laag` per node). Draai `figma:spec` opnieuw.');
+    process.exit(2);
+  }
   let n = 0;
   spec.naamStats = [];
   for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(...benoemAlles(comp, d.varianten)); n++; }
@@ -267,6 +280,16 @@ const WALKER = () => {
       sleutelIndex.push({ bronId: b.id, bron: b.bron, naam: s.naam, volgorde: s.volgorde,
                           klassen: new Set(s.klassen) });
 
+  // Wat de DOM ECHT droeg. Twee helften die niet hetzelfde meten: `testID="Button"` staat in
+  // de code, en dít is de meting dat hij ook door react-native-web heen kwam en op een element
+  // landde. Een prop die een derde-partij component stil weggooit (LinearGradient, Ionicons)
+  // is anders niet te onderscheiden van een prop die er wél is.
+  const gezienTestid = new Set(), gezienLaag = new Set();
+  // Nodes met een componentgrens die de dieptekap heeft weggegooid. Zonder deze telling
+  // verdwijnt een grens stil, en leest "44 componenten zonder testID" als een code-probleem
+  // terwijl het een meet-probleem is.
+  let weggelatenComponenten = 0;
+
   const root = document.querySelector('#storybook-root');
   const decorator = root?.firstElementChild;
   if (!decorator) return { fout: 'geen decorator' };
@@ -439,6 +462,13 @@ const WALKER = () => {
     const klassen = String(el.getAttribute('class') || '').split(/\s+/).filter(Boolean);
     const rk = new Set(klassen.filter(c => c.startsWith('r-')));
     o.rol = el.getAttribute('role') || null;
+    // De componentgrens als FEIT. react-native-web schrijft `testID` als `data-testid`
+    // (modules/createDOMProps/index.js:831-832, gelezen) en `dataSet` als `data-*` met een
+    // gehypheneerde sleutel (:756-766), dus `dataSet={{ laag: 'x' }}` wordt `data-laag`.
+    const tid = el.getAttribute('data-testid');
+    if (tid) { o.component = tid; gezienTestid.add(tid); }
+    const laag = el.getAttribute('data-laag');
+    if (laag) { o.laag = laag; gezienLaag.add(laag); }
     const rnw = rnwRol(el, cs);
     if (rnw) { o.rnw = rnw.rol; if (rnw.gedeeld) o.rnwGedeeld = true; }
     o.kandidaten = [];
@@ -460,6 +490,8 @@ const WALKER = () => {
       // Een doorvoer-wrapper kost geen diepte: het budget is bedoeld voor ontwerplagen,
       // niet voor de <View>-stapel die RN eromheen zet.
       if (kids.length) o.kinderen = kids.map(k => lees(k, doorvoer ? diepte : diepte + 1, r));
+    } else {
+      weggelatenComponenten += el.querySelectorAll('[data-testid]').length;
     }
     // Een absoluut gepositioneerd kind valt buiten de box van zijn ouder, dus een overlay-
     // wortel meet 0 breed of 0 hoog terwijl er wél iets staat. Gemeten 2026-09-07: tien
@@ -502,13 +534,64 @@ const WALKER = () => {
     o.positie = 'absolute'; o.dx = 0; o.dy = 0;
     return o;
   });
-  return overlayBomen.length ? { boom, overlays: overlayBomen } : { boom };
+  const gezien = { testid: [...gezienTestid], laag: [...gezienLaag] };
+  return overlayBomen.length
+    ? { boom, overlays: overlayBomen, gezien, weggelatenComponenten }
+    : { boom, gezien, weggelatenComponenten };
 };
 
 // ---------------------------------------------------------------------------
 // Doorloop
 // ---------------------------------------------------------------------------
-const spec = { componenten: {}, schermen: {}, ongebonden: [], fouten: [] };
+// walkerVersie: welk contract de spec draagt. 2 = mét `component`/`laag` uit de DOM. Een
+// consument die daarop rekent (`--hernoem`, de laagnaam-pas) moet een oudere spec WEIGEREN in
+// plaats van hem stil zonder grenzen te lezen — dat leest als "geen enkel component heeft een
+// testID" terwijl de code ze wel draagt.
+const spec = { walkerVersie: 2, componenten: {}, schermen: {}, ongebonden: [], fouten: [],
+               gezien: { testid: [], laag: [] }, weggelatenComponenten: 0, grenzen: {} };
+const gezienTestid = new Set(), gezienLaag = new Set();
+
+/**
+ * Waar staat de grens van dit component in zijn eigen boom, en wat staat eráboven?
+ *
+ * WAAROM DIT EEN CHECK IS. Een `testID` één niveau te diep is op geen enkele andere as
+ * zichtbaar: de spec is gevuld, de namen zien er plausibel uit, en de grens klopt gewoon niet.
+ *
+ * DE REGEL: boven een grens mag geen node staan die een StyleSheet-sleutel uit het EIGEN
+ * bestand van dat component draagt. Zo'n node is per definitie door het component zelf
+ * gerenderd, dus dan begint de grens te laat.
+ *
+ * De eerste versie van deze check gebruikte `isDoorvoer` (één kind, geen eigen verf) en was
+ * daarmee STUK: getoetst op 2026-09-08 door `testID="Subtitle"` van de wortel-View naar de
+ * label-Text te verplaatsen, bleef hij groen. De rij-container van Subtitle heeft in de
+ * default-variant precies één kind en geen achtergrond, dus `isDoorvoer` gaf true — terwijl
+ * die node `flexDirection: row` en `justifyContent: space-between` draagt, en dus wel degelijk
+ * ontwerp. `isDoorvoer` kijkt bewust niet naar layout; dat is goed voor het diepte-budget
+ * waarvoor hij bestaat en te zwak voor een grens.
+ *
+ * Wat de drie gevallen wél scheidt, gemeten op dezelfde spec:
+ *  · Subtitle (FOUT):  de ouder draagt `Subtitle.tsx.container` op 3/3 — eigen bestand, volle dekking.
+ *  · GoalCardSkeleton (goed): de ouder draagt `GoalCardSkeleton.stories.tsx.vullend` — het STORY-
+ *    bestand, niet het component; dezelfde uitsluiting die `componentVan()` al maakt.
+ *  · de vijf Modals (goed): de RNW-hostketen. Die pikt door de globaal gedeelde atomaire klassen
+ *    wél sleutels op (`BottomSheet.tsx.scrim 4/6`), maar `rnwRol` herkent ze aan hun eigen bron
+ *    en die herkenning gaat vóór.
+ *
+ * De drempel is dezelfde als die van de naamgeving (`DREMPEL` in laagnamen.mjs): dat is precies
+ * de dekking waarbij de naamgevingspas de node naar die sleutel zou vernoemen — dus waarbij ze
+ * hem als eigendom van dat bestand behandelt.
+ */
+function grensVan(boom, comp) {
+  const boven = [];
+  const raak = (function loop(n) {
+    if (n.component === comp) return true;
+    for (const k of n.kinderen ?? []) {
+      if (loop(k)) { boven.unshift(n); return true; }
+    }
+    return false;
+  })(boom);
+  return raak ? { diepte: boven.length, boven } : null;
+}
 
 /**
  * Een absoluut gepositioneerd kind erft een ontbrekende maat van zijn ouder.
@@ -669,6 +752,35 @@ function bind(node, pad, comp) {
   for (const k of node.kinderen ?? []) bind(k, pad + '>' + (node.kinderen.indexOf(k)), comp);
 }
 
+/** Union van wat de DOM per story werkelijk droeg. */
+function onthoudGezien(r) {
+  for (const t of r.gezien?.testid ?? []) gezienTestid.add(t);
+  for (const l of r.gezien?.laag ?? []) gezienLaag.add(l);
+  spec.weggelatenComponenten += r.weggelatenComponenten ?? 0;
+}
+
+/** Toetst de grens van één component en meldt hem als hij ontbreekt of te diep zit. */
+function toetsGrens(comp, item) {
+  const g = grensVan(item.boom, comp) ?? (item.overlays ?? []).map(o => grensVan(o, comp)).find(Boolean);
+  if (!g) {
+    spec.fouten.push(`${comp}: geen data-testid="${comp}" in de DOM — de prop bereikt geen element `
+      + '(een derde-partij component kan hem weggooien), of hij staat op de verkeerde node');
+    return;
+  }
+  const eigenSleutel = (n) => (n.kandidaten ?? [])
+    .filter((k) => k.bron.endsWith(`/${comp}.tsx`) && k.eigen.length / k.n >= DREMPEL)
+    .map((k) => `${comp}.tsx:${k.s} ${k.eigen.length}/${k.n}`);
+  spec.grenzen[comp] = {
+    diepte: g.diepte,
+    boven: g.boven.map((n) => n.rnw ?? (eigenSleutel(n)[0] ?? (n.doorvoer ? 'doorvoer' : `<${n.tag}>`))),
+  };
+  const vreemd = g.boven.filter((n) => !n.rnw && eigenSleutel(n).length);
+  if (vreemd.length)
+    spec.fouten.push(`${comp}: de grens staat ${g.diepte} niveau(s) diep, met ${vreemd.length} node(s) `
+      + `erboven die een sleutel uit ${comp}.tsx zelf dragen (${vreemd.flatMap(eigenSleutel).join(', ')}) `
+      + '— die node rendert dit component, dus de testID staat te laag');
+}
+
 spec.uitgesloten = [];
 for (const [comp, d] of Object.entries(assen.componenten)) {
   if (SCHERMEN[comp]) continue;
@@ -686,8 +798,10 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     if (r.fout) { spec.fouten.push(`${comp} [${c.naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
     r.overlays?.forEach((o, i) => bind(o, `overlay${i}`, comp));
+    onthoudGezien(r);
     varianten.push({ naam: c.naam, args: c.args, boom: r.boom, overlays: r.overlays, storyArgs: r.args });
   }
+  if (varianten.length) toetsGrens(comp, varianten[0]);
   (spec.naamStats ??= []).push(...benoemAlles(comp, varianten));   // laagnamen: één beslissing per component
   const slots = markeerSlots(comp, varianten.map(v => ({ naam: v.naam, boom: v.boom, args: v.storyArgs })), d.assen, spec.fouten);
   spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, slots, varianten };
@@ -705,14 +819,21 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     if (r.fout) { spec.fouten.push(`${comp} [${naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
     r.overlays?.forEach((o, i) => bind(o, `overlay${i}`, comp));
+    onthoudGezien(r);
     frames.push({ naam, storyId: e.id, boom: r.boom, overlays: r.overlays });
   }
+  if (frames.length) toetsGrens(comp, frames[0]);
   (spec.naamStats ??= []).push(...benoemAlles(comp, frames));
   spec.schermen[comp] = { frames, afgeschrevenAssen: assen.componenten[comp].assen };
   process.stderr.write(`  ${comp} (scherm): ${frames.length}/${storyNamen.length}\n`);
 }
 
 await browser.close(); server.close();
+
+spec.gezien = { testid: [...gezienTestid].sort(), laag: [...gezienLaag].sort() };
+process.stderr.write(`grenzen: ${Object.keys(spec.grenzen).length} componenten met een gemeten testID-grens, `
+  + `${spec.gezien.testid.length} unieke testid's in de DOM, ${spec.gezien.laag.length} data-laag, `
+  + `${spec.weggelatenComponenten} grens(en) weggegooid door de dieptekap\n`);
 
 // ---- Poort vóór het schrijven ----------------------------------------------------------
 // Deze stap SCHRIJFT: figma/build-spec.json is de invoer van de builder én van de guard. Een

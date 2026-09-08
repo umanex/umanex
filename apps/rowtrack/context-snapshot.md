@@ -40,8 +40,8 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | HealthConsentScreen | `apps/rowtrack/components/HealthConsentScreen.tsx` | components | — | — | — |
 | HrStatusBar | `apps/rowtrack/components/HrStatusBar.tsx` | components | — | — | — |
 | Icon | `apps/rowtrack/components/Icon.tsx` | components | — | — | — |
-| KPI_single | `apps/rowtrack/components/KPI_single.tsx` | components | — | — | — |
 | KPI | `apps/rowtrack/components/KPI.tsx` | components | — | — | — |
+| KpiSingle | `apps/rowtrack/components/KpiSingle.tsx` | components | — | — | — |
 | MotivationalToast | `apps/rowtrack/components/MotivationalToast.tsx` | components | — | — | — |
 | PaceZone | `apps/rowtrack/components/PaceZone.tsx` | components | — | — | — |
 | PrBadge | `apps/rowtrack/components/PrBadge.tsx` | components | — | — | — |
@@ -59,16 +59,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-9d1016e feat(rowtrack): screens out of the library, and parity green on every node
-fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
-4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
-b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
-ed214f1 refactor(rowtrack): one source for which story components are screens
+05f33bb chore(rowtrack): Figma round A — rebuild the library on the new layer names
+cebd5da test(rowtrack): three levels of counter-proof for the naming ladder
+642b820 refactor(rowtrack): direct imports instead of the barrel inside components
+849f532 feat(rowtrack): the naming ladder uses the declared boundary, not a guess
+ffe034c feat(rowtrack): the walker reads the component boundary, and proves it landed
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/HANDOFF.md
-   M apps/rowtrack/scripts/figma-build-spec.mjs
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)

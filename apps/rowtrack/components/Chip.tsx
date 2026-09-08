@@ -11,6 +11,7 @@ type ChipProps = {
 export function Chip({ value, unit, active, onPress }: ChipProps) {
   return (
     <TouchableOpacity
+      testID="Chip"
       style={[styles.chip, active ? styles.chipActive : styles.chipDefault]}
       onPress={onPress}
       activeOpacity={0.8}

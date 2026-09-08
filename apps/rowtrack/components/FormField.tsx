@@ -55,7 +55,7 @@ export const FormField = memo(function FormField({
   const isPassword = !!secureTextEntry;
 
   return (
-    <View style={styles.wrap}>
+    <View testID="FormField" style={styles.wrap}>
       {fieldLabel && <Text style={styles.label}>{fieldLabel}</Text>}
 
       <View

@@ -42,7 +42,7 @@ function signalLabel(rssi: number): { text: string; color: string } {
  */
 export const DeviceSelectionModal = ({ visible, kind, devices, onSelect, onCancel }: Props) => (
   <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-    <View style={styles.backdrop}>
+    <View testID="DeviceSelectionModal" style={styles.backdrop}>
       <View style={styles.sheet}>
         <Text style={styles.title}>
           {kind === 'rower' ? t.workout.deviceModal.titleRower : t.workout.deviceModal.titleHr}

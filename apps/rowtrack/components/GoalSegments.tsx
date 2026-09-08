@@ -111,7 +111,7 @@ export function GoalSegments({ selected, onChange }: GoalSegmentsProps) {
   // segments compress evenly. Full-bleed is the parent's job — IdlePhase wraps
   // this in a screen-width bleed container; the modal card sizes it to the card.
   return (
-    <View style={styles.container}>
+    <View testID="GoalSegments" style={styles.container}>
       {GOAL_TYPES.map((type) => (
         // Key on active-state: a de-activated segment remounts fresh (icon only,
         // flex:1) so Fabric reclaims its old label width — otherwise a later
