@@ -153,7 +153,7 @@ export const MotivationalToast = memo(function MotivationalToast({
       onRequestClose={() => onDismissRef.current()}
     >
       <StatusBar backgroundColor="rgba(0,0,0,0.85)" barStyle="light-content" />
-      <View style={styles.overlay}>
+      <View testID="MotivationalToast" style={styles.overlay}>
         <Confetti visible={visible} particles={confettiParticles} width={width} height={height} />
 
         <TouchableOpacity

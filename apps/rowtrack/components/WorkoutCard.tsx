@@ -88,6 +88,7 @@ export const WorkoutCard = memo(function WorkoutCard({
 
   return (
     <Pressable
+      testID="WorkoutCard"
       onPress={() => onPress(w.id)}
       accessibilityRole="button"
       // Volledig label, niet alleen de datum: een Pressable staat standaard op

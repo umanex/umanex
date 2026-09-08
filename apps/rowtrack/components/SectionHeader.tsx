@@ -7,7 +7,7 @@ export type SectionHeaderProps = {
 }
 
 export const SectionHeader = memo(function SectionHeader({ title }: SectionHeaderProps) {
-  return <Text style={styles.title}>{title}</Text>;
+  return <Text testID="SectionHeader" style={styles.title}>{title}</Text>;
 });
 
 const styles = StyleSheet.create({

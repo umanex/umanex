@@ -25,6 +25,7 @@ export const PrBadge = ({ label, size = 'md' }: PrBadgeProps) => {
     // daarna los de tekst. Binnen een Pressable (de archiefrij) wordt deze View genegeerd,
     // dus dit botst niet met het rij-label.
     <View
+      testID="PrBadge"
       accessible
       accessibilityLabel={label != null ? `${t.pr.a11yPlain}: ${label}` : t.pr.a11yPlain}
       style={[styles.badge, small && styles.badgeSm]}

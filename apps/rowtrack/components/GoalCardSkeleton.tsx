@@ -12,6 +12,7 @@ import { bg, border, space, radii } from '@/constants';
 export function GoalCardSkeleton() {
   return (
     <View
+      testID="GoalCardSkeleton"
       style={styles.card}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"

@@ -33,7 +33,7 @@ export function Segmented<T extends string>({
   style,
 }: SegmentedProps<T>) {
   return (
-    <View style={[variant === 'band' ? styles.band : styles.filled, style]}>
+    <View testID="Segmented" style={[variant === 'band' ? styles.band : styles.filled, style]}>
       {options.map((opt) => {
         const active = value === opt.value;
         return (

@@ -10,7 +10,7 @@ type KpiSingleProps = {
 
 export function KpiSingle({ value, unit, label, style }: KpiSingleProps) {
   return (
-    <View style={[styles.container, style]}>
+    <View testID="KpiSingle" style={[styles.container, style]}>
       <View style={styles.valueRow}>
         <Text style={styles.value}>{value}</Text>
         {unit ? <Text style={styles.unit}>{unit}</Text> : null}

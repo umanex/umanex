@@ -23,7 +23,7 @@ export const EmptyState = memo(function EmptyState({
   const resolvedIconSize = iconSize ?? (size === 'lg' ? 64 : 48);
 
   return (
-    <View style={size === 'lg' ? styles.containerLg : styles.containerSm}>
+    <View testID="EmptyState" style={size === 'lg' ? styles.containerLg : styles.containerSm}>
       <Ionicons name={icon} size={resolvedIconSize} color={fg.tertiary} />
       <Text style={size === 'lg' ? styles.titleLg : styles.titleSm}>
         {title}

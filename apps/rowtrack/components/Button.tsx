@@ -72,6 +72,7 @@ export const Button = memo(function Button({
 
   return (
     <TouchableOpacity
+      testID="Button"
       style={[
         styles.base,
         size === 'lg' ? styles.sizeLg : styles.sizeMd,

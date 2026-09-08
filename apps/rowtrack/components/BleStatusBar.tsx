@@ -18,6 +18,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
   if (isConnected) {
     return (
       <DeviceRow
+        testID="BleStatusBar"
         icon="dot"
         iconColor={status.success}
         label={deviceName || t.devices.rowerConnected}
@@ -30,6 +31,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
   if (isConnecting) {
     return (
       <DeviceRow
+        testID="BleStatusBar"
         icon="dot"
         iconColor={accent.default}
         label={t.devices.rower}
@@ -44,6 +46,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
   if (isError) {
     return (
       <DeviceRow
+        testID="BleStatusBar"
         icon="dot"
         iconColor={status.error}
         label={t.devices.rower}
@@ -55,6 +58,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
 
   return (
     <DeviceRow
+      testID="BleStatusBar"
       icon="dot"
       iconColor={accent.default}
       label={t.devices.rower}

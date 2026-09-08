@@ -22,6 +22,7 @@ type BottomFadeProps = {
 export function BottomFade({ height = 64, style }: BottomFadeProps) {
   return (
     <LinearGradient
+      testID="BottomFade"
       colors={[FADE_CLEAR, FADE_OPAQUE]}
       style={[styles.fade, { height }, style]}
       pointerEvents="none"

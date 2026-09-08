@@ -51,7 +51,7 @@ export const HealthConsentScreen = ({ visible, onGrant, onDecline }: Props) => {
 
   return (
     <Modal visible={visible} animationType="slide" statusBarTranslucent>
-      <View style={[styles.screen, { paddingTop: insets.top + space['24'] }]}>
+      <View testID="HealthConsentScreen" style={[styles.screen, { paddingTop: insets.top + space['24'] }]}>
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}

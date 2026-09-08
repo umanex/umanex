@@ -251,7 +251,7 @@ export function IdlePhase({
   }
 
   return (
-    <View style={styles.screen}>
+    <View testID="IdlePhase" style={styles.screen}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}

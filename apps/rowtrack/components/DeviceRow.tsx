@@ -10,6 +10,14 @@ export type DeviceRowProps = {
   onPress: () => void;
   loading?: boolean;
   actionDisabled?: boolean;
+  /**
+   * De componentgrens in de DOM. react-native-web schrijft hem als `data-testid`
+   * (createDOMProps/index.js:831) en `scripts/figma-build-spec.mjs` leest hem terug, zodat de
+   * laagnaam-pas een FEIT gebruikt in plaats van een sleutel-heuristiek. Een component dat
+   * dit component ALS ZIJN EIGEN WORTEL rendert (BleStatusBar, HrStatusBar) geeft hier zijn
+   * eigen naam mee — anders zou de grens van dat component nergens in de DOM staan.
+   */
+  testID?: string;
 };
 
 /**
@@ -27,9 +35,10 @@ export function DeviceRow({
   onPress,
   loading = false,
   actionDisabled = false,
+  testID = 'DeviceRow',
 }: DeviceRowProps) {
   return (
-    <View style={styles.container}>
+    <View testID={testID} style={styles.container}>
       <View style={styles.left}>
         <View style={styles.iconContainer}>
           {loading ? (

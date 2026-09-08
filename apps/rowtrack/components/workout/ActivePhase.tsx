@@ -489,7 +489,7 @@ export function ActivePhase({
   const padH = Math.max(layout.screenHorizontal, insets.left, insets.right);
 
   return (
-    <View style={[styles.container, { paddingHorizontal: 0 }]}>
+    <View testID="ActivePhase" style={[styles.container, { paddingHorizontal: 0 }]}>
       {/* Connection status overlay */}
       {isConnecting && (
         <View style={[styles.connectionOverlay, { paddingHorizontal: padH }]}>

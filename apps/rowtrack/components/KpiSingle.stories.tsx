@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
-import { KpiSingle } from './KPI_single';
+import { KpiSingle } from './KpiSingle';
 
 /**
  * Geen variant-assen. `value`, `unit` en `label` zijn tekst-slots en `style` is de
