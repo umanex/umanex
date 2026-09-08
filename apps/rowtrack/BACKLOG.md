@@ -378,3 +378,25 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Check:** `grep -c 'filter rowtrack figma:check' .github/workflows/ci.yml` — 0 = het gat
   leeft nog.
 - **Status:** open
+
+## 2026-09-08 — Storybook-fixes voor vite 8 heroverwegen bij de volgende Storybook-bump · [infra]
+- **Wat:** Drie van de vier ingrepen in `.storybook/main.ts` van 2026-09-08 (de
+  `expo-modules-core`-stub, de pnpm-bewuste babel-`exclude`, de `optimizeDeps.exclude` op
+  `react-native-worklets`) zijn lokale compensaties voor gedrag dat upstream al bewogen is.
+  `vite-plugin-rnw@0.0.12` zet `shimMissingExports: true` óók op `getOptimizeDepsOptions`
+  (nagemeten in de tarball van de registry, `dist/index.mjs:294`); `0.0.11` doet dat alleen
+  in `getBuildOptions`. `@storybook/react-native-web-vite@10.6.0` pint `vite-plugin-rnw:
+  "^0.0.11"`, en `^0.0.11` sluit `0.0.12` uit — vandaar dat we `0.0.11` draaien.
+- **Waarom niet nu:** De pin zit in een dependency van Storybook, niet in onze `package.json`.
+  Hem forceren is een `pnpm.overrides`-ingreep: een config-wijziging met blast radius over de
+  hele monorepo, en `shimMissingExports` demoot bovendien élke ontbrekende export naar
+  `undefined` — ook een echte. De lokale stub raakt vijf bestanden waarvan `tsc` bewijst dat
+  ze niets exporteren en laat de volgende echte `MISSING_EXPORT` gewoon afgaan. Dat is
+  vandaag de betere ruil; bij een Storybook-bump kan hij kantelen.
+- **Eerste zet:** Bij de eerstvolgende bump van `@storybook/react-native-web-vite`:
+  `node -e "console.log(require('@storybook/react-native-web-vite/package.json').dependencies['vite-plugin-rnw'])"`.
+  Staat daar een range die `0.0.12` of hoger toelaat, verwijder dan per ingreep één blok uit
+  `.storybook/main.ts` en meet met de dev-sweep of hij nog dragend is — dezelfde tegenproef
+  als op 2026-09-08 (vijf van zes rails werden toen rood, één bleek niet dragend en is
+  daarop verwijderd).
+- **Status:** open
