@@ -59,16 +59,20 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+ffe034c feat(rowtrack): the walker reads the component boundary, and proves it landed
 1c8cbd5 refactor(rowtrack): testID on every component root, and KpiSingle renamed
 9d1016e feat(rowtrack): screens out of the library, and parity green on every node
 fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
 4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
-b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
+  M  apps/rowtrack/figma/laagnamen.json
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
+  M  apps/rowtrack/scripts/laagnamen.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

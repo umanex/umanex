@@ -183,6 +183,31 @@ const MUTATIES = [
       x.instabielPerComponent = ['Chip:7', 'DeviceRow:1', 'KPI:1']; schrijf(m, 'figma/laagnamen.json', x); } },
   { as: 'laagnaam', wat: 'de producent levert het veld niet meer', doe: m => {
       const x = lees(m, 'figma/laagnamen.json'); delete x.instabielePosities; schrijf(m, 'figma/laagnamen.json', x); } },
+  // --- laagnaam-as, componentgrens: zes defecten, twee controles ---------
+  // De grens heeft TWEE helften die niet hetzelfde meten — "staat in de code" en "bereikte de
+  // DOM". Ze krijgen daarom elk hun eigen mutatie; één van de twee zou de andere maskeren.
+  { as: 'laagnaam', wat: 'haal het testID uit een componentbestand (code-helft)', doe: m => {
+      const f = join(m, 'components/Chip.tsx');
+      writeFileSync(f, readFileSync(f, 'utf8').replace('testID="Chip"', '')); } },
+  { as: 'laagnaam', wat: 'de testID haalt de DOM niet (dom-helft)', doe: m => {
+      const x = lees(m, 'figma/build-spec.min.json');
+      x.gezien.testid = x.gezien.testid.filter(t => t !== 'Chip'); schrijf(m, 'figma/build-spec.min.json', x); } },
+  { as: 'laagnaam', wat: 'een spec van vóór de componentgrens', doe: m => {
+      const x = lees(m, 'figma/build-spec.min.json'); x.walkerVersie = 1; schrijf(m, 'figma/build-spec.min.json', x); } },
+  { as: 'laagnaam', wat: 'een testID in camelCase in plaats van PascalCase', doe: m => {
+      const x = lees(m, 'figma/build-spec.min.json'); x.gezien.testid.push('chipRow'); schrijf(m, 'figma/build-spec.min.json', x); } },
+  { as: 'laagnaam', wat: 'de dieptekap gooit een componentgrens weg', doe: m => {
+      const x = lees(m, 'figma/build-spec.min.json'); x.weggelatenComponenten = 3; schrijf(m, 'figma/build-spec.min.json', x); } },
+  { as: 'laagnaam', wat: 'de heuristische grens vuurt vaker', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.componentZonderTestID = 7;
+      x.heuristiekPerComponent = ['ActivePhase:4', 'IdlePhase:3']; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'controle-testidElders', verwachtCode: 0, wat: 'zet een testID in een NIET-componentbestand',
+    doe: m => { const f = join(m, 'components/PaceZone.tsx');
+      writeFileSync(f, readFileSync(f, 'utf8') + '\n// testID="Verzonnen"\n'); } },
+  { as: 'controle-grensDiepte', verwachtCode: 0, wat: 'verdiep een gemeten grens in het rapport',
+    doe: m => { const x = lees(m, 'figma/build-spec.min.json');
+      x.grenzen.Chip = { diepte: 9, boven: ['doorvoer'] }; schrijf(m, 'figma/build-spec.min.json', x); } },
+
   // Ambiguïteit is een RAPPORTAGE, geen defect: twee sleutels die even goed passen geven een
   // deterministische maar willekeurige keuze. Zou de as hierop afgaan, dan was hij niet meer
   // te onderscheiden van een echte naamfout.
