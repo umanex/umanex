@@ -24,7 +24,7 @@ const meta = {
     size: 'sm',
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2016-10239' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-12358' },
   },
 } satisfies Meta<typeof EmptyState>;
 

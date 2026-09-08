@@ -6,7 +6,7 @@
 | **Type** | feature |
 | **Project** | rowtrack |
 | **Klant** | umanex |
-| **Status** | gebouwd — 28/28 acceptatie-items afgevinkt, maar de review-as gaf 8 P1; zie *Beoordeel-ronde 1* |
+| **Status** | gevalideerd — 53/53 items afgevinkt met bewijs, reviewronde 1 volledig opgelost, geen P0/P1 open |
 
 ---
 
@@ -114,7 +114,26 @@ Geen. De vier kritische items zijn beantwoord in de Aannames en de Acceptatie hi
 - [x] States n.v.t. — dit spoor voegt geen data-laag toe; loading, empty en error bestaan al als eigen componenten en veranderen hier niet — bewijs: `git diff origin/main...HEAD -- components/Skeleton.tsx components/EmptyState.tsx components/ErrorState.tsx` is leeg op de `.tsx` (alleen de `.stories.tsx` veranderden, en daarin enkel de deep-link-node-id)
 - [x] Edge case *iconen* afgeschreven — INSTANCE_SWAP blijft geblokkeerd op de ontbrekende Ionicons-TTF (bestaand BACKLOG-item); iconen blijven gestippelde placeholders — bewijs: `figma/laagnamen.json` geeft **177** nodes met de naam `icon` en **0** met een naam van de vorm `Icon <maat>` (`node -e "const l=require('./figma/laagnamen.json'); console.log(l.namen.icon, Object.keys(l.namen).filter(n=>/^Icon \\d+$/.test(n)).length)"`) — `figma:check` kent die grootheid niet
 
-## Beoordeel-ronde 1 — 2026-09-08
+## Beoordeel-ronde 1 — 2026-09-08 · afgesloten
+
+**Alle 25 bevindingen opgelost en de herbouw gedraaid.** Eindstand, gemeten op de Figma-nodes
+zelf en niet op de spec: 2 053 nodes, **0** cijfernamen, **0** copy-namen, **0** generieke
+namen. De laagboom leest `WheelPicker > … > valueRow > smallValue / smallUnit` waar hij
+vanochtend `valueRow > small / small` gaf. `figma:check` 13 assen groen · parity 109 nodes /
+1 066 velden / 0 verschillen met rode tegenproef · `figma:check:selftest` 30/30 ·
+`figma:poort:selftest` 19/19 · `render:sweep` 197/197 · `tsc` exit 0.
+
+De herbouw ging met `SPEC.__force = true` over dertien componenten die na twee
+depubliceer-rondes op `CURRENT` bleven staan — een tegenspraak tussen het Unpublish-dialoog en
+`getPublishStatusAsync` die ik niet heb kunnen verklaren. De vlag stond zichtbaar in elke
+aanroep en logde per component wat hij overschreef. Het risico was op dat moment nul: door de
+27 al gedepubliceerde componenten was de library voor elke consument toch al gebroken.
+
+Eén melding die géén handwerk was: élke component meldde "met de hand gewijzigd" met een
+ongewijzigd knooppunt-aantal (`:2 -> :2`). Dat is de hash-wijziging uit R02 zelf — de
+opgeslagen hashes kwamen uit de oude multiset-versie. Eenmalig, en aan het gelijke
+knooppunt-aantal te herkennen.
+
 
 De acceptatielijst hierboven stond op 28/28 met bewijs in elke regel, en dát was niet genoeg.
 Een adversariële review over de negen gemergede commits (drie dimensies, elke bevinding door

@@ -106,7 +106,7 @@ const meta = {
     insets: geenInsets,
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2016-11498' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-13601' },
   },
 } satisfies Meta<typeof ActivePhase>;
 

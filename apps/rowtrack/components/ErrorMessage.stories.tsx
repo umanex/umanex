@@ -16,7 +16,7 @@ const meta = {
     message: 'Verbinding met de ergometer verbroken tijdens de rit.',
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2016-11117' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-12320' },
   },
 } satisfies Meta<typeof ErrorMessage>;
 
