@@ -15,11 +15,23 @@ import './fonts.css';
 const preview: Preview = {
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
-      <View style={{ backgroundColor: bg.base, padding: 24, alignItems: 'flex-start' }}>
-        <Story />
-      </View>
-    ),
+    (Story, context) => {
+      // Een SCHERM-story rendert full-bleed op toestelmaat; alles anders houdt zijn eigen
+      // maat met lucht eromheen. Zie .storybook/toestel.ts voor het waarom en de meting.
+      const t = context.parameters?.toestel as { breedte: number; hoogte: number } | undefined;
+      if (t) {
+        return (
+          <View style={{ backgroundColor: bg.base, width: t.breedte, height: t.hoogte, alignItems: 'stretch' }}>
+            <Story />
+          </View>
+        );
+      }
+      return (
+        <View style={{ backgroundColor: bg.base, padding: 24, alignItems: 'flex-start' }}>
+          <Story />
+        </View>
+      );
+    },
   ],
   parameters: {
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },

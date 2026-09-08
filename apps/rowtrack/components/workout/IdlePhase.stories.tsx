@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { TOESTEL } from '../../.storybook/toestel';
 import { IdlePhase } from './IdlePhase';
 import type { FoundDevice } from '@/lib/ble/types';
 
@@ -92,6 +93,10 @@ const meta = {
   },
   parameters: {
     figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-13918' },
+    // Zie ActivePhase: een scherm rendert full-bleed op toestelmaat. Hier telt het extra —
+    // de full-bleed-truc in GoalHeader rekent met `useWindowDimensions()`, dus in een
+    // decorator van 303 px liep dat element 127 px buiten zijn container.
+    toestel: TOESTEL.portret,
   },
 } satisfies Meta<typeof IdlePhase>;
 

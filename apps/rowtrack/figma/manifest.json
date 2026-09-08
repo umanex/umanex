@@ -2141,43 +2141,6 @@
    },
    "extra": []
   },
-  "IdlePhase": {
-   "pageId": "2001:682",
-   "primary": {
-    "name": "Playground",
-    "id": "2020:13918",
-    "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "14zaa7i:140",
-    "componentProperties": [],
-    "eigenVulling": 0,
-    "variantenMetVulling": null,
-    "variantProperties": null,
-    "varianten": null
-   },
-   "extra": [
-    {
-     "name": "achtergrond",
-     "id": "2020:14343",
-     "type": "RECTANGLE"
-    },
-    {
-     "name": "Niet Verbonden",
-     "id": "2020:14058",
-     "type": "COMPONENT"
-    },
-    {
-     "name": "Doel Afstand",
-     "id": "2020:14198",
-     "type": "COMPONENT"
-    },
-    {
-     "name": "Toestel Keuze",
-     "id": "2020:14342",
-     "type": "COMPONENT"
-    }
-   ]
-  },
   "BleStatusBar": {
    "pageId": "2001:743",
    "primary": {
@@ -2656,48 +2619,6 @@
     ]
    },
    "extra": []
-  },
-  "ActivePhase": {
-   "pageId": "2001:1238",
-   "primary": {
-    "name": "Playground",
-    "id": "2020:13601",
-    "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "vnkm3o:44",
-    "componentProperties": [],
-    "eigenVulling": 0,
-    "variantenMetVulling": null,
-    "variantProperties": null,
-    "varianten": null
-   },
-   "extra": [
-    {
-     "name": "achtergrond",
-     "id": "2020:13778",
-     "type": "RECTANGLE"
-    },
-    {
-     "name": "Doel Afstand",
-     "id": "2020:13645",
-     "type": "COMPONENT"
-    },
-    {
-     "name": "Zonder Hartslagband",
-     "id": "2020:13689",
-     "type": "COMPONENT"
-    },
-    {
-     "name": "Doel Bereikt",
-     "id": "2020:13733",
-     "type": "COMPONENT"
-    },
-    {
-     "name": "Samenvatting",
-     "id": "2020:13777",
-     "type": "COMPONENT"
-    }
-   ]
   }
  }
 }

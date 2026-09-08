@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isScherm } from './schermen.mjs';
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ALLEEN_CHECK = process.argv.includes('--check');
@@ -44,8 +45,13 @@ function storyBestanden(map, prefix = '') {
 const stories = storyBestanden(join(APP, 'components'));
 const gewijzigd = [], problemen = [];
 
+const schermen = [];
 for (const s of stories) {
   if (!s.component) { problemen.push(`${s.rel}: geen title in meta`); continue; }
+  // Een scherm hoort niet in het library-bestand maar in RowTrack - Design op Screens v2,
+  // dus er is geen pagina om naar te linken. Expliciet overslaan en TELLEN — een story
+  // stilzwijgend overslaan ziet er identiek uit als een story die geen link nodig had.
+  if (isScherm(s.component)) { schermen.push(s.rel); continue; }
   const pagina = manifest.pages[s.component];
   if (!pagina) { problemen.push(`${s.rel}: geen Figma-pagina "${s.component}" in de manifest`); continue; }
   if (!pagina.primary) { problemen.push(`${s.rel}: pagina "${s.component}" heeft geen primary node`); continue; }
@@ -69,7 +75,8 @@ for (const s of stories) {
   }
 }
 
-console.log(`${stories.length} stories · ${gewijzigd.length} ${ALLEEN_CHECK ? 'zouden wijzigen' : 'bijgewerkt'} · ${problemen.length} problemen`);
+console.log(`${stories.length} stories · ${gewijzigd.length} ${ALLEEN_CHECK ? 'zouden wijzigen' : 'bijgewerkt'} · ${schermen.length} schermen overgeslagen · ${problemen.length} problemen`);
+for (const s of schermen) console.log(`  -- ${s} is een scherm — hoort in RowTrack - Design, niet in de library`);
 for (const g of gewijzigd) console.log(`  ${ALLEEN_CHECK ? '≠' : '✓'} ${g.rel} → ${g.node}`);
 for (const p of problemen) console.log(`  FOUT ${p}`);
 if (problemen.length || (ALLEEN_CHECK && gewijzigd.length)) process.exitCode = 1;

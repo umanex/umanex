@@ -22,6 +22,7 @@
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { SCHERMEN as SCHERMEN_BRON } from './schermen.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -51,10 +52,8 @@ const tokens    = lees('tokens/tokens.json');
  * deze guard daarna als waarheid vastlegt, dus hij staat hier met zijn reden en niet in
  * een configbestand — bij het lezen van de guard komt hij vanzelf langs.
  */
-const SCHERMEN = {
-  ActivePhase: 'schermcompositie — bleStatus × hrStatus × phase × hasProfileWeight zou 160 nodes eisen voor één scherm, en die assen zijn in beeld niet orthogonaal',
-  IdlePhase: 'schermcompositie — idem, 320 nodes',
-};
+// Zie scripts/schermen.mjs — één bron. `SCHERMEN[comp]` is hier de REDEN-tekst.
+const SCHERMEN = Object.fromEntries(Object.entries(SCHERMEN_BRON).map(([k, v]) => [k, v.reden]));
 const GEEN_COMPONENT = {
   PaceZone: 'exporteert getPaceZone, een pure functie zonder JSX — geen component, dus geen story en geen pagina',
 };
@@ -73,10 +72,13 @@ const NIET_VISUEEL = {
 const BEKENDE_GATEN = 46;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1906;
+const BEKENDE_VOORKOMENS = 1947;   // 1929 + 18 uit het ActivePhase-landscape-frame, dat sinds 2026-09-08 gemeten wordt
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
- *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen. */
-const LAAGNAAM_DEKKING = 75.1;
+ *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
+ *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
+ *  (spinner, modal-hostketen, scroll-wrappers) staan er niet meer in, want die kunnen per
+ *  constructie geen code-naam krijgen. Over álle nodes is hetzelfde getal 73,8%. */
+const LAAGNAAM_DEKKING = 83.8;
 /** Posities die `stabiliseer()` moest gladstrijken. `instabiel` is ná die pas gemeten en dus
  *  per constructie leeg — dit is de enige onafhankelijke maat voor dezelfde eigenschap. */
 const BEKENDE_INSTABIELE_POSITIES = 2;
@@ -119,17 +121,24 @@ for (const [n, r] of Object.entries(GEEN_COMPONENT)) uitgesloten.push(`${n} — 
 if (!manifest) sla('pagina', 'geen manifest');
 else {
   const paginas = Object.keys(manifest.pages);
-  const verwacht = storyBestanden.map(s => {
+  // Een SCHERM hoort niet in het library-bestand maar in RowTrack - Design op Screens v2,
+  // dus er hoort geen pagina te bestaan — en als hij er nog staat is dát het verschil.
+  // Expliciet uitgesloten en geteld, niet door de as zachter te maken.
+  const alleTitels = storyBestanden.map(s => {
     const src = readFileSync(s.pad, 'utf8');
     return src.match(/title:\s*'Componenten\/([^']+)'/)?.[1] ?? null;
   }).filter(Boolean);
+  const verwacht = alleTitels.filter(c => !SCHERMEN[c]);
+  const schermPaginas = alleTitels.filter(c => SCHERMEN[c] && paginas.includes(c));
   const mist = verwacht.filter(c => !paginas.includes(c));
-  const teveel = paginas.filter(p => !verwacht.includes(p) && p !== 'Tokens');
+  const teveel = paginas.filter(p => !verwacht.includes(p) && p !== 'Tokens' && !SCHERMEN[p]);
   const zonderPrimary = paginas.filter(p => manifest.pages[p] && !manifest.pages[p].primary);
   if (mist.length) fail('pagina', `geen Figma-pagina voor: ${mist.join(', ')}`);
   if (teveel.length) fail('pagina', `Figma-pagina zonder component: ${teveel.join(', ')}`);
   if (zonderPrimary.length) fail('pagina', `pagina zonder primary node: ${zonderPrimary.join(', ')}`);
-  if (!mist.length && !teveel.length && !zonderPrimary.length)
+  if (schermPaginas.length)
+    fail('pagina', `${schermPaginas.join(', ')} staat/staan nog als pagina in de library — een scherm hoort in RowTrack - Design op Screens v2`);
+  if (!mist.length && !teveel.length && !zonderPrimary.length && !schermPaginas.length)
     ok('pagina', `${verwacht.length} componenten hebben elk één Figma-pagina met een primary node`);
 }
 
@@ -299,6 +308,7 @@ else {
     const src = readFileSync(s.pad, 'utf8');
     const comp = src.match(/title:\s*'Componenten\/([^']+)'/)?.[1];
     if (!comp) { fail('link', `${s.rel}: geen title`); continue; }
+    if (SCHERMEN[comp]) continue;   // geen library-pagina, dus geen deep-link — zie scripts/schermen.mjs
     const m = src.match(/figma:\s*\{\s*url:\s*'([^']+)'/);
     if (!m) { fail('link', `${s.rel}: geen parameters.figma.url`); continue; }
     if (!m[1].includes(manifest.fileKey)) { fail('link', `${s.rel}: URL wijst niet naar fileKey ${manifest.fileKey}`); continue; }
@@ -456,17 +466,27 @@ else {
     f.push(`${ip} posities moesten gestabiliseerd worden, ${BEKENDE_INSTABIELE_POSITIES} bekend (${(laagnamen.instabielPerComponent ?? []).join(', ')}) — een nieuwe naamconflict-bron`);
   else if (ip < BEKENDE_INSTABIELE_POSITIES)
     f.push(`${ip} posities gestabiliseerd tegen ${BEKENDE_INSTABIELE_POSITIES} bekend — een conflict is opgelost; zet BEKENDE_INSTABIELE_POSITIES op ${ip}.`);
+  // De NOEMER moet de eerlijke zijn. Een laagnamen.json van vóór 2026-09-08 draagt geen
+  // `appNodes`, en dan zou `echteNaamPct` stil over de oude, te grote noemer gelezen worden —
+  // een ander getal met dezelfde naam. Dat is geen lagere dekking maar een ander instrument.
+  if (laagnamen.appNodes === undefined)
+    f.push('laagnamen.json draagt geen appNodes — het is een bestand van vóór de rnw-herkenning; draai `figma:spec`');
   const pct = laagnamen.echteNaamPct;
   if (pct < LAAGNAAM_DEKKING - 0.05)
     f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — er is dekking verdwenen`);
   else if (pct > LAAGNAAM_DEKKING + 0.05)
     f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — dekking gestegen; zet LAAGNAAM_DEKKING op ${pct}.`);
   if (f.length) for (const x of f) fail('laagnaam', x);
-  else ok('laagnaam', `${laagnamen.nodes} laagnamen: ${pct}% uit de code, `
-    + `${(100 * laagnamen.perBron.rol / laagnamen.nodes).toFixed(1)}% uit een waargenomen rol, `
-    + `${(100 * laagnamen.perBron.terugval / laagnamen.nodes).toFixed(1)}% structurele terugval — `
+  else ok('laagnaam', `${laagnamen.appNodes} app-laagnamen: ${pct}% uit de code, `
+    + `${(100 * laagnamen.perBron.rol / laagnamen.appNodes).toFixed(1)}% uit een waargenomen rol, `
+    + `${(100 * laagnamen.perBron.terugval / laagnamen.appNodes).toFixed(1)}% structurele terugval — `
     + `0 cijfernamen, 0 copy-namen, ${laagnamen.instabielePosities} gestabiliseerde positie(s) `
-    + `(${(laagnamen.instabielPerComponent ?? []).join(', ') || 'geen'})`);
+    + `(${(laagnamen.instabielPerComponent ?? []).join(', ') || 'geen'})`
+    // NIET geratelt: hoeveel RNW-DOM er staat verandert legitiem met elke Modal of ScrollView
+    // die erbij komt. Wél in de ok-regel, want het is de enige plek waar een stille verschuiving
+    // naar `rnw` (bv. een RNW-versie die `scroll` naar `auto` mapt) zichtbaar wordt.
+    + ` · ${laagnamen.rnwNodes} rnw-nodes buiten de noemer (${laagnamen.echteNaamPctRuw}% over álle nodes)`);
+  uitgesloten.push(`${laagnamen.rnwNodes} nodes zijn DOM die react-native-web zelf schrijft (spinner, modal-hostketen, scroll-wrappers) — herkend aan zijn eigen bron, buiten de noemer`);
   uitgesloten.push(`${laagnamen.perBron.terugval} nodes zonder StyleSheet-sleutel (inline of Reanimated gestyleerd) — die dragen een structurele naam, geen code-naam`);
   if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);
 }

@@ -152,6 +152,9 @@ export function stabiliseer(bomen) {
       const tel = new Map();
       for (const r of rijen) tel.set(r[i].naam, (tel.get(r[i].naam) ?? 0) + 1);
       if (tel.size < 2) continue;
+      // Een rnw-naam is een feit over de DOM, geen sleutelgok. Hem naar een meerderheid
+      // gladstrijken spreekt de bron tegen die hem heeft opgeleverd.
+      if (rijen.some(r => r[i].naamBron === 'rnw')) continue;
       posities++;
       const winnaar = [...tel.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0][0];
       for (const r of rijen) if (r[i].naam !== winnaar) { r[i].naam = winnaar; r[i].naamGestabiliseerd = true; verschoven++; }
@@ -253,6 +256,15 @@ export function benoem(comp, bomen) {
     n.naamAmbigu = !!(w && k[1] && k[1].u === w.u && k[1].cov === w.cov && k[1].d === w.d && k[1].naam !== w.naam);
 
     if (isWortel) { n.naam = comp; n.naamBron = 'component'; }
+    // DOM die react-native-web zelf schrijft, herkend aan zijn eigen bron (zie `rnwRol` in
+    // figma-build-spec.mjs). Dit is een FEIT over de node, geen sleutelgok — en het staat
+    // hier bewust vóór de sleutelmatching. Atomaire klassen zijn globaal gedeeld, dus zonder
+    // deze tak wonnen de spinner in Button de sleutel `base` en de modal-hostlagen `scrim`
+    // en `root`: namen uit bestanden die die nodes niet schrijven.
+    // GEDEELD (`scrollView`, `scrollContent`) valt hier NIET onder: die host is wel RNW-DOM,
+    // maar draagt de app-`style` — daar wint een sleutel terecht, en de rnw-naam is de
+    // terugval. Zie de tak onder `else if (w)`.
+    else if (n.rnw && !n.rnwGedeeld) { n.naam = n.rnw; n.naamBron = 'rnw'; }
     // Een genest component is pas een genest component als MEER DAN ÉÉN node in zijn subboom
     // uit dezelfde bron wint. Eén node die toevallig een stijl deelt is geen component.
     //
@@ -277,6 +289,8 @@ export function benoem(comp, bomen) {
       n.naam = componentVan(w.bron); n.naamBron = 'component';
     } else if (w) {
       n.naam = w.naam; n.naamBron = vouw.has(w.id) ? 'gefold' : 'sleutel';
+    } else if (n.rnw) {
+      n.naam = n.rnw; n.naamBron = 'rnw';
     } else {
       const [naam, bron] = terugval(n, ouder);
       n.naam = naam; n.naamBron = bron;
@@ -290,8 +304,8 @@ export function benoem(comp, bomen) {
 
 /** Meet de dekking en de variant-stabiliteit over een verzameling benoemde bomen. */
 export function meet(perComponent) {
-  const perBron = { sleutel: 0, gefold: 0, component: 0, rol: 0, terugval: 0 };
-  let nodes = 0, doorvoer = 0, ambigu = 0, indexNamen = 0, copyNamen = 0, gestabiliseerd = 0;
+  const perBron = { sleutel: 0, gefold: 0, component: 0, rnw: 0, rol: 0, terugval: 0 };
+  let nodes = 0, doorvoer = 0, ambigu = 0, indexNamen = 0, copyNamen = 0, gestabiliseerd = 0, rnwNodes = 0;
   const hist = new Array(11).fill(0);
   const instabiel = [];
 
@@ -299,6 +313,11 @@ export function meet(perComponent) {
     for (const b of bomen) for (const n of plat(b)) {
       nodes++;
       if (n.doorvoer) doorvoer++;
+      // Een RNW-node is DOM die de app nergens schrijft (de cirkels van een ActivityIndicator,
+      // de hostketen van een Modal). Hij kan per constructie geen code-naam krijgen en hoort
+      // dus niet in de NOEMER van "hoeveel laagnamen komen uit de code" — behalve wanneer hij
+      // toch een sleutel won, want dan draagt hij wél app-stijl (de ScrollView-host).
+      if (n.rnw) rnwNodes++;
       perBron[n.naamBron] = (perBron[n.naamBron] ?? 0) + 1;
       if (n.naamAmbigu) ambigu++;
       if (n.naamGestabiliseerd) gestabiliseerd++;
@@ -322,7 +341,14 @@ export function meet(perComponent) {
   }
 
   const echt = perBron.sleutel + perBron.gefold + perBron.component;
-  return { nodes, doorvoer, nodesZonderDoorvoer: nodes - doorvoer, perBron,
-           echteNaamPct: +(100 * echt / (nodes - doorvoer)).toFixed(1),
+  // De EERLIJKE noemer: nodes die de app zelf schrijft. Tot 2026-09-08 stond `echteNaamPct`
+  // over álle niet-doorvoer-nodes, dus 125-plus nodes die nooit een code-naam kúnnen krijgen
+  // drukten het percentage permanent omlaag — een plafond dat als tekortkoming las.
+  // `rnwNodes` wordt gerapporteerd maar NIET geratelt: hoeveel RNW-DOM er staat verandert
+  // legitiem met elke Modal of ScrollView die erbij komt.
+  const appNodes = nodes - doorvoer - perBron.rnw;
+  return { nodes, doorvoer, nodesZonderDoorvoer: nodes - doorvoer, perBron, appNodes, rnwNodes,
+           echteNaamPct: +(100 * echt / appNodes).toFixed(1),
+           echteNaamPctRuw: +(100 * echt / (nodes - doorvoer)).toFixed(1),
            ambigu, gestabiliseerd, indexNamen, copyNamen, instabiel, dekkingHistogram: hist, drempel: DREMPEL };
 }

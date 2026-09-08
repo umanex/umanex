@@ -19,6 +19,7 @@
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { benoem } from './laagnamen.mjs';
+import { SCHERMEN as SCHERMEN_BRON } from './schermen.mjs';
 
 
 import { join, dirname, extname } from 'node:path';
@@ -39,8 +40,8 @@ if (process.argv.includes('--hernoem')) {
   const spec = JSON.parse(readFileSync(specPad, 'utf8'));
   let n = 0;
   spec.naamStats = [];
-  for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(benoem(comp, d.varianten.map(v => v.boom))); n++; }
-  for (const [comp, d] of Object.entries(spec.schermen)) { spec.naamStats.push(benoem(comp, d.frames.map(f => f.boom))); n++; }
+  for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(...benoemAlles(comp, d.varianten)); n++; }
+  for (const [comp, d] of Object.entries(spec.schermen)) { spec.naamStats.push(...benoemAlles(comp, d.frames)); n++; }
   writeFileSync(specPad, JSON.stringify(spec, null, 1));
   console.log(`hernoemd: ${n} componenten in figma/build-spec.json — draai nu figma-build-prune.mjs`);
   process.exit(0);
@@ -54,10 +55,9 @@ const payload = JSON.parse(readFileSync(join(APP, 'figma/tokens-payload.json'), 
 // component set. Besluit Jeroen 2026-09-07 — hun assen zijn statusenums die in beeld niet
 // orthogonaal zijn (bij bleStatus='error' ziet hrStatus er in de meeste combinaties identiek
 // uit), en de productregel zou 320 respectievelijk 160 nodes eisen voor twee schermen.
-const SCHERMEN = {
-  ActivePhase: ['Playground', 'Doel Afstand', 'Zonder Hartslagband', 'Doel Bereikt', 'Samenvatting'],
-  IdlePhase: ['Playground', 'Niet Verbonden', 'Doel Afstand', 'Toestel Keuze'],
-};
+// De schermenlijst staat in scripts/schermen.mjs — één bron voor build-spec, sync-check en
+// figma-links. Hier alleen de frame-namen eruit.
+const SCHERMEN = Object.fromEntries(Object.entries(SCHERMEN_BRON).map(([k, v]) => [k, v.frames]));
 
 /**
  * Assen die de code kent maar die GEEN visuele variant zijn. Elke uitsluiting is een
@@ -194,7 +194,18 @@ const server = createServer((q, r) => {
 await new Promise(r => server.listen(0, r));
 const poort = server.address().port;
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 430, height: 932 } });  // iPhone-breedte
+// iPhone 14 Pro Max, logische punten. Een SCHERM-story mag hiervan afwijken via
+// `parameters.toestel` — zie .storybook/toestel.ts en `meet()` hieronder.
+const VIEWPORT = { width: 430, height: 932 };
+const page = await browser.newPage({ viewport: { ...VIEWPORT } });
+let huidigViewport = { ...VIEWPORT };
+/** Zet het viewport en meld of het echt veranderde. */
+async function zetViewport(width, height) {
+  if (huidigViewport.width === width && huidigViewport.height === height) return false;
+  await page.setViewportSize({ width, height });
+  huidigViewport = { width, height };
+  return true;
+}
 
 /** Alle combinaties van de assen, als lijst van {naam, args}. */
 function combinaties(assenObj) {
@@ -213,6 +224,21 @@ function combinaties(assenObj) {
 }
 
 /** Storybook-args in de URL: booleans als !true/!false. */
+/**
+ * Namen toekennen aan een component: eerst de hoofdbomen, dan de overlays als eigen groep.
+ *
+ * Een overlay (een <Modal>-portal) is een APARTE boom naast de schermboom, geen kind ervan.
+ * Ze samen in één `benoem()` gooien zou `stabiliseer()` een schermboom tegen een modalboom
+ * laten vergelijken; apart houden laat hem de modal van variant A tegen die van variant B
+ * leggen, wat wél dezelfde vorm is.
+ */
+function benoemAlles(comp, items) {
+  const stats = [benoem(comp, items.map(x => x.boom))];
+  const alleOverlays = items.flatMap(x => x.overlays ?? []);
+  if (alleOverlays.length) stats.push(benoem(comp, alleOverlays));
+  return stats;
+}
+
 const argsQuery = args => Object.entries(args)
   .map(([k, v]) => `${k}:${typeof v === 'boolean' ? '!' + v : v}`).join(';');
 
@@ -247,27 +273,37 @@ const WALKER = () => {
   let kinderen = [...decorator.children];
 
   // Een <Modal> portaleert in react-native-web BUITEN #storybook-root, naar document.body.
-  // Gemeten 2026-09-07: MotivationalToast en DeviceSelectionModal gaven dan "0 kinderen"
-  // terwijl ze prima renderden. Zonder deze tak zou een overlay-component stil als leeg
-  // gelezen worden — dezelfde vorm als een echte lege render.
-  // Ook een <Modal>-sheet die WEL een kind achterlaat in de decorator, maar een leeg kind
-  // van 0x0: BottomSheet, GoalSheet en HealthConsentScreen deden dat (gemeten 2026-09-07).
-  // De portal-tak vuurde niet omdat kinderen.length 1 was.
+  // Anker op INHOUD, niet op afmeting: de portal-wortel heeft hoogte 0 omdat de modal erin
+  // absoluut gepositioneerd is. Een filter op `height > 0` sneed hem precies weg (gemeten
+  // 2026-09-07 — eerste poging vond nul portals terwijl er één stond). Storybook's eigen
+  // wrappers dragen een id of een sb-class; de portal geen van beide.
+  const portalen = [...document.body.children].filter(el =>
+    el.tagName !== 'SCRIPT' && el.tagName !== 'SVG' && el.tagName !== 'svg' &&
+    !el.id && !/\bsb-/.test(String(el.className || '')) &&
+    !el.contains(root) && (el.textContent || '').trim().length > 0);
+
+  // Een <Modal>-sheet laat soms WEL een kind in de decorator achter, maar een leeg kind van
+  // 0x0: BottomSheet, GoalSheet en HealthConsentScreen deden dat (gemeten 2026-09-07).
   if (kinderen.length === 1) {
     const r0 = kinderen[0].getBoundingClientRect();
     if (r0.width < 2 && r0.height < 2 && kinderen[0].children.length === 0) kinderen = [];
   }
+
+  // WAT ER TOT 2026-09-08 MISGING: de portal werd alléén geraadpleegd als de decorator leeg
+  // was. Een SCHERM met een modal erover heeft allebei — en dan viel de modal weg. Gemeten
+  // op de gecommitte spec: de ActivePhase-frames Playground, Doel Bereikt en Samenvatting
+  // hadden alle drie 45 nodes met exact dezelfde teksthash, want de summary-Modal en de
+  // toast bestonden voor de walker niet. Vier componenten uit de refactor (SummaryTitle,
+  // PrBanner, SummaryKpiBand, StatsTable) hadden daardoor nul schermmeting.
+  //
+  // Nu: de decorator-inhoud is de BOOM, de portalen zijn OVERLAYS die er absoluut overheen
+  // liggen — precies wat de DOM doet, en wat je in Figma wil zien.
+  let overlays = [];
   if (kinderen.length === 0) {
-    // Anker op INHOUD, niet op afmeting: de portal-wortel heeft hoogte 0 omdat de modal
-    // erin absoluut gepositioneerd is. Een filter op `height > 0` sneed hem precies weg
-    // (gemeten 2026-09-07 — eerste poging vond nul portals terwijl er één stond).
-    // Storybook's eigen wrappers dragen een id of een sb-class; de portal geen van beide.
-    const buiten = [...document.body.children].filter(el =>
-      el.tagName !== 'SCRIPT' && el.tagName !== 'SVG' && el.tagName !== 'svg' &&
-      !el.id && !/\bsb-/.test(String(el.className || '')) &&
-      !el.contains(root) && (el.textContent || '').trim().length > 0);
-    if (buiten.length === 1) kinderen = [buiten[0]];
-    else if (buiten.length > 1) return { fout: `${buiten.length} portal-wortels buiten #storybook-root` };
+    if (portalen.length === 1) kinderen = [portalen[0]];
+    else if (portalen.length > 1) return { fout: `${portalen.length} portal-wortels buiten #storybook-root` };
+  } else {
+    overlays = portalen;
   }
   if (kinderen.length !== 1) return { fout: `verwacht 1 kind onder de decorator, kreeg ${kinderen.length}` };
 
@@ -299,6 +335,61 @@ const WALKER = () => {
     if (px(cs.borderTopLeftRadius) > 0) return false;
     if (parseFloat(cs.opacity) < 1) return false;
     return true;
+  }
+
+  /**
+   * Herkent DOM die react-native-web ZELF schrijft — aan de signatuur uit zijn eigen bron,
+   * niet aan maten of namen.
+   *
+   * WAAROM. 307 nodes in de spec dragen geen enkele StyleSheet-sleutel, en het grootste deel
+   * daarvan is DOM die de app nergens schrijft: de twee cirkels van een `<ActivityIndicator>`,
+   * de vijf hostlagen van een `<Modal>`, de twee wrappers van een `<ScrollView>`. Die kunnen
+   * per constructie nooit een code-naam krijgen, en tellen tot vandaag wél mee in de noemer
+   * van "hoeveel laagnamen komen uit de code" — een percentage dat daardoor structureel te
+   * laag staat en nooit op 100 kán komen.
+   *
+   * ERGER DAN ONEERLIJK TELLEN: ze WINNEN vandaag app-sleutels. Atomaire klassen zijn globaal
+   * gedeeld over elke `StyleSheet.create` in de preview-iframe, dus de spinner in Button won
+   * `base` en de modal-hostlagen wonnen `scrim` en `root` — namen uit bestanden die die nodes
+   * niet schrijven. Daarom vuurt deze herkenning in `laagnamen.mjs` VÓÓR de sleutelmatching.
+   *
+   * ELKE REGEL IS TEGEN DE GEÏNSTALLEERDE BRON GELEZEN (react-native-web 0.21.2):
+   *  · exports/ActivityIndicator/index.js:50-62 — View role=progressbar aria-valuemax=1,
+   *    met één View-kind (maat + rotatie-animatie) dat een <svg> met twee <circle> draagt.
+   *  · exports/Modal/index.js:86-93 — ModalPortal > ModalAnimation > ModalFocusTrap >
+   *    ModalContent. ModalFocusTrap.js:123-125 zet een FocusBracket vóór en ná de trap-View;
+   *    FocusBracket is `role: 'none'` + `tabIndex: 0` (regel 26-30), en createDOMProps:610
+   *    herschrijft `none` naar `presentation`. ModalContent.js:41-47 is de View met
+   *    `aria-modal: true` en dáárin één View met `styles.container`.
+   *    Let op: `modalContainer` is het KIND van de aria-modal-node, niet zijn ouder.
+   *  · exports/ScrollView/index.js:568-599 — de scroll-host draagt de app-`style`, met precies
+   *    één contentContainer-View die `contentContainerStyle` draagt. Allebei GEDEELD: RN kent
+   *    geen `overflow: auto`, dus de host is per constructie RNW, maar de stijl is van de app.
+   *
+   * Gemeten in de ongesnoeide spec van 2026-09-08 (7 844 nodes): 34x progressbar, 18x
+   * presentation (= 9 modals x 2 brackets), 9x dialog, 19x `overflow: hidden auto`.
+   */
+  function rnwRol(el, cs) {
+    const rol = el.getAttribute('role');
+    const ouder = el.parentElement;
+    const isSpinner = (n) => n && n.getAttribute('role') === 'progressbar' && n.hasAttribute('aria-valuemax');
+    const isBracket = (n) => n && n.getAttribute('role') === 'presentation' && n.getAttribute('tabindex') === '0' && n.children.length === 0;
+
+    if (isSpinner(el)) return { rol: 'spinner' };
+    if (isSpinner(ouder)) return { rol: 'spinnerBox' };
+    if (el.tagName.toLowerCase() === 'svg' && isSpinner(ouder?.parentElement)) return { rol: 'spinnerSvg' };
+    if (el.tagName.toLowerCase() === 'circle') return { rol: 'spinnerArc' };
+
+    if (isBracket(el)) return { rol: 'focusBracket' };
+    if (el.getAttribute('aria-modal') === 'true') return { rol: 'modalContent' };
+    if (ouder?.getAttribute('aria-modal') === 'true') return { rol: 'modalContainer' };
+    if (el.querySelector(':scope > [aria-modal="true"]')) return { rol: 'modalTrap' };
+    if ([...el.children].some(isBracket)) return { rol: 'modalAnimation' };
+
+    const rolt = (n) => n && /auto|scroll/.test(getComputedStyle(n).overflowY + ' ' + getComputedStyle(n).overflowX);
+    if (/auto|scroll/.test(cs.overflowY + ' ' + cs.overflowX)) return { rol: 'scrollView', gedeeld: true };
+    if (rolt(ouder) && ouder.children.length === 1) return { rol: 'scrollContent', gedeeld: true };
+    return null;
   }
 
   function lees(el, diepte, ouderRect) {
@@ -348,6 +439,8 @@ const WALKER = () => {
     const klassen = String(el.getAttribute('class') || '').split(/\s+/).filter(Boolean);
     const rk = new Set(klassen.filter(c => c.startsWith('r-')));
     o.rol = el.getAttribute('role') || null;
+    const rnw = rnwRol(el, cs);
+    if (rnw) { o.rnw = rnw.rol; if (rnw.gedeeld) o.rnwGedeeld = true; }
     o.kandidaten = [];
     for (const k of sleutelIndex) {
       const eigen = [];
@@ -400,7 +493,16 @@ const WALKER = () => {
     }
     return o;
   }
-  return { boom: lees(kinderen[0], 0, null) };
+  // De overlays krijgen `abs` mee: ze liggen in de DOM over het viewport, en de builder legt
+  // ze zo als absoluut gepositioneerd kind naast de schermboom in plaats van eronder in de
+  // auto-layout-stroom.
+  const boom = lees(kinderen[0], 0, null);
+  const overlayBomen = overlays.map(el => {
+    const o = lees(el, 0, null);
+    o.positie = 'absolute'; o.dx = 0; o.dy = 0;
+    return o;
+  });
+  return overlayBomen.length ? { boom, overlays: overlayBomen } : { boom };
 };
 
 // ---------------------------------------------------------------------------
@@ -427,7 +529,10 @@ function erfMaatVanOuder(node, ouder) {
   for (const k of node.kinderen ?? []) erfMaatVanOuder(k, node);
 }
 
-async function meet(storyId, args) {
+async function meet(storyId, args, herladen = false) {
+  // Terug naar het standaard-viewport, tenzij dit de tweede ronde van een kantelende story is.
+  // Zonder dit lekt de landscape-maat door naar de volgende story en meet die stil verkeerd.
+  if (!herladen) await zetViewport(VIEWPORT.width, VIEWPORT.height);
   const q = (Object.keys(args).length ? `&args=${encodeURIComponent(argsQuery(args))}` : '')
     // --rnw-keys-uit is de NEGATIEVE CONTROLE van de sleutelkaart. Zonder hem is "elke node
     // heet wrapper" niet te onderscheiden van "het instrument staat uit": beide geven een
@@ -436,8 +541,19 @@ async function meet(storyId, args) {
   await page.goto(`http://localhost:${poort}/iframe.html?id=${storyId}&viewMode=story${q}`,
     { waitUntil: 'networkidle', timeout: 20000 });
   await page.waitForTimeout(120);
+  // `parameters.toestel` staat NIET in index.json — Storybook indexeert alleen titel, naam en
+  // tags. Hij is dus pas ná het laden te lezen, en een story die kantelt kost daarom één extra
+  // laadbeurt. Alleen de landscape-story betaalt die: portret is al het standaard-viewport.
+  if (!herladen) {
+    const t = await page.evaluate(async (id) => {
+      try { const ctx = await window.__STORYBOOK_PREVIEW__?.loadStory?.({ storyId: id }); return ctx?.parameters?.toestel ?? null; }
+      catch (e) { return null; }
+    }, storyId);
+    if (t?.breedte && await zetViewport(t.breedte, t.hoogte)) return meet(storyId, args, true);
+  }
   const r = await page.evaluate(WALKER);
   if (r.boom) erfMaatVanOuder(r.boom, null);
+  for (const o of r.overlays ?? []) erfMaatVanOuder(o, null);
   // De args van deze story, uit Storybook's eigen preview-API. Die geven de WAARDE van elke
   // prop ('Start training'), en daarmee is de slot-koppeling meetbaar in plaats van geraden:
   // de tekstnode met exact die inhoud is de doelnode.
@@ -484,9 +600,22 @@ function markeerSlots(comp, items, assen, fouten) {
  * 60 tokengaten rapporteren is ruis: het is één ontwerpbeslissing (gerandomiseerde
  * decoratie), geen zestig ontbrekende tokens. Ze worden geteld als decoratief en niet
  * als gat — expliciet, want stil weglaten ziet er identiek uit als "geen probleem".
+ *
+ * De toets is de VORM, niet de storynaam. Tot 2026-09-08 stond hier
+ * `comp === 'MotivationalToast'`, en dat brak zodra de toast óók als overlay binnen
+ * ActivePhase gemeten werd: `comp` was daar `'ActivePhase'`, de filter zweeg, en de
+ * [binding]-as sprong van 46 naar 109 ongebonden waarden — hot pink, goud, en radii als
+ * 3,2993. Een componentnaam als filtersleutel beschrijft twee dingen tegelijk (welke story
+ * render ik / bij welk component hoort deze node) en is dus geen sleutel.
+ *
+ * De handtekening is gemeten, niet bedacht: van alle 120 nodes met een gebroken radius in
+ * de hele spec is er GEEN ENKELE die niet vierkant, kinderloos, tekstloos en kleiner dan
+ * 20 px is. Overmatchen kan dus niet — er is niets anders om te matchen.
  */
 const decoratief = (comp, node) =>
-  comp === 'MotivationalToast' && node.radius?.[0] > 0 && !Number.isInteger(node.radius[0]);
+  node.radius?.[0] > 0 && !Number.isInteger(node.radius[0])
+  && !(node.kinderen ?? []).length && !node.tekst
+  && Math.abs(node.w - node.h) < 0.01 && node.w < 20;
 
 /** Voegt variabele-verwijzingen toe aan een gemeten boom, per eigenschapssoort. */
 function bind(node, pad, comp) {
@@ -556,9 +685,10 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     const r = await meet(d.storyId, c.args);
     if (r.fout) { spec.fouten.push(`${comp} [${c.naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    varianten.push({ naam: c.naam, args: c.args, boom: r.boom, storyArgs: r.args });
+    r.overlays?.forEach((o, i) => bind(o, `overlay${i}`, comp));
+    varianten.push({ naam: c.naam, args: c.args, boom: r.boom, overlays: r.overlays, storyArgs: r.args });
   }
-  (spec.naamStats ??= []).push(benoem(comp, varianten.map(v => v.boom)));   // laagnamen: één beslissing per component
+  (spec.naamStats ??= []).push(...benoemAlles(comp, varianten));   // laagnamen: één beslissing per component
   const slots = markeerSlots(comp, varianten.map(v => ({ naam: v.naam, boom: v.boom, args: v.storyArgs })), d.assen, spec.fouten);
   spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, slots, varianten };
   process.stderr.write(`  ${comp}: ${varianten.length}/${combis.length}\n`);
@@ -574,9 +704,10 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     const r = await meet(e.id, {});
     if (r.fout) { spec.fouten.push(`${comp} [${naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    frames.push({ naam, storyId: e.id, boom: r.boom });
+    r.overlays?.forEach((o, i) => bind(o, `overlay${i}`, comp));
+    frames.push({ naam, storyId: e.id, boom: r.boom, overlays: r.overlays });
   }
-  (spec.naamStats ??= []).push(benoem(comp, frames.map(f => f.boom)));
+  (spec.naamStats ??= []).push(...benoemAlles(comp, frames));
   spec.schermen[comp] = { frames, afgeschrevenAssen: assen.componenten[comp].assen };
   process.stderr.write(`  ${comp} (scherm): ${frames.length}/${storyNamen.length}\n`);
 }

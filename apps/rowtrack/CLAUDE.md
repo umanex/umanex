@@ -252,7 +252,10 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 | **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — dertien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster, herkomst van de laagnamen, instancevulling). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
 | **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus zes controle-mutaties waarop hij hoort te zwijgen. Stand 2026-09-08: 26/26. |
 | **Builder-poort tegenproef** | `pnpm --filter rowtrack figma:poort:selftest` — haalt `poort` en `bouwhash` letterlijk uit `figma/builder.js` en draait ze tegen stub-nodes: weigert op publicatie en op handwerk, zwijgt op positie en subpixel-ruis. De poort draait in de plugin en is dus niet vanaf de commandoregel aan te roepen; dit is de enige manier om hem groen én rood te zien. |
-| **Figma ↔ browser (maten)** | `pnpm --filter rowtrack parity` — legt per variant-node hoogte, horizontale padding, gap, radius, randbreedte, opacity en de aanwezigheid van vulling/rand/effect naast elkaar. **Breedte zit er bewust NIET in**: die is tekstgedreven en Figma's tekstengine meet dezelfde tekst anders dan Chromium (gemeten 2026-09-07: SectionHeader 162,78 tegen 136). Een acceptatie-item over breedte mag dus nooit op `parity exit 0` leunen. Vereist `figma/geometry.figma.json`; recept hieronder. |
+| **Figma ↔ browser (maten)** | `pnpm --filter rowtrack parity` — **recursief sinds 2026-09-08**: elke node van elke variant én van elk schermframe, op boompad. 1 896 nodes en 15 656 velden, tegen 1 066 velden op ~110 wortels daarvoor. Per node hoogte, horizontale padding, gap, radius, randbreedte, opacity, het aantal kinderen en de aanwezigheid van vulling/rand/effect. **Breedte zit er bewust NIET in**, op geen enkele diepte: die is tekstgedreven en Figma's tekstengine meet dezelfde tekst anders dan Chromium (gemeten 2026-09-07: SectionHeader 162,78 tegen 136). Een acceptatie-item over breedte mag dus nooit op `parity exit 0` leunen. Een component of scherm dat nog niet in Figma staat is `~~ nieuw, nog niet gebouwd` — geteld, niet rood, zodat de as tijdens een sneden-batch bruikbaar blijft. **Hoogte op een tekstnode** wordt alleen vergeleken waar de builder hem zélf zette (`builder.js:148-153`, bij een browser-afbreking); waar Figma hem met `textAutoResize: WIDTH_AND_HEIGHT` bepaalt, meet vergelijken de twee tekstengines en niet de bouw — 312 van de nodes, gemeten 2026-09-08 met verschillen tot 63 tegen 48 op een emoji-glyph. Vereist `figma/geometry.figma.json` op **schema 2**; schema 1 wordt geweigerd (exit 2), recept hieronder. |
+| **Parity-tegenproef** | `node scripts/geometry-parity.mjs --selftest` — zes gevallen op een uit de spec gesynthetiseerde Figma-kant: een ongemuteerde **controle** die groen moet blijven, plus vijf mutaties die elk rood moeten worden op hún pad — wortel, binnennode, schermframe, een **extra wrapper** en een **verdwenen node**. Die laatste twee zijn structureel: een snede die een boom verandert verschuift geen maat, en een zelftest die alleen getallen ophoogt bewijst daar niets over. Toetst de **machinerie**, niet de builder — de builder-trouw bewijst alleen een echte Figma-lezing. `--figma=<pad>` en `--schrijf-fixture=<pad>` bestaan om de schema-poort op zijn groene kant te toetsen zonder de laatste echte lezing te overschrijven. |
+| **Niet-reproduceerbare nodes** | `npm run instabiele-nodes` (in `apps/rowtrack`) — draait de walker **twee keer** en vergelijkt node voor node op boompad. Wat tussen twee runs van ónveranderde code verschilt, kan door geen enkele statische vergelijking gemeten worden; `parity` slaat die paden over. Gemeten 2026-09-08: 106 van 2 056 nodes, gesloten tot 140 — de `<ActivityIndicator>` roteert (RNW `animationKeyframes` 0→360°, 0,75 s, oneindig), dus `getBoundingClientRect` geeft een as-gelijnde doos die per meetmoment anders is; de confetti in MotivationalToast is `6 + random * 8`. De sluiting gaat vanaf **`spinnerBox`** en niet vanaf `spinner`: de rotatie zit in RNW op de binnenste View, en `spinner` bleek in geen enkele run instabiel. Het script stopt met exit 2 als de sluiting geen superset van de meting is. **Vul `figma/niet-reproduceerbaar.json` nooit met de hand aan** — een echte afwijking hoort er niet in te kunnen verdwijnen. |
+| **Uitsluitings-tegenproef** | `node scripts/geometry-parity.mjs --figma=<gemuteerde kopie> --zonder-uitsluiting` — een mutatie bínnen een uitgesloten subboom hoort mét de lijst stil te blijven en zónder de lijst rood te worden. Blijft hij in beide gevallen stil, dan sluit de lijst niets uit maar meet de as daar niets, en dat ziet er in de uitvoer identiek uit. Getoetst op beide kanten, 2026-09-08. |
 | **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. Weigert te schrijven zodra één component nul varianten oplevert (exit 2, spec ongewijzigd): een mislukte meting die tóch wegschrijft, vervangt een goede spec door een lege. |
 | **Instrument-tegenproef (laagnamen)** | `node scripts/figma-build-spec.mjs --rnw-keys-uit` — zet de StyleSheet-sleutelkaart uit via `?rnwKeysUit=1`. Hoort **exit 2** te geven met "sleutelkaart uitgeschakeld" en de spec ongemoeid te laten. Zonder deze vlag is "elke node heet `wrapper`" niet te onderscheiden van "het instrument staat uit" — beide geven een gevulde spec zonder foutmelding. |
 | **Render vastleggen** | `xcrun simctl io booted screenshot <pad>.png` — werkt. Nooit een UDID hardcoden, die verandert; `booted` is stabiel. Op het fysieke toestel: geen automatisch pad, screenshot met de hand. |
@@ -374,35 +377,56 @@ return {
 
 ### Figma-geometrie uitlezen (voor `parity`)
 
+Recursief sinds 2026-09-08 (**schema 2**). De vorige versie las alleen de wortelnode per
+variant en sloeg de schermen over; `geometry-parity.mjs` weigert een schema-1-bestand nu met
+exit 2 in plaats van er stil 95% van de nodes mee te missen.
+
+Compacte codering, want de leesbare objectvorm liep tegen de payload-grens van de Bridge:
+een node is een **array**, `velden` in het bestand beschrijft de posities, en index 8 draagt
+de kinderen als die er zijn. 1 896 nodes passen zo in ~48 KB. De drie syntheseregels van de
+builder (opgevouwen achtergrondkind, gesynthetiseerd `label`-kind, icoon-placeholder) zitten
+**niet** in dit recept maar in `kinderparen()` in het parity-script — één plek, met een
+zelftest eromheen.
+
 ```js
-// figma_execute — levert figma/geometry.figma.json
+// figma_execute — levert figma/geometry.figma.json (schema 2)
 if (figma.fileKey !== "QkRgMc7Quqtbow71DiYa1n") return { fout: "verkeerde file: " + figma.fileKey };
 await figma.loadAllPagesAsync();
-const componenten = {};
+
+const VULLING = 1, RAND = 2, EFFECT = 4;
+function lees(n) {
+  const vlaggen = (Array.isArray(n.fills) && n.fills.length > 0 ? VULLING : 0)
+    | (Array.isArray(n.strokes) && n.strokes.length > 0 ? RAND : 0)
+    | (((Array.isArray(n.effects) && n.effects.length > 0) || n.effectStyleId) ? EFFECT : 0);
+  const uit = [
+    Math.round(n.height * 100) / 100,
+    n.paddingLeft ?? 0, n.paddingRight ?? 0, n.itemSpacing ?? 0,
+    n.cornerRadius === figma.mixed ? (n.topLeftRadius ?? 0) : (n.cornerRadius ?? 0),
+    n.strokeWeight === figma.mixed ? null : (n.strokeWeight ?? 0),
+    n.opacity ?? 1,
+    vlaggen,
+  ];
+  if ("children" in n && n.children.length) uit.push(n.children.map(lees));
+  return uit;
+}
+
+const paginas = {};
 for (const p of figma.root.children) {
   const set = p.children.find(c => c.type === "COMPONENT_SET") ?? p.children.find(c => c.type === "COMPONENT");
-  if (!set) continue;
+  if (!set) continue;   // slaat o.a. de `achtergrond`-rechthoek op de pagina over
   const knopen = set.type === "COMPONENT_SET" ? set.children : [set];
   const varianten = {};
-  for (const v of knopen) {
-    // De gemeten node is het KIND van de wrapper-component, niet de wrapper zelf: de
-    // wrapper draagt alleen de app-achtergrond zodat alpha-kleuren goed lezen.
-    const n = v.children[0] ?? v;
-    varianten[v.name] = {
-      w: Math.round(n.width * 100) / 100, h: Math.round(n.height * 100) / 100,
-      paddingLeft: n.paddingLeft ?? 0, paddingRight: n.paddingRight ?? 0,
-      itemSpacing: n.itemSpacing ?? 0,
-      radius: n.cornerRadius === figma.mixed ? n.topLeftRadius : (n.cornerRadius ?? 0),
-      strokeWeight: n.strokeWeight === figma.mixed ? null : (n.strokeWeight ?? 0),
-      opacity: n.opacity ?? 1,
-      heeftVulling: Array.isArray(n.fills) && n.fills.length > 0,
-      heeftRand: Array.isArray(n.strokes) && n.strokes.length > 0,
-      heeftEffect: (Array.isArray(n.effects) && n.effects.length > 0) || !!n.effectStyleId,
-    };
-  }
-  componenten[p.name] = { setId: set.id, varianten };
+  // De wrapper-component draagt alleen de app-achtergrond; gemeten worden zijn KINDEREN —
+  // [boom, ...overlays], in die volgorde, precies zoals figma/builder.js ze aanhangt.
+  for (const v of knopen) varianten[v.name] = v.children.map(lees);
+  paginas[p.name] = { setId: set.id, varianten };
 }
-return { gegenereerd: new Date().toISOString().slice(0, 10), componenten };
+return {
+  schema: 2,
+  gegenereerd: new Date().toISOString().slice(0, 10),
+  velden: ["h", "paddingLeft", "paddingRight", "itemSpacing", "radius", "strokeWeight", "opacity", "vlaggen"],
+  paginas,
+};
 ```
 
 **Migratiestaat: toets het schema, niet het ledger.** Migraties worden hier met de hand in de SQL

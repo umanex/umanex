@@ -21,7 +21,8 @@
     "render:sweep": "node scripts/render-sweep.mjs",
     "parity:selftest": "node scripts/geometry-parity.mjs --selftest",
     "figma:poort:selftest": "node scripts/figma-poort-selftest.mjs",
-    "figma:serve": "node scripts/figma-serve.mjs"
+    "figma:serve": "node scripts/figma-serve.mjs",
+    "instabiele-nodes": "node scripts/instabiele-nodes.mjs"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",

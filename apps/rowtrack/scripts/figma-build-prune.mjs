@@ -124,13 +124,23 @@ for (const [comp, d] of Object.entries(spec.componenten)) {
   uit.componenten[comp] = {
     assen: d.assen,
     slots: d.slots ?? [],
-    varianten: d.varianten.map(v => ({ naam: v.naam, boom: snoei(v.boom, 0, '', `${comp}[${v.naam}]`) })),
+    varianten: d.varianten.map(v => ({
+      naam: v.naam,
+      boom: snoei(v.boom, 0, '', `${comp}[${v.naam}]`),
+      // Een <Modal>-portal is een APARTE boom naast de hoofdboom, geen kind ervan. De builder
+      // legt hem als absoluut kind over het frame — zoals de DOM hem over het viewport legt.
+      ...(v.overlays?.length ? { overlays: v.overlays.map((o, i) => snoei(o, 0, '', `${comp}[${v.naam}] overlay${i}`)) } : {}),
+    })),
   };
 }
 for (const [comp, d] of Object.entries(spec.schermen)) {
   uit.schermen[comp] = {
     afgeschrevenAssen: d.afgeschrevenAssen,
-    frames: d.frames.map(f => ({ naam: f.naam, boom: snoei(f.boom, 0, '', `${comp}[${f.naam}]`) })),
+    frames: d.frames.map(f => ({
+      naam: f.naam,
+      boom: snoei(f.boom, 0, '', `${comp}[${f.naam}]`),
+      ...(f.overlays?.length ? { overlays: f.overlays.map((o, i) => snoei(o, 0, '', `${comp}[${f.naam}] overlay${i}`)) } : {}),
+    })),
   };
 }
 writeFileSync(join(APP, 'figma/build-spec.min.json'), JSON.stringify(uit));
@@ -166,8 +176,13 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
   const namenVan = (n) => [n.naam, ...(n.k ?? []).flatMap(namenVan)];
 
   for (const [comp, d] of Object.entries({ ...uit.componenten, ...uit.schermen })) {
-    const bomen = (d.varianten ?? d.frames ?? []).map(v => v.boom);
-    for (const b of bomen) for (const n of plat(b)) {
+    const items = d.varianten ?? d.frames ?? [];
+    const bomen = items.map(v => v.boom);
+    // De overlays tellen mee in de DEKKING (ze staan straks in Figma), maar niet in de
+    // stabiliteitsvergelijking hieronder: die groepeert varianten op boomvorm, en een
+    // modalboom hoort niet tegen een schermboom gelegd te worden.
+    const alleBomen = [...bomen, ...items.flatMap(v => v.overlays ?? [])];
+    for (const b of alleBomen) for (const n of plat(b)) {
       nodes++;
       perBron[n.naamBron ?? 'sleutel'] = (perBron[n.naamBron ?? 'sleutel'] ?? 0) + 1;
       perNaam.set(n.naam, (perNaam.get(n.naam) ?? 0) + 1);
@@ -181,9 +196,19 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
     for (const [, g] of groepen) for (const x of g.slice(1)) if (x.n !== g[0].n) instabiel.push(`${comp}: variant ${g[0].i} tegen ${x.i}`);
   }
   const echt = perBron.sleutel + perBron.gefold + perBron.component;
+  // DE EERLIJKE NOEMER. Een node die `rnwRol()` benoemde is DOM die react-native-web zelf
+  // schrijft — de cirkels van een ActivityIndicator, de vijf hostlagen van een Modal. Die
+  // kan per constructie geen code-naam krijgen, dus hij hoorde nooit in de noemer van
+  // "hoeveel laagnamen komen uit de code". Tot 2026-09-08 stond hij er wél in, en het
+  // percentage had daardoor een plafond dat als tekortkoming las.
+  // We trekken `perBron.rnw` af en niet "elke node met een rnw-signatuur": een ScrollView-host
+  // is óók RNW-DOM, maar draagt de app-`style` en wint dus terecht een sleutel. Die telt mee.
+  const appNodes = nodes - perBron.rnw;
   writeFileSync(join(APP, 'figma/laagnamen.json'), JSON.stringify({
     $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Dekking en variant-stabiliteit van de laagnamen, gemeten op de GESNOEIDE boom — dat is wat Figma krijgt.',
-    nodes, perBron, echteNaamPct: +(100 * echt / nodes).toFixed(1),
+    nodes, appNodes, rnwNodes: perBron.rnw, perBron,
+    echteNaamPct: +(100 * echt / appNodes).toFixed(1),
+    echteNaamPctRuw: +(100 * echt / nodes).toFixed(1),
     ambigu, gestabiliseerd, indexNamen, copyNamen, instabiel,
     // Het signaal dat de producent NIET normaliseert: hoeveel posities `stabiliseer()` moest
     // gladstrijken. `instabiel` is dáárna gemeten en dus per constructie leeg; dit getal is
@@ -193,7 +218,7 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
       .map(x => `${x.component}:${x.instabielePosities}`),
     namen: Object.fromEntries([...perNaam].sort((a, b) => b[1] - a[1])),
   }, null, 1));
-  console.log(`laagnamen: ${(100 * echt / nodes).toFixed(1)}% uit de code (${echt}/${nodes}), ` +
+  console.log(`laagnamen: ${(100 * echt / appNodes).toFixed(1)}% uit de code (${echt}/${appNodes} app-nodes, ${perBron.rnw} rnw apart), ` +
               `${indexNamen} cijfernamen, ${copyNamen} copy-namen, ${instabiel.length} instabiel -> figma/laagnamen.json`);
 }
 
