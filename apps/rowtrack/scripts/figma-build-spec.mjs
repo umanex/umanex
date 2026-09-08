@@ -38,8 +38,9 @@ if (process.argv.includes('--hernoem')) {
   const specPad = join(APP, 'figma/build-spec.json');
   const spec = JSON.parse(readFileSync(specPad, 'utf8'));
   let n = 0;
-  for (const [comp, d] of Object.entries(spec.componenten)) { benoem(comp, d.varianten.map(v => v.boom)); n++; }
-  for (const [comp, d] of Object.entries(spec.schermen)) { benoem(comp, d.frames.map(f => f.boom)); n++; }
+  spec.naamStats = [];
+  for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(benoem(comp, d.varianten.map(v => v.boom))); n++; }
+  for (const [comp, d] of Object.entries(spec.schermen)) { spec.naamStats.push(benoem(comp, d.frames.map(f => f.boom))); n++; }
   writeFileSync(specPad, JSON.stringify(spec, null, 1));
   console.log(`hernoemd: ${n} componenten in figma/build-spec.json — draai nu figma-build-prune.mjs`);
   process.exit(0);
@@ -557,7 +558,7 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     bind(r.boom, '', comp);
     varianten.push({ naam: c.naam, args: c.args, boom: r.boom, storyArgs: r.args });
   }
-  benoem(comp, varianten.map(v => v.boom));   // laagnamen: één beslissing per component
+  (spec.naamStats ??= []).push(benoem(comp, varianten.map(v => v.boom)));   // laagnamen: één beslissing per component
   const slots = markeerSlots(comp, varianten.map(v => ({ naam: v.naam, boom: v.boom, args: v.storyArgs })), d.assen, spec.fouten);
   spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, slots, varianten };
   process.stderr.write(`  ${comp}: ${varianten.length}/${combis.length}\n`);
@@ -575,7 +576,7 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     bind(r.boom, '', comp);
     frames.push({ naam, storyId: e.id, boom: r.boom });
   }
-  benoem(comp, frames.map(f => f.boom));
+  (spec.naamStats ??= []).push(benoem(comp, frames.map(f => f.boom)));
   spec.schermen[comp] = { frames, afgeschrevenAssen: assen.componenten[comp].assen };
   process.stderr.write(`  ${comp} (scherm): ${frames.length}/${storyNamen.length}\n`);
 }

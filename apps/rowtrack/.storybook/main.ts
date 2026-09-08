@@ -91,9 +91,21 @@ const config: StorybookConfig = {
         if (pad.includes('/node_modules/') || !/\.(t|j)sx?$/.test(pad)) return null;
         if (!code.includes('StyleSheet.create(')) return null;
         const rel = pad.split('/apps/rowtrack/')[1] ?? pad;
+        // De vervanging is lexicaal blind: hij raakt `StyleSheet.create(` óók in een string,
+        // een comment of JSX-tekst. Dat is in deze codebase vandaag onschadelijk (nul
+        // voorkomens buiten echte aanroepen), maar een documentatie-regel in een story zou
+        // stil herschreven worden. Vandaar de telling: wijkt het aantal vervangingen af van
+        // het aantal aanroepen dat een simpele haakjes-heuristiek verwacht, dan meldt de
+        // build dat in plaats van het te verzwijgen.
+        const aanroepen = code.match(/(?<![.\w'"`])StyleSheet\.create\(/g) ?? [];
+        const ruw = code.match(/StyleSheet\.create\(/g) ?? [];
+        if (ruw.length !== aanroepen.length)
+          console.warn(`[rowtrack-stylesheet-herkomst] ${rel}: ${ruw.length - aanroepen.length}x `
+            + '`StyleSheet.create(` staat in een string, comment of JSX-tekst en wordt NIET herschreven.');
+        let i = 0;
         return {
-          code: code.replace(/StyleSheet\.create\(/g,
-            `(globalThis.__RNW_SRC__=${JSON.stringify(rel)},StyleSheet.create)(`),
+          code: code.replace(/(?<![.\w'"`])StyleSheet\.create\(/g,
+            () => (i++, `(globalThis.__RNW_SRC__=${JSON.stringify(rel)},StyleSheet.create)(`)),
           map: null,
         };
       },

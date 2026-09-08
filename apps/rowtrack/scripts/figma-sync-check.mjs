@@ -20,7 +20,8 @@
  * Daarom noemt de slotregel de assen en het bereik, en niet "in sync": die zin claimt meer
  * dan de assen dragen (umanex-apps HANDOFF 2026-08-25).
  */
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -70,9 +71,20 @@ const NIET_VISUEEL = {
  * Elk gat heeft een item in apps/rowtrack/BACKLOG.md.
  */
 const BEKENDE_GATEN = 46;
+/** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
+ *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
+const BEKENDE_VOORKOMENS = 1906;
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen. */
 const LAAGNAAM_DEKKING = 75.1;
+/** Posities die `stabiliseer()` moest gladstrijken. `instabiel` is ná die pas gemeten en dus
+ *  per constructie leeg — dit is de enige onafhankelijke maat voor dezelfde eigenschap. */
+const BEKENDE_INSTABIELE_POSITIES = 2;
+
+/** De dertien assen, in volgorde. Enige bron voor de slotregel — een hardgecodeerde
+ *  opsomming raakt los van wat er werkelijk gedraaid heeft. */
+const ASSEN = ['dekking', 'pagina', 'variant', 'varianten', 'token', 'tokenwaarde', 'typografie',
+               'link', 'hardcoded', 'binding', 'publicatie', 'laagnaam', 'instancevulling'];
 // Verdeling op 2026-09-08: 18 typografie-combinaties zonder Theme/type-token · 8 icoonmaten
 // (Ionicons als glyph, geen Figma-font) · 5 achtergrondkleuren · 3 paddings (3, 50, 100) ·
 // 3 radii (2, 12, 24) · 3 emoji/systeemfont (bedoeld — een emoji hoort de systeem-emojifont
@@ -200,7 +212,7 @@ else {
 
 // ---- 5b. Tokenwaarde: de waarde zelf, niet enkel de naam --------------------
 const TOL = 0.6;  // 8-bit RGB-kwantisatie; een echte kleurwijziging schuift veel verder
-if (!manifest?.collections || !payload) sla('tokenwaarde', 'manifest zonder waarden — ververs met het schema-2-recept');
+if (!manifest?.collections || !payload) sla('tokenwaarde', 'manifest zonder waarden — ververs met het schema-3-recept');
 else {
   const bron = new Map();
   for (const [set, c] of Object.entries(payload.collecties))
@@ -211,25 +223,41 @@ else {
     for (const [naam, w] of Object.entries(c.waarden ?? {})) {
       const b = bron.get(`${set}/${naam}`);
       if (!b) continue;
-      geteld++;
+      // `geteld++` stond hier vóór de type-dispatch en telde dus ook de takken die met NIETS
+      // vergelijken. Gemeten: beide fontFamily-waarden op "Comic Sans MS" gaven nog steeds
+      // "250 variabelewaarden gelijk aan tokens.json". Nu telt hij alleen wat écht getoetst is.
       if (b.alias) {
+        geteld++;
         if (w.alias !== `${b.alias.set}/${b.alias.naam}`)
           fouten.push(`${set}/${naam}: Figma wijst naar ${w.alias ?? '(geen alias)'}, bron zegt ${b.alias.set}/${b.alias.naam}`);
       } else if (b.type === 'COLOR') {
+        geteld++;
         const k = w.waarde;
         if (!k || Math.abs(k.r * 255 - b.waarde.r * 255) > TOL || Math.abs(k.g * 255 - b.waarde.g * 255) > TOL
             || Math.abs(k.b * 255 - b.waarde.b * 255) > TOL || Math.abs((k.a ?? 1) - (b.waarde.a ?? 1)) > 0.01)
           fouten.push(`${set}/${naam}: Figma ${JSON.stringify(k)} tegen bron ${JSON.stringify(b.waarde)}`);
       } else if (b.type === 'FLOAT') {
+        geteld++;
         if (w.waarde !== b.waarde) fouten.push(`${set}/${naam}: Figma ${w.waarde} tegen bron ${b.waarde}`);
-      } else if (b.type === 'STRING' && !b.expoBase) {
+      } else if (b.type === 'STRING' && b.expoBase) {
+        // Een fontFamily-variabele hoort de GERENDERDE familie te dragen, niet de tokenwaarde
+        // — `Source Serif Pro` in de bron rendert als `SourceSerif4`. Deze tak vergeleek eerst
+        // met niets; nu toetst hij tegen expoBase, dezelfde bewering als de typografie-as.
+        geteld++;
+        const wil = b.expoBase.replace(/\s+/g, '');
+        if (String(w.waarde).replace(/\s+/g, '') !== wil)
+          fouten.push(`${set}/${naam}: Figma "${w.waarde}" tegen gerenderde familie "${b.expoBase}"`);
+      } else if (b.type === 'STRING') {
+        geteld++;
         if (w.waarde !== b.waarde) fouten.push(`${set}/${naam}: Figma "${w.waarde}" tegen bron "${b.waarde}"`);
       }
     }
   }
   if (!geteld) sla('tokenwaarde', 'manifest draagt geen variabelewaarden');
   else if (fouten.length) for (const f of fouten.slice(0, 10)) fail('tokenwaarde', f);
-  else ok('tokenwaarde', `${geteld} variabelewaarden gelijk aan tokens.json (kleurtolerantie ${TOL}/255)`);
+  else if (geteld < bron.size)
+    fail('tokenwaarde', `${geteld} van ${bron.size} variabelen vergeleken — ${bron.size - geteld} staan wel in tokens.json maar dragen geen waarde in het manifest`);
+  else ok('tokenwaarde', `${geteld} variabelewaarden vergeleken en gelijk aan tokens.json (kleurtolerantie ${TOL}/255)`);
 }
 
 // ---- 5c. Typografie: elke text style volgt Theme/type ------------------------
@@ -281,7 +309,17 @@ else {
     if (id !== verwacht) { fail('link', `${s.rel}: linkt naar ${id}, maar ${comp} staat op ${verwacht}`); continue; }
     geteld++;
   }
-  if (!fails.some(f => f.startsWith('[link]'))) ok('link', `${geteld} deep-links wijzen naar de primary node van hun eigen pagina`);
+  if (!fails.some(f => f.startsWith('[link]')))
+    // WAT DEZE AS MEET, en wat niet. `scripts/figma-links.mjs` SCHRIJFT de story-URL uit
+    // `manifest.pages[c].primary.id`, en deze as toetst dat diezelfde URL daaraan gelijk is.
+    // Producent en toets delen dus één veld uit één bron: de as bewijst dat `figma:links`
+    // gedraaid is sinds de laatste manifest-edit, niet dat de node in Figma nog leeft.
+    // Gemeten: 33 verzonnen ids in het manifest gaven 33 FAILs, en ná één keer `figma:links`
+    // stond de as weer groen met 33 dode links. De liveness komt van de VERSHEID van het
+    // manifest — dat is wat de [publicatie]-as meet — en van de volgorde in CLAUDE.md:
+    // eerst het manifest verversen, dan pas figma:links en figma:check.
+    ok('link', `${geteld} deep-links gelijk aan de primary-id in het manifest van ${manifest?.gegenereerd ?? '?'} `
+      + '(dat de node in Figma leeft, meet deze as niet — zie [publicatie])');
 }
 
 // ---- 7. Hardcoded waarden in stories ----------------------------------------
@@ -290,14 +328,20 @@ else {
   for (const s of storyBestanden) {
     const src = readFileSync(s.pad, 'utf8')
       .split('\n').filter(r => !/^\s*(\/\/|\*|\/\*)/.test(r)).join('\n');   // commentaar telt niet mee
-    const hex = src.match(/#[0-9A-Fa-f]{6}\b/g) ?? [];
-    // Een deep-link-URL bevat geen hex-kleur; een fontnaam wel nooit. Alleen echte waarden.
-    if (hex.length) fouten.push(`${s.rel}: ${hex.length} hardcoded hex (${[...new Set(hex)].slice(0, 3).join(', ')})`);
+    // Vier notaties, niet één. `/#[0-9A-Fa-f]{6}\b/` liet 3-cijferige hex (#f0a), 8-cijferige
+    // hex (de \b sluit hem juist uit, want D is een word-char) en rgb()/rgba()/hsl() door —
+    // terwijl React Native ze alle vier accepteert. Gemeten: drie hardcoded kleuren in één
+    // story gaven "33 stories zonder hardcoded hex", exit 0.
+    const hex = src.match(/#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})(?![0-9A-Fa-f])/g) ?? [];
+    const functioneel = src.match(/\b(?:rgba?|hsla?)\s*\([^)]*\)/g) ?? [];
     const fontnaam = src.match(/fontFamily:\s*'[^']+'/g) ?? [];
+    // Een deep-link-URL bevat geen kleur; een fontnaam wel nooit. Alleen echte waarden.
+    if (hex.length) fouten.push(`${s.rel}: ${hex.length} hardcoded hex (${[...new Set(hex)].slice(0, 3).join(', ')})`);
+    if (functioneel.length) fouten.push(`${s.rel}: ${functioneel.length} hardcoded kleurfunctie (${[...new Set(functioneel)].slice(0, 2).join(', ')})`);
     if (fontnaam.length) fouten.push(`${s.rel}: ${fontnaam.length} hardcoded fontFamily`);
   }
   if (fouten.length) for (const f of fouten) fail('hardcoded', f);
-  else ok('hardcoded', `${storyBestanden.length} stories zonder hardcoded hex of fontnaam`);
+  else ok('hardcoded', `${storyBestanden.length} stories zonder hardcoded kleur (hex in 3/4/6/8 cijfers, rgb/rgba/hsl) of fontnaam`);
 }
 
 // ---- 8. Binding: het aantal ongebonden waarden mag niet groeien --------------
@@ -308,7 +352,16 @@ else {
     fail('binding', `${n} unieke ongebonden waarden, ${BEKENDE_GATEN} bekend — ${n - BEKENDE_GATEN} nieuw(e). Zie BACKLOG.md.`);
   else if (n < BEKENDE_GATEN)
     fail('binding', `${n} unieke ongebonden waarden tegen ${BEKENDE_GATEN} bekend — een gat is opgelost; zet BEKENDE_GATEN op ${n}.`);
-  else ok('binding', `${n} unieke ongebonden waarden, gelijk aan de ${BEKENDE_GATEN} bekende gaten (elk met een BACKLOG-item)`);
+  else if (gaten.aantalVoorkomens > BEKENDE_VOORKOMENS)
+    // De unieke telling dedupliceert APP-BREED, dus een nieuw gat dat een al bekende waarde
+    // hergebruikt beweegt hem niet. Gemeten: 40 nieuwe ongebonden waarden in Button gaven
+    // nog steeds "46 unieke ongebonden waarden", exit 0 — alleen het aantal voorkomens liep
+    // op van 1906 naar 1946. Dat getal is de tweede ratel.
+    fail('binding', `${gaten.aantalVoorkomens} voorkomens van een ongebonden waarde, ${BEKENDE_VOORKOMENS} bekend — `
+      + `${gaten.aantalVoorkomens - BEKENDE_VOORKOMENS} nieuw(e), ook al bleef het aantal unieke waarden gelijk.`);
+  else if (gaten.aantalVoorkomens < BEKENDE_VOORKOMENS)
+    fail('binding', `${gaten.aantalVoorkomens} voorkomens tegen ${BEKENDE_VOORKOMENS} bekend — er is er een opgelost; zet BEKENDE_VOORKOMENS op ${gaten.aantalVoorkomens}.`);
+  else ok('binding', `${n} unieke ongebonden waarden over ${gaten.aantalVoorkomens} voorkomens, gelijk aan de bekende stand (elk gat met een BACKLOG-item)`);
   if (gaten.decoratiefGenegeerd) uitgesloten.push(`${gaten.decoratiefGenegeerd} confetti-nodes — gerandomiseerd (size = 6 + random*8), geen stabiel artefact`);
 }
 
@@ -328,13 +381,38 @@ else {
   const gepubliceerd = met.filter(([, p]) => p.primary.publishStatus && p.primary.publishStatus !== 'UNPUBLISHED');
   const zonderHerkomst = gepubliceerd.filter(([, p]) => !p.primary.bouwhash);
 
-  // De bouwspec is wat een herbouw ZOU bouwen. Is die jonger dan de Figma-momentopname,
-  // dan staat er ander werk klaar dan wat er in Figma staat — precies het moment waarop
-  // een herbouw gepubliceerde nodes vervangt.
-  const specPad = join(APP, 'figma/build-spec.min.json');
-  const specDatum = existsSync(specPad) ? statSync(specPad).mtime.toISOString().slice(0, 10) : null;
-  const manifestDatum = manifest.gegenereerd ?? null;
-  const specNieuwer = specDatum && manifestDatum && specDatum > manifestDatum;
+  // De bouwspec is wat een herbouw ZOU bouwen. Is die jonger dan de Figma-momentopname, dan
+  // staat er ander werk klaar dan wat er in Figma staat — precies het moment waarop een
+  // herbouw gepubliceerde nodes vervangt.
+  //
+  // NIET via mtime. Git bewaart geen mtimes, dus een verse clone of worktree stempelt élk
+  // bestand op "nu"; en `manifest.gegenereerd` heeft dagresolutie, dus een herbouw twee uur
+  // ná de ververs — het echte venster — was onzichtbaar. Beide kanten gemeten 2026-09-08:
+  // het uren-venster gaf groen, en een verse checkout gaf vals alarm.
+  //
+  // Wél via de commit-tijd: die hoort bij de INHOUD, overleeft elke checkout en heeft
+  // seconderesolutie. Onvastgelegde wijzigingen aan een van beide bestanden maken de
+  // vergelijking betekenisloos, dus die worden apart gemeld in plaats van meegerekend.
+  const commitTijd = (rel) => {
+    try {
+      const t = execFileSync('git', ['log', '-1', '--format=%ct', '--', rel],
+        { cwd: APP, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      return t ? Number(t) : null;
+    } catch { return null; }
+  };
+  const vuil = (rel) => {
+    try {
+      return execFileSync('git', ['status', '--porcelain', '--', rel],
+        { cwd: APP, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().length > 0;
+    } catch { return false; }
+  };
+  const specT = commitTijd('figma/build-spec.min.json');
+  const manT = commitTijd('figma/manifest.json');
+  const onvastgelegd = vuil('figma/build-spec.min.json') || vuil('figma/manifest.json');
+  const meetbaar = specT !== null && manT !== null && !onvastgelegd;
+  const specNieuwer = meetbaar && specT > manT;
+  const specDatum = specT ? new Date(specT * 1000).toISOString().slice(0, 16).replace('T', ' ') : '?';
+  const manifestDatum = manT ? new Date(manT * 1000).toISOString().slice(0, 16).replace('T', ' ') : (manifest.gegenereerd ?? '?');
 
   if (zonderHerkomst.length)
     fail('publicatie', `${zonderHerkomst.length} gepubliceerde component(en) zonder bouwhash — herkomst onbekend, `
@@ -345,6 +423,10 @@ else {
   if (!zonderHerkomst.length && !(gepubliceerd.length && specNieuwer)) {
     if (!gepubliceerd.length)
       ok('publicatie', `0 van ${met.length} componenten gepubliceerd — een herbouw kost hier nog niets`);
+    else if (!meetbaar)
+      ok('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash — `
+        + (onvastgelegd ? 'de volgorde spec/momentopname is NIET gemeten: een van beide staat onvastgelegd'
+                        : 'de volgorde spec/momentopname is NIET gemeten: geen git-historie'));
     else
       ok('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash, `
         + `bouwspec (${specDatum}) niet jonger dan de momentopname (${manifestDatum})`);
@@ -365,6 +447,15 @@ else {
   if (laagnamen.indexNamen > 0) f.push(`${laagnamen.indexNamen} node(s) heten een kaal cijfer — de broer-index lekt in de laagnaam`);
   if (laagnamen.copyNamen > 0) f.push(`${laagnamen.copyNamen} tekstnode(s) dragen hun eigen copy als naam — zet node.name ná node.characters, anders hernoemt autoRename mee`);
   if (laagnamen.instabiel.length) f.push(`${laagnamen.instabiel.length} isomorf variantpaar/paren met verschillende namen per positie: ${laagnamen.instabiel.slice(0, 3).join(', ')} — een component set met wisselende laagnamen is onbruikbaar`);
+  // `instabiel` toetst de UITKOMST van stabiliseer() en kan daarom alleen nul zijn. Deze
+  // ratel toetst de INVOER ervan — hoeveel posities de producent moest gladstrijken — en dat
+  // getal normaliseert hij niet weg. Groeit het, dan is er een nieuwe naamconflict-bron.
+  const ip = laagnamen.instabielePosities;
+  if (ip === undefined) f.push('laagnamen.json draagt geen instabielePosities — draai `figma:spec`');
+  else if (ip > BEKENDE_INSTABIELE_POSITIES)
+    f.push(`${ip} posities moesten gestabiliseerd worden, ${BEKENDE_INSTABIELE_POSITIES} bekend (${(laagnamen.instabielPerComponent ?? []).join(', ')}) — een nieuwe naamconflict-bron`);
+  else if (ip < BEKENDE_INSTABIELE_POSITIES)
+    f.push(`${ip} posities gestabiliseerd tegen ${BEKENDE_INSTABIELE_POSITIES} bekend — een conflict is opgelost; zet BEKENDE_INSTABIELE_POSITIES op ${ip}.`);
   const pct = laagnamen.echteNaamPct;
   if (pct < LAAGNAAM_DEKKING - 0.05)
     f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — er is dekking verdwenen`);
@@ -374,7 +465,8 @@ else {
   else ok('laagnaam', `${laagnamen.nodes} laagnamen: ${pct}% uit de code, `
     + `${(100 * laagnamen.perBron.rol / laagnamen.nodes).toFixed(1)}% uit een waargenomen rol, `
     + `${(100 * laagnamen.perBron.terugval / laagnamen.nodes).toFixed(1)}% structurele terugval — `
-    + '0 cijfernamen, 0 copy-namen, 0 instabiele posities');
+    + `0 cijfernamen, 0 copy-namen, ${laagnamen.instabielePosities} gestabiliseerde positie(s) `
+    + `(${(laagnamen.instabielPerComponent ?? []).join(', ') || 'geen'})`);
   uitgesloten.push(`${laagnamen.perBron.terugval} nodes zonder StyleSheet-sleutel (inline of Reanimated gestyleerd) — die dragen een structurele naam, geen code-naam`);
   if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);
 }
@@ -386,8 +478,12 @@ else {
 // kostte deze library een ondoorzichtig donker vlak om elke geplaatste knop (gemeten
 // 2026-09-08: `instanceFills: 1` op een Button-instance in RowTrack - Design).
 if (!manifest) sla('instancevulling', 'geen manifest');
-else if (Object.values(manifest.pages).every(p => p.primary && p.primary.eigenVulling === undefined))
-  sla('instancevulling', 'manifest draagt geen vullingsvelden — ververs met het schema-3-recept');
+else if (Object.values(manifest.pages).some(p => p.primary && p.primary.eigenVulling === undefined))
+  // `every` in plaats van `some` liet één pagina mét het veld de as groen zetten voor alle 33
+  // — het beeld van een halve manifest-ververs. Gemeten: 32 onmeetbare pagina's werden als
+  // "15 sets en 18 losse componenten gemeten" gerapporteerd.
+  sla('instancevulling', `${Object.values(manifest.pages).filter(p => p.primary && p.primary.eigenVulling === undefined).length} `
+    + 'van de pagina\'s dragen geen vullingsveld — ververs met het schema-3-recept');
 else {
   const fout = [];
   for (const [naam, p] of Object.entries(manifest.pages)) {
@@ -420,11 +516,18 @@ if (fails.length) {
   console.log('Fix de code, of werk Figma bij en ververs figma/manifest.json (zie apps/rowtrack/CLAUDE.md → Verify-pad).');
   process.exit(1);
 }
-console.log(`\n${checks.length} checks groen — dekking, pagina's, variant-assen, variant-nodes, tokennamen,`);
-console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden, het aantal ongebonden');
-console.log('waarden, het publicatievenster, de herkomst van de laagnamen en wat er met een');
-console.log('instance meereist.');
+// De slotregel somde tot 2026-09-08 alle dertien assen bij naam op, ongeacht hoeveel er
+// gedraaid hadden. Gemeten: een kopie zónder figma/manifest.json gaf tien overgeslagen assen,
+// vier groen, EXIT 0, en toch de volledige opsomming. Wie de exit-code leest of het commando
+// aan een `&&` hangt, krijgt "in sync" van een meting die grotendeels niet plaatsvond.
+// De opsomming komt nu uit `checks` zelf, en een onvolledige meting krijgt een eigen
+// exit-code — 2 betekent "niet gemeten", 1 betekent "gemeten en verschillend".
+console.log(`\n${checks.length} van ${ASSEN.length} assen groen: ${checks.map(c => c.match(/^\[([^\]]+)\]/)?.[1] ?? c).join(', ')}.`);
 console.log('Niet gemeten: of Figma er hetzelfde UITZIET als de browser (dat is `pnpm --filter rowtrack parity`),');
 console.log('wat de bouwspec afkapte (voorbij diepte 4 of 8 broers), en elke Figma-wijziging sinds '
   + (manifest?.gegenereerd ?? 'de laatste ververs') + '.');
-if (overgeslagen.length) console.log(`${overgeslagen.length} as(sen) overgeslagen — zie de ~~-regels hierboven.`);
+if (overgeslagen.length) {
+  console.log(`\n${overgeslagen.length} as(sen) OVERGESLAGEN — zie de ~~-regels hierboven.`);
+  console.log('Dit is geen groene meting: de invoer voor die assen ontbrak. Exit 2.');
+  process.exit(2);
+}

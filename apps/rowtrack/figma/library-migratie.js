@@ -140,6 +140,10 @@ async function zetScalar(n, veld, alias) {
  * staat niet eens in de enum. Kopiëren, de alias erop zetten, de array terugleggen.
  */
 async function zetEffecten(n) {
+  try { await zetEffectenIntern(n); }
+  catch (e) { meldingen.push(`${n.id} effects: ${e.message}`); }
+}
+async function zetEffectenIntern(n) {
   const oud = n.effects;
   if (!Array.isArray(oud) || !oud.length) return;
   let veranderd = false;
@@ -162,6 +166,10 @@ async function zetEffecten(n) {
 
 /** Verf (fills/strokes) opnieuw binden. Een paint is immutable: kopiëren en terugzetten. */
 async function zetVerf(n, soort) {
+  try { await zetVerfIntern(n, soort); }
+  catch (e) { meldingen.push(`${n.id} ${soort}: ${e.message}`); }
+}
+async function zetVerfIntern(n, soort) {
   const oud = n[soort];
   if (!Array.isArray(oud) || !oud.length) return;
   let veranderd = false;
@@ -194,6 +202,16 @@ async function zetVerf(n, soort) {
   if (veranderd) n[soort] = nieuw;
 }
 
+/**
+ * Eén node migreren. ELKE schrijfactie zit in een try/catch.
+ *
+ * `zetVerf` en `zetEffecten` deden dat niet, en dat is erger dan een gemiste binding: een
+ * rejection uit `importVariableByKeyAsync` ontsnapte uit `migreer`, uit de chunk-lus én langs
+ * `figma.root.setPluginData(VLAG, …)` heen. Alle top-level nodes die deze run al gemigreerd
+ * had verdwenen daarmee uit `gedaan`, de volgende aanroep begon opnieuw bij dezelfde pagina en
+ * struikelde over dezelfde paint — de migratie kon die node nooit passeren. Hoe langer de run,
+ * hoe meer werk er bij één rejection sneuvelde.
+ */
 async function migreer(n) {
   bezocht++;
   const bv = n.boundVariables;

@@ -144,7 +144,7 @@ export function stabiliseer(bomen) {
     if (!groepen.has(v)) groepen.set(v, []);
     groepen.get(v).push(b);
   }
-  let verschoven = 0;
+  let verschoven = 0, posities = 0;
   for (const [, g] of groepen) {
     if (g.length < 2) continue;
     const rijen = g.map(b => plat(b));
@@ -152,11 +152,12 @@ export function stabiliseer(bomen) {
       const tel = new Map();
       for (const r of rijen) tel.set(r[i].naam, (tel.get(r[i].naam) ?? 0) + 1);
       if (tel.size < 2) continue;
+      posities++;
       const winnaar = [...tel.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0][0];
       for (const r of rijen) if (r[i].naam !== winnaar) { r[i].naam = winnaar; r[i].naamGestabiliseerd = true; verschoven++; }
     }
   }
-  return verschoven;
+  return { verschoven, posities };
 }
 
 /**
@@ -173,7 +174,10 @@ function terugval(n, ouder) {
   const rolKaart = { button: 'button', heading: 'heading', progressbar: 'progressbar',
                      img: 'image', list: 'list', switch: 'switch', link: 'link' };
   if (n.rol && rolKaart[n.rol]) return [rolKaart[n.rol], 'rol'];
-  if (n.tekst) return [n.styleRef ? n.styleRef.split('/').pop() : 'label', 'rol'];
+  // `node.tekst.styleRef`, niet `node.styleRef`: de walker schrijft hem ín het tekst-object
+  // (figma-build-spec.mjs). De vorige versie las het top-niveau, dus deze tak viel altijd
+  // door naar 'label' en geen enkele tekstnode kreeg ooit zijn text-style-naam.
+  if (n.tekst) { const ref = n.tekst.styleRef ?? n.styleRef; return [ref ? ref.split('/').pop() : 'label', 'rol']; }
   if (n.positie === 'absolute' && ouder && n.w >= ouder.w - 1 && n.h >= ouder.h - 1)
     return ['overlay', 'terugval'];
   const kinderen = n.kinderen?.length ?? 0;
@@ -237,7 +241,11 @@ export function benoem(comp, bomen) {
 
   // PAS 2 — opnieuw kiezen, nu mét de gevouwen namen, en daarna stabiliseren.
   for (const boom of bomen) loop(boom, null, true);
-  stabiliseer(bomen);
+  // `stabiliseer` egaliseert precies wat de [laagnaam]-as daarna toetst (`instabiel`), dus die
+  // subas kan per constructie alleen nul vinden — één meting die zichzelf bevestigt. Het
+  // signaal dat de producent NIET normaliseert is hoeveel posities hij moest gladstrijken;
+  // dat gaat naar figma/laagnamen.json en is daar wél een ratel.
+  const stab = stabiliseer(bomen);
 
   function loop(n, ouder, isWortel) {
     const k = rangschik(n, vouw, universeel);
@@ -276,6 +284,8 @@ export function benoem(comp, bomen) {
     n.naamBronId = w?.b ?? ouder?.naamBronId ?? null;
     for (const kind of n.kinderen ?? []) loop(kind, n, false);
   }
+
+  return { component: comp, gestabiliseerd: stab.verschoven, instabielePosities: stab.posities };
 }
 
 /** Meet de dekking en de variant-stabiliteit over een verzameling benoemde bomen. */
