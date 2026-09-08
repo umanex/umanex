@@ -45,8 +45,31 @@ const VARIABELE_TYPE = {
   color: 'COLOR',
   borderRadius: 'FLOAT', borderWidth: 'FLOAT', sizing: 'FLOAT', spacing: 'FLOAT',
   fontSizes: 'FLOAT', opacity: 'FLOAT', letterSpacing: 'FLOAT', lineHeights: 'FLOAT',
-  fontFamilies: 'STRING', fontWeights: 'STRING',
+  fontFamilies: 'STRING',
+  // fontWeights krijgt zijn type uit de WAARDE, niet uit de tokengroep — zie typeVan().
 };
+
+/**
+ * Het Figma-type van een token.
+ *
+ * `fontWeights` bevat twee soorten dingen die Figma op twee verschillende velden wil:
+ *   "300" … "600"      -> het veld `fontWeight`, dat FLOAT eist
+ *   "Italic", "Bold"   -> het veld `fontStyle`, dat STRING eist
+ *
+ * Ze allemaal STRING maken (zoals hier tot 2026-09-08 gebeurde) maakt de vier numerieke per
+ * constructie onbindbaar: Figma antwoordt *"variable of resolved type 'STRING' cannot be
+ * bound to 'fontWeight'"*. Gemeten gevolg: 869 bindingen in `RowTrack - Design` konden niet
+ * naar de library, en de 18 text styles in het library-bestand droegen hun fontWeight
+ * ongebonden — dat laatste stond als bekend gat in `figma/ongebonden.json` zonder dat de
+ * oorzaak benoemd was.
+ *
+ * De tokenbron blijft ongemoeid: `"400"` is daar terecht een string (Tokens Studio kent geen
+ * numeriek fontWeight-type). Het onderscheid hoort hier, op de grens naar Figma.
+ */
+function typeVan(tok) {
+  if (tok.$type === 'fontWeights') return /^\d+(\.\d+)?$/.test(String(tok.$value).trim()) ? 'FLOAT' : 'STRING';
+  return VARIABELE_TYPE[tok.$type];
+}
 const STYLE_TYPE = { typography: 'TEXT', boxShadow: 'EFFECT' };
 
 /** '{color.neutral.950}' -> 'color/neutral/950'. Geen referentie -> null. */
@@ -133,7 +156,7 @@ const overgeslagen = [];
 for (const set of SETS) {
   collecties[set] = { mode: 'Value', variabelen: [] };
   for (const [pad, tok] of Object.entries(perSet[set])) {
-    const vt = VARIABELE_TYPE[tok.$type];
+    const vt = typeVan(tok);
     if (!vt) {
       if (!STYLE_TYPE[tok.$type]) overgeslagen.push(`${set}/${pad} (${tok.$type})`);
       continue;

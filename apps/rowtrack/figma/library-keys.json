@@ -1,0 +1,1341 @@
+{
+ "$comment": "GEGENEREERD uit RowTrack -  Design System via figma_execute; recept in apps/rowtrack/CLAUDE.md. NIET met de hand bewerken.",
+ "fileKey": "QkRgMc7Quqtbow71DiYa1n",
+ "fileName": "RowTrack -  Design System",
+ "variabelen": {
+  "Core/color/neutral/0": {
+   "key": "cb369a204c12639f4d514bfc66343103c7774115",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/50": {
+   "key": "9eca17d58421fe5f994bd30f74e30a28d03ace43",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/100": {
+   "key": "d29adf30944fd790cc3eb7e454efd759a59fd55a",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/200": {
+   "key": "c890cb1affaafdf38d912fb909a6e341c9d1d31d",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/300": {
+   "key": "d9c704477f10a04a47ca75bcb5a88b8cfc995faa",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/400": {
+   "key": "e2b972c5d8e77d592989bb43890542451cce33e7",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/500": {
+   "key": "08b805c450f6cd91f06cef16cafe237867e6dfde",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/600": {
+   "key": "0e6313f8a2e62fae2dd3095232731a4f3c71904b",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/700": {
+   "key": "ae539de237a3f9b44018704e60f63b80e7dff3d1",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/800": {
+   "key": "27151b5aa88c4906d780aff4db20cbedaa6ff3ee",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/900": {
+   "key": "ee672c15c8a7c373cef6613736f88196016ba075",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/950": {
+   "key": "fdd63b5766ecae1c64b748d28eaaae0e3a6f78a6",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/neutral/1000": {
+   "key": "29a16dcebe07eabb32159224dc406307d730433e",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/100": {
+   "key": "579d717e08265398aa57eb4640ba8d61e698cc90",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/200": {
+   "key": "b06c3de198c4c21f769dad50ec22f0945bbe020c",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/300": {
+   "key": "2a858158fedc2f9fdf1ca4152609c14485ae50aa",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/400": {
+   "key": "bc6f5531c5581f2422f927ccad5134cd7524b9eb",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/450": {
+   "key": "d02e6d66934e515485fbafbbe3d75581358bb442",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/500": {
+   "key": "53f5baf43a6a58b85e3dbf7274d7b5b77e2027bf",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/600": {
+   "key": "975545fd3577da9f30c61547fa70c62293bfdb6c",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/700": {
+   "key": "a531e9b6daad6ad3c184f9234706ed1ba658b9d4",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/800": {
+   "key": "8edead05da5042b46783041c9f78dbbfccbd45b5",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/red/900": {
+   "key": "f75ce39446f272b080b0bd8057e7878386bf6ee1",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/gold/100": {
+   "key": "3d93847c265a8bac747e616c1a3c09221beed37d",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/gold/300": {
+   "key": "aede27a71ffdd94c1ed73c1f163430177c8e0127",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/gold/500": {
+   "key": "469b7289e23d8c82c851774cd1da521477f7f159",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/white-04": {
+   "key": "bb13443a8ace8642c3d4c8a7acbcb40ec9306fcb",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/white-08": {
+   "key": "c83feaa727fafb0fd214b74e23600700c06684ab",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/white-12": {
+   "key": "09d42b875e9c91e1c05f466b17bc2eb34fd14482",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/white-22": {
+   "key": "c07724af504f77543ff8430f021ebd3b7d27179f",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/black-30": {
+   "key": "04e507eb5de51f5e3c3258565413b382c15b58a7",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/black-40": {
+   "key": "dd3bbdc9db0634777bf0cdd11435c4de9ed239d0",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/red-04": {
+   "key": "b95d9a0a3f6d5a62f9bb93f7a81c802c68bfe14a",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/red-06": {
+   "key": "f3f2bdaf08f5aa3b7822c2609b0c8dd7b9c41a08",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/red-08": {
+   "key": "07d0543fae9183aec6df5b963ff515b8ce4326f1",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/red-12": {
+   "key": "96334195dddba3a311beaa9e3231e6a0abd00c47",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/red-20": {
+   "key": "f111c6a95f0c049cda2997f91b2b56fe0d190065",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/color/alpha/red-deep-30": {
+   "key": "b3253787babd0f3d43b1ab073460fa8420a3b46d",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Core/fontFamily/sourceSerif": {
+   "key": "cfc6315e7c4f96f2c9be6452af774498a0d87ff1",
+   "type": "STRING",
+   "status": "CURRENT"
+  },
+  "Core/fontFamily/albertSans": {
+   "key": "59a90ca111b6d8c0238af1751adc1f6ee99ba9dd",
+   "type": "STRING",
+   "status": "CURRENT"
+  },
+  "Core/fontWeight/italic": {
+   "key": "5cbdf8ac4c09ccd98287d35a25e522b989b5778d",
+   "type": "STRING",
+   "status": "CURRENT"
+  },
+  "Core/fontWeight/bold": {
+   "key": "82d55bdae25a812cbc8a090d7d2d569065bb4535",
+   "type": "STRING",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/9": {
+   "key": "bb3f5fc88c27a51262dc3c60580bf4416d87e138",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/10": {
+   "key": "52bb4ca659334a046df3c7d8dc73e101280c8b7d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/11": {
+   "key": "e2f0f7e19bd0165d74ffafef76c4fb395624293b",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/13": {
+   "key": "b2e3ec48ef85e9426eff884f9c0459787f7cd41d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/14": {
+   "key": "e3d63527088599bd51bb33c16bb48f4eec764ac7",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/15": {
+   "key": "4aab64668ee57c28eeb289e0afb37208f692ad65",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/16": {
+   "key": "0149152e3cbc9c28a4e62a0f9a575d932135f32e",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/17": {
+   "key": "cd0c600b8b3aae279f4b98f02ffdb4b14b6f0e04",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/18": {
+   "key": "ea5c11e12cf2f2833cef60c871db8580cc1795b0",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/22": {
+   "key": "9d29b0e0c7b7cce4d36eac4d9808c68157dfc3ff",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/26": {
+   "key": "f437186c02a42d06f29b463bac0934884029050d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/28": {
+   "key": "4ab7d2219cdb4abb92db668e1b313c293bb0d40d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/32": {
+   "key": "fb0a5e360920395249e0782637244d615f86a9ff",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/34": {
+   "key": "7ca34a40807cca33dc6e8fe37018476534938178",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/36": {
+   "key": "88db60ef20b953489ae304735eef3d34a23fe0b0",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/38": {
+   "key": "74e05855efcf87170ea89894b3b25cae2e1d8fff",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/44": {
+   "key": "ed291c2984097d113448cc236eec808efaae17ab",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontSize/114": {
+   "key": "a499b933aace5d4ef6944a4d1020f2fb65a7287b",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/lineHeight/tight": {
+   "key": "3e7eb55e1067633bba5a46531f85663c557b12fb",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/lineHeight/compact": {
+   "key": "9c180b63f51e1a396cd7aa7aeb290219f8d3ddb6",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/lineHeight/normal": {
+   "key": "2c8fc7cb2d84dcd8774fe48106c0fd92d8d854ec",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/lineHeight/relaxed": {
+   "key": "cc16f66ba91149a0cfc2643e7d7b51679b6273d9",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/displayTight": {
+   "key": "6389868a7f375c82c5eb3cffd25d2329020cbb89",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/displayLoose": {
+   "key": "0878ba4480391a8eb727b060470ad7b6ff7ca271",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/tighter": {
+   "key": "ee4df6e0a05093bef101328abdf218480f6e3aec",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/tight": {
+   "key": "cced0b5cb0eee7dcf7c7eaa885e02d9b339d2023",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/snug": {
+   "key": "ff07583bd6b55c35e44aefaa69c13bc4beecaa2a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/subtle": {
+   "key": "65b18904152a1b04e9d36b0fdec19c117818afd6",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/normal": {
+   "key": "90353a60e9db492fc74d0fb40d98b33af794ccae",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/wide": {
+   "key": "1efcd0326e4b4a65a4566d3aed1070e336ba0313",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/letterSpacing/wider": {
+   "key": "458030adc0d0deeac106725b7928e76119bf2f7a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/0": {
+   "key": "ec16424da4f3c5c50d0892847bab8d9132361efd",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/2": {
+   "key": "dfd17b00b7a54d5c53cca2d5fbe4a331686bb8dc",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/4": {
+   "key": "c7ef64bb18cb0a9a5622a4c3dc6848082dc76c57",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/6": {
+   "key": "a15dfae5c210bf404a0d9fa879cf74e55c2b067c",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/8": {
+   "key": "b60e57c27e04a24264de4748154e4ed00eac1495",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/10": {
+   "key": "c804cc16f6356394c712e127e4e8c8f9979ac01e",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/12": {
+   "key": "91162a1e76bbc6905c60eeef382b0f781c2dd496",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/14": {
+   "key": "cf6115c4053a9cfa54fd2364d5e92509d9e8d1df",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/16": {
+   "key": "b7b5589e72cddfd9128cfa2478a35b97d5acb2f5",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/18": {
+   "key": "40fb2ee33275a4d87aecbc1b1989b4ffd7924979",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/20": {
+   "key": "77511a76ccf54b8d5e173fb20e2f79570a4a80f6",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/22": {
+   "key": "ad0f19bd9da8b0cd72887c5278a578011faf2be3",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/24": {
+   "key": "6a340281e3c1bbfc86b55b665b42be7f3dc0e9a4",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/28": {
+   "key": "c0de6ac7ed74bd148f6c4d4f593e959c2d2ef60a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/32": {
+   "key": "4dd7fccf4584af6106a893eae9d0970896954eb4",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/40": {
+   "key": "471a304c52cd2234f2f6ca21f2c4c213c5a87ec0",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/44": {
+   "key": "12e628d791fe0069bccfefeb342b1348b1396520",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/spacing/48": {
+   "key": "9cafa1d3b83c70f058e23bc519104da5e47653d7",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/0": {
+   "key": "39e938b07e8eac0c417ab20e55558d1a41f0ca2a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/1": {
+   "key": "8e6d13803e3cdedc6a9fab26ffdce366bebda1dd",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/2": {
+   "key": "e7744ab7858ce276e647be263aade6d4634194f2",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/4": {
+   "key": "e2e501a231746e2e1235999129f7b1c6e88c1a1f",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/7": {
+   "key": "367d6a3b120ffb06ea5cbca81903c58684ca09e6",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/8": {
+   "key": "797bbbb1d6716cf6d57f723a34cbd04cb00c27e8",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/44": {
+   "key": "4927b34d5c4077a00f37e4b4ee23ee3c627ce35d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/48": {
+   "key": "9a7cb7f350a90dca1249f5b0c3c3177e1f69561e",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/52": {
+   "key": "129cbe7b5f9aa18906cf63d10c118a10ee5ecdcc",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/sizing/56": {
+   "key": "ac7e26527c6e8820a6c5b02eac3407464afb8dd1",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/none": {
+   "key": "ec9138d4dfca6e21bfab8bc901a8b68ba1142c4d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/xs": {
+   "key": "15446648986b263f57dc5a6b2b58a01852dd816c",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/sm": {
+   "key": "963dbd6452cd38f342a01ddf2d9f2bc5b80ac2fc",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/md": {
+   "key": "7e7a822fb1edf77ffff6fba1dc42474c6779d88d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/lg": {
+   "key": "7420da4fe3cdd603efe3a3c344cac54c3421c2d9",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/xl": {
+   "key": "967993a57f54c5bb045324d66afb3c8e1b8580e7",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderRadius/full": {
+   "key": "983a1a79ab3d88edf071271ef115fa9a62b8733f",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderWidth/0": {
+   "key": "957fef1c63a0bd9c0f37462ed62b0223f98e60d9",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderWidth/1": {
+   "key": "794b3f56ff9d84647d524a0e2de59a83081a5389",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/borderWidth/2": {
+   "key": "d3a8068050b55524d4a6af68b6e14cd42754d561",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/opacity/0": {
+   "key": "ab3f47cd9c09cf9efbb3326158ef0927c0d4984a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/opacity/40": {
+   "key": "96bc78484ca475104d98b6a0a9f1b126464b2d52",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/opacity/55": {
+   "key": "f0bad6c6d4d77683b0fa4576ba8719bc08104bfa",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/opacity/100": {
+   "key": "1630bba577bd06b5850e478bd7f0c09b9205690c",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontWeight/light": {
+   "key": "15621469311060ac0665dd20233336b5104056e7",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontWeight/regular": {
+   "key": "ac9d6f951f766ef315a7ee036f4e23972436b4b0",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontWeight/medium": {
+   "key": "fe79ea7d9af66de9397349fb385dd86ca01f0ae4",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Core/fontWeight/semibold": {
+   "key": "15dcae54a1a9180aaed2efc07c7ed4eb85949e0f",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/bg/base": {
+   "key": "08b7c81f9f6aa0d22c52dd3c26e159414892e0f8",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/bg/elevated": {
+   "key": "4a3c2d85cf1557d9ac86c66498bbc82ff3c35234",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/bg/raised": {
+   "key": "31d1f516c040ad355350225bf48d72ed60cadb1a",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/border/subtle": {
+   "key": "3a62d15e3b7c3124e634bf5bf132d0bed840d776",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/border/default": {
+   "key": "92fc2e2d2080793bc44aea35997b9d84e580219b",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/border/strong": {
+   "key": "7741a2e5112f8a65b4f9a335dce28876b5572a17",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/fg/primary": {
+   "key": "cca63280f0eb5daae36bdecdda791842cad067e5",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/fg/secondary": {
+   "key": "deb8b153635690be5e6c24466f2e173bd0f4b61b",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/fg/tertiary": {
+   "key": "d64d77764936577452962f725388d2b245100575",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/fg/quaternary": {
+   "key": "cf1287c2995ad9857883d068079ddab0b7e0bd32",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/fg/onAccent": {
+   "key": "2ee2a289632a2c21dc8e6952079a3d13a2c30b3e",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/accent/default": {
+   "key": "fc4edbd5aaff95773a9a3dc6ce896c86a002fe21",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/accent/hover": {
+   "key": "584f1cbb9027290b3d516909c396b068479204fb",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/accent/pressed": {
+   "key": "b50420c40899e5954d87d75da71b9a753ddb7343",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/accent/subtle": {
+   "key": "d306d6ee06061458dfcc56de7310238fe52d7c2d",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/accent/muted": {
+   "key": "2f76ae750dab310226917a52f1c6be037631db83",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/achievement/default": {
+   "key": "5c28678f146103b64ea386d04b33b53130b1914c",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/achievement/muted": {
+   "key": "d096180593c409dad460cce3998881500d078a03",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/gradient/primaryButtonFrom": {
+   "key": "1fb1638f47cf17172f734868274b3e3e7ce6a91a",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/gradient/primaryButtonTo": {
+   "key": "f05d05a8f7a9d71bf49a24bac59e4909f2ee286e",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Theme/radius/input": {
+   "key": "8d983a12e1da519b6f31cde3e05763f2b872aff7",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/radius/buttonOutline": {
+   "key": "16face0a92acb96d5dd2ccee449aca7680f21cfb",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/radius/buttonPrimary": {
+   "key": "3af2745bc92e9aa8c468b31a4386a3590a642314",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/radius/card": {
+   "key": "97fc4207658b2a0152240c8d2eda833d233a2fac",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/radius/highlightRow": {
+   "key": "454ecd56ef3abd8f8af58ae44f1fa086b6f34d68",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/radius/pill": {
+   "key": "6ab89a92eddb9b4196b91566caed505c7b603be6",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/stroke/hairline": {
+   "key": "03928232bd496cd73208a0f7157b93f11ca745a3",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/stroke/default": {
+   "key": "3f3ee94b07ed314787fd67741b133a7d199b6f0c",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/size/buttonPrimaryHeight": {
+   "key": "6f94391ed561853615a7d45ac3f13f2d103a4495",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/size/buttonDestructiveHeight": {
+   "key": "5055aa12de5f4592c4b445beb3741e1748d6e73a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Theme/size/statusBarHeight": {
+   "key": "0562dbb15826d12aeb476a1bd4a4a46e3940ea55",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/background": {
+   "key": "e164f78ca460980c1a77ee94fc5c296d7d70964b",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/color": {
+   "key": "74477653b2362002180a0d7056360606434729c4",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/border": {
+   "key": "553a7af01cc505051dc681374c2511a98df8d4c9",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/borderWidth": {
+   "key": "04298c51c3f5f3605d91a5d7801329bdb77f139d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/radius": {
+   "key": "b7d2d47d7638cbf75f20fb9270427db984c41e46",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/height": {
+   "key": "f231ba9a404f8ef4c0ae54a1f17272fdd9af4148",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/paddingX": {
+   "key": "6b349b5e434ea8b71e18cae98d5a0103e3071c37",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/gradientFrom": {
+   "key": "9c81d5490f77a74b0107b7036d9247636888d5bf",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/primary/gradientTo": {
+   "key": "3a473d2cbc14529cc4caeb8df18e983c9570498a",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/background": {
+   "key": "3a7fda6f0aa32f5e508a0c50327cbcae314d45c3",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/backgroundHover": {
+   "key": "de528f1097be8b6cecca0bef31373b92778ba486",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/color": {
+   "key": "d020cafc8e4b2a1b09443718038a9f7dd548d3ad",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/border": {
+   "key": "a109057cd2e358e89261b7b014b57d45aa4091d8",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/borderWidth": {
+   "key": "4fc05d7b1587897e5dece7e576cb6320b3de2296",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/radius": {
+   "key": "f917216f6f8d4c81df107690126980e162680fe1",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/paddingY": {
+   "key": "46a7e78351f81baa5d3ca4d1e94e1d9b5bf18918",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/paddingX": {
+   "key": "0709446be567d497dba33c55aadc8fe320fd952d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/outline/gap": {
+   "key": "7cce691189b1668828908b006c795032ac11385b",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/destructive/background": {
+   "key": "d9371f488aed43b1384a8cd90425d27fe48e0901",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/destructive/color": {
+   "key": "ef9350c5447f023975f2b56d4d944a461f24bb4e",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/destructive/border": {
+   "key": "feca8f89503900f1100e2b04bd250f6c4ab893c0",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/button/destructive/borderWidth": {
+   "key": "b4b96b3c7f858440a57ef7bb326c14f36215390d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/destructive/radius": {
+   "key": "c0cf048281768fa04382cd0861f1b0e05211ec0d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/button/destructive/height": {
+   "key": "28c49a80854560125c2e3be2ccb2dcf21ccbc90f",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/textLink/color": {
+   "key": "c98b060b90363f77ac24f1ea2027f8954ee2ffc9",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/textLink/gap": {
+   "key": "2c01433b806e81680110a7a72dae8be7eb446bf1",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/border": {
+   "key": "2bf78af711aa7e7e69390168b052d87fe3aeacd8",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/borderWidth": {
+   "key": "ce7a8fb386cc9d66ee3bc45854dc83a83bbd8dcd",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/radius": {
+   "key": "dd0241323ab19e0009afd5d284d0235fdb810063",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/paddingY": {
+   "key": "c1f2b463d3b3258f57837c6fb9a19d9510ae73ac",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/paddingX": {
+   "key": "6c0d9f37cc7b1142cdc1ad7f99a96cb60f311aed",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/gap": {
+   "key": "72876768feb61d5a5b28bc4d6871b5aceabd2f39",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/labelColor": {
+   "key": "14392a134db3afa8e0100309626b78e79fd8418f",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/goalPill/valueColor": {
+   "key": "70be9350bb47c21d301c8455321022cb32bbee29",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/paddingY": {
+   "key": "1c9c08ba0185e02954c424883f925e5314e9d8d7",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/borderTop": {
+   "key": "441d0298eae105542227776650d8df52a2707f2e",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/borderTopWidth": {
+   "key": "e68c71f72503c742a90592cbe76be8961c4cf560",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/labelColor": {
+   "key": "d97216d1d1ff97645ebe5b2e8a6d5a0daca7bb52",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/valueColor": {
+   "key": "52bc652f49ac07dbb410b3cc5a075214e1082a24",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/unitColor": {
+   "key": "e4d28c008edaa1bdcf4c5f10bc88e9a0c6eaee62",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/kpiTile/unitOffsetLeft": {
+   "key": "6895f84ccfe9960f8d3c5b1133bcb7b43e89707d",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/trackColor": {
+   "key": "b812a4bc4cec5abe04effadf0daac38599ba56a2",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/trackHeight": {
+   "key": "dc7d5fb7ba474fbe495c7da52dc8de2be876e256",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/fillColor": {
+   "key": "db3606be9fd36b894c75041d89a7b2da307e3c54",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/fillSucces": {
+   "key": "59a2fec8b7b7e5cc5f51a3a7a23fffc277d51d24",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/warningFill": {
+   "key": "778dcb0ca7ed3f7a981888f876f5859fa48795f4",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/fillHeight": {
+   "key": "e1f9c739341e420fb4c0c556ad7a745f33295ae4",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/markerSize": {
+   "key": "ea3b0f391814f6fd7226dd72839d20f453e0c08c",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/markerColor": {
+   "key": "0c988ad1a225ebb4f2ba875c0d10c18d62ec1955",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/progressBar/markerRadius": {
+   "key": "07f47c82b4305562027f577c522820c2eebc54b4",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/borderBottom": {
+   "key": "1bd2d4a3480eb9c75c38db2aa4c83461f89b4f8d",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/borderBottomWidth": {
+   "key": "4b00eac284d61b61b74e675c6694c99803d10714",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/paddingY": {
+   "key": "616eb7598cc96ce3f3caa77043a39c817c49445c",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/inactiveColor": {
+   "key": "a34bec840b23d29d8c2199033963b35e345bd616",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/activeColor": {
+   "key": "21e84397f33a71217015be689b8c4f09887ad705",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/activeIndicatorColor": {
+   "key": "81fd8285494143991ce372e7b30f8282798a2588",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/segmentedControl/activeIndicatorHeight": {
+   "key": "5b3c8d5a32bd0e71c215d42c6a70003e4824a17a",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/borderTop": {
+   "key": "b33eceb1baa519b43b379a972cec17afd43b9a1d",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/borderTopWidth": {
+   "key": "71ec61818a192ada00ba0a105c2b874b1b1d98cc",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/paddingTop": {
+   "key": "8247fe28e6a78b15d49efb2c7d71780293d96ebe",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/paddingBottom": {
+   "key": "ee0ed1737fbb1e0838b84886dd46c21ac1d64624",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/paddingX": {
+   "key": "a2012bd2cd368e409793db0ac985722e5d428309",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/itemGap": {
+   "key": "4fd7a4b04f6f3c916d1cccc5497a7e21ddb593b4",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/inactiveColor": {
+   "key": "96d479bdc32991db03e13c67e3b821af3fb14c60",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/tabBar/activeColor": {
+   "key": "1c85172bd4e73e53f98ebee67c9213a14c019a1e",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/sectionEyebrow/labelColor": {
+   "key": "f643540a4f9a7ad77096d118cce5159f2142897f",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/sectionEyebrow/borderBottom": {
+   "key": "e9c37cbceebf6ebcd75aa65a04f8ee9d1d6484bc",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/sectionEyebrow/borderBottomWidth": {
+   "key": "d3227013322dc515b7d420fd8349967d0ab0cbd2",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/sectionEyebrow/paddingBottom": {
+   "key": "1ceacf072da341bd8006922080568349f1736950",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/sectionEyebrow/marginBottom": {
+   "key": "e805da72eddaa9fad1b5161b7272faffbfb4c9ba",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/sectionEyebrow/linkColor": {
+   "key": "3797fbe4ace01a2c1969a7c458ca7f2dd705bbc7",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/paddingY": {
+   "key": "4e5ca864b2b0f5f5fc987964aedc1d86e15b1b3b",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/borderTop": {
+   "key": "9b2b4ad8b46d20e3c804dc563c8427f554478135",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/borderTopWidth": {
+   "key": "fc885c2ddf41e7d3e356adb065fefd6e9833259e",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/indexColor": {
+   "key": "fa4297979cb189e24b938ed32ab1dcc78e261e94",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/valueColor": {
+   "key": "c96580fde8516cb04db3154797a5d2f3a9a48ea4",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/secondaryColor": {
+   "key": "569bd30b26d753c7f7f95a5a0efeced4b5412485",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/fastestBackground": {
+   "key": "7c2d78345a85dd467b1d18a47c1b869fc92a24ec",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/fastestColor": {
+   "key": "0c60ce060baf7cf45a81e121fd1a04c831bc18e4",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/splitRow/fastestRadius": {
+   "key": "4bafa6ba964cced60db4800f8546fbbd87b255a5",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/border": {
+   "key": "11567563d36a1e4bb45467d9b7f82bf910e1dd6b",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/borderWidth": {
+   "key": "63f8e0a6fec818fe4bef53050f0cb2eb7b417255",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/radius": {
+   "key": "c2e0031cf03c1eeb2a9af20e24b6831e0fd95956",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/paddingY": {
+   "key": "cea89dac51486189d3d85f7fb65b339111f432b1",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/paddingX": {
+   "key": "217fa83a1dda2e3fa6562137f83a356b9f99f946",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/gap": {
+   "key": "26facd67352d0b17ea0030b4d0e43513d5de64bc",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/prBadge/color": {
+   "key": "630541a2f955e72d66c55c81027ad0d1fd58646b",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/paddingY": {
+   "key": "2368dca8bae274ad8b164cf4bb4fc4c30229e11f",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/borderTop": {
+   "key": "461cb28ac64ab00e23ad20bdab0ec016e897fe91",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/borderTopWidth": {
+   "key": "e5b404d24dda7e3efc48178e0da63d25d1724132",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/gap": {
+   "key": "372f2e630b7ed5eca61c03f8503fa076001021e0",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/dayColor": {
+   "key": "7a92931df13fc33920da6b7d5bcda81003258ca1",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/statsColor": {
+   "key": "1a49b74210ab45804d1aa144be3710ea3d0e6eb6",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/recentRow/paceColor": {
+   "key": "df4721e1d216f77042549118e5071979743b60c1",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/screen/background": {
+   "key": "272ca18c5b06a96dab101609917f7712374a4b74",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/screen/paddingX": {
+   "key": "1e34f11b6f21dc754a7c1423e179adac1a882e10",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/screen/paddingXAlt": {
+   "key": "218d35a2bb85683acb6125594dafd96d290f7aa3",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/statusBar/height": {
+   "key": "c589165e1f81afec7167eecf8423bc7206626974",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  },
+  "Component/statusBar/color": {
+   "key": "a82e435acbbe3f0250e93bb161f77daf9bcaa0da",
+   "type": "COLOR",
+   "status": "CURRENT"
+  },
+  "Component/statusBar/paddingX": {
+   "key": "d63dd827acc2d85a14f1f7795d1ed36573ef57d1",
+   "type": "FLOAT",
+   "status": "CURRENT"
+  }
+ },
+ "textStyles": {
+  "type/heroNumeric": {
+   "key": "c32b6010501dfac140163038ca49ed568dec3cd6",
+   "status": "CURRENT"
+  },
+  "type/heroDisplay": {
+   "key": "749b5022d88f7181014550c8afd43e8a47759eff",
+   "status": "CURRENT"
+  },
+  "type/activeProgress": {
+   "key": "332d6d5667ebbc4ff595b66fc47aabf382b0ebea",
+   "status": "CURRENT"
+  },
+  "type/sectionValue": {
+   "key": "e64df0a77367663b61ba9fac8ce2521a63aec1e1",
+   "status": "CURRENT"
+  },
+  "type/kpiValue": {
+   "key": "ff600e591d877a8a54357743b09c58cd0a9bcc54",
+   "status": "CURRENT"
+  },
+  "type/kpiUnit": {
+   "key": "7044b709eb700fc29345096e065cdef30e5d880e",
+   "status": "CURRENT"
+  },
+  "type/italicConnector": {
+   "key": "8384cf6773930a2e73a5ffb6f67754bb4ed8dd3f",
+   "status": "CURRENT"
+  },
+  "type/buttonPrimary": {
+   "key": "fd57eb54d2227967ebed1d4de323f2a7bb35f589",
+   "status": "CURRENT"
+  },
+  "type/buttonOutline": {
+   "key": "5937a20fdfc913b9353a0c04249b7796cc7aa93a",
+   "status": "CURRENT"
+  },
+  "type/textLink": {
+   "key": "3c6667dce8c24a059351b1da7b8a53ac5abde5e5",
+   "status": "CURRENT"
+  },
+  "type/segmentInactive": {
+   "key": "02952a4953f34066011fd102ab79a8ef88209d23",
+   "status": "CURRENT"
+  },
+  "type/segmentActive": {
+   "key": "024496b86d0984d8c1c43c8cd303f615ceee2284",
+   "status": "CURRENT"
+  },
+  "type/splitsRow": {
+   "key": "08db199f2132dad242dfd655010c515a239118e9",
+   "status": "CURRENT"
+  },
+  "type/recentRow": {
+   "key": "beb6a2f9bece303830f4cd583933acafc4df92a0",
+   "status": "CURRENT"
+  },
+  "type/labelSection": {
+   "key": "a337db532eee24ef9e26dd7509dd0df0c937ae03",
+   "status": "CURRENT"
+  },
+  "type/labelKpi": {
+   "key": "6075647dc3dbb2ef446c14edd72709314a94fa78",
+   "status": "CURRENT"
+  },
+  "type/labelMicro": {
+   "key": "6059fd3ea7e6df67eecacd17740f1d75637cffa8",
+   "status": "CURRENT"
+  },
+  "type/labelGoalPrefix": {
+   "key": "44fc188234e272bba322aab8eb69892757f26d73",
+   "status": "CURRENT"
+  }
+ },
+ "effectStyles": {
+  "shadow/buttonPrimary": {
+   "key": "b9cd8e97fe9eeba0e4be31b4cf8e1c8b4bec3d43",
+   "status": "CURRENT"
+  },
+  "shadow/buttonOutline": {
+   "key": "a3be0d96b8aa667df76ba351b307503f04916128",
+   "status": "CURRENT"
+  }
+ }
+}

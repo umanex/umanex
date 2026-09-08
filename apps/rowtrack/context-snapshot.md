@@ -59,15 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-6c9338f fix(rowtrack): volledige inhoud in Figma — 613 van 613 tekstnodes
-259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
-9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
-653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
-9d54aa0 fix(rowtrack): lege frames verholpen in Figma, 33 van 33 kloppen
+d0373df fix(rowtrack): de app-achtergrond hoort achter de component, niet erin
+1e5e31c docs(rowtrack): de poort geweigerd gemeten, en de instance-toets als gat benoemd
+59d38ee docs(rowtrack): bewijs bij de twee afgeschreven acceptatie-assen
+10cf9a2 feat(rowtrack): slots als component properties, en de herbouw met leesbare laagnamen
+5e2e43d feat(rowtrack): laagnamen uit de code in plaats van de broer-index
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)

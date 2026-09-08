@@ -20,7 +20,7 @@
  * Daarom noemt de slotregel de assen en het bereik, en niet "in sync": die zin claimt meer
  * dan de assen dragen (umanex-apps HANDOFF 2026-08-25).
  */
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -42,6 +42,7 @@ const manifest = lees('figma/manifest.json');
 const assenSpec = lees('figma/story-axes.json');
 const payload   = lees('figma/tokens-payload.json');
 const gaten     = lees('figma/ongebonden.json');
+const laagnamen = lees('figma/laagnamen.json', false);
 const tokens    = lees('tokens/tokens.json');
 
 /**
@@ -69,6 +70,9 @@ const NIET_VISUEEL = {
  * Elk gat heeft een item in apps/rowtrack/BACKLOG.md.
  */
 const BEKENDE_GATEN = 46;
+/** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
+ *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen. */
+const LAAGNAAM_DEKKING = 75.1;
 // Verdeling op 2026-09-08: 18 typografie-combinaties zonder Theme/type-token · 8 icoonmaten
 // (Ionicons als glyph, geen Figma-font) · 5 achtergrondkleuren · 3 paddings (3, 50, 100) ·
 // 3 radii (2, 12, 24) · 3 emoji/systeemfont (bedoeld — een emoji hoort de systeem-emojifont
@@ -308,6 +312,101 @@ else {
   if (gaten.decoratiefGenegeerd) uitgesloten.push(`${gaten.decoratiefGenegeerd} confetti-nodes — gerandomiseerd (size = 6 + random*8), geen stabiel artefact`);
 }
 
+// ---- 9. Publicatie: een herbouw mag geen gepubliceerde node vervangen --------
+// De builder leegt elke pagina en maakt de nodes opnieuw. Een nieuwe node heeft een nieuwe
+// key, dus elke instance die iemand uit de library plaatste raakt ontkoppeld. Zolang niets
+// gepubliceerd is, is dat gratis; daarna niet meer. Deze as meet dat venster.
+//
+// Wat hij NIET kan zien: een publicatie van ná de laatste manifest-ververs. Het manifest is
+// de enige lokale neerslag van Figma, en CI heeft geen Figma-toegang. De volgorde uit
+// apps/rowtrack/CLAUDE.md (eerst verversen, dan checken) is daar de enige bescherming.
+if (!manifest) sla('publicatie', 'geen manifest');
+else if ((manifest.schemaVersie ?? 1) < 3)
+  sla('publicatie', `manifest schema ${manifest.schemaVersie ?? 1} kent geen publishStatus — ververs via apps/rowtrack/CLAUDE.md`);
+else {
+  const met = Object.entries(manifest.pages).filter(([, p]) => p.primary);
+  const gepubliceerd = met.filter(([, p]) => p.primary.publishStatus && p.primary.publishStatus !== 'UNPUBLISHED');
+  const zonderHerkomst = gepubliceerd.filter(([, p]) => !p.primary.bouwhash);
+
+  // De bouwspec is wat een herbouw ZOU bouwen. Is die jonger dan de Figma-momentopname,
+  // dan staat er ander werk klaar dan wat er in Figma staat — precies het moment waarop
+  // een herbouw gepubliceerde nodes vervangt.
+  const specPad = join(APP, 'figma/build-spec.min.json');
+  const specDatum = existsSync(specPad) ? statSync(specPad).mtime.toISOString().slice(0, 10) : null;
+  const manifestDatum = manifest.gegenereerd ?? null;
+  const specNieuwer = specDatum && manifestDatum && specDatum > manifestDatum;
+
+  if (zonderHerkomst.length)
+    fail('publicatie', `${zonderHerkomst.length} gepubliceerde component(en) zonder bouwhash — herkomst onbekend, `
+      + `een herbouw vervangt werk dat de builder niet gemaakt heeft: ${zonderHerkomst.map(([n]) => n).join(', ')}`);
+  if (gepubliceerd.length && specNieuwer)
+    fail('publicatie', `${gepubliceerd.length} gepubliceerde component(en) en de bouwspec (${specDatum}) is jonger dan `
+      + `de Figma-momentopname (${manifestDatum}) — herbouwen ontkoppelt elke instance. Ververs eerst het manifest.`);
+  if (!zonderHerkomst.length && !(gepubliceerd.length && specNieuwer)) {
+    if (!gepubliceerd.length)
+      ok('publicatie', `0 van ${met.length} componenten gepubliceerd — een herbouw kost hier nog niets`);
+    else
+      ok('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash, `
+        + `bouwspec (${specDatum}) niet jonger dan de momentopname (${manifestDatum})`);
+  }
+  if (gepubliceerd.length)
+    uitgesloten.push('publicatie ná de laatste manifest-ververs is lokaal onzichtbaar — CI heeft geen Figma-toegang');
+}
+
+// ---- 10. Laagnamen: de laag heet naar de code, niet naar de machine ----------
+// Een POSITIEVE bewering, geen zwarte lijst. De 7b-toets in de code-naar-figma-skill zocht op
+// /^(Frame|Group|Rectangle|Vector) \\d+$/ en ving daarmee 1 van 11 realistische slechte namen —
+// juist niet die van deze builder, die zijn nodes naar de broer-index `0`/`1`/`2` noemde en
+// tekstnodes hun eigen copy liet erven omdat Figma dan `autoRename` aanzet. Gemeten vóór deze
+// ronde: 82% van 1 288 frames droeg zo'n machinenaam.
+if (!laagnamen) sla('laagnaam', 'geen figma/laagnamen.json — draai `pnpm --filter rowtrack figma:spec`');
+else {
+  const f = [];
+  if (laagnamen.indexNamen > 0) f.push(`${laagnamen.indexNamen} node(s) heten een kaal cijfer — de broer-index lekt in de laagnaam`);
+  if (laagnamen.copyNamen > 0) f.push(`${laagnamen.copyNamen} tekstnode(s) dragen hun eigen copy als naam — zet node.name ná node.characters, anders hernoemt autoRename mee`);
+  if (laagnamen.instabiel.length) f.push(`${laagnamen.instabiel.length} isomorf variantpaar/paren met verschillende namen per positie: ${laagnamen.instabiel.slice(0, 3).join(', ')} — een component set met wisselende laagnamen is onbruikbaar`);
+  const pct = laagnamen.echteNaamPct;
+  if (pct < LAAGNAAM_DEKKING - 0.05)
+    f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — er is dekking verdwenen`);
+  else if (pct > LAAGNAAM_DEKKING + 0.05)
+    f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — dekking gestegen; zet LAAGNAAM_DEKKING op ${pct}.`);
+  if (f.length) for (const x of f) fail('laagnaam', x);
+  else ok('laagnaam', `${laagnamen.nodes} laagnamen: ${pct}% uit de code, `
+    + `${(100 * laagnamen.perBron.rol / laagnamen.nodes).toFixed(1)}% uit een waargenomen rol, `
+    + `${(100 * laagnamen.perBron.terugval / laagnamen.nodes).toFixed(1)}% structurele terugval — `
+    + '0 cijfernamen, 0 copy-namen, 0 instabiele posities');
+  uitgesloten.push(`${laagnamen.perBron.terugval} nodes zonder StyleSheet-sleutel (inline of Reanimated gestyleerd) — die dragen een structurele naam, geen code-naam`);
+  if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);
+}
+
+// ---- 11. Instancevulling: wat reist er mee naar een instance? ----------------
+// Een eigen vulling op een VARIANT of op een losse COMPONENT komt mee zodra iemand de
+// component in een ander bestand plaatst. Op een COMPONENT_SET komt hij NIET mee — die is een
+// frame dat achter zijn varianten schildert. Dat verschil is aan de laag niet te zien en
+// kostte deze library een ondoorzichtig donker vlak om elke geplaatste knop (gemeten
+// 2026-09-08: `instanceFills: 1` op een Button-instance in RowTrack - Design).
+if (!manifest) sla('instancevulling', 'geen manifest');
+else if (Object.values(manifest.pages).every(p => p.primary && p.primary.eigenVulling === undefined))
+  sla('instancevulling', 'manifest draagt geen vullingsvelden — ververs met het schema-3-recept');
+else {
+  const fout = [];
+  for (const [naam, p] of Object.entries(manifest.pages)) {
+    if (!p.primary) continue;
+    if (p.primary.type === 'COMPONENT_SET') {
+      if (p.primary.variantenMetVulling)
+        fout.push(`${naam}: ${p.primary.variantenMetVulling} variant(en) met een eigen vulling — die reist mee naar elke instance`);
+    } else if (p.primary.eigenVulling) {
+      fout.push(`${naam}: losse component met een eigen vulling — zet hem op een achtergrond-rechthoek erachter`);
+    }
+  }
+  if (fout.length) for (const f of fout) fail('instancevulling', f);
+  else {
+    const sets = Object.values(manifest.pages).filter(p => p.primary?.type === 'COMPONENT_SET');
+    ok('instancevulling', `${sets.length} sets en ${Object.values(manifest.pages).length - sets.length} losse componenten: `
+      + 'geen enkele variant of losse component draagt een eigen vulling, dus een instance komt transparant mee');
+  }
+}
+
 // ---- Rapport ----------------------------------------------------------------
 console.log('figma-sync-check — apps/rowtrack ↔ Figma "%s" (%s)\n',
   manifest?.fileName ?? '?', manifest?.fileKey ?? '?');
@@ -322,7 +421,9 @@ if (fails.length) {
   process.exit(1);
 }
 console.log(`\n${checks.length} checks groen — dekking, pagina's, variant-assen, variant-nodes, tokennamen,`);
-console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden en het aantal ongebonden waarden.');
+console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden, het aantal ongebonden');
+console.log('waarden, het publicatievenster, de herkomst van de laagnamen en wat er met een');
+console.log('instance meereist.');
 console.log('Niet gemeten: of Figma er hetzelfde UITZIET als de browser (dat is `pnpm --filter rowtrack parity`),');
 console.log('wat de bouwspec afkapte (voorbij diepte 4 of 8 broers), en elke Figma-wijziging sinds '
   + (manifest?.gegenereerd ?? 'de laatste ververs') + '.');

@@ -69,6 +69,36 @@ const config: StorybookConfig = {
         return null;
       },
     } as any);
+
+    /**
+     * Zet de exacte herkomst vlak vóór elke `StyleSheet.create`-aanroep.
+     *
+     * Zonder dit moet de aftap-module de herkomst uit een stacktrace afleiden, en die geeft
+     * in een productiebundle alleen chunknamen — aantoonbaar fout: `workout.styles.ts` zit
+     * alleen in de ActivePhase-chunk terwijl IdlePhase hem ook gebruikt, dus IdlePhase-nodes
+     * zouden `ActivePhase` gaan heten.
+     *
+     * De komma-expressie laat `create` los van zijn ontvanger. Dat mag: `create` gebruikt
+     * geen `this` (gelezen in react-native-web/dist/exports/StyleSheet/index.js). Alleen
+     * app-code wordt aangeraakt — een aanroep uit node_modules zet de global niet, en de
+     * wrapper wist hem na elke lezing, zodat RNW's eigen stijlen geen herkomst erven.
+     */
+    config.plugins.unshift({
+      name: 'rowtrack-stylesheet-herkomst',
+      enforce: 'pre',
+      transform(code: string, id: string) {
+        const pad = id.split('?')[0].replace(/\\/g, '/');
+        if (pad.includes('/node_modules/') || !/\.(t|j)sx?$/.test(pad)) return null;
+        if (!code.includes('StyleSheet.create(')) return null;
+        const rel = pad.split('/apps/rowtrack/')[1] ?? pad;
+        return {
+          code: code.replace(/StyleSheet\.create\(/g,
+            `(globalThis.__RNW_SRC__=${JSON.stringify(rel)},StyleSheet.create)(`),
+          map: null,
+        };
+      },
+    } as any);
+
     return config;
   },
 };

@@ -33,6 +33,26 @@ const fontVan = (variant) => {
 const rgb = o => ({ r: o.r / 255, g: o.g / 255, b: o.b / 255 });
 const BG = V.get('Theme:bg/base');
 const meldingen = [];
+/**
+ * `loadFontAsync` is de duurste stap van de bouw en wordt per tekstnode aangeroepen — bij 613
+ * tekstnodes over hooguit een handvol fonts is dat honderden keren hetzelfde font. Figma cachet
+ * intern wel, maar de await zelf kost een tick per node, en die tikken zijn precies wat een
+ * batch over de 30 s wachtlimiet duwt.
+ */
+const geladen = new Map();
+const laadFont = (f) => {
+  const sleutel = f.family + '|' + f.style;
+  if (!geladen.has(sleutel)) geladen.set(sleutel, figma.loadFontAsync(f));
+  return geladen.get(sleutel);
+};
+/**
+ * Tekstnodes die aan een component property hangen. `maak()` vult hem; de bouwlus leegt hem
+ * per component. Een slot is de reden dat de library BRUIKBAAR is en niet alleen juist: zonder
+ * property moet wie een instance plaatst de tekstlaag selecteren en overschrijven, en dat
+ * ontkoppelt de instance van zijn master.
+ */
+let slotVangst = [];
+const STAMP = SPEC.__stamp || '';   // de aanroeper zet de datum; de plugin-sandbox heeft geen betrouwbare klok nodig
 
 /**
  * CSS-hoek -> Figma gradientTransform.
@@ -84,7 +104,7 @@ async function maak(n, naamPad) {
     if (!stijl && !font) {
       // Ionicons: privégebruik-glyphs zonder font. Zichtbaar icoonslot i.p.v. stilte.
       const ph = figma.createFrame();
-      ph.name = `Icon ${Math.round(n.t.px)}`;
+      ph.name = n.naam || 'icon';        // nooit de maat in de naam: die verandert mee met de variant
       ph.resize(Math.max(1, n.w), Math.max(1, n.h));
       ph.fills = [];
       ph.strokes = [{ type: 'SOLID', color: { r: 0.94, g: 0.33, b: 0.33 }, opacity: 0.4 }];
@@ -94,13 +114,13 @@ async function maak(n, naamPad) {
     }
     const t = figma.createText();
     if (stijl) {
-      await figma.loadFontAsync(stijl.fontName);
+      await laadFont(stijl.fontName);
       t.fontName = stijl.fontName;
       t.characters = String(n.t.s);
       await t.setTextStyleIdAsync(stijl.id);
       if (n.t.tc) t.textCase = n.t.tc;
     } else {
-      await figma.loadFontAsync(font);
+      await laadFont(font);
       t.fontName = font;
       t.characters = String(n.t.s);
       t.fontSize = n.t.px;
@@ -132,11 +152,17 @@ async function maak(n, naamPad) {
     } else {
       t.textAutoResize = 'WIDTH_AND_HEIGHT';
     }
+    // NA `characters`, en altijd. Figma zet `autoRename` aan zolang de naam niet expliciet
+    // gezet is, en hernoemt de laag dan bij elke toewijzing aan `characters` naar de tekst
+    // zelf — precies wat regel 1 van het leesbaarheidscontract verbiedt. In de vorige ronde
+    // heetten alle 613 tekstnodes daardoor naar hun eigen copy ("Doel bereikt!").
+    t.name = n.naam || 'label';
+    if (n.slot) slotVangst.push({ slot: n.slot, node: t, standaard: String(n.t.s) });
     return t;
   }
 
   const f = figma.createFrame();
-  f.name = naamPad.split('>').pop() || 'Frame';
+  f.name = n.naam || 'wrapper';        // het besluit komt uit scripts/laagnamen.mjs
   f.clipsContent = false;
   if (n.k && n.rij !== undefined) {
     f.layoutMode = n.rij ? 'HORIZONTAL' : 'VERTICAL';
@@ -220,7 +246,7 @@ async function maak(n, naamPad) {
   if (n.opacity !== undefined) f.opacity = n.opacity;
   if (n.schaduwStyle && ES.get(n.schaduwStyle)) await f.setEffectStyleIdAsync(ES.get(n.schaduwStyle).id);
   for (const [i, k] of echteKinderen.entries()) {
-    const kind = await maak(k, `${naamPad}>${i}`);
+    const kind = await maak(k, `${naamPad}>${k.naam ?? i}`);   // meldingen lezen als Chip>row>value
     f.appendChild(kind);
     // Een absoluut kind dat de ouder NIET volledig bedekt blijft een echte node, maar valt
     // buiten de stroom — anders duwt hij de auto-layout uit elkaar.
@@ -230,26 +256,132 @@ async function maak(n, naamPad) {
       kind.y = k.dy ?? 0;
     }
   }
-  if (n.t) f.appendChild(await maak({ ...n, k: null }, `${naamPad}>tekst`));
+  if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`));
   return f;
 }
 
 /** Wrapper op de app-achtergrond: alpha-kleuren lezen anders op Figma's witte canvas. */
+/**
+ * De app-achtergrond hoort ACHTER de component, niet erin.
+ *
+ * Tot 2026-09-08 kreeg elke variant-component hier `bg/base` als eigen vulling, zodat
+ * alpha-kleuren in dit bestand tegen de app-achtergrond lezen in plaats van tegen Figma's
+ * grijze canvas. Dat klopt voor een bewijsstuk en is fout voor een library: die vulling reist
+ * mee naar élke instance. Gemeten in `RowTrack - Design`: een Button-instance uit de library
+ * gaf `instanceFills: 1` — een ondoorzichtig donker vlak om de knop, ook al is de
+ * set-achtergrond in dít bestand netjes. De set-vulling komt niet mee met een variant.
+ *
+ * De achtergrond staat nu op de SET (die schildert achter zijn varianten en reist niet mee)
+ * of op een `achtergrond`-rechthoek achter een losse component. Zelfde beeld hier,
+ * transparante instance daar. Parity raakt dit niet: die meet het KIND van de wrapper.
+ */
 function wrapper(naam, w, h) {
   const c = figma.createComponent();
   c.name = naam;
   c.resize(Math.max(0.01, w), Math.max(0.01, h));
-  const p = { type: 'SOLID', color: { r: 0.0824, g: 0.0902, b: 0.1098 } };
-  c.fills = BG ? [figma.variables.setBoundVariableForPaint(p, 'color', BG)] : [p];
+  c.fills = [];
   return c;
 }
 
+/** Een gebonden paint met de app-achtergrond. */
+function bgPaint() {
+  const p = { type: 'SOLID', color: { r: 0.0824, g: 0.0902, b: 0.1098 } };
+  return BG ? figma.variables.setBoundVariableForPaint(p, 'color', BG) : p;
+}
+
+/**
+ * Een achtergrondvlak ACHTER een losse component, voor pagina's zonder component set.
+ *
+ * Een COMPONENT_SET is zelf een frame en schildert zijn vulling achter zijn varianten, dus
+ * daar volstaat de set. Een losse component heeft die ouder niet en zou op Figma's grijze
+ * canvas staan, waar alpha-kleuren verkeerd lezen.
+ *
+ * Waarom geen `page.backgrounds`: die accepteert geen variabele — *"in set_backgrounds: page
+ * backgrounds cannot be bound to variables"*, gemeten 2026-09-08. Dat zou de app-achtergrond
+ * een hardcoded hex maken, precies wat de tokenregel verbiedt. Een RECTANGLE bindt wél.
+ */
+function achtergrondVlak(page, doelen) {
+  const marge = 48;
+  const x0 = Math.min(...doelen.map(d => d.x)) - marge;
+  const y0 = Math.min(...doelen.map(d => d.y)) - marge;
+  const x1 = Math.max(...doelen.map(d => d.x + d.width)) + marge;
+  const y1 = Math.max(...doelen.map(d => d.y + d.height)) + marge;
+  const r = figma.createRectangle();
+  r.name = 'achtergrond';
+  r.x = x0; r.y = y0;
+  r.resize(Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+  r.fills = [bgPaint()];
+  r.locked = true;
+  page.appendChild(r);
+  page.insertChild(0, r);      // achter alles
+  return r;
+}
+
+/**
+ * Vingerafdruk van een gebouwde deelboom. Bewust grof: type, naam, afgeronde maat en de
+ * tekstinhoud. Dat is genoeg om HANDWERK te zien (iets hernoemd, verplaatst, hertypt,
+ * toegevoegd of weggehaald) zonder rood te worden op subpixel-ruis die Figma zelf
+ * introduceert bij een herbouw.
+ */
+function bouwhash(node) {
+  const delen = [];
+  const stapel = [node];
+  while (stapel.length) {
+    const n = stapel.pop();
+    delen.push(`${n.type}|${n.name}|${Math.round(n.width)}x${Math.round(n.height)}` +
+               (n.type === 'TEXT' ? '|' + n.characters : ''));
+    if ('children' in n) stapel.push(...n.children);
+  }
+  // FNV-1a; geen crypto nodig, en deterministisch in de plugin-sandbox.
+  let h = 0x811c9dc5;
+  const str = delen.sort().join('\n');
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36) + ':' + delen.length;
+}
+
+/**
+ * De poort die vóór het legen van een pagina draait. Twee redenen om te weigeren, allebei
+ * gemeten op 2026-09-08:
+ *
+ *  · GEPUBLICEERD. De builder verwijdert elke node en maakt hem opnieuw; een nieuwe node
+ *    heeft een nieuwe key en is niet gepubliceerd. Alle 33 componenten stonden daardoor op
+ *    UNPUBLISHED, en elke instance die iemand uit de library had geplaatst zou gebroken zijn.
+ *    Sinds het bestand als library dient, is overschrijven dus niet meer gratis.
+ *  · HANDWERK. `description` zei al "niet met de hand bewerken", maar dat is een verzoek,
+ *    geen mechanisme. De bouwhash uit de vorige run maakt er een meting van.
+ *
+ * `SPEC.__force === true` is de enige ontsnapping, en die hoort zichtbaar in de aanroep te
+ * staan — nooit stil gezet.
+ */
+async function poort(page, comp, force) {
+  const bezwaren = [];
+  for (const kind of page.children) {
+    if (typeof kind.getPublishStatusAsync === 'function') {
+      const status = await kind.getPublishStatusAsync();
+      if (status !== 'UNPUBLISHED') bezwaren.push(`${comp}/${kind.name}: ${status} — herbouwen breekt elke instance die eruit geplaatst is`);
+    }
+    const vorige = typeof kind.getPluginData === 'function' ? kind.getPluginData('bouwhash') : '';
+    if (vorige) {
+      const nu = bouwhash(kind);
+      if (nu !== vorige) bezwaren.push(`${comp}/${kind.name}: met de hand gewijzigd sinds de laatste bouw (${vorige} -> ${nu})`);
+    }
+  }
+  if (bezwaren.length && !force) return bezwaren;
+  if (bezwaren.length && force) for (const b of bezwaren) meldingen.push(`GEFORCEERD OVERSCHREVEN — ${b}`);
+  return null;
+}
+
 const uit = [];
+const geweigerd = [];
 for (const [comp, d] of Object.entries(SPEC)) {
+  if (comp.startsWith('__')) continue;   // __force en andere vlaggen zijn geen component
   let page = figma.root.children.find(p => p.name === comp);
   if (!page) { page = figma.createPage(); page.name = comp; }
+  const bezwaren = await poort(page, comp, SPEC.__force === true);
+  if (bezwaren) { geweigerd.push(...bezwaren); continue; }
   for (const kind of [...page.children]) kind.remove();
 
+  slotVangst = [];
   const isScherm = !!d.frames;
   const items = isScherm ? d.frames : d.varianten;
   const comps = [];
@@ -268,15 +400,55 @@ for (const [comp, d] of Object.entries(SPEC)) {
   if (!isScherm && Object.keys(d.assen ?? {}).length) {
     hoofd = figma.combineAsVariants(comps, page);
     hoofd.name = comp;
-    const p = { type: 'SOLID', color: { r: 0.0824, g: 0.0902, b: 0.1098 } };
-    hoofd.fills = BG ? [figma.variables.setBoundVariableForPaint(p, 'color', BG)] : [p];
+    // De SET houdt zijn gebonden vulling: die schildert achter de varianten in dit bestand
+    // en reist NIET mee naar een instance — alleen de vulling van de variant zelf doet dat.
+    hoofd.fills = [bgPaint()];
   } else if (isScherm) {
     hoofd.name = items[0].naam;
   }
+  // ---- Component properties (slots) ----------------------------------------------------
+  // De koppeling is gemeten, niet geraden: scripts/figma-build-spec.mjs zoekt de tekstnode
+  // waarvan de inhoud exact gelijk is aan de waarde van de prop in de story-args, en markeert
+  // hem alleen als hij PRECIES ÉÉN keer voorkomt. Dezelfde discipline als de tokenmatching.
+  const slotsGezet = {};
+  if (!isScherm && slotVangst.length) {
+    const perSlot = new Map();
+    for (const v of slotVangst) {
+      if (!perSlot.has(v.slot)) perSlot.set(v.slot, []);
+      perSlot.get(v.slot).push(v);
+    }
+    for (const [slot, lijst] of perSlot) {
+      try {
+        const propId = hoofd.addComponentProperty(slot, 'TEXT', lijst[0].standaard);
+        for (const v of lijst) v.node.componentPropertyReferences = { characters: propId };
+        slotsGezet[slot] = { propId, nodes: lijst.length };
+      } catch (e) { meldingen.push(`${comp}: component property "${slot}" mislukt — ${e.message}`); }
+    }
+  }
+
   hoofd.description = isScherm
     ? `→ apps/rowtrack/components/${comp === 'ActivePhase' || comp === 'IdlePhase' ? 'workout/' : ''}${comp}.tsx\nScherm: representatieve frames, geen component set. Assen bewust afgeschreven — statusenums zijn in beeld niet orthogonaal.`
     : `→ apps/rowtrack/components/${comp}.tsx\nGegenereerd uit de Storybook-render; niet met de hand bewerken.`;
+  // Geen set op deze pagina? Dan is er geen ouder-frame dat de app-achtergrond schildert.
+  if (hoofd.type !== 'COMPONENT_SET') achtergrondVlak(page, page.children.filter(c => c.type === 'COMPONENT'));
+
+  // Vingerafdruk vastleggen op elke pagina-kind, zodat de poort bij de volgende run
+  // handwerk kan onderscheiden van "nog precies zoals ik hem achterliet".
+  // Een lijst en geen map op naam: twee nodes op één pagina mogen dezelfde naam dragen
+  // (gemeten in RowTrack - Design: twee keer `TabItem` op de pagina Components), en een map
+  // op naam laat er dan stil één vallen.
+  const hashes = [];
+  for (const kind of page.children) {
+    if (kind.name === 'achtergrond' && kind.type === 'RECTANGLE') continue;
+    const h = bouwhash(kind);
+    kind.setPluginData('bouwhash', h);
+    kind.setPluginData('gebouwdOp', STAMP);
+    hashes.push({ naam: kind.name, id: kind.id, hash: h });
+  }
+
   uit.push({ component: comp, type: hoofd.type, id: hoofd.id, nodes: comps.length,
-             assen: hoofd.type === 'COMPONENT_SET' ? hoofd.variantGroupProperties : null });
+             assen: hoofd.type === 'COMPONENT_SET' ? hoofd.variantGroupProperties : null,
+             publishStatus: await hoofd.getPublishStatusAsync(), hashes,
+             slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
-return { gebouwd: uit, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
+return { gebouwd: uit, geweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };

@@ -168,6 +168,68 @@ als bij een server die niet draait. Ik trok daar eerst de verkeerde conclusie ui
 gestopt was: twee onafhankelijke oorzaken, één symptoom. Toets dus altijd eerst met `curl` dat
 de server leeft én dat hij op een toegestane poort staat.
 
+**Waarvoor dit bestand dient, en wat dat kost.** `RowTrack -  Design System`
+(`QkRgMc7Quqtbow71DiYa1n`) is **gepubliceerd als library** en hangt als asset in
+`RowTrack - Design` (`T1bGrvIzSNeLyh5CbarATZ`), waar Jeroen op de pagina *Screens v2* schermen
+uit de componenten samenstelt. Dat maakt het bestand een **bron voor compositie**, niet enkel
+een bewijsstuk. Het verschil is niet cosmetisch: de builder leegt elke pagina en maakt de nodes
+opnieuw, en een nieuwe node heeft een nieuwe key — elke instance die iemand eruit plaatste raakt
+dan ontkoppeld. Gemeten 2026-09-08: na de vorige herbouw stonden alle 33 componenten op
+`UNPUBLISHED`, precies omdat ze vervangen waren.
+
+**Daarom staat er een poort vóór het legen.** `figma/builder.js` weigert een pagina te legen
+zodra een van beide waar is:
+
+- een kind is **gepubliceerd** (`getPublishStatusAsync() !== 'UNPUBLISHED'`);
+- een kind is **met de hand gewijzigd** — de builder legt na elke bouw een `bouwhash` in
+  `setPluginData`, en die wordt bij de volgende run hertoetst tegen de live node. De hash draagt
+  type, naam, afgeronde maat en tekstinhoud; positie en subpixel-ruis zitten er bewust niet in,
+  anders meldt élke herbouw handwerk en is de poort binnen een week uitgezet.
+
+De enige ontsnapping is `SPEC.__force = true`, en die hoort **zichtbaar in de aanroep** te staan
+— nooit stil gezet. Geforceerd overschrijven komt in `meldingen` terecht met de reden erbij.
+Tegenproef: `pnpm --filter rowtrack figma:poort:selftest`.
+
+**De 30 s van `figma_execute` is een WACHTlimiet, geen uitvoerlimiet — en dat verschil heeft
+twee scherpe kanten.** De plugin bouwt gewoon door nadat de tool-call is afgekapt; alleen de
+returnwaarde is weg. Daaruit volgen twee regels die deze sessie allebei geld hebben gekost:
+
+*Start nooit een tweede batch vóór de eerste klaar is.* Zonder marker weet je niet dát er nog
+een builder loopt, en een tweede aanroep leegt pagina's die de eerste nog aan het vullen is.
+Gemeten 2026-09-08: twee overlappende runs lieten `Chip` en `PrBadge` **leeg** achter en gaven
+`KpiSingle` **twee** componenten. Het beeld daarna is niet te onderscheiden van een half
+gelukte bouw.
+
+*`fetch` sterft mee met de tool-call, `setPluginData` niet.* Een POST naar de lokale server ná
+de wachtlimiet komt niet meer aan — de serverlog toont de GET's van spec en builder en daarna
+niets, terwijl het document wél gebouwd is. Zet je uitkomst dus in
+`figma.root.setPluginData(...)` en lees hem in een aparte, korte call terug.
+`figma/bouw-batch.js` doet allebei: hij zet `bouwbezig` bij de start, `bouwresultaat` bij het
+einde, en weigert te starten zolang `bouwbezig` gevuld is.
+
+**De app-achtergrond hoort achter de component, niet erin.** De wrapper kreeg tot 2026-09-08
+`Theme/bg/base` als eigen vulling zodat alpha-kleuren tegen de app-achtergrond lezen in plaats
+van tegen Figma's grijze canvas. Voor een bewijsstuk klopt dat; voor een library niet, want die
+vulling reist mee naar élke instance. Gemeten: een Button-instance in `RowTrack - Design` gaf
+`instanceFills: 1` — een ondoorzichtig donker vlak om de knop. Dat de SET in het bronbestand een
+nette achtergrond heeft helpt daar niets: **alleen de vulling van de variant zélf reist mee**.
+
+Per geval: een variant in een set krijgt `fills = []` (de set is een frame en schildert
+erachter), een losse component krijgt `fills = []` plus een gebonden `achtergrond`-rechthoek
+erachter. `page.backgrounds` is géén optie — die accepteert geen variabele (*"in
+set_backgrounds: page backgrounds cannot be bound to variables"*, gemeten), dus dat zou de
+achtergrond een hardcoded hex maken. De `[instancevulling]`-as in `figma:check` bewaakt het.
+
+**Een library-component importeren duurt langer dan de wachtlimiet.** Gemeten 2026-09-08, drie
+keer op rij, ná een geslaagde publicatie: `figma.importComponentSetByKeyAsync(<key van Button>)`
+in `RowTrack - Design` liep elke keer over de 30 s, terwijl de variabelen van diezelfde library
+in datzelfde bestand binnen milliseconden opgelost worden en
+`getAvailableLibraryVariableCollectionsAsync` de drie collecties gewoon teruggeeft. De import is
+dus niet gebroken, hij is traag — en omdat de returnwaarde de limiet niet overleeft en de
+regels ná een lange `await` niet meer draaien, is er langs deze weg geen uitkomst te krijgen.
+Wie een instance-gedrag wil toetsen, doet dat met de hand in Figma; via de Bridge is het
+`[NIET TE VERIFIËREN]`.
+
 **Volgorde die niet omgekeerd mag.** Na élke Figma-bouw: **eerst het manifest verversen, dan
 pas `figma:links` en `figma:check`.** Een herbouw geeft elke node een nieuwe id. Gemeten
 2026-09-08: na een herbouw waren 29 van de 33 primary-ids veranderd, terwijl `figma:check`
@@ -186,10 +248,12 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 | Capability | Commando / status |
 |---|---|
 | **Componenten vastleggen** | `pnpm --filter rowtrack build-storybook` + `pnpm --filter rowtrack render:sweep` — rendert álle 197 stories in Chromium en telt console-fouten én lege renders. Dit is het enige render-pad dat zonder simulator werkt. Een geslaagde build zegt hier niets: gemeten 2026-09-07 gaf `storybook build` exit 0 terwijl 26 stories leeg renderden. |
-| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — tien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
-| **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus twee controle-mutaties waarop hij hoort te zwijgen. |
+| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — dertien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster, herkomst van de laagnamen, instancevulling). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
+| **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus zes controle-mutaties waarop hij hoort te zwijgen. Stand 2026-09-08: 26/26. |
+| **Builder-poort tegenproef** | `pnpm --filter rowtrack figma:poort:selftest` — haalt `poort` en `bouwhash` letterlijk uit `figma/builder.js` en draait ze tegen stub-nodes: weigert op publicatie en op handwerk, zwijgt op positie en subpixel-ruis. De poort draait in de plugin en is dus niet vanaf de commandoregel aan te roepen; dit is de enige manier om hem groen én rood te zien. |
 | **Figma ↔ browser (maten)** | `pnpm --filter rowtrack parity` — legt per variant-node hoogte, breedte, horizontale padding, gap, radius, randbreedte en opacity naast elkaar. Vereist `figma/geometry.figma.json`; recept hieronder. |
-| **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. |
+| **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. Weigert te schrijven zodra één component nul varianten oplevert (exit 2, spec ongewijzigd): een mislukte meting die tóch wegschrijft, vervangt een goede spec door een lege. |
+| **Instrument-tegenproef (laagnamen)** | `node scripts/figma-build-spec.mjs --rnw-keys-uit` — zet de StyleSheet-sleutelkaart uit via `?rnwKeysUit=1`. Hoort **exit 2** te geven met "sleutelkaart uitgeschakeld" en de spec ongemoeid te laten. Zonder deze vlag is "elke node heet `wrapper`" niet te onderscheiden van "het instrument staat uit" — beide geven een gevulde spec zonder foutmelding. |
 | **Render vastleggen** | `xcrun simctl io booted screenshot <pad>.png` — werkt. Nooit een UDID hardcoden, die verandert; `booted` is stabiel. Op het fysieke toestel: geen automatisch pad, screenshot met de hand. |
 | **Flow aandrijven** | **Maestro 2.8.0** (besluit Jeroen, 2026-08-08). Draaien: `JAVA_HOME=$(brew --prefix openjdk)/libexec/openjdk.jdk/Contents/Home maestro test apps/rowtrack/.maestro/smoke.yaml`. `JAVA_HOME` is niet optioneel — Homebrew's openjdk is keg-only en staat niet vanzelf op `PATH`. Installeren met **`brew install mobile-dev-inc/tap/maestro`**, nooit `brew install maestro`: dat is een gelijknamige cask van runmaestro.ai, een heel ander product. Gemeten 2026-08-08 op simulator `iPhone 17` / iOS 26.5: `smoke.yaml` slaagt (launch + twee asserts, exit 0). Drie valkuilen die hij onderweg blootlegde, zie hieronder. |
 | **State forceren** | `app/dev-active.tsx` forceert de active-workout fase. Verder: `supabase/seed/test-account.sql` in de SQL Editor zet `rowtrack-test@umanex.be` terug op een vaste vertreksituatie — `health_consent = null`, lege lichaamsvelden, 4 ritten met bewust verschillende `samples`-vormen. Idempotent, dus ook de reset. |
@@ -238,7 +302,7 @@ Lees een node die in deze sessie bewerkt is **altijd** via de runtime (`figma_ex
 verse edit per definitie stale.
 
 ```js
-// figma_execute — levert figma/manifest.json (schema 2)
+// figma_execute — levert figma/manifest.json (schema 3)
 if (figma.fileKey !== "QkRgMc7Quqtbow71DiYa1n") return { fout: "verkeerde file: " + figma.fileKey };
 await figma.loadAllPagesAsync();
 
@@ -273,6 +337,19 @@ for (const p of figma.root.children) {
     pageId: p.id,
     primary: hoofd ? {
       name: hoofd.name, id: hoofd.id, type: hoofd.type,
+      // publishStatus en bouwhash voeden de [publicatie]-as. `bouwhash` schrijft de builder
+      // zelf; staat hij er niet op een gepubliceerde node, dan is die node niet door de
+      // builder gemaakt en vervangt een herbouw werk van onbekende herkomst.
+      publishStatus: typeof hoofd.getPublishStatusAsync === "function" ? await hoofd.getPublishStatusAsync() : null,
+      bouwhash: hoofd.getPluginData ? (hoofd.getPluginData("bouwhash") || null) : null,
+      // Slots. Een set zonder component properties buiten zijn variant-assen is een
+      // transcriptie, geen bruikbaar component.
+      componentProperties: hoofd.componentPropertyDefinitions ? Object.keys(hoofd.componentPropertyDefinitions) : null,
+      // Voeding voor de [instancevulling]-as. Een eigen vulling op een VARIANT of op een losse
+      // COMPONENT reist mee naar elke instance; op de SET niet.
+      eigenVulling: Array.isArray(hoofd.fills) ? hoofd.fills.length : 0,
+      variantenMetVulling: hoofd.type === "COMPONENT_SET"
+        ? hoofd.children.filter(v => Array.isArray(v.fills) && v.fills.length).length : null,
       variantProperties: hoofd.type === "COMPONENT_SET" ? hoofd.variantGroupProperties : null,
       varianten: hoofd.type === "COMPONENT_SET" ? hoofd.children.map(v => ({ name: v.name, id: v.id })) : null,
     } : null,
@@ -282,7 +359,7 @@ for (const p of figma.root.children) {
 
 return {
   $comment: "Neergeslagen Figma-staat. NIET met de hand bewerken — ververs via apps/rowtrack/CLAUDE.md.",
-  schemaVersie: 2, fileKey: figma.fileKey, fileName: figma.root.name,
+  schemaVersie: 3, fileKey: figma.fileKey, fileName: figma.root.name,
   gegenereerd: new Date().toISOString().slice(0, 10),
   collections,
   textStyles: (await figma.getLocalTextStylesAsync()).map(t => ({
