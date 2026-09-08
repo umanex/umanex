@@ -10,7 +10,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { EdgeInsets } from 'react-native-safe-area-context';
 import type { ConnectionStatus, HRStatus } from '@/lib/ble/types';
 import type { WorkoutGoal } from '@/lib/workout-goals';
@@ -18,6 +17,7 @@ import type { WorkoutGoal } from '@/lib/workout-goals';
 import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
 import { ActiveHeader } from './active/ActiveHeader';
+import { ProgressBar, type FillKind } from './active/ProgressBar';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
@@ -26,7 +26,7 @@ import { useSpmHalved } from '@/lib/hooks/useSpmHalved';
 import type { PrEntry } from '@/lib/personalRecords';
 import { prMetricLabel, formatPrValue, formatPrPrevious, prEntrySpoken } from '@/lib/prDisplay';
 import { t } from '@/i18n';
-import { bg, fg, accent, achievement, body, border, progressBar, buttonTokens, fontFamily, space, radii, componentRadius, fontSize, typeStyles, layout } from '@/constants';
+import { bg, fg, accent, achievement, body, border, fontFamily, space, radii, componentRadius, fontSize, typeStyles, layout } from '@/constants';
 import type { WorkoutMetricsState } from '@/lib/hooks/useWorkoutMetrics';
 import { styles } from './workout.styles';
 
@@ -135,7 +135,6 @@ export function ActivePhase({
   }, [phase]);
 
   // --- Hero-getal + subtitle + progress-fill per doeltype (gedeeld portrait/landscape) ---
-  type FillKind = 'none' | 'gradient' | 'success' | 'warning';
   function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: HeroSubtitle; fillPct: number; fillKind: FillKind } {
     const goalType = goal?.type ?? null;
     // Eyebrow-labels maken het hero-getal ondubbelzinnig: bij een doel telt de hero
@@ -221,48 +220,6 @@ export function ActivePhase({
         subtitle = { kind: 'plain', text: `${formatInt(distanceMeters)} m` };
     }
     return { heroLabel, heroText, subLabel, subtitle, fillPct, fillKind };
-  }
-
-  // --- Progress-fill: gradient (duration/distance) of solid success/warning (split/watts) ---
-  function barFillInner(fillKind: FillKind, vertical: boolean): ReactNode {
-    if (fillKind === 'gradient') {
-      return (
-        <LinearGradient
-          colors={[buttonTokens.primary.gradientFrom, buttonTokens.primary.gradientTo]}
-          start={vertical ? { x: 0, y: 1 } : { x: 0, y: 0 }}
-          end={vertical ? { x: 0, y: 0 } : { x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
-        />
-      );
-    }
-    const color = fillKind === 'success' ? progressBar.successFill : progressBar.warningFill;
-    return <View style={[StyleSheet.absoluteFill, { backgroundColor: color }]} />;
-  }
-
-  // --- Progress-bar horizontaal (portrait): full-bleed 4px tussen hero-paneel en KPI-lijst ---
-  function renderProgressBarH(fillPct: number, fillKind: FillKind): ReactNode {
-    return (
-      <View style={activeStyles.barTrackH}>
-        {fillKind !== 'none' && fillPct > 0 && (
-          <View style={[activeStyles.barFillH, { width: `${Math.min(fillPct * 100, 100)}%` }]}>
-            {barFillInner(fillKind, false)}
-          </View>
-        )}
-      </View>
-    );
-  }
-
-  // --- Progress-bar verticaal (landscape): 4px op de kolomscheiding, vult onder→boven ---
-  function renderProgressBarV(fillPct: number, fillKind: FillKind): ReactNode {
-    return (
-      <View style={landscapeStyles.barTrackV}>
-        {fillKind !== 'none' && fillPct > 0 && (
-          <View style={[landscapeStyles.barFillV, { height: `${Math.min(fillPct * 100, 100)}%` }]}>
-            {barFillInner(fillKind, true)}
-          </View>
-        )}
-      </View>
-    );
   }
 
   // --- KPI-lijst: flatte rijen met hairline-divider (gedeeld; fill=true → landscape) ---
@@ -380,7 +337,7 @@ export function ActivePhase({
         />
 
         {/* Progress-bar: full-bleed 4px tussen paneel en KPI-lijst */}
-        {renderProgressBarH(gv.fillPct, gv.fillKind)}
+        <ProgressBar fillPct={gv.fillPct} fillKind={gv.fillKind} richting="h" />
 
         {/* KPI-lijst: flatte rijen */}
         <View
@@ -473,7 +430,7 @@ export function ActivePhase({
                 </View>
 
                 {/* Verticale progress-bar op de kolomscheiding */}
-                {renderProgressBarV(gv.fillPct, gv.fillKind)}
+                <ProgressBar fillPct={gv.fillPct} fillKind={gv.fillKind} richting="v" />
 
                 {/* Rechts: hero-paneel (bg.elevated) */}
                 <HeroPanel
@@ -611,16 +568,6 @@ export function ActivePhase({
 }
 
 const activeStyles = StyleSheet.create({
-  // Progress-bar horizontaal (portrait): full-bleed 4px.
-  barTrackH: {
-    alignSelf: 'stretch',
-    height: 4,
-    backgroundColor: progressBar.trackColor,
-    overflow: 'hidden',
-  },
-  barFillH: {
-    height: 4,
-  },
   // KPI flat-rijen (gedeeld portrait/landscape).
   kpiRow: {
     flexDirection: 'row',
@@ -688,17 +635,6 @@ const landscapeStyles = StyleSheet.create({
     // Dynamic Island/notch zit in landscape aan de zijkant, de home-indicator onderaan.
     // paddingRight grenst aan de progress-bar (midden) → 40 (design 290:2746), geeft de bar ruimte.
     paddingRight: space['40'],
-  },
-  // Verticale progress-bar op de kolomscheiding; fill onderaan verankerd (onder→boven).
-  barTrackV: {
-    width: 4,
-    alignSelf: 'stretch',
-    backgroundColor: progressBar.trackColor,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  barFillV: {
-    width: 4,
   },
 });
 

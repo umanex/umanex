@@ -55,6 +55,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | ActiveHeader | `apps/rowtrack/components/workout/active/ActiveHeader.tsx` | active | — | — | — |
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
+| ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
 | SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
@@ -63,20 +64,19 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+db48bdc refactor(rowtrack): cut 4 — ActiveHeader
 b437d03 refactor(rowtrack): cut 3 — HeroPanel
 ae2646c refactor(rowtrack): cut 2 — SubtitleProgress
 371870d feat(rowtrack): a gate for the cuts, and cut 1 — GoalPill
 c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
-05f33bb chore(rowtrack): Figma round A — rebuild the library on the new layer names
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/components/workout/ActivePhase.tsx
-  A  apps/rowtrack/components/workout/active/ActiveHeader.stories.tsx
-  A  apps/rowtrack/components/workout/active/ActiveHeader.tsx
+  A  apps/rowtrack/components/workout/active/ProgressBar.stories.tsx
+  A  apps/rowtrack/components/workout/active/ProgressBar.tsx
   M  apps/rowtrack/figma/build-spec.min.json
   M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/ongebonden.json
   M  apps/rowtrack/figma/story-axes.json
 
 ## Bestanden met TODO/FIXME

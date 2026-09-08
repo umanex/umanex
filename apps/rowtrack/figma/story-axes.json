@@ -466,6 +466,24 @@
    "uitgesloten": {},
    "variantNodes": 1
   },
+  "ProgressBar": {
+   "storyId": "componenten-progressbar--playground",
+   "titel": "Componenten/ProgressBar",
+   "assen": {
+    "fillKind": [
+     "none",
+     "gradient",
+     "success",
+     "warning"
+    ],
+    "richting": [
+     "h",
+     "v"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 8
+  },
   "SubtitleProgress": {
    "storyId": "componenten-subtitleprogress--playground",
    "titel": "Componenten/SubtitleProgress",
@@ -476,5 +494,5 @@
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 599
+ "totaalVariantNodes": 607
 }
