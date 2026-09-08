@@ -50,11 +50,22 @@ De bronnen-poort vraagt *waaruit* je bouwt. Deze vraagt *waarvoor het resultaat 
 worden*, en dat antwoord verandert wat "af" betekent. Stel hem vóór de eerste write, en noem
 het antwoord in je rapport.
 
+**Vink de poort niet als geheel af — meet elke as apart en noem per as de uitkomst**, zoals
+stap 8 dat voor zijn vijf checks al eist. Een rij die naar een andere verwijst (*"alles van
+werkbestand, plus…"*) verbergt hoeveel assen er zijn: wie alleen de Library-rij las, zag er
+twee van de vier. GEMETEN 2026-09-08 (rowtrack): ik paste de poort toe op laagnamen en slots
+en niet op de as *wat er met een instance meereist*, waardoor elke variant en elke losse
+component de app-achtergrond als **eigen** vulling droeg en elke geplaatste instance een
+ondoorzichtig donker vlak meesleepte. Dertien guard-assen, parity op 1 066 velden en 197
+gerenderde stories stonden groen, want geen enkele meet wat er met een instance méégaat; het
+kwam boven doordat de gebruiker een knop uit het Assets-paneel sleepte. Herkenningsteken: een
+poort met een opsomming waarvan je er twee afvinkt en de derde niet expliciet meet.
+
 | Doel | Wat het eist bovenop een getrouwe transcriptie | Harde check |
 |---|---|---|
 | **Bewijsstuk** — aantonen dat code en design overeenkomen | niets extra; parity is het doel | geometrie- en token-parity, met tegenproef |
 | **Werkbestand** — iemand stelt er schermen mee samen | leesbare laagnamen uit het code-vocabulaire · slots als `componentPropertyDefinitions`, niet als varianten · **stabiele node-identiteit over herbouwen heen** | `componentPropertyDefinitions` niet leeg · publicatiestatus niet `UNPUBLISHED` |
-| **Library** — andere bestanden consumeren het | alles van *werkbestand*, plus: één tokenbron (geen eigen kopie in het consumerende bestand) | variabelen-diff tussen bron- en doelbestand = 0 |
+| **Library** — andere bestanden consumeren het | alles van *werkbestand*, plus: één tokenbron (geen eigen kopie in het consumerende bestand) · **wat er met een instance meereist**: eigen `fills`, effecten, een achtergrond die je per variant zette · **herbouwen is geen bijwerken** (zie hieronder) | variabelen-diff tussen bron- en doelbestand = 0 · `instanceFills` op een geplaatste instance = 0 |
 
 **Vraag het expliciet als je het niet weet.** GEMETEN 2026-09-08 (RowTrack): ik koos stilzwijgend
 *bewijsstuk*, maakte dat volledig waar (613/613 tekstnodes, 1 066 geometrie-velden gelijk, tien
@@ -181,6 +192,25 @@ Bouw en schrijf de component. Twee dingen staan voorop: de structuur is auto lay
 Bij een grote spec (tientallen KB's) is de kostbare vraag niet *hoe* je bouwt maar *hoe de spec binnenkomt*. Plakken door `figma_execute` betekent dat elke byte twee keer door je context reist — één keer om te lezen, één keer om te plakken — en dat is precies de weg die je niet hoeft te nemen.
 
 **De 30 seconden zijn een wachtlimiet, geen uitvoeringslimiet.** Loopt een `figma_execute` in zijn timeout, dan is de plugin gewoon dóór aan het bouwen; de tool-call geeft alleen op. Behandel zo'n timeout dus **nooit** als een mislukking en start de batch niet opnieuw — lees eerst de runtime uit om te zien wat er intussen ontstaan is. GEMETEN 2026-09-08 (rowtrack): batches van ~25 KB liepen structureel in die wachtlimiet, waarna agents in wachtlussen van 150, 180 en 240 seconden belandden; één workflow draaide 2,9 uur en viel om met *"agent stalled on all 6 attempts"*.
+
+**De read-out beantwoordt "wat staat er", niet "loopt hij nog".** Dat verschil bijt: een
+halfgebouwde boom ziet er identiek uit of de plugin nog schrijft of allang gestopt is, dus een
+tweede `figma_execute` starten op grond van wat je ziet is een gok en geen controle. GEMETEN
+2026-09-08 (rowtrack): twee builder-runs liepen door elkaar heen omdat de eerste timeout als
+mislukking gelezen werd — de tweede leegde pagina's die de eerste nog aan het vullen was.
+`Chip` en `PrBadge` bleven **leeg**, `KpiSingle` kreeg er **twee**, en dat beeld is niet te
+onderscheiden van een half gelukte bouw; het viel pas twee batches later op. Stel de
+**toestand** dus expliciet vast vóór je opnieuw aanroept, met een marker die de bouwlus zélf
+per eenheid bijwerkt — niet met een blik op het resultaat.
+
+**Een voortgangssignaal hoort ín de lus, niet erachter.** Alles wat je ná de lange
+`await`-keten wegschrijft, draait niet meer zodra de tool-call al opgegeven heeft. In dezelfde
+sessie liepen een `fetch`-POST én een `figma.root.setPluginData` alle twee niet, terwijl het
+document wél gebouwd was: de serverlog toonde de GET's van spec en builder en daarna niets, en
+de `bouwbezig`-marker bleef staan en las als "nog bezig" terwijl alles klaar was. Alleen de
+per-component `setPluginData('bouwhash', …)` **binnen** de bouwlus overleefde. Herkenningsteken:
+een voortgangs- of resultaatsignaal dat achter een lange `await`-keten hangt in plaats van per
+verwerkte eenheid erin.
 
 **De efficiënte weg: laat de plugin zélf ophalen.** Serveer de bouwspec over HTTP op een toegestane poort en laat de plugin hem met `fetch` binnenhalen; met een `POST`-endpoint schrijft ze het resultaat rechtstreeks naar schijf. In dezelfde sessie gingen 34 KB manifest en 25 KB geometrie zo naar disk **zonder één byte door een tool-call**.
 
