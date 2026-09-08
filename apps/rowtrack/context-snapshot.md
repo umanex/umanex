@@ -59,24 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+f4824d9 fix(rowtrack): de resterende twintig bevindingen uit reviewronde 1
 e907003 fix(rowtrack): R01, R02, R07, R08, R14 uit reviewronde 1
 96eb889 docs(rowtrack): reviewronde 1 — 25 bevindingen op een groene acceptatielijst
 02acf5f chore(rowtrack): manifest na de herpublicatie
 c9388ea chore(rowtrack): manifest en geometrie na de achtergrondmigratie
-d0373df fix(rowtrack): de app-achtergrond hoort achter de component, niet erin
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.storybook/main.ts
-  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/library-migratie.js
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
