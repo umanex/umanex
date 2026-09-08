@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Toetst of gebouwd werk zich werkelijk gedraagt zoals het acceptatie-contract zegt, door het uit te vóéren op het doelwit van de gebruiker — niet door de code te lezen. Kiest de meetbare as bij het taaktype (design-snapshot, invariant, flow-doorloop, request/response, before-after-reproductie), levert P0–P3 bevindingen met runtime-bewijs, en vinkt de acceptatie-items van de briefing af. Gebruik deze skill in de Beoordeel-stap van de triade, of wanneer de gebruiker zegt "verifieer dit", "klopt het gedrag", "werkt het echt", "check of dit doet wat de briefing zegt", "vink de acceptatie af". **Roep hem ook aan zodra je zélf gaat meten, ook zonder dat de gebruiker erom vraagt** — bij een positieve of negatieve controle, een tegenproef, de vraag of een check rood kan worden, een lege of verdachte uitkomst, een telling waarvan het meetbereik onzeker is, of vóór je een getal aan de gebruiker rapporteert. Dat is de meerderheid van de gevallen: de discipline komt op midden in het werk, niet uit de prompt. De twaalf rails hier dragen het gemeten bewijs waar `CLAUDE.md` alleen de kern van draagt. NIET voor diff-correctheid (`code-review`), design-kwaliteit (`ux-audit`) of backend-hardening (`security-audit`).
+description: Toetst of gebouwd werk zich werkelijk gedraagt zoals het acceptatie-contract zegt, door het uit te vóéren op het doelwit van de gebruiker — niet door de code te lezen. Kiest de meetbare as bij het taaktype (design-snapshot, invariant, flow-doorloop, request/response, before-after-reproductie), levert P0–P3 bevindingen met runtime-bewijs, en vinkt de acceptatie-items van de briefing af. Gebruik deze skill in de Beoordeel-stap van de triade, of wanneer de gebruiker zegt "verifieer dit", "klopt het gedrag", "werkt het echt", "check of dit doet wat de briefing zegt", "vink de acceptatie af". **Roep hem ook aan zodra je zélf gaat meten, ook zonder dat de gebruiker erom vraagt** — bij een positieve of negatieve controle, een tegenproef, de vraag of een check rood kan worden, een lege of verdachte uitkomst, een telling waarvan het meetbereik onzeker is, of vóór je een getal aan de gebruiker rapporteert. Dat is de meerderheid van de gevallen: de discipline komt op midden in het werk, niet uit de prompt. De dertien rails hier dragen het gemeten bewijs waar `CLAUDE.md` alleen de kern van draagt. NIET voor diff-correctheid (`code-review`), design-kwaliteit (`ux-audit`) of backend-hardening (`security-audit`).
 ---
 
 ## Werkwijze
@@ -44,7 +44,7 @@ Meerdere assen tegelijk is normaal: een feature-flow met een berekening heeft er
 
 ---
 
-## Twaalf rails — de discipline van de Beoordeel-stap
+## Dertien rails — de discipline van de Beoordeel-stap
 
 Deze staan als werkprincipe in `CLAUDE.md`; hier zijn ze operationeel.
 
@@ -136,11 +136,45 @@ alleen in het bewijs bestaat, is geen herdraaibaar pad.
 
 **Twee vormen die op 2026-09-08 in één sessie toesloegen.** *Een rapportageformaat dat het antwoord inbakt.* De terugleescontrole na het aanmaken van 18 Figma text styles bevatte `ls: s.letterSpacing.value + '%'` — een letterlijke `%` in plaats van `s.letterSpacing.unit`. Het rapport toonde `-4.5%`, `20%`, `30%`, precies het verwachte, terwijl alle 18 op **PIXELS** stonden: een gebonden variabele dwingt die unit af. `type/labelSection` droeg 20px tracking op 13px tekst in plaats van 20% = 2,6px, en `TabLabel` werd 181px breed in plaats van 69. Het defect overleefde twee volledige verificatierondes; alleen de geometrie-parity ving het. Lees een eenheid altijd als paar (`${v.value} ${v.unit}`) en zet de bedoelde waarde in dezelfde regel. *Een afgewezen uitkomst met twee oorzaken tegelijk.* Eén `fetch` uit een Figma-plugin gaf "Failed to fetch" en ik noteerde dat de sandbox localhost niet bereikt — terwijl er twee onafhankelijke gebreken waren die exact hetzelfde symptoom geven: de server was al gestopt (`run_in_background` sloot hem af) én de poort stond niet op de allowlist in `~/.figma-console-mcp/plugin/manifest.json` (die staat 9223–9232 toe). Een subagent bewees het tegendeel door het gewoon te doen. Kost: uren aan batches door de context in plaats van een lokale server. *En twee afgeleiden van één bron bevestigen elkaar.* De `[link]`-as van een sync-guard toetste of elke story's `figma.url` naar de primary node van zijn pagina wees, maar las die node-id uit hetzelfde manifest waaruit de stories waren gegenereerd: na een herbouw waren 29 van 33 primary-ids veranderd, de as stond groen, en álle 33 deep-links wezen naar niet-bestaande nodes.
 
+*Een script tot poort maken zonder zijn bereik te lezen.* Zet je een bestaand script als gate in een
+plan of een acceptatielijst, noem dan de **regel** waar het de grootheid leest die je bedoelt — een
+geloofwaardige naam is geen bereik. GEMETEN 2026-09-08 (rowtrack): `geometry-parity.mjs` kreeg de rol
+van vangnet voor elke refactor-snede; regel 74 itereert alleen `spec.componenten` — de schermen staan
+in `spec.schermen` en worden nooit gelezen — en regel 80 vergelijkt per variant alleen de wortelnode.
+De "1 066 velden" waren ~10 velden × ~110 wortels, dus een snede die een binnen-gap verliest of een
+wrapper toevoegt was per constructie onzichtbaar. Derde keer op één dag dezelfde klasse: een instrument
+met een geloofwaardige naam kreeg de rol van vangnet zonder dat iemand zijn bereik had gelezen.
+Herkenningsteken: een poort die naar een script verwijst zonder de regel te noemen waar dat script
+de betreffende grootheid leest.
+
+*Leeg is net zo vaak wáár als kapot — en die tweede lezing is even verleidelijk.* De rail wordt meestal
+toegepast op "er is niets gevonden, dus bewijs dat je instrument werkt". De spiegel bijt even hard.
+GEMETEN 2026-09-08: `test-discipline-blok.sh` check 1 telde nul gemeten gevallen in het discipline-blok,
+en ik las die nul als een kapot criterium — *"hij ankert op de wóórden gemeten op/in"* — en meldde dat
+twee keer met stelligheid aan de gebruiker, tot in een gepushte commit en een LEARNINGS-entry. Een
+detector die op de **vorm** van bewijs ankert (datums, getallen met scheidingsteken, `n van m`) gaf
+daarna het antwoord: `verify` **58** markeringen, het blok **nul** — geen enkele datum, één getal van
+twee cijfers. De nul was waar; er stond werkelijk geen gemeten geval inline. Wat er stond was
+uitwerking, een andere grootheid. De positieve controle die ik had moeten draaien vóór de bewering,
+draaide ik pas toen de gebruiker om een vervolg vroeg.
+
+*Een guard toets je op béide kanten.* Eén kant draaien meet niets: je hebt een geval nodig waarin hij zwijgt én een waarin hij afgaat. Gemeten op 2026-09-08: de twee app-poorten in `templates/githooks-pre-commit` toetsten met `grep -q '^## Verify-pad'` en `grep -q '^## Design-systeem-bron'` alleen of de **kop** bestond, dus een sectie die uit niets dan haar kop bestaat kwam er even groen doorheen als een volledig ingevulde — de kop is het label van de sectie, niet haar inhoud. Reproductie in één regel: `printf '# x\n\n## Verify-pad\n' > /tmp/leeg.md && grep -q '^## Verify-pad' /tmp/leeg.md && echo "guard ZWIJGT"`. `scripts/test-guards.sh` heeft sindsdien per item beide kanten: alle vijf capabilities aanwezig (ook met "geen") → stil, kop met vier ontbrekende → warn, kop zónder enige capability (de oude blinde vlek) → warn.
+
+*En de groene kant vraagt een negatieve controle*, want een gevulde, wáre uitkomst kan over de verkeerde grootheid gaan. Dat is geen nieuwe klasse maar de noemer onder twee gevallen die hierboven al staan: de `[link]`-as die haar node-ids uit hetzelfde manifest las waaruit de stories kwamen (29 van 33 primary-ids veranderd, as groen, álle 33 deep-links dood), en het bereik van `geometry-parity.mjs` (regel 74 leest alleen `spec.componenten`, regel 80 alleen de wortelnode). Allebei een echte, ware meting — van iets anders dan de grootheid in de acceptatie-regel.
+
+*Een zwarte lijst voor een positieve regel vindt alleen wat iemand vooraf bedacht.* GEMETEN 2026-09-08 (RowTrack): de leesbaarheidstoets van `code-naar-figma` filterde laagnamen op `/^(Frame|Group|Rectangle|Vector) \d+$/` — Figma's eigen defaults — en ving van elf werkelijk voorkomende namen er **één**: `Frame 427`, de enige die een generator nooit produceert. De toets stond groen terwijl **82% van 1 288 frames** `0`, `1` of `2` heette en tekstnodes naar hun copy vernoemd waren. Een positieve regel ("elke naam komt uit het vocabulaire dat de code kent") heeft een positieve toets nodig; de volledige uitwerking staat in `.claude/skills/code-naar-figma/SKILL.md` onder *Waarom vocabulaire en niet een lijst met verboden namen*.
+
+Vier stukken uit de oude `CLAUDE.md`-tekst hoeven hier niet bij, want rail 6 draagt ze al mét hun geval: dat "niet gevonden", "geweigerd" en "instrument kapot" er identiek uitzien (sftp `-b`, 2026-08-29, plus de 404-vorm van refs-check), dat een vervangen instrument het óngewijzigde **exact** moet reproduceren (fleet-manager dump-filter tegen 19 onveranderde schermen), dat beoordelaars op één afgeleide bron één meting zijn en hun overeenstemming de bron meet (Partner Fleet Portal, 2026-08-27, 22 kWh-nodes waarvan nul gerenderd), en het rapportageformaat dat het antwoord inbakt (18 text styles, `+ '%'` tegen PIXELS). Bij dat laatste past hoogstens één zin extra in de bestaande alinea: *een eenheid die je erachter plakt is een echo*.
+
 **7. De verwachting is de reden om te meten, nooit het bewijs.** Een vuistregel uit de literatuur, een typische waarde, een aggregaat dat logisch oogt — dat is de hypothese die de meting motiveert, niet de meting zelf. Bestaat de meetbare as (een log, een opname, een teller, het Verify-pad van de app), dan sluit alleen díe de vraag; kun je niet meten, dan lever je een hypothese mét het meetpad erbij, geen conclusie met een tabel eronder.
 
 *Herkenningsteken:* wijkt het getal af met precies een ronde factor (×2, ×½, ×60), dan is dat vrijwel zeker een tel- of eenheidsfout — die ga je meten, niet verklaren, en de kant waarop hij valt beslis je nooit uit plausibiliteit. Gemeten op rowtrack (2026-08-16): "20-24 spm is je echte slagfrequentie" klonk sluitend met twee vuistregels als steun; een FTMS-opname en een handtelling dezelfde avond wezen het tegendeel uit, en de echte oorzaak (een noemer die rustpackets meetelde) produceerde exact het klachtgetal 24.
 
 **Een telling op de invoer is geen verwachting over de uitvoer.** Gemeten 2026-09-08 (rowtrack): ik bepaalde welke Figma-pagina's afweken door de tekstnodes in de bouwspec te tellen en dat "verwacht in Figma" te noemen — zonder te verrekenen dat de builder een Ionicons-glyph tot een placeholder-*frame* maakt en dus géén tekstnode oplevert. Van de 33 componenten leken er 17 kapot; het waren er vijf. Ik stuurde een agent met die tabel op pad, die twaalf pagina's herbouwde die al klopten. Dit is de gemene variant van rail 7: het getal kwam niet uit een vuistregel maar uit een échte telling op een écht bestand, en vóélde daardoor als een meting. De transformatie ertussen is wat een invoertelling tot een uitvoerverwachting maakt — reken die expliciet mee, of meet aan de uitvoerkant.
+
+**Een ongemeten geruststelling weegt zo zwaar als een ongemeten getal.** Gemeten 2026-09-08 (rowtrack): op een screenshot van een Button-instance uit de gepubliceerde library in `RowTrack - Design` stelde ik een `AskUserQuestion` met drie opties over waar de app-achtergrond hoort. Optie 2 luidde *"laat de 108 varianten in een set met rust (de set-achtergrond dekt ze al af)"* — beide helften fout, en van beide had ik het bewijs al in handen. Het getal was hoofdrekenen over vijftien getallen die letterlijk in mijn vorige tool-resultaat stonden; het waren er **94**, hetzelfde getal dat de `[varianten]`-as van de guard al maanden rapporteert. De kwalitatieve helft schaadde harder: één meting eerder had ik op diezelfde instance `eigenFills: ["SOLID gebonden"]` en `instanceFills: 1` gelezen — een variant sleept zijn eigen vulling wél mee, alleen de set-vulling niet — dus optie 2 loste precies het component niet op waarvan hij me de screenshot stuurde, en hij koos die optie; de vraag moest gecorrigeerd en opnieuw gesteld. *Herkenningsteken:* een optiebeschrijving die uitlegt waaróm iets geen probleem is, zonder verwijzing naar de meting die dat zegt. Daarom is de trigger in `CLAUDE.md` sinds die dag niet meer alleen numeriek. Het getal-geval van dezelfde klasse (geschat −3 500, gemeten −428, factor 8) staat al bij rail 11; dit is de kwalitatieve helft ervan.
+
+[Niet mee plakken — verantwoording bij de splitsing: de ronde-factor (×2, ×½, ×60, rowtrack 2026-08-16, "20-24 spm") en de invoertelling (rowtrack 2026-09-08, 17 van 33 leken kapot, het waren er vijf, twaalf pagina's onnodig herbouwd) staan al in deze rail — de ingekorte CLAUDE.md-versie leunt erop in plaats van ze te herhalen, dus er hoeft niets van bij.]
 
 **8. Toets of je check rood kan worden.** Rail 6 gaat over de getrouwheid van je *instrument*, deze over de **grootheid** die je meet. Een assertie kan gevuld, waar en volledig groen zijn en tóch niets bewijzen, omdat ze de vorm van het artefact toetst in plaats van zijn gedrag — en dat voelt van binnenuit identiek aan verificatie.
 
@@ -157,6 +191,12 @@ Gemeten op LQB (2026-08-18): "reaction bestaat · trigger `ON_CLICK` · actie `N
 
 **De tegenproef is zelf een instrument en heeft zijn eigen positieve controle nodig.** Gemeten 2026-09-08 (`apps/rowtrack/scripts/geometry-parity.mjs`): het `--selftest`-blok hoogde één hoogte met 5 op, maar stond ónder de vergelijkingslus — die had al tegen de ongemuteerde data gedraaid. Uitkomst: `selftest: Chip[active=true] hoogte 44 -> 49 in de Figma-kant`, dan `Geen verschil`, exit 0. De aankondigingsregel leest als bewijs dat de tegenproef werkt; ik had bijna geconcludeerd dat de parity-as niet rood kón worden. Een tegenproef moet aantoonbaar de **uitkomst** veranderen, niet alleen aankondigen dat hij muteert. `templates/tegenproef-guard.sh` vuurt sinds 2026-09-08 op precies die vorm (een aangekondigde mutatie gevolgd door "geen verschil"), en `scripts/test-mutatie-dekking.sh` eist per guard dat elke beslistak zijn contract-test rood maakt — 34 takken over 8 guards.
 
+Verify rail 8 draagt de uitwerking al: de drie vormen staan er letterlijk als (a) neem de fix weg — langs het pad dat productie draait, niet de functie los; (b) vind het object eerst — bewijs dat het ding dat je net aanraakte in het meetbereik van je check zit vóór je er een eigenschap van meet; (c) laat het object bewegen — zet naast elke "onveranderd"-assertie een geval waarin de uitkomst móet verschillen, mét "Gemeten 2026-08-24/25 (jobradar-fixtures, Soda+-`clone()`, verkeersanalyse-`querySelector`)". En de conclusie-regel staat er als eigen alinea *Geven beide kanten dezelfde uitkomst, dan is de opstelling ongeschikt*, met het geval van 2026-08-27 (guard tegen exit 123, `xargs` na een `grep` zonder treffers onder GitHub's `bash -e`: mét guard leefde het script, zónder guard ook; de meting zat in een `$( )` en command substitution vangt de fout; pas de CI-run was geldig — umanex-apps viel om, luminus en columba niet) plus de receiver-test waar een vervangingsstring één spatie miste. Niets daarvan hoeft herhaald te worden.
+
+Wat de kern-rail wél kwijtraakt is één generaliserende zin, die nergens in rail 8 staat. Plak hem achter de (a)/(b)/(c)-alinea, vóór "Gemeten 2026-08-24/25":
+
+Een tegenproef die niet met de fix of het object meebeweegt, meet iets anders — dat is wat de drie vormen delen.
+
 **9. Anker op het object, niet op de vorm die je toevallig terugkrijgt.** Een laagnaam, een label, een kolomtitel, een tag — allemaal beschrijvingen die iemand ooit typte en die sindsdien niet meegroeiden. Identificeer waar je mee werkt aan zijn **inhoud**: de titel op de kaart, de velden in het formulier, de rij in de tabel.
 
 Gemeten op LQB: één frame droeg de naam `unit:04-contact` en zijn kind `screen:d1-account-manager-handoff`, terwijl de kaart erin "Add your company details" heet met de velden `Company name` en `Street` — alleen de inhoud zei wat het scherm ís. Op fleet-manager las `strokeBottomWeight: 2` zonder één stroke-paint als "er staat een onderlijn" terwijl er niets getekend werd, en een tekstnode met `visible: true` onder een ouder op `opacity: 0` als "hij rendert": een render-*eigenschap* is invoer voor de render, niet de render.
@@ -168,6 +208,16 @@ Gemeten op LQB: één frame droeg de naam `unit:04-contact` en zijn kind `screen
 *De controle hoort in dezelfde aanroep als de meting.* Een tweede signaal dat de eerste tegenspreekt is alleen bruikbaar zolang je kunt zien wélk deel de meting was en welk deel de controle. Binnen één call doet de gelabelde regel dat werk — alles ervóór is de meting, alles erná de controle. Verdeel je ze over twee stappen, dan is die scheidslijn weg en blijft alleen het woord in het commando over als anker, en dat woord staat overal. GEMETEN 2026-09-08: een detector die de tegenspraak over calls heen probeerde te herkennen vuurde **191 keer** extra over de volledige corpus (25 874 Bash-calls; 1,04 % → 1,78 %), en van elf gesamplede treffers was er **nul** een echte controle — het waren `cat >>` na een grep, `gh pr create` na een fetch, een heredoc na een `git add`. Het lezen van eerdere calls wérkte (het transcript dat de harness aanlevert, getoetst op beide kanten); het herkennen niet. De remedie is dus niet een slimmere detector maar de vorm van de handeling.
 
 *Een lus over een variabele draait in zsh één keer.* De tool-shell is zsh en splitst een ongequote variabele niet: `for f in $VAR` itereert over één lange string. Gemeten op 2026-08-27: `F="$(find apps -name '*.tsx')"; for f in $F` gaf **1** iteratie waar `printf '%s\n' "$F" | while read -r f` er 3 gaf op een lijst van 3. Drie keer op één dag leverde dat een stil lege of onvolledige uitkomst die als geldig resultaat las — bij de resterende hex-treffers in Luminus (leeg, terwijl `xargs` er 3 gaf), bij columba's verdeling (leeg, terwijl het bestand er 206 draagt), en bij een merge-lus waar `set -- $spec` niet splitste. Die derde viel wél op, want een falende `cd` is luid; de klasse is dat de eerste twee dat niet zijn. Committed scripts met `#!/bin/bash` zijn correct — dit is een inline-val.
+
+*De extrapolatie naar de zusters.* Wat een verkeerde identificatie duur maakt is zelden het ene exemplaar dat je misleest, maar de reeks die je erop doortrekt: dezelfde onbevestigde gevolgtrekking uitrollen over de zusterschermen "voor de consistentie" vermenigvuldigt één ongetoetste aanname over de hele set en maakt haar daarna onzichtbaar, want alles lijkt dan op elkaar. Een gevolgtrekking blijft bij het exemplaar waar je hem aan de inhoud getoetst hebt; de rest is een nieuwe meting, geen afgeleide. `.claude/skills/figma-naar-code/SKILL.md` draagt de scherm-specifieke vorm hiervan ("trek een onbevestigde koppeling nooit door naar zusterschermen 'voor de consistentie'") bij hetzelfde LQB-geval dat hierboven in deze rail staat — dat geval hoeft hier dus niet herhaald.
+
+[Niet mee plakken — verantwoording bij de splitsing: de reden achter de dezelfde-aanroep-eis, het rijtje "pagina, node, variant" en de literale zin "vóór je er een eigenschap van afleest" verhuizen níet, want deze rail draagt ze al ("*De controle hoort in dezelfde aanroep als de meting*" met de 191 extra treffers over 25 874 Bash-calls; "pagina, scherm-nodes, versie-varianten" in het fleet-manager-geval; de Columba-zin over `querySelectorAll`).]
+
+Plak als alinea onder de bestaande zsh-alinea (*Een lus over een variabele draait in zsh één keer.*) in rail 9:
+
+*Waarom hij stil blijft.* Er faalt niets, dus `set -e` en `pipefail` zwijgen — de uitkomst is stil leeg of onvolledig, en de vorm die de fout maakt is precies de vorm die in bash correct is.
+
+De rest hoeft niet mee: rail 9 draagt het gemeten geval al — 2026-08-27, `F="$(find apps -name '*.tsx')"; for f in $F` gaf **1** iteratie waar `printf '%s\n' "$F" | while read -r f` er 3 gaf op een lijst van 3, drie keer op één dag (Luminus-hex leeg terwijl `xargs` er 3 gaf; columba's verdeling leeg terwijl het bestand er 206 draagt; de merge-lus waar `set -- $spec` niet splitste, die als enige luid faalde omdat een falende `cd` luid is). Ook "Committed scripts met `#!/bin/bash` zijn correct — dit is een inline-val" staat er al; die blijft daarnaast inline in CLAUDE.md, want hij is de conditie waaronder de rail bijt.
 
 **10. Het meetbereik bevat vaak de meting zelf.** Bij een telling of een exit-status heeft "de verkeerde grootheid" een eigen, herkenbare vorm. Een `grep -c` op een bestand dat zijn eigen format-voorbeeld draagt telt dat voorbeeld mee; een CI-log bevat het script dat hij logt, dus een grep op een `echo`-tekst vindt de broncode terug; `$?` na een pipe geeft de status van de láátste pijpcomponent en niet die van je script.
 
@@ -182,6 +232,42 @@ Herkenningsteken voor beide: een bewering die in dezelfde adem ontstaat én word
 **12. Bij afhankelijke berekeningen is de invariant de meetbare as.** Volgt een waarde uit een andere, dan valideert scherm-per-scherm niets: elke fix is lokaal correct terwijl dezelfde afgeleide waarde elders anders berekend blijft, en je kan alle schermen afvinken zonder één keer de fout te raken.
 
 PLAN levert daarom minstens één **invariant** over het hele model, en BEOORDEEL rékent die uit over een echte dataset — `eindsaldo maand N == beginsaldo maand N+1` over de volledige reeks — in plaats van een scherm af te lezen dat het juiste getal toont. Deze rail staat als enige niet als eigen regel in het discipline-blok van `CLAUDE.md`: zijn kern hangt daar aan de PLAN-zin, omdat hij bijt vóór er iets te verifiëren valt.
+
+**13. Een muterende stap is zelf een meting, en moet een uitkomst dragen.** Rail 6 gaat over het
+instrument waarmee je meet; deze over de stap die de toestand *verandert* vóór je meet — opruimen,
+resetten, patchen, invalideren. Zo'n stap die per constructie niet kán klagen is geen handeling
+maar een aanname.
+
+*Het opruimcommando dat niets opruimde.* `rm -rf` op een niet-bestaand pad geeft **exit 0** en
+schrijft niets naar stderr. GEMETEN 2026-09-08 (umanex-apps): tien metingen lang werd
+`node_modules/.cache/storybook` in de repo-root gewist terwijl de echte cache bij de app stond
+(`apps/rowtrack/node_modules/.cache/storybook`). Elke "koude start" was warm, dezelfde configuratie
+gaf de ene keer 4/4 groen en de andere keer 55 van 197 leeg, en die tegenspraak werd twee keer als
+"niet reproduceerbaar" afgedaan — met als gevolg dat een dragende fix bijna als dode code sneuvelde.
+Tweede laag: in een pnpm-monorepo staat een tool-cache vaak bij de *app*, ook als de dependency
+gehoist is. De vorm:
+
+```bash
+[ -d "$PAD" ] || { echo "STOP — cache-pad bestaat niet: $PAD"; exit 1; }
+```
+
+*De harness die niets patchte en groen rapporteerde.* Een tegenproef-script haalde per rail één
+regel uit een configuratie, herstartte en mat. Na een versmalling van de regex elders matchte de
+patch-string van één rail niet meer: de `assert` in het python-fragment faalde, de shell las de
+exit-status niet, en omdat de kopie van het goede bestand er al stond mat die rail de **ongewijzigde
+goede configuratie** — en rapporteerde 6/6 groen. Precies de rail die moest bewijzen dat de
+belangrijkste fix dragend was, gaf een vals negatief; bij directe hermeting viel de server om met
+4× `MISSING_EXPORT`. Twee fouten tegelijk: de patch-stap gaf geen uitkomst terug, en de harness
+bewaarde een **kopie** van de tekst die hij moest verwijderen — dus hij veroudert stil zodra het
+origineel verandert. De eis uit rail 8 (*de tegenproef beweegt met het object mee*) geldt dus ook
+voor de harness zelf:
+
+```bash
+git diff --quiet -- "$M" && { echo "STOP — patch raakte niets"; exit 1; }
+```
+
+Derde les, kleiner: het probe-stel is óók een instrument-eigenschap. Die harness toetste één story
+terwijl de faalmodus 55 van 197 stories raakte die niet gekozen waren.
 
 ---
 
@@ -206,9 +292,21 @@ verouderde regel valt hier op; een verouderde `case` in een script niet.
 | meetbereik bevat | 10 |
 | verwachtingswaarde | 7 |
 | zekerheid moet dekken | 11 |
+| NIET TE VERIFIËREN | 3 |
+| bewering over een bibliotheek | 4 |
+| minstens één invariant | 12 |
+| muterende stap | 13 |
 
 Het fragment is een substring van de rail-kop in `CLAUDE.md`; een streepje betekent dat deze
 skill er nog geen rail voor heeft en er dus een bij moet vóór het bewijs hierheen kan.
+
+Sinds 2026-09-08 leest `scripts/test-discipline-blok.sh` deze tabel **in twee richtingen**.
+Check 4 vraagt of elke rail uit `CLAUDE.md` hier een rij heeft; check 7 vraagt het omgekeerde —
+of elke rail hier ergens uit `CLAUDE.md` volgt. Een rail zonder kern is óf puur operationeel, en
+draagt dan `[operationeel]` in zijn kop, óf een globale regel die in deze skill is weggezakt omdat
+de altijd-geladen laag vol zat. Dat tweede gebeurde die dag met drie lessen en niets merkte het.
+Het fragment mag naar een kern búiten het discipline-blok wijzen: rail 3, 4 en 12 hangen aan
+*Geen verzonnen bewijs*, *Root cause boven patch* en de invariant-eis van de triade.
 
 ---
 

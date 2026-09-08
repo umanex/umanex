@@ -610,6 +610,23 @@ Een derde sleutel in `buckets` **is** de bevinding — je hoeft hem niet te herk
 
 **Pass-conditie:** elke bedoeld-gebonden property matcht (naam én laag), auto-layout aanwezig waar spacing bindt, hiërarchie komt overeen, elke property uit bak 3 is expliciet verantwoord, en bij herhaalde exemplaren valt élk exemplaar in een toegestane signatuur. Nul mismatches.
 
+**Check 0 — staat er íets in de node?** Vóór de vijf hieronder, en het is de goedkoopste: tel per
+gebouwde componentnode zijn **afstammelingen** en zijn **tekstinhoud**, en leg dat naast wat de
+story rendert. Zonder die as meten de andere checks uitsluitend randvoorwaarden — dekking, tokens,
+laagnamen, deep-links, geometrie — en niet het hoofdproduct van de stap, namelijk dat de bouw iets
+gebouwd hééft. GEMETEN 2026-09-08 (rowtrack): een commit die *"sync gevalideerd — guard, tegenproef
+en parity groen"* heet, staat op dezelfde dag pal vóór zes fixes die stuk voor stuk ontbrekende
+inhoud rechtzetten — vijf componenten als leeg frame, daarna nog eens lege frames tot 33 van 33,
+613 van 613 tekstnodes, een achtergrond ín de component, portalen naast de schermboom, een
+uitsluiting op de storynaam in plaats van op de vorm. Dertien guard-assen, een 26-mutatie-tegenproef
+en 1 066 parity-velden stonden groen op een bestand waarin vijf componenten leeg waren; elk geval is
+door het óóg gevonden, niet door een check. Een leeg frame heeft immers een correcte maat, correcte
+tokens en een correcte laagnaam.
+
+**Noem een ronde nooit "gevalideerd" zolang geen enkele as het hoofdproduct meet.** Dat is de
+klasse, breder dan Figma: als je suite alleen randvoorwaarden toetst, is groen een uitspraak over
+de randvoorwaarden. Zeg dan wát er groen is.
+
 **Verantwoording in de output:** som per check (1–5) expliciet op wat gemeten is en wat de uitkomst was — vijf regels, geen samenvatting. Een export-rapport zonder die vijf regels is onaf; het dwingt herlezen af op het beslismoment i.p.v. leunen op sessiegeheugen.
 
 **Bij elke mismatch — capture via de `vastleggen`-skill (schrijflogica niet dupliceren):**
