@@ -1,7 +1,7 @@
 {
  "$comment": "GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.",
- "aantalUniek": 46,
- "aantalVoorkomens": 1958,
+ "aantalUniek": 47,
+ "aantalVoorkomens": 1966,
  "decoratiefGenegeerd": 120,
  "uniek": [
   "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
@@ -48,6 +48,7 @@
   "text style = ionicons 18px ls=0",
   "text style = ionicons 20px ls=0",
   "text style = ionicons 24px ls=0",
+  "text style = ionicons 40px ls=0",
   "text style = ionicons 48px ls=0",
   "text style = ionicons 64px ls=0"
  ],
@@ -180,6 +181,10 @@
    "text style = AlbertSans_700Bold 16px ls=0",
    "text style = AlbertSans_700Bold 18px ls=-0.45",
    "text style = ionicons 18px ls=0"
+  ],
+  "ConnectionOverlay": [
+   "text style = AlbertSans_400Regular 16px ls=0",
+   "text style = ionicons 40px ls=0"
   ],
   "GoalPill": [
    "text style = AlbertSans_600SemiBold 14px ls=2.8",

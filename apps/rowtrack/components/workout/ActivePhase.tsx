@@ -9,7 +9,6 @@ import {
   useWindowDimensions,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import type { EdgeInsets } from 'react-native-safe-area-context';
 import type { ConnectionStatus, HRStatus } from '@/lib/ble/types';
 import type { WorkoutGoal } from '@/lib/workout-goals';
@@ -17,6 +16,7 @@ import type { WorkoutGoal } from '@/lib/workout-goals';
 import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
 import { ActiveHeader } from './active/ActiveHeader';
+import { ConnectionOverlay } from './active/ConnectionOverlay';
 import { ProgressBar, type FillKind } from './active/ProgressBar';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
@@ -363,30 +363,14 @@ export function ActivePhase({
     <View testID="ActivePhase" style={[styles.container, { paddingHorizontal: 0 }]}>
       {/* Connection status overlay */}
       {isConnecting && (
-        <View style={[styles.connectionOverlay, { paddingHorizontal: padH }]}>
-          {bleStatus !== 'error' ? (
-            <>
-              <ActivityIndicator color={accent.default} size="large" />
-              <Text style={styles.connectionText}>
-                {(bleStatus === 'idle' || bleStatus === 'scanning') && t.workout.connection.searching}
-                {bleStatus === 'connecting' && t.workout.connection.connecting}
-                {bleStatus === 'discovering' && t.workout.connection.discovering}
-                {bleStatus === 'reconnecting' && t.workout.connection.reconnecting}
-                {bleStatus === 'disconnecting' && t.workout.connection.disconnecting}
-              </Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="warning-outline" size={40} color={fg.secondary} />
-              <Text style={styles.connectionText}>{bleError}</Text>
-              <Button title={t.common.retry} onPress={startScan} size="md" variant="ghost" />
-            </>
-          )}
-          {/* Uitgang tijdens reconnect/error: de overlay verbergt de header-Stop en de
-              tabbar is al verborgen — zonder deze knop zit de roeier vast (audit P0-F2). */}
-          <Text style={styles.connectionElapsed}>{t.workout.connection.elapsed(formattedTimer)}</Text>
-          <Button title={t.workout.connection.stopButton} onPress={onStop} size="md" />
-        </View>
+        <ConnectionOverlay
+          bleStatus={bleStatus as Exclude<ConnectionStatus, 'connected'>}
+          bleError={bleError}
+          onRetry={startScan}
+          onStop={onStop}
+          elapsed={formattedTimer}
+          paddingHorizontal={padH}
+        />
       )}
 
       {!isConnecting && isLandscape ? (

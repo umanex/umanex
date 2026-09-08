@@ -1,5 +1,5 @@
 # Context Snapshot — rowtrack
-_Gegenereerd op 2026-09-08_
+_Gegenereerd op 2026-09-09_
 
 ## Project
 - **App:** rowtrack
@@ -53,6 +53,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | TabLabel | `apps/rowtrack/components/TabLabel.tsx` | components | — | — | — |
 | WheelPicker | `apps/rowtrack/components/WheelPicker.tsx` | components | — | — | — |
 | ActiveHeader | `apps/rowtrack/components/workout/active/ActiveHeader.tsx` | active | — | — | — |
+| ConnectionOverlay | `apps/rowtrack/components/workout/active/ConnectionOverlay.tsx` | active | — | — | — |
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
 | ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
@@ -64,19 +65,21 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+784c2bd refactor(rowtrack): cut 5 — ProgressBar
 db48bdc refactor(rowtrack): cut 4 — ActiveHeader
 b437d03 refactor(rowtrack): cut 3 — HeroPanel
 ae2646c refactor(rowtrack): cut 2 — SubtitleProgress
 371870d feat(rowtrack): a gate for the cuts, and cut 1 — GoalPill
-c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/components/workout/ActivePhase.tsx
-  A  apps/rowtrack/components/workout/active/ProgressBar.stories.tsx
-  A  apps/rowtrack/components/workout/active/ProgressBar.tsx
+  A  apps/rowtrack/components/workout/active/ConnectionOverlay.stories.tsx
+  A  apps/rowtrack/components/workout/active/ConnectionOverlay.tsx
+  M  apps/rowtrack/components/workout/workout.styles.ts
   M  apps/rowtrack/figma/build-spec.min.json
   M  apps/rowtrack/figma/laagnamen.json
+  M  apps/rowtrack/figma/ongebonden.json
   M  apps/rowtrack/figma/story-axes.json
 
 ## Bestanden met TODO/FIXME

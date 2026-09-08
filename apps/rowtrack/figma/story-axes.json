@@ -452,6 +452,23 @@
    "uitgesloten": {},
    "variantNodes": 1
   },
+  "ConnectionOverlay": {
+   "storyId": "componenten-connectionoverlay--playground",
+   "titel": "Componenten/ConnectionOverlay",
+   "assen": {
+    "bleStatus": [
+     "idle",
+     "scanning",
+     "connecting",
+     "discovering",
+     "disconnecting",
+     "reconnecting",
+     "error"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 7
+  },
   "GoalPill": {
    "storyId": "componenten-goalpill--playground",
    "titel": "Componenten/GoalPill",
@@ -494,5 +511,5 @@
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 607
+ "totaalVariantNodes": 614
 }
