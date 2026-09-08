@@ -59,24 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c99ccbc feat(rowtrack): herbouw met de gecorrigeerde laagnamen en slots
 73d80cc docs(rowtrack): het bewijs staat nu ín de acceptatieregel
 a8bd5d2 docs(rowtrack): elk R-item draagt bewijs, en de opmaak triggert de as-mix-hook niet meer
 f4824d9 fix(rowtrack): de resterende twintig bevindingen uit reviewronde 1
 e907003 fix(rowtrack): R01, R02, R07, R08, R14 uit reviewronde 1
-96eb889 docs(rowtrack): reviewronde 1 — 25 bevindingen op een groene acceptatielijst
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Chip.stories.tsx
-  M  apps/rowtrack/components/DeviceRow.stories.tsx
-  M  apps/rowtrack/components/Dot.stories.tsx
-  M  apps/rowtrack/components/EmptyState.stories.tsx
-  M  apps/rowtrack/components/ErrorMessage.stories.tsx
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)

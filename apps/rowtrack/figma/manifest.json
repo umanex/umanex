@@ -1401,7 +1401,7 @@
     "name": "Chip",
     "id": "2020:12347",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1yt0clz:11",
     "componentProperties": [
      "value#2020:227",
@@ -1437,7 +1437,7 @@
     "name": "default",
     "id": "2020:12513",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "11k6hol:23",
     "componentProperties": [
      "title#2020:255"
@@ -1461,7 +1461,7 @@
     "name": "default",
     "id": "2020:13080",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "nr1euc:75",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1483,7 +1483,7 @@
     "name": "default",
     "id": "2020:12841",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "jfsxxc:32",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1505,7 +1505,7 @@
     "name": "default",
     "id": "2020:12292",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "24w3jg:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1527,7 +1527,7 @@
     "name": "default",
     "id": "2020:12295",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "u5mmge:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1549,7 +1549,7 @@
     "name": "default",
     "id": "2020:12298",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "13d2wiu:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1571,7 +1571,7 @@
     "name": "default",
     "id": "2020:12301",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1pdmpb2:2",
     "componentProperties": [
      "title#2020:218"
@@ -1595,7 +1595,7 @@
     "name": "default",
     "id": "2020:12305",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1ozpnph:3",
     "componentProperties": [
      "label#2020:219"
@@ -1619,7 +1619,7 @@
     "name": "default",
     "id": "2020:12310",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "lrydiv:4",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1641,7 +1641,7 @@
     "name": "TabLabel",
     "id": "2020:12316",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1mcke8a:5",
     "componentProperties": [
      "label#2020:220",
@@ -1676,7 +1676,7 @@
     "name": "default",
     "id": "2020:12335",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1tdtfwl:6",
     "componentProperties": [
      "value#2020:224",
@@ -1702,7 +1702,7 @@
     "name": "default",
     "id": "2020:12320",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "pgu0w8:4",
     "componentProperties": [
      "message#2020:223"
@@ -1726,7 +1726,7 @@
     "name": "default",
     "id": "2020:12328",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1sfhnhn:7",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1748,7 +1748,7 @@
     "name": "default",
     "id": "2020:12414",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1tgjm60:19",
     "componentProperties": [
      "message#2020:254"
@@ -1772,7 +1772,7 @@
     "name": "DeviceSelectionModal",
     "id": "2020:12809",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "xvv88m:67",
     "componentProperties": [
      "kind"
@@ -1806,7 +1806,7 @@
     "name": "EmptyState",
     "id": "2020:12358",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1sat3cd:11",
     "componentProperties": [
      "title#2020:233",
@@ -1842,7 +1842,7 @@
     "name": "PrBadge",
     "id": "2020:12380",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "yxzq0v:9",
     "componentProperties": [
      "label#2020:242",
@@ -1877,7 +1877,7 @@
     "name": "FormField",
     "id": "2020:12371",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "15kb2j2:13",
     "componentProperties": [
      "label#2020:239",
@@ -1912,7 +1912,7 @@
     "name": "default",
     "id": "2020:12452",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "17ujk1f:19",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1934,7 +1934,7 @@
     "name": "ErrorState",
     "id": "2020:12395",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "tf9vvg:15",
     "componentProperties": [
      "title#2020:245",
@@ -1971,7 +1971,7 @@
     "name": "default",
     "id": "2020:12432",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "11u9u8f:17",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1993,7 +1993,7 @@
     "name": "default",
     "id": "2020:12489",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1heb0eb:19",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -2015,7 +2015,7 @@
     "name": "Segmented",
     "id": "2020:12470",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "3est61:17",
     "componentProperties": [
      "variant"
@@ -2049,7 +2049,7 @@
     "name": "HrStatusBar",
     "id": "2020:12653",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1dndkrp:54",
     "componentProperties": [
      "hrStatus"
@@ -2098,7 +2098,7 @@
     "name": "WheelPicker",
     "id": "2020:13557",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "13mf59n:315",
     "componentProperties": [
      "showPill",
@@ -2147,7 +2147,7 @@
     "name": "Playground",
     "id": "2020:13918",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "14zaa7i:140",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -2184,7 +2184,7 @@
     "name": "BleStatusBar",
     "id": "2020:12599",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1q78p31:85",
     "componentProperties": [
      "deviceName#2020:256",
@@ -2249,7 +2249,7 @@
     "name": "DeviceRow",
     "id": "2020:12742",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "yb72qd:89",
     "componentProperties": [
      "label#2020:265",
@@ -2323,7 +2323,7 @@
     "name": "GoalSegments",
     "id": "2020:13005",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1jjl620:66",
     "componentProperties": [
      "selected"
@@ -2372,7 +2372,7 @@
     "name": "KPI",
     "id": "2020:12939",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "juoqh5:97",
     "componentProperties": [
      "label#2020:283",
@@ -2485,7 +2485,7 @@
     "name": "Button",
     "id": "2020:13242",
     "type": "COMPONENT_SET",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "uxwa0m:161",
     "componentProperties": [
      "title#2020:317",
@@ -2663,7 +2663,7 @@
     "name": "Playground",
     "id": "2020:13601",
     "type": "COMPONENT",
-    "publishStatus": "UNPUBLISHED",
+    "publishStatus": "CURRENT",
     "bouwhash": "vnkm3o:44",
     "componentProperties": [],
     "eigenVulling": 0,
