@@ -19,6 +19,7 @@
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { benoem } from './laagnamen.mjs';
+import { SCHERMEN as SCHERMEN_BRON } from './schermen.mjs';
 
 
 import { join, dirname, extname } from 'node:path';
@@ -54,10 +55,9 @@ const payload = JSON.parse(readFileSync(join(APP, 'figma/tokens-payload.json'), 
 // component set. Besluit Jeroen 2026-09-07 — hun assen zijn statusenums die in beeld niet
 // orthogonaal zijn (bij bleStatus='error' ziet hrStatus er in de meeste combinaties identiek
 // uit), en de productregel zou 320 respectievelijk 160 nodes eisen voor twee schermen.
-const SCHERMEN = {
-  ActivePhase: ['Playground', 'Doel Afstand', 'Zonder Hartslagband', 'Doel Bereikt', 'Samenvatting'],
-  IdlePhase: ['Playground', 'Niet Verbonden', 'Doel Afstand', 'Toestel Keuze'],
-};
+// De schermenlijst staat in scripts/schermen.mjs — één bron voor build-spec, sync-check en
+// figma-links. Hier alleen de frame-namen eruit.
+const SCHERMEN = Object.fromEntries(Object.entries(SCHERMEN_BRON).map(([k, v]) => [k, v.frames]));
 
 /**
  * Assen die de code kent maar die GEEN visuele variant zijn. Elke uitsluiting is een
