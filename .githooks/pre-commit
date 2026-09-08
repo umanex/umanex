@@ -432,7 +432,7 @@ for app in $changed_apps; do
   blok="$(awk '/^## Verify-pad/{f=1;next} /^## /{f=0} f' "$md")"
   mis=""
   for cap in "render vastleggen" "flow aandrijven" "state forceren" "invariant draaien" "verse build"; do
-    printf '%s' "$blok" | grep -qiF "$cap" || mis="$mis, $cap"
+    grep -qiF "$cap" <<<"$blok" || mis="$mis, $cap"
   done
   [ -n "$mis" ] && pad_gaten="$pad_gaten
     $app: mist ${mis#, }"
@@ -481,7 +481,7 @@ for app in $changed_apps; do
   blok="$(awk '/^## Design-systeem-bron/{f=1;next} /^## /{f=0} f' "$md")"
   mis=""
   for k in Preset Componentbron Storybook; do
-    printf '%s' "$blok" | grep -qE "^- \\*\\*$k:\\*\\*" || mis="$mis, $k"
+    grep -qE "^- \\*\\*$k:\\*\\*" <<<"$blok" || mis="$mis, $k"
   done
   [ -n "$mis" ] && ds_gaten="$ds_gaten
     $app: mist ${mis#, }"
