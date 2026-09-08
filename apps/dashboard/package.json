@@ -1,14 +1,15 @@
 {
-  "name": "soda-plus",
+  "name": "dashboard",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3005",
+    "dev": "next dev --hostname 127.0.0.1 --port 3010",
     "build": "next build",
-    "start": "next start --port 3005",
+    "start": "next start --hostname 127.0.0.1 --port 3010",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf .next"
+    "test": "node scripts/guards-selftest.mjs",
+    "clean": "rm -rf .next .runtime"
   },
   "dependencies": {
     "@umanex/tokens": "workspace:*",

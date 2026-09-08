@@ -59,15 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-4dac221 docs(rowtrack): triage 22 stale HANDOFF items — 18 to BACKLOG, 3 rephrased, 1 resolved
-8f32b3d docs(rowtrack): record the FTMS energy measurement and two out-of-scope findings
-7d0f1df fix(rowtrack): retry a clock-skewed token once instead of failing the home fetch
-928f7e7 fix(rowtrack): make the heart-rate path measurable and stop the disconnect-listener leak
-5b9aa03 refactor(ui): extract the shared focus ring into a constant
+1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+fa1ff0a docs(rowtrack): log the 17 untracked generated files as a backlog item
+ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
+46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
+81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/BACKLOG.md
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -1,10 +1,10 @@
-# Context Snapshot — soda-plus
-_Gegenereerd op 2026-09-07_
+# Context Snapshot — dashboard
+_Gegenereerd op 2026-09-08_
 
 ## Project
-- **App:** soda-plus
+- **App:** dashboard
 - **Beschrijving:** [TODO: description in context.json]
-- **Dir:** `apps/soda-plus`
+- **Dir:** `apps/dashboard`
 
 ## Figma
 - **Key:** `[TODO: figmaKey in context.json]`
@@ -22,23 +22,23 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 | Component | Pad | Categorie | Figma-node | Snapshot | Status |
 |---|---|---|---|---|---|
-| _(geen componenten gevonden)_ | — | — | — | — | — |
+| AppCard | `apps/dashboard/components/AppCard.tsx` | components | — | — | — |
+| DashboardGrid | `apps/dashboard/components/DashboardGrid.tsx` | components | — | — | — |
+| RepoBar | `apps/dashboard/components/RepoBar.tsx` | components | — | — | — |
+| ScriptMenu | `apps/dashboard/components/ScriptMenu.tsx` | components | — | — | — |
+| StatusBadge | `apps/dashboard/components/StatusBadge.tsx` | components | — | — | — |
 
 ## Recente commits (app + packages)
 ```
+1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+17b174c feat(dashboard): let REPO_ROOT point the dashboard at another tree
+0e2a1d3 feat(dashboard): local dev dashboard for starting the monorepo apps
+ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
-81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
-6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
-d98be09 fix(ui): breedte-filter ankeren op hele klasse-tokens
-e369003 feat(ui): maat-as — gerenderde doosmaten tegen een basislijn
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/soda-plus/CLAUDE.md
-  M  apps/soda-plus/package.json
-   M packages/ui/package.json
-  ?? packages/ui/components/ui/dropdown-menu.stories.tsx
-  ?? packages/ui/components/ui/dropdown-menu.tsx
+  M  apps/dashboard/lib/appsConfig.ts
 
 ## Bestanden met TODO/FIXME
   (geen)
