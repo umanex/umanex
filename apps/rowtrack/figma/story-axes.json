@@ -444,9 +444,16 @@
    },
    "uitgesloten": {},
    "variantNodes": 320
+  },
+  "GoalPill": {
+   "storyId": "componenten-goalpill--playground",
+   "titel": "Componenten/GoalPill",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
   }
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 595
+ "totaalVariantNodes": 596
 }

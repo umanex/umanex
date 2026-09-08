@@ -17,6 +17,7 @@ import type { WorkoutGoal } from '@/lib/workout-goals';
 // Directe imports, geen barrel — zie IdlePhase.tsx voor het waarom.
 import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
+import { GoalPill } from './active/GoalPill';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
 import { formatTimer, formatTimerFull, formatSplit, formatDistanceDynamic, formatInt, formatDecimal, correctSpm } from '@/lib/formatters';
@@ -131,34 +132,6 @@ export function ActivePhase({
     const m = String(now.getMinutes()).padStart(2, '0');
     return t.workout.summary.todayAt(`${h}:${m}`);
   }, [phase]);
-
-  // --- DOEL-pill waarde (nieuw compact/lowercase design) ---
-  // Alle doeltypes volgen {waarde} {eenheid} met spatie: "Geen" / "20 min" /
-  // "10 km" / "2:20 split" / "180 W". Split neemt de frame-copy over; watts houdt
-  // bewust de spatie (Figma toont "180W", 2026-07-14 gelijkgetrokken op het patroon).
-  // Doel-pill: waarde en eenheid gesplitst — waarde bold, eenheid ernaast in italic
-  // (Figma header 290:2873, bv. "180" + "W"). "Geen" heeft geen eenheid.
-  function goalPillParts(): { value: string; unit: string | null } {
-    if (!goal) return { value: t.workout.active.goalNone, unit: null };
-    switch (goal.type) {
-      case 'duration': {
-        const m = Math.floor(goal.target / 60);
-        const s = goal.target % 60;
-        return { value: s === 0 ? `${m}` : `${m}:${String(s).padStart(2, '0')}`, unit: 'min' };
-      }
-      case 'distance': {
-        if (goal.target >= 1000) {
-          const km = goal.target / 1000;
-          return { value: Number.isInteger(km) ? formatInt(km) : formatDecimal(km, 1), unit: 'km' };
-        }
-        return { value: formatInt(goal.target), unit: 'm' };
-      }
-      case 'split':
-        return { value: formatSplit(goal.target, true), unit: t.workout.active.goalUnitSplit };
-      case 'watts':
-        return { value: `${goal.target}`, unit: 'W' };
-    }
-  }
 
   // --- Hero-getal + subtitle + progress-fill per doeltype (gedeeld portrait/landscape) ---
   type FillKind = 'none' | 'gradient' | 'success' | 'warning';
@@ -283,19 +256,9 @@ export function ActivePhase({
   // De accent-tint zit op de DOEL-pill zelf (subtiele fill + border, Figma 290:2873);
   // de band is bg.base. Gedeeld portrait + landscape.
   function headerChildren(): ReactNode {
-    const goalParts = goalPillParts();
     return (
       <>
-        <View style={activeStyles.doelPill}>
-          <Text style={activeStyles.doelPillLabel}>{t.workout.active.goalPillLabel}</Text>
-          <View style={activeStyles.doelPillDivider} />
-          <View style={activeStyles.doelPillValueRow}>
-            <Text style={activeStyles.doelPillValue}>{goalParts.value}</Text>
-            {goalParts.unit != null && (
-              <Text style={activeStyles.doelPillUnit}>{goalParts.unit}</Text>
-            )}
-          </View>
-        </View>
+        <GoalPill goal={goal} />
         <Button
           title={t.workout.active.stopButton}
           variant="primary"
@@ -710,43 +673,6 @@ const activeStyles = StyleSheet.create({
     backgroundColor: accent.muted,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: border.strong,
-  },
-  // DOEL: plat inline (label · divider · waarde) — geen fill/border meer, de tint zit op
-  // de band (Figma 297:2227). Hoogte 48 (lijnt met de Stop-knop), px 0, gap 16.
-  doelPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 48,
-    gap: space['16'],
-  },
-  doelPillLabel: {
-    fontFamily: fontFamily.albertSansSemiBold,
-    fontSize: fontSize['14'],
-    letterSpacing: 2.8, // 20% van 14
-    color: fg.onAccent,
-  },
-  doelPillDivider: {
-    width: 1,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: fg.secondary,
-  },
-  // Waarde + eenheid beide bold, strak naast elkaar (gap 2) — "180W" (Figma 297:2227).
-  doelPillValueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  doelPillValue: {
-    fontFamily: fontFamily.albertSansBold,
-    fontSize: fontSize['18'],
-    letterSpacing: -0.45, // -2.5% van 18
-    color: accent.default,
-  },
-  doelPillUnit: {
-    fontFamily: fontFamily.albertSansBold,
-    fontSize: fontSize['16'],
-    color: accent.default,
   },
   // Hero-paneel (bg.elevated); flex/stretch worden per oriëntatie toegevoegd.
   heroPanel: {
