@@ -83,9 +83,9 @@ Geen. De vier kritische items zijn beantwoord in de Aannames en de Acceptatie hi
 
 **Slots — spoor 3**
 
-- [x] `Button` heeft een TEXT-property `title` — bewijs: `componentPropertyDefinitions` op de live node geeft `title#…` naast de vier variant-assen. De BOOLEAN-property voor `icon` is **niet** gebouwd: `iconPosition` staat al als uitgesloten as in `story-axes.json`, dus er is geen variant waarin de icoon-node meet
-- [ ] Een instance van `Button` in een ánder bestand overschrijft `title` zonder te detachen — **geblokkeerd**: de 33 componenten staan op `UNPUBLISHED`, dus er valt nog geen instance uit de library te plaatsen. Toetsbaar zodra Jeroen de componenten publiceert
-- [ ] Tegenproef: met de property verwijderd is diezelfde override niet meer mogelijk — wacht op dezelfde publicatie
+- [x] `Button` heeft een TEXT-property `title` — bewijs: `componentPropertyDefinitions` op de live node geeft `title#2016:164` naast `variant`, `size`, `loading`, `disabled`. De BOOLEAN-property voor `icon` is **niet** gebouwd: `iconPosition` staat al als uitgesloten as in `story-axes.json`, dus er is geen variant waarin de icoon-node meet
+- [ ] `[NIET TE VERIFIËREN — `importComponentSetByKeyAsync` overschrijdt de 30 s wachtlimiet van `figma_execute`, drie keer gemeten op 2026-09-08 ná de publicatie, en het resultaat overleeft die limiet niet]` — de componenten staan wél op `CURRENT` (33/33) en de library is vanuit `RowTrack - Design` zichtbaar (`getAvailableLibraryVariableCollectionsAsync` geeft de drie collecties). Met de hand in twee tellen te doen: sleep een Button uit het Assets-paneel en wijzig `title` in het rechterpaneel
+- [ ] Tegenproef bij het vorige item: `setProperties` met een niet-bestaande propertynaam hoort te weigeren. Wacht op dezelfde import — zonder die kant meet het eerste item alleen dát `setProperties` iets doet, niet dat de property de reden is
 - [x] Een story-arg-waarde die niet precies één keer voorkomt levert een melding in plaats van een gok — bewijs: 16 componenten, 30 slots, **0** dubbelzinnige koppelingen in `spec.fouten`
 
 **Rails die niet mogen breken**

@@ -207,6 +207,16 @@ niets, terwijl het document wél gebouwd is. Zet je uitkomst dus in
 `figma/bouw-batch.js` doet allebei: hij zet `bouwbezig` bij de start, `bouwresultaat` bij het
 einde, en weigert te starten zolang `bouwbezig` gevuld is.
 
+**Een library-component importeren duurt langer dan de wachtlimiet.** Gemeten 2026-09-08, drie
+keer op rij, ná een geslaagde publicatie: `figma.importComponentSetByKeyAsync(<key van Button>)`
+in `RowTrack - Design` liep elke keer over de 30 s, terwijl de variabelen van diezelfde library
+in datzelfde bestand binnen milliseconden opgelost worden en
+`getAvailableLibraryVariableCollectionsAsync` de drie collecties gewoon teruggeeft. De import is
+dus niet gebroken, hij is traag — en omdat de returnwaarde de limiet niet overleeft en de
+regels ná een lange `await` niet meer draaien, is er langs deze weg geen uitkomst te krijgen.
+Wie een instance-gedrag wil toetsen, doet dat met de hand in Figma; via de Bridge is het
+`[NIET TE VERIFIËREN]`.
+
 **Volgorde die niet omgekeerd mag.** Na élke Figma-bouw: **eerst het manifest verversen, dan
 pas `figma:links` en `figma:check`.** Een herbouw geeft elke node een nieuwe id. Gemeten
 2026-09-08: na een herbouw waren 29 van de 33 primary-ids veranderd, terwijl `figma:check`

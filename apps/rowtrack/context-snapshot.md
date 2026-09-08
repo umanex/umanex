@@ -59,16 +59,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+59d38ee docs(rowtrack): bewijs bij de twee afgeschreven acceptatie-assen
 10cf9a2 feat(rowtrack): slots als component properties, en de herbouw met leesbare laagnamen
 5e2e43d feat(rowtrack): laagnamen uit de code in plaats van de broer-index
 2a877ee feat(rowtrack): RowTrack - Design draait op de gepubliceerde library
 c8ad872 fix(rowtrack): fontWeights krijgt zijn Figma-type uit de waarde, niet uit de tokengroep
-549eb47 feat(rowtrack): publicatie- en handwerkpoort vóór elke Figma-herbouw
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
-  ?? apps/rowtrack/figma/bouwresultaat.json
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)
