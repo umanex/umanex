@@ -67,7 +67,7 @@ scope="$(printf '%s' "$subject" | sed -n 's#^[a-z][a-z]*(\([^)]\{1,\}\))!\{0,1\}
 # een andere app is net zo goed vervuiling.
 staged_all="$(git diff --cached --name-only --diff-filter=ACMRD)"
 staged_apps="$(printf '%s\n' "$staged_all" | sed -n 's#^apps/\([^/]*\)/.*#\1#p' | sort -u)"
-foreign="$(printf '%s\n' "$staged_apps" | grep -vx "$scope" || true)"
+foreign="$(grep -vx "$scope" <<<"$staged_apps" || true)"
 
 [ -n "$foreign" ] || exit 0
 
@@ -84,7 +84,7 @@ echo "  Deze commit zegt '($scope)' maar wijzigt ook:"
 for app in $foreign; do
   echo ""
   echo "    apps/$app/"
-  printf '%s\n' "$staged_all" | grep "^apps/$app/" | sed 's/^/      /'
+  grep "^apps/$app/" <<<"$staged_all" | sed 's/^/      /'
 done
 echo ""
 echo "  Twee taken in één working tree lopen door elkaar. Kies:"
