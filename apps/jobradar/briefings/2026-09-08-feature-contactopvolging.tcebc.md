@@ -22,8 +22,16 @@ CONTEXT:     Vandaag draagt jobradar per item één enum — `jobs.job_status`,
              de lijst. Werkt over alle drie de herkomsten heen: leads, KBO-prospects
              en CSV-prospects.
 
-ELEMENTS:    - Tabel `contact_moments` (id, subject_type, subject_key, datum, kanaal,
-               notitie, created_at)
+             De sleutel is `subject_type` + `subject_key`, niet het ondernemingsnummer
+             alleen. Reden, gemeten: `companies` draagt geen nummer-kolom, de koppeling
+             gebeurt bij het renderen, en daarvan zijn 12 van de 27 leads gekoppeld en
+             15 niet gevonden — en één van die twaalf wijst naar een tandartspraktijk.
+             Sleutelen op het nummer verliest dus stil 15 leads en hangt één historiek
+             aan het verkeerde bedrijf.
+
+ELEMENTS:    - Tabel `contact_moments` (id, subject_type `lead`|`prospect`,
+               subject_key = `companies.id` respectievelijk het ondernemingsnummer,
+               datum, kanaal, notitie, created_at)
              - Tabel `next_actions` (subject_type + subject_key PK, datum, omschrijving)
              - `ContactPanel` — de historiek plus het formulier, per bedrijf
              - `ContactTimeline` — de momenten in omgekeerde chronologie
@@ -57,15 +65,7 @@ CONSTRAINTS: - Desktop-first, zoals de rest van het dashboard
   inschuift — de kaartlijst blijft zichtbaar, en de historiek kan groeien zonder de
   feed te verspringen. Alternatieven: modal (blokkeert de lijst) of inline uitklappen
   op de kaart (springt de feed uiteen bij lange historiek).
-- **De sleutel van een contactmoment.** Dit is het scherpste punt. Prospects hebben een
-  ondernemingsnummer, leads niet: `companies` draagt geen nummer-kolom, de koppeling
-  gebeurt bij het renderen en is gemeten op 12 van de 27 leads gekoppeld, 15 niet
-  gevonden — en één van die twaalf wijst naar een tandartspraktijk. Alles op het
-  ondernemingsnummer sleutelen verliest dus stil 15 leads en hangt de historiek van één
-  lead aan het verkeerde bedrijf. Voorstel: `subject_type` (`lead` | `prospect`) +
-  `subject_key` (`companies.id` respectievelijk het ondernemingsnummer), met een latere
-  samenvoeging pas wanneer een koppeling bevéstigd is in plaats van vermoed.
-- **Wat gebeurt er bij een bevestigde koppeling achteraf?** Als een lead later wél zijn
+- **Wat gebeurt er bij een bevestigde koppeling achteraf?** (volgt op de sleutelkeuze) Als een lead later wél zijn
   ondernemingsnummer krijgt: verhuist de historiek mee, of blijft ze aan de lead hangen?
 - **Rechtsgrond bij contact.** `companies` draagt `rechtsgrond` en `opt_out`. Moet een
   contactmoment die grond vastleggen op het moment zelf (dat is wat een register nodig
@@ -85,6 +85,8 @@ CONSTRAINTS: - Desktop-first, zoals de rest van het dashboard
 
 - [ ] Typologie: `ContactPanel` opent als sheet en de kaartlijst blijft in de DOM staan — bewijs: DOM-telling van de kaarten vóór en na het openen, plus `flow --shot`
 - [ ] Een contactmoment toevoegen levert precies één rij in `contact_moments` — bewijs: rijtelling vóór en ná via de API-route
+- [ ] Een lead zonder KBO-koppeling kan een contactmoment dragen — bewijs: POST op één van de 15 ongekoppelde leads levert 200 plus een rij
+- [ ] Een lead en een prospect met hetzelfde getal als `subject_key` delen geen historiek — bewijs: twee rijen met gelijke key en verschillend `subject_type`, elk zichtbaar bij precies één bedrijf
 - [ ] Status springt van `new` naar `contacted` bij het eerste contactmoment — bewijs: `SELECT status` vóór en ná
 - [ ] Status `dismissed` blijft `dismissed` na een contactmoment — bewijs: `SELECT status` vóór en ná op een bewust op `dismissed` gezet bedrijf
 - [ ] De historiek overleeft een sync — bewijs: `count(*)` op `contact_moments` vóór en ná een sync tegen een wegwerp-DB (`JOBRADAR_DB_PATH=/tmp/…`, nooit tegen `.data/jobradar.db`)
@@ -105,3 +107,4 @@ CONSTRAINTS: - Desktop-first, zoals de rest van het dashboard
 
 - 2026-09-08: TC-EBC aangemaakt. Diepte vastgelegd op volledige contacthistoriek met volgende actie, boven de lichtere variant met één contactdatum plus notitie.
 - 2026-09-08: Sleutelkeuze geopend als expliciete vraag in plaats van als aanname — het ondernemingsnummer alleen verliest de 15 ongekoppelde leads stil.
+- 2026-09-08: Sleutel beslist (Jeroen): `subject_type` + `subject_key`, samenvoegen pas bij een bevestigde koppeling. De vraag verhuist van Open vragen naar CONTEXT, mét de meting die haar draagt.

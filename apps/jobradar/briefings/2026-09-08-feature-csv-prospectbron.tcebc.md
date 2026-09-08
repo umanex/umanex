@@ -26,7 +26,8 @@ CONTEXT:     jobradar kent vandaag twee herkomsten: leads (uit vacaturedata, tab
 ELEMENTS:    - Import-CLI `pnpm --filter jobradar prospects:import <pad.csv>`
              - Tabel `csv_prospects` (ondernemingsnummer PK + de negen CSV-kolommen
                + `imported_at` + `bestandsnaam`)
-             - Herkomst-filter in het prospects-tabblad: KBO · CSV · beide
+             - Herkomst-filter als segmented control ín de bestaande `FilterBar`,
+               naast het regio- en statusfilter: KBO · CSV · beide
              - Omvang- en EBITDA-regel op `ProspectCard`, alleen voor CSV-rijen
              - Lege staat: nog niets geïmporteerd, mét het commando dat dat oplost
 
@@ -59,9 +60,6 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 
 ## Open vragen
 
-- **Component-typologie van het herkomst-filter.** Voorstel: een segmented control ín de
-  bestaande `FilterBar`, naast het regio- en statusfilter — geen vierde tabblad, want de
-  lijst blijft dezelfde lijst. Alternatief: een aparte tab "CSV" naast Prospects.
 - **Eenmalig of terugkerend?** Komt er periodiek een nieuw bestand (dan hoort er een
   `bestandsnaam`/`imported_at`-historiek bij en moet "verdwenen uit de nieuwste export"
   een zichtbare toestand zijn), of is dit één lijst die blijft staan?
@@ -94,7 +92,8 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 - [ ] De rij `DAENINCK, AUDENAERT en Co` komt heel binnen op nummer `0465416688` — bewijs: `SELECT name` op dat nummer (dit is de regel waarop een naïeve komma-split brak, gemeten 2026-09-08)
 - [ ] De 3 nummers zonder KBO-treffer (`0899434379`, `0468585818`, `0835734875`) staan in de lijst met naam en stad — bewijs: DOM-telling op die drie kaarten in de flow-harness
 - [ ] Een bedrijf dat in beide bronnen zit levert één kaart, niet twee — bewijs: DOM-telling van kaarten met dat ondernemingsnummer, hoort 1 te zijn
-- [ ] Typologie: het herkomst-filter staat in de bestaande `FilterBar` en voegt geen tabblad toe — bewijs: `pnpm --filter jobradar flow --shot=.flow-shots` plus telling van de tabbladen in de DOM
+- [ ] Typologie: het herkomst-filter is een segmented control en staat binnen `FilterBar` — bewijs: de gerenderde markup van dat element in de DOM
+- [ ] Het aantal tabbladen is ongewijzigd ten opzichte van vóór deze feature — bewijs: telling van de tabbladen in de DOM, vóór en ná
 - [ ] State *empty*: een DB zonder import toont de uitleg en niet stil nul — bewijs: `JOBRADAR_DB_PATH` naar een wegwerp-pad, dan de flow-harness
 - [ ] States *loading* en *error*: `[NIET TE VERIFIËREN — jobradar heeft geen fixture-laag en geen mock-route; zie `## Verify-pad` → "State forceren". Wie ze wil toetsen bouwt eerst een onderschepte route zoals `apps/cashflow/scripts/flow-harness.mjs` die heeft.]`
 - [ ] Interactie: het herkomst-filter is met het toetsenbord te bereiken en te bedienen — bewijs: de toetsenbord-pass van de flow-harness (differentiële focus-meting)
@@ -107,3 +106,4 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 
 - 2026-09-08: TC-EBC aangemaakt. Scope gesplitst in drie briefings (bron · opvolging · kaart) omdat de assen los kunnen falen: de kaart hangt op geocoding, de opvolging op een migratie.
 - 2026-09-08: Rol van de CSV vastgelegd als eigen bron náást de KBO-prospects, niet als vervanging en niet als verrijking. Gevolg: overlap (178 van de 218) moet expliciet getoond worden.
+- 2026-09-08: Typologie beslist (Jeroen): segmented control in de bestaande `FilterBar`, geen apart CSV-tabblad. Daarmee zijn de vier kritische items van deze briefing beantwoord.
