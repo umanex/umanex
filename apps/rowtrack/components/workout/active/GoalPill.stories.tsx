@@ -14,6 +14,9 @@ const meta = {
   args: {
     goal: { type: 'duration', target: 1800 },
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-15618' },
+  },
 } satisfies Meta<typeof GoalPill>;
 
 export default meta;

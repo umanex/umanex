@@ -21,6 +21,9 @@ const meta = {
     onStop: () => {},
     paddings: { top: 20, bottom: 20, left: 24, right: 24 },
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-15654' },
+  },
 } satisfies Meta<typeof ActiveHeader>;
 
 export default meta;

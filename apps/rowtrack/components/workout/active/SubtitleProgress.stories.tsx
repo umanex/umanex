@@ -16,6 +16,9 @@ const meta = {
     pct: { control: { type: 'range', min: 0, max: 1, step: 0.01 } },
   },
   args: { left: '18:44', pct: 0.62 },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-15626' },
+  },
 } satisfies Meta<typeof SubtitleProgress>;
 
 export default meta;
