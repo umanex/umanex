@@ -2,7 +2,8 @@
 // Migratie: `RowTrack - Design` (T1bGrvIzSNeLyh5CbarATZ) van LOKALE variabelen en styles
 // naar de gepubliceerde library `RowTrack -  Design System` (QkRgMc7Quqtbow71DiYa1n).
 //
-// Draait via figma_execute, in `RowTrack - Design`. HERVATBAAR: elke aanroep werkt door tot
+// Draait via figma_execute, in `RowTrack - Design`, met de signatuur (figma, opruimen).
+// HERVATBAAR: elke aanroep werkt door tot
 // zijn tijdbudget op is en onthoudt de voortgang in pluginData op de root. Roep hem net zo
 // vaak aan tot `klaar: true`.
 //
@@ -17,26 +18,54 @@
 // variabelen, 0 aan remote. Alle 84 paden hebben een tegenhanger in de library.
 // Zie apps/rowtrack/figma/tokenlaag-inventaris.md.
 // ---------------------------------------------------------------------------
-const OPRUIMEN = false;          // zet op true voor de laatste, verwijderende stap
+// De verwijderende stap staat NIET in dit bestand aan/uit, maar in de aanroep: een
+// destructieve vlag die in de broncode leeft, staat op een dag per ongeluk op true.
+//   new F('figma', 'opruimen', bron)(figma, true)
+const OPRUIMEN = typeof opruimen !== 'undefined' && opruimen === true;
 const BUDGET_MS = 20000;         // ruim onder de 30 s wachtlimiet van figma_execute
 
 if (figma.fileKey !== 'T1bGrvIzSNeLyh5CbarATZ')
   return { fout: 'verkeerde file: ' + figma.fileKey };
 await figma.loadAllPagesAsync();
 
-// ---- 1. De library-sleutels, LIVE gelezen ---------------------------------------------
-// Geen ingebakken sleutellijst: die veroudert stil zodra er een variabele bijkomt, en een
-// verouderde sleutel geeft een onvindbare variabele in plaats van een foutmelding.
+// ---- 1. De library-sleutels ------------------------------------------------------------
+//
+// PRIMAIRE BRON: figma/library-keys.json, gegenereerd uit het library-bestand zelf (recept in
+// apps/rowtrack/CLAUDE.md) en geserveerd door `pnpm --filter rowtrack figma:serve`.
+//
+// Waarom niet `teamLibrary.getVariablesInLibraryCollectionAsync()`, wat de voor de hand
+// liggende live-bron is: die listing is VEROUDERD en zegt dat niet. Gemeten 2026-09-08, ná
+// een publicatie van vier hertypeerde variabelen: de listing gaf nog altijd
+// `Core/fontWeight/regular [STRING]` met de oude sleutel, terwijl
+// `importVariableByKeyAsync(<nieuwe sleutel>)` gewoon de FLOAT-variabele opleverde, remote en
+// met waarde 400. Een gevulde, geloofwaardige, verkeerde uitkomst — het gevaarlijkste soort.
+//
+// De listing blijft er als TEGENPROEF: elk pad waar de twee het oneens zijn komt in
+// `sleutelVerschil`, zodat een verouderd sleutelbestand zichzelf meldt in plaats van stil te
+// blijven.
 const libCols = await figma.teamLibrary.getAvailableLibraryVariableCollectionsAsync();
 const doelBib = libCols.filter(c => /Design System/.test(c.libraryName));
 if (!doelBib.length)
   return { fout: 'geen library-collecties gevonden — is RowTrack -  Design System als library ingeschakeld in dit bestand?',
            gezien: libCols.map(c => c.libraryName + ' / ' + c.name) };
 
+let bestand = null;
+try { bestand = await (await fetch('http://localhost:9229/library-keys.json')).json(); }
+catch (e) { return { fout: 'figma/library-keys.json niet op te halen — draait `pnpm --filter rowtrack figma:serve`? (' + e.message + ')' }; }
+if (!bestand || bestand.fileKey !== 'QkRgMc7Quqtbow71DiYa1n')
+  return { fout: 'library-keys.json hoort bij een ander bestand: ' + (bestand && bestand.fileKey) };
+
 const libSleutel = new Map();    // "Collectie/pad" -> key
+for (const [pad, v] of Object.entries(bestand.variabelen)) libSleutel.set(pad, v.key);
+
+const sleutelVerschil = [];
 for (const c of doelBib)
-  for (const v of await figma.teamLibrary.getVariablesInLibraryCollectionAsync(c.key))
-    libSleutel.set(c.name + '/' + v.name, v.key);
+  for (const v of await figma.teamLibrary.getVariablesInLibraryCollectionAsync(c.key)) {
+    const pad = c.name + '/' + v.name;
+    const uitBestand = libSleutel.get(pad);
+    if (uitBestand && uitBestand !== v.key) sleutelVerschil.push(`${pad}: bestand ${uitBestand.slice(0, 8)} tegen listing ${v.key.slice(0, 8)}`);
+    if (!uitBestand) sleutelVerschil.push(`${pad}: alleen in de listing — library-keys.json is ouder dan de library`);
+  }
 
 // ---- 2. Lokale variabelen: pad PER BINDING oplossen, niet uit de collecties -------------
 //
@@ -195,31 +224,11 @@ async function migreer(n) {
   }
 }
 
-// De styles hebben géén teamLibrary-API, dus hun sleutels staan hier wél ingebakken —
-// gelezen uit het library-bestand op 2026-09-08. Verandert een stylenaam, dan meldt de
-// migratie "style zonder library-tegenhanger" in plaats van stil door te lopen.
-const STYLE_KEYS = {
-  "type/heroNumeric": "c32b6010501dfac140163038ca49ed568dec3cd6",
-  "type/heroDisplay": "749b5022d88f7181014550c8afd43e8a47759eff",
-  "type/activeProgress": "332d6d5667ebbc4ff595b66fc47aabf382b0ebea",
-  "type/sectionValue": "e64df0a77367663b61ba9fac8ce2521a63aec1e1",
-  "type/kpiValue": "ff600e591d877a8a54357743b09c58cd0a9bcc54",
-  "type/kpiUnit": "7044b709eb700fc29345096e065cdef30e5d880e",
-  "type/italicConnector": "8384cf6773930a2e73a5ffb6f67754bb4ed8dd3f",
-  "type/buttonPrimary": "fd57eb54d2227967ebed1d4de323f2a7bb35f589",
-  "type/buttonOutline": "5937a20fdfc913b9353a0c04249b7796cc7aa93a",
-  "type/textLink": "3c6667dce8c24a059351b1da7b8a53ac5abde5e5",
-  "type/segmentInactive": "02952a4953f34066011fd102ab79a8ef88209d23",
-  "type/segmentActive": "024496b86d0984d8c1c43c8cd303f615ceee2284",
-  "type/splitsRow": "08db199f2132dad242dfd655010c515a239118e9",
-  "type/recentRow": "beb6a2f9bece303830f4cd583933acafc4df92a0",
-  "type/labelSection": "a337db532eee24ef9e26dd7509dd0df0c937ae03",
-  "type/labelKpi": "6075647dc3dbb2ef446c14edd72709314a94fa78",
-  "type/labelMicro": "6059fd3ea7e6df67eecacd17740f1d75637cffa8",
-  "type/labelGoalPrefix": "44fc188234e272bba322aab8eb69892757f26d73",
-  "shadow/buttonPrimary": "b9cd8e97fe9eeba0e4be31b4cf8e1c8b4bec3d43",
-  "shadow/buttonOutline": "a3be0d96b8aa667df76ba351b307503f04916128"
-};
+// De styles hebben géén teamLibrary-API; ze komen uit hetzelfde gegenereerde bestand.
+const STYLE_KEYS = Object.fromEntries([
+  ...Object.entries(bestand.textStyles).map(([n, v]) => [n, v.key]),
+  ...Object.entries(bestand.effectStyles).map(([n, v]) => [n, v.key]),
+]);
 
 // ---- 4. Werk in stukken -----------------------------------------------------------------
 let klaar = true;
@@ -275,7 +284,7 @@ if (OPRUIMEN) {
 }
 
 return {
-  fileKey: figma.fileKey, klaar, ontbrekendePaden: ontbreekt,
+  fileKey: figma.fileKey, klaar, ontbrekendePaden: ontbreekt, sleutelVerschil,
   bezocht, herbonden, stylesGezet, overgeslagen,
   restLokaal: klaar ? restLokaal : null, remote: klaar ? remote : null,
   opgeruimd, meldingen: meldingen.slice(0, 10), aantalMeldingen: meldingen.length,

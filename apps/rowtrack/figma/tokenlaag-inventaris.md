@@ -63,10 +63,34 @@ De vorm van de migratie:
    bindingen overhoudt.
 5. Publiceer opnieuw.
 
-**Niet uitgevoerd zonder expliciete opdracht.** Het is een schrijfactie van 14 399 mutaties in
-het bestand waar Jeroen op dit moment in werkt, en stap 4 is onomkeerbaar zodra stap 3 ergens
-onvolledig is. De tegenproef hoort erbij: na stap 3 moet de walker **0** bindingen aan lokale
-variabelen tellen en 14 399 aan remote — precies het spiegelbeeld van de meting hierboven.
+## Uitgevoerd 2026-09-08
+
+Op expliciete opdracht (*"RowTrack - Design mag geen lokale variabelen hebben"*). Eindstand,
+teruggelezen op de live staat: **0 lokale collecties, 0 lokale styles, 14 540 bindingen
+allemaal remote**, en drie steekproefkleuren exact gelijk aan `tokens.json`
+(`Theme/bg/base` #15171C, `Theme/fg/primary` #F2F4FA, `Theme/accent/default` #F05454).
+
+Vier dingen die de migratie onderweg blootlegde en die het script nu draagt:
+
+1. **Wezen.** Dertig Theme-variabelen waren uit hun collectie verwijderd maar leefden door
+   omdat 4 397 bindingen eraan hingen. Een kaart uit `getLocalVariableCollectionsAsync()`
+   mist die volledig — het pad wordt daarom per binding opgelost.
+2. **Tekstvelden hangen per range.** `boundVariables.fontSize` is op een TEXT-node een array
+   met één alias per stijlbereik; `setBoundVariable` raakt daar maar één van.
+   `setRangeBoundVariable(0, lengte, veld, v)` klapt de array samen.
+3. **Effecten dragen hun kleurbinding op het effect zelf**, net als een paint, en `effects`
+   staat niet eens in de enum van `setBoundVariable`.
+4. **`fontWeights` was als STRING getypeerd** terwijl Figma's veld `fontWeight` FLOAT eist —
+   869 bindingen konden daardoor per constructie niet mee. Root cause lag in
+   `scripts/figma-tokens-payload.mjs`, niet in Figma; opgelost door het type uit de waarde af
+   te leiden.
+
+En één valkuil in het meetgereedschap: **`teamLibrary.getVariablesInLibraryCollectionAsync()`
+serveerde ná de publicatie nog de oude sleutels**, terwijl `importVariableByKeyAsync` op de
+nieuwe sleutel prima de FLOAT-variabele gaf. De migratie leest daarom `figma/library-keys.json`
+(gegenereerd uit het library-bestand) en gebruikt de listing nog enkel als tegenproef: elk pad
+waar de twee verschillen komt in `sleutelVerschil`, zodat een verouderd sleutelbestand zichzelf
+meldt.
 
 ## De walker (read-only, herhaalbaar)
 
