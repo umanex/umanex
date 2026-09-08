@@ -413,13 +413,29 @@ fi
 #    aandrijven · state forceren · invariant draaien · verse build), waarbij "geen" een
 #    geldig antwoord is zolang het zichtbaar staat. Een eerlijke "geen" is het punt —
 #    dan weet de Beoordeel-stap vooraf dat die as overgeslagen wordt.
-zonder_pad=""
+#
+#    PER ITEM, NIET PER POORT. Tot 2026-09-08 toetste dit blok alleen of de KOP bestond, en
+#    een sectie die uit niets dan die kop bestaat kwam er even groen doorheen als een
+#    volledig ingevulde — aantoonbaar: `printf '# x\n\n## Verify-pad\n' | grep -q '^## Verify-pad'`
+#    slaagt. Een poort met een opsomming moet elk item van die opsomming meten; de kop is
+#    het label van de sectie en niet haar inhoud. GEMETEN over de acht apps in umanex-apps:
+#    zeven noemen alle vijf capabilities letterlijk, één noemt er één — dat is een terechte
+#    waarschuwing, want "geen" is een geldig antwoord dat zichtbaar hoort te staan.
+zonder_pad=""; pad_gaten=""
 for app in $changed_apps; do
   [ -d "apps/$app" ] || continue
   md="apps/$app/CLAUDE.md"
   if [ ! -f "$md" ] || ! grep -q '^## Verify-pad' "$md"; then
     zonder_pad="$zonder_pad $app"
+    continue
   fi
+  blok="$(awk '/^## Verify-pad/{f=1;next} /^## /{f=0} f' "$md")"
+  mis=""
+  for cap in "render vastleggen" "flow aandrijven" "state forceren" "invariant draaien" "verse build"; do
+    printf '%s' "$blok" | grep -qiF "$cap" || mis="$mis, $cap"
+  done
+  [ -n "$mis" ] && pad_gaten="$pad_gaten
+    $app: mist ${mis#, }"
 done
 
 if [ -n "$zonder_pad" ]; then
@@ -427,6 +443,11 @@ if [ -n "$zonder_pad" ]; then
   echo "  Zonder dat pad valt de Beoordeel-stap terug op 'overgeslagen' zonder dat iemand het merkt."
   echo "  Vul de vijf capabilities in (render · flow · state · invariant · verse build);"
   echo "  'geen' is een geldig antwoord, mits zichtbaar. Zie de \`verify\` skill."
+fi
+if [ -n "$pad_gaten" ]; then
+  echo "⚠ Verify-pad-sectie aanwezig maar onvolledig:$pad_gaten"
+  echo "  Elk van de vijf capabilities hoort er te staan — óók met 'geen' als antwoord."
+  echo "  Een kop zonder het item eronder maakt de as onmeetbaar zonder dat iets rood wordt."
 fi
 
 # 8. Design-systeem-bron-signaal — welke laag geeft de app die je aanraakt zijn vorm?
@@ -446,13 +467,24 @@ fi
 #    Preset · Componentbron · Storybook. "geen" is overal een geldig antwoord zolang het
 #    er staat — zelfde regime als het Verify-pad hierboven. Een lege regel laat de vraag
 #    terugkomen, het woord "geen" maakt de keuze telbaar.
-zonder_ds=""
+#    Ook hier per item: het contract is drie benoemde regels, dus drie metingen. GEMETEN op
+#    de acht apps in umanex-apps: alle acht dragen alle drie de regels, dus deze vernauwing
+#    kost nul nieuwe ruis en vangt alleen de sectie die alleen uit haar kop bestaat.
+zonder_ds=""; ds_gaten=""
 for app in $changed_apps; do
   [ -d "apps/$app" ] || continue
   md="apps/$app/CLAUDE.md"
   if [ ! -f "$md" ] || ! grep -q '^## Design-systeem-bron' "$md"; then
     zonder_ds="$zonder_ds $app"
+    continue
   fi
+  blok="$(awk '/^## Design-systeem-bron/{f=1;next} /^## /{f=0} f' "$md")"
+  mis=""
+  for k in Preset Componentbron Storybook; do
+    printf '%s' "$blok" | grep -qE "^- \\*\\*$k:\\*\\*" || mis="$mis, $k"
+  done
+  [ -n "$mis" ] && ds_gaten="$ds_gaten
+    $app: mist ${mis#, }"
 done
 
 if [ -n "$zonder_ds" ]; then
@@ -461,4 +493,8 @@ if [ -n "$zonder_ds" ]; then
   echo "  Storybook deze app gebruikt — en drift naar een eigen kopie valt aan niets op."
   echo "  Drie regels: - **Preset:** · - **Componentbron:** · - **Storybook:**"
   echo "  'geen' is een geldig antwoord, mits zichtbaar. De harde toets is 'pnpm ds:guard'."
+fi
+if [ -n "$ds_gaten" ]; then
+  echo "⚠ Design-systeem-bron-sectie aanwezig maar onvolledig:$ds_gaten"
+  echo "  Drie regels horen er te staan: - **Preset:** · - **Componentbron:** · - **Storybook:**"
 fi
