@@ -59,24 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9f92a30 feat(rowtrack): sync gevalideerd — guard, tegenproef en parity groen
 d3f5026 fix(rowtrack): achtergrondlagen, herstelde fades en gebonden gradient-stops
 239539d feat(rowtrack): sync-guard, parity-as en gradient-ondersteuning
 5ae050f feat(rowtrack): tokenlaag in Figma en de bouwspec uit de render
 1269fe4 feat(rowtrack): 33 stories, alle 197 renderen schoon
-e1c8f2c feat(rowtrack): storybook op react-native-web met token-trouwe render
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.gitignore
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/briefings/2026-09-07-feature-rowtrack-storybook-figma-sync.tcebc.md
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Chip.stories.tsx
-  M  apps/rowtrack/components/DeviceRow.stories.tsx
-  M  apps/rowtrack/components/Dot.stories.tsx
+  M  apps/rowtrack/BACKLOG.md
 
 ## Bestanden met TODO/FIXME
   (geen)

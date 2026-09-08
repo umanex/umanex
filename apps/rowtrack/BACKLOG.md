@@ -350,3 +350,23 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   `(await figma.listAvailableFontsAsync()).some(f => /ionicons/i.test(f.fontName.family))`
   — false = het font staat er nog niet.
 - **Status:** open
+
+## 2026-09-08 — RowTracks Figma-guards draaien niet in CI · [ci]
+
+- **Wat:** `ci.yml` draait de guards van `packages/ui` (`figma:check`, `figma:check:selftest`,
+  `parity`) maar niet die van rowtrack. De Storybook-build komt er wél doorheen, want
+  `pnpm turbo build-storybook` pakt elke package met dat script — dus een story die niet meer
+  compileert maakt de PR nu al rood. Wat níet gedekt is: `figma:check` (tien assen),
+  `figma:check:selftest` (13 mutaties), `parity`, en `render:sweep` (197 stories renderen).
+  Die laatste is de enige die een lege render vangt, en dat is precies de fout die een groene
+  build verbergt — gemeten 2026-09-07 op 26 stories.
+- **Waarom niet nu:** `ci.yml` is een configbestand dat vooraf bevestigd hoort te worden
+  (CLAUDE.md → acties die altijd eerst bevestigd moeten worden), en deze PR is al groot.
+- **Eerste zet:** Vier stappen naast de bestaande `@umanex/ui`-guards, in dezelfde vorm:
+  `pnpm --filter rowtrack figma:check` · `figma:check:selftest` · `parity` · `render:sweep`.
+  Let op de volgorde: `render:sweep` en `parity` vragen een gebouwde Storybook, dus ze horen
+  ná de `build-storybook`-stap. Playwright-browsers moeten in CI geïnstalleerd zijn
+  (`npx playwright install chromium`), net als bij `@umanex/ui parity`.
+- **Check:** `grep -c 'filter rowtrack figma:check' .github/workflows/ci.yml` — 0 = het gat
+  leeft nog.
+- **Status:** open
