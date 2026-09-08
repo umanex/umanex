@@ -79,14 +79,26 @@ function snoei(node, diepte, pad, comp) {
   }
   if (node.bevatSvg) o.svg = true;
   const kids = node.kinderen ?? [];
+  // Zelfde regel als in de walker: een doorvoer-wrapper (één kind, geen tekst, geen eigen
+  // verf) kost geen diepte. Zonder dit sneed de snoeier de inhoud van elke overlay weg,
+  // want de portal-constructie stapelt er drie tot vier op elkaar.
+  const volgende = node.doorvoer ? diepte : diepte + 1;
   if (kids.length && diepte < MAX_DIEPTE) {
-    const houden = kids.slice(0, MAX_BROERS);
-    if (kids.length > MAX_BROERS) {
-      o.afgekapt = { van: kids.length, naar: MAX_BROERS };
-      afgekaptTotaal += kids.length - MAX_BROERS;
-      afkappingen.push(`${comp}${pad}: ${kids.length} kinderen -> ${MAX_BROERS}`);
+    // Het broer-budget gaat naar ONTWERPINFORMATIE, niet naar decoratie. Gemeten 2026-09-08:
+    // MotivationalToast heeft 62 kinderen — 60 gerandomiseerde confettideeltjes plus de
+    // toastkaart. Een kale `slice(0, 8)` hield acht confetti en sneed de kaart weg, waardoor
+    // het component in Figma leeg stond terwijl de boom er intact uitzag. Betekenisvolle
+    // kinderen eerst, daarna hoogstens twee decoratieve als representant.
+    const zinvol = kids.filter(k => !k.decoratief);
+    const decor = kids.filter(k => k.decoratief);
+    const houden = [...zinvol.slice(0, MAX_BROERS), ...decor.slice(0, Math.max(0, Math.min(2, MAX_BROERS - zinvol.length)))];
+    if (kids.length > houden.length) {
+      o.afgekapt = { van: kids.length, naar: houden.length, waarvanDecoratief: decor.length };
+      afgekaptTotaal += kids.length - houden.length;
+      afkappingen.push(`${comp}${pad}: ${kids.length} kinderen -> ${houden.length}`
+        + (decor.length ? ` (${decor.length} decoratief)` : ''));
     }
-    o.k = houden.map((k, i) => snoei(k, diepte + 1, `${pad}>${i}`, comp));
+    o.k = houden.map((k, i) => snoei(k, volgende, `${pad}>${i}`, comp));
   } else if (kids.length) {
     o.dieperWeggelaten = kids.length;
     afgekaptTotaal += kids.length;

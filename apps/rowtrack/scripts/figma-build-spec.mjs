@@ -233,6 +233,29 @@ const WALKER = () => {
     const d = m[1].split(',').map(x => parseFloat(x.trim()));
     return { r: d[0], g: d[1], b: d[2], a: d[3] ?? 1 };
   };
+  /**
+   * Een DOORVOER-WRAPPER draagt geen ontwerpinformatie: precies één elementkind, geen eigen
+   * tekst, en geen eigen verf (achtergrond, verloop, rand, schaduw, radius, opacity). In RN
+   * levert elke <View> er een, en een portal-constructie stapelt er drie tot vier op elkaar.
+   *
+   * Zulke wrappers mogen GEEN diepte kosten. Gemeten 2026-09-08: met een vast budget van 6
+   * aten ze het hele budget op vóór de inhoud begon, en stonden BottomSheet, GoalSheet,
+   * HealthConsentScreen, MotivationalToast en DeviceSelectionModal met NUL tekstnodes in de
+   * spec — in Figma dus een leeg frame. De boom zag er intact uit; alleen de inhoud ontbrak.
+   */
+  function isDoorvoer(el, cs) {
+    if (el.children.length !== 1) return false;
+    if ([...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return false;
+    const bg = rgba(cs.backgroundColor);
+    if (bg && bg.a > 0) return false;
+    if (cs.backgroundImage !== 'none') return false;
+    if (px(cs.borderTopWidth) > 0) return false;
+    if (cs.boxShadow !== 'none') return false;
+    if (px(cs.borderTopLeftRadius) > 0) return false;
+    if (parseFloat(cs.opacity) < 1) return false;
+    return true;
+  }
+
   function lees(el, diepte, ouderRect) {
     const cs = getComputedStyle(el);
     const r = el.getBoundingClientRect();
@@ -273,12 +296,16 @@ const WALKER = () => {
       };
     }
     if (el.tagName.toLowerCase() === 'svg' || el.querySelector?.(':scope > svg')) o.bevatSvg = true;
-    if (diepte < 6) {
+    const doorvoer = isDoorvoer(el, cs);
+    if (doorvoer) o.doorvoer = true;
+    if (diepte < 8) {
       const kids = [...el.children].filter(k => {
         const c2 = getComputedStyle(k);
         return c2.display !== 'none' && c2.visibility !== 'hidden';
       });
-      if (kids.length) o.kinderen = kids.map(k => lees(k, diepte + 1, r));
+      // Een doorvoer-wrapper kost geen diepte: het budget is bedoeld voor ontwerplagen,
+      // niet voor de <View>-stapel die RN eromheen zet.
+      if (kids.length) o.kinderen = kids.map(k => lees(k, doorvoer ? diepte : diepte + 1, r));
     }
     // Een absoluut gepositioneerd kind valt buiten de box van zijn ouder, dus een overlay-
     // wortel meet 0 breed of 0 hoog terwijl er wél iets staat. Gemeten 2026-09-07: tien

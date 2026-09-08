@@ -1,7 +1,7 @@
 {
  "$comment": "GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.",
- "aantalUniek": 38,
- "aantalVoorkomens": 1231,
+ "aantalUniek": 46,
+ "aantalVoorkomens": 1906,
  "decoratiefGenegeerd": 60,
  "uniek": [
   "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
@@ -15,23 +15,31 @@
   "gradientstop = {\"r\":33,\"g\":36,\"b\":44,\"a\":0}",
   "padding = 100",
   "padding = 3",
+  "padding = 50",
   "radius = 12",
   "radius = 2",
   "radius = 24",
+  "tekstkleur = {\"r\":239,\"g\":68,\"b\":68,\"a\":1}",
   "tekstkleur = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
   "text style = -apple-system 12px ls=0",
+  "text style = -apple-system 48px ls=0",
   "text style = -apple-system 9px ls=0",
   "text style = AlbertSans_300Light 22px ls=1.1",
   "text style = AlbertSans_300Light 36px ls=-0.9",
   "text style = AlbertSans_400Regular 14px ls=0",
+  "text style = AlbertSans_400Regular 15px ls=0",
   "text style = AlbertSans_400Regular 16px ls=0",
   "text style = AlbertSans_400Regular 20px ls=-0.4",
+  "text style = AlbertSans_500Medium 13px ls=0",
+  "text style = AlbertSans_500Medium 15px ls=0",
   "text style = AlbertSans_500Medium 28px ls=-0.7",
   "text style = AlbertSans_600SemiBold 12px ls=1.8",
   "text style = AlbertSans_600SemiBold 14px ls=2.8",
+  "text style = AlbertSans_600SemiBold 15px ls=0",
   "text style = AlbertSans_700Bold 16px ls=0",
   "text style = AlbertSans_700Bold 18px ls=-0.45",
   "text style = BarlowCondensed_600SemiBold 30px ls=0",
+  "text style = BarlowCondensed_700Bold 18px ls=0",
   "text style = JetBrainsMono_500Medium 14px ls=0",
   "text style = SourceSerif4_400Regular_Italic 16px ls=0",
   "text style = ionicons 14px ls=0",
@@ -54,7 +62,8 @@
   ],
   "BottomSheet": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
-   "radius = 24"
+   "radius = 24",
+   "text style = ionicons 24px ls=0"
   ],
   "Button": [
    "text style = AlbertSans_400Regular 16px ls=0"
@@ -98,7 +107,16 @@
   ],
   "GoalSheet": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
-   "radius = 24"
+   "gradientstop = {\"r\":33,\"g\":36,\"b\":44,\"a\":0}",
+   "padding = 50",
+   "radius = 24",
+   "text style = ionicons 18px ls=0",
+   "text style = ionicons 24px ls=0"
+  ],
+  "HealthConsentScreen": [
+   "text style = AlbertSans_400Regular 15px ls=0",
+   "text style = AlbertSans_400Regular 16px ls=0",
+   "text style = AlbertSans_600SemiBold 15px ls=0"
   ],
   "HrStatusBar": [
    "tekstkleur = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
@@ -113,7 +131,9 @@
   ],
   "MotivationalToast": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.85}",
-   "achtergrond = {\"r\":33,\"g\":36,\"b\":44,\"a\":0.75}"
+   "achtergrond = {\"r\":33,\"g\":36,\"b\":44,\"a\":0.75}",
+   "text style = -apple-system 48px ls=0",
+   "text style = ionicons 18px ls=0"
   ],
   "PrBadge": [
    "text style = -apple-system 12px ls=0",
@@ -145,7 +165,15 @@
   ],
   "DeviceSelectionModal": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
-   "radius = 24"
+   "radius = 12",
+   "radius = 24",
+   "tekstkleur = {\"r\":239,\"g\":68,\"b\":68,\"a\":1}",
+   "tekstkleur = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
+   "text style = AlbertSans_500Medium 13px ls=0",
+   "text style = AlbertSans_500Medium 15px ls=0",
+   "text style = AlbertSans_600SemiBold 15px ls=0",
+   "text style = BarlowCondensed_700Bold 18px ls=0",
+   "text style = ionicons 18px ls=0"
   ],
   "ActivePhase": [
    "text style = AlbertSans_300Light 22px ls=1.1",
@@ -157,6 +185,17 @@
    "text style = ionicons 18px ls=0"
   ],
   "IdlePhase": [
+   "achtergrond = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
+   "gradientstop = {\"r\":21,\"g\":23,\"b\":28,\"a\":0}",
+   "padding = 100",
+   "tekstkleur = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
+   "text style = AlbertSans_400Regular 14px ls=0",
+   "text style = AlbertSans_400Regular 16px ls=0",
+   "text style = AlbertSans_400Regular 20px ls=-0.4",
+   "text style = SourceSerif4_400Regular_Italic 16px ls=0",
+   "text style = ionicons 14px ls=0",
+   "text style = ionicons 15px ls=0",
+   "text style = ionicons 16px ls=0",
    "text style = ionicons 18px ls=0"
   ]
  }

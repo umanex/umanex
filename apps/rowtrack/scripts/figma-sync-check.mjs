@@ -68,12 +68,16 @@ const NIET_VISUEEL = {
  * nieuw gat zichtbaar terwijl de bekende gaten de as niet elke run rood maken.
  * Elk gat heeft een item in apps/rowtrack/BACKLOG.md.
  */
-const BEKENDE_GATEN = 38;
-// Verdeling op 2026-09-07: 8 icoonmaten (Ionicons als glyph, geen Figma-font) · 11
-// typografie-combinaties zonder Theme/type-token · 2 emoji/systeemfont (bedoeld: een emoji
-// hoort de systeem-emojifont te gebruiken) · 5 achtergrondkleuren · 1 tekstkleur · 3 radii
-// (2, 12, 24) · 2 paddings (3, 100) · 2 gaps (1, 3) · 2 gradient-stops op alpha 0 (er is
-// geen token voor "deze rol, maar doorzichtig").
+const BEKENDE_GATEN = 46;
+// Verdeling op 2026-09-08: 18 typografie-combinaties zonder Theme/type-token · 8 icoonmaten
+// (Ionicons als glyph, geen Figma-font) · 5 achtergrondkleuren · 3 paddings (3, 50, 100) ·
+// 3 radii (2, 12, 24) · 3 emoji/systeemfont (bedoeld — een emoji hoort de systeem-emojifont
+// te gebruiken) · 2 gaps (1, 3) · 2 gradient-stops op alpha 0 (er is geen token voor "deze
+// rol, maar doorzichtig") · 2 tekstkleuren.
+//
+// Het waren er 38 tot de doorvoer-fix van 2026-09-08. Dat aantal STEEG omdat er meer inhoud
+// gemeten werd, niet omdat er iets kapotging: vijf overlay-componenten stonden daarvóór met
+// nul tekstnodes in de spec, dus hun typografie werd nooit geteld.
 
 // ---- 1. Dekking: elk component een story ----------------------------------
 function bestanden(map, prefix = '') {

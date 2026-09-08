@@ -59,15 +59,19 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9a0e90c docs(rowtrack): CI dekt de nieuwe Figma-guards nog niet
 9f92a30 feat(rowtrack): sync gevalideerd — guard, tegenproef en parity groen
 d3f5026 fix(rowtrack): achtergrondlagen, herstelde fades en gebonden gradient-stops
 239539d feat(rowtrack): sync-guard, parity-as en gradient-ondersteuning
 5ae050f feat(rowtrack): tokenlaag in Figma en de bouwspec uit de render
-1269fe4 feat(rowtrack): 33 stories, alle 197 renderen schoon
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/ongebonden.json
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/scripts/figma-build-spec.mjs
+  M  apps/rowtrack/scripts/figma-sync-check.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
