@@ -14,7 +14,7 @@ const meta = {
     title: 'Recente trainingen',
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2006-4502' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2008-4585' },
   },
 } satisfies Meta<typeof SectionHeader>;
 

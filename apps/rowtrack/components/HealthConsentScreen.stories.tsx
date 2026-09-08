@@ -37,7 +37,7 @@ const meta = {
     onDecline: async (): Promise<boolean> => true,
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2006-4532' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2009-5195' },
   },
 } satisfies Meta<typeof HealthConsentScreen>;
 

@@ -107,7 +107,7 @@ wordt door deze keten nooit geschreven.
 | Componentpagina's | 31 COMPONENT_SETs met 110 variant-nodes |
 | Schermpagina's | 2 (`ActivePhase`, `IdlePhase`) met representatieve frames in plaats van een set |
 
-**Zes eigenaardigheden, elk gemeten en niet af te leiden:**
+**Zeven eigenaardigheden, elk gemeten en niet af te leiden:**
 
 1. `Core/fontFamily/sourceSerif` staat in de bron als `"Source Serif Pro"`, maar dat is de
    *opzoeksleutel* in de FONTS-tabel; de app rendert **Source Serif 4**. De Figma-variabele
@@ -142,6 +142,31 @@ wordt door deze keten nooit geschreven.
    "Execution timed out after 30000ms" bouwt de plugin gewoon door. Stuur er dan niets
    doorheen — de plugin heeft één seriële wachtrij en een controlevraag ertussen breekt de
    lopende bouw af. Wachten en dezelfde code opnieuw sturen is de juiste zet.
+
+7. **Emoji is geen icoonfont.** Een tekstnode met familie `-apple-system` (een emoji) hoort
+   gewoon tekst te blijven: het OS vult de glyph in, ongeacht welk font eromheen staat. Alleen
+   een ÉCHTE icoonfont — Ionicons, met privégebruik-glyphs — heeft zonder dat font niets te
+   tonen en verdient een zichtbaar placeholder-kader. Gemeten 2026-09-08: zonder dat
+   onderscheid werden de 🏅 van PrBadge en de 🏆 van MotivationalToast gestippelde kaders.
+
+**Twee dingen over de Bridge die je pas merkt als het misgaat.**
+
+*Het actieve doel kan na een timeout stil terugspringen.* Gemeten 2026-09-08, drie keer op rij:
+na "Execution timed out after 30000ms" stond het actieve bestand op `ko2OuasYxyY2YRD69MYhWX`
+(de umanex Component library) in plaats van op RowTrack. De fileKey-assert bovenaan elke
+`figma_execute` is wat dat opvangt — zonder hem was er in het verkeerde bestand geschreven.
+Assert op de **fileKey**, nooit op de bestandsnaam: die werd deze week hernoemd van
+"RowTrack — Design System" naar "RowTrack -  Design System".
+
+*De plugin mág localhost bereiken, maar alleen op poort 9223–9232.* Dat staat in
+`~/.figma-console-mcp/plugin/manifest.json` → `networkAccess.allowedDomains`. Een lokale server
+op zo'n poort maakt twee dingen mogelijk die anders honderden KB's door de tool-call slepen:
+de bouwspec en de builder ophalen mét `fetch`, en het manifest terugschrijven met een `POST`
+naar een save-endpoint. Buiten dat bereik krijg je `Failed to fetch` — exact dezelfde melding
+als bij een server die niet draait. Ik trok daar eerst de verkeerde conclusie uit
+("de sandbox kan localhost niet bereiken") omdat mijn testserver op poort 7331 stond én al
+gestopt was: twee onafhankelijke oorzaken, één symptoom. Toets dus altijd eerst met `curl` dat
+de server leeft én dat hij op een toegestane poort staat.
 
 **Volgorde die niet omgekeerd mag.** Na élke Figma-bouw: **eerst het manifest verversen, dan
 pas `figma:links` en `figma:check`.** Een herbouw geeft elke node een nieuwe id. Gemeten

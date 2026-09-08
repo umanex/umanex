@@ -69,9 +69,20 @@ function gradientPaint(grad, naamPad) {
 async function maak(n, naamPad) {
   if (n.t && !n.k) {
     const stijl = n.t.style ? TS.get(n.t.style) : null;
-    const font = stijl ? null : fontVan(n.t.f);
+    let font = stijl ? null : fontVan(n.t.f);
+    // Een ICOON-font (Ionicons) heeft privégebruik-glyphs: zonder dat font is er niets te
+    // tonen, dus daar hoort een zichtbaar slot. Een gewone niet-gevonden familie is iets
+    // ANDERS — `-apple-system` bij een emoji bijvoorbeeld. Die tekst is wél te tonen; het
+    // OS vult de emoji zelf in, ongeacht welk font eromheen staat. Gemeten 2026-09-08:
+    // zonder dit onderscheid werden de 🏅 van PrBadge en de 🏆 van MotivationalToast
+    // gestippelde kaders in plaats van emoji.
+    const isIcoonFont = /^ionicons$/i.test(n.t.f ?? '');
+    if (!stijl && !font && !isIcoonFont) {
+      font = FAM.get('AlbertSans') ? { family: FAM.get('AlbertSans'), style: 'Regular' } : null;
+      if (font) meldingen.push(`${naamPad}: familie "${n.t.f}" niet in Figma — teruggevallen op ${font.family}`);
+    }
     if (!stijl && !font) {
-      // Ionicons e.d. bestaan niet als Figma-font. Zichtbaar icoonslot i.p.v. stilte.
+      // Ionicons: privégebruik-glyphs zonder font. Zichtbaar icoonslot i.p.v. stilte.
       const ph = figma.createFrame();
       ph.name = `Icon ${Math.round(n.t.px)}`;
       ph.resize(Math.max(1, n.w), Math.max(1, n.h));

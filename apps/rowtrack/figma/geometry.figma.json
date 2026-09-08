@@ -1,8 +1,8 @@
 {
- "gegenereerd": "2026-09-07",
+ "gegenereerd": "2026-09-08",
  "componenten": {
   "Chip": {
-   "setId": "2004:3901",
+   "setId": "2008:4551",
    "varianten": {
     "active=true": {
      "w": 66.17,
@@ -33,7 +33,7 @@
    }
   },
   "BottomSheet": {
-   "setId": "2003:2867",
+   "setId": "2011:5439",
    "varianten": {
     "default": {
      "w": 398,
@@ -51,7 +51,7 @@
    }
   },
   "GoalSheet": {
-   "setId": "2003:2875",
+   "setId": "2008:4712",
    "varianten": {
     "default": {
      "w": 398,
@@ -69,7 +69,7 @@
    }
   },
   "HealthConsentScreen": {
-   "setId": "2003:2859",
+   "setId": "2009:5195",
    "varianten": {
     "default": {
      "w": 398,
@@ -87,7 +87,7 @@
    }
   },
   "BottomFade": {
-   "setId": "2003:2885",
+   "setId": "2009:4949",
    "varianten": {
     "default": {
      "w": 398,
@@ -105,7 +105,7 @@
    }
   },
   "Dot": {
-   "setId": "2003:2891",
+   "setId": "2008:4553",
    "varianten": {
     "default": {
      "w": 4,
@@ -123,7 +123,7 @@
    }
   },
   "Icon": {
-   "setId": "2003:2889",
+   "setId": "2010:5361",
    "varianten": {
     "default": {
      "w": 24,
@@ -141,10 +141,10 @@
    }
   },
   "SectionHeader": {
-   "setId": "2003:2887",
+   "setId": "2008:4585",
    "varianten": {
     "default": {
-     "w": 136,
+     "w": 161,
      "h": 15,
      "paddingLeft": 0,
      "paddingRight": 0,
@@ -159,7 +159,7 @@
    }
   },
   "Subtitle": {
-   "setId": "2003:2851",
+   "setId": "2009:5072",
    "varianten": {
     "default": {
      "w": 188.05,
@@ -177,7 +177,7 @@
    }
   },
   "Skeleton": {
-   "setId": "2003:2843",
+   "setId": "2008:4589",
    "varianten": {
     "default": {
      "w": 84.34,
@@ -195,10 +195,10 @@
    }
   },
   "TabLabel": {
-   "setId": "2003:2848",
+   "setId": "2008:4594",
    "varianten": {
     "focused=true": {
-     "w": 181,
+     "w": 68,
      "h": 14,
      "paddingLeft": 0,
      "paddingRight": 0,
@@ -211,7 +211,7 @@
      "heeftEffect": false
     },
     "focused=false": {
-     "w": 181,
+     "w": 68,
      "h": 14,
      "paddingLeft": 0,
      "paddingRight": 0,
@@ -226,7 +226,7 @@
    }
   },
   "KpiSingle": {
-   "setId": "2003:2820",
+   "setId": "2008:4772",
    "varianten": {
     "default": {
      "w": 127.16,
@@ -244,7 +244,7 @@
    }
   },
   "ErrorMessage": {
-   "setId": "2003:2791",
+   "setId": "2010:5374",
    "varianten": {
     "default": {
      "w": 350,
@@ -262,7 +262,7 @@
    }
   },
   "GoalCardSkeleton": {
-   "setId": "2003:2770",
+   "setId": "2009:4900",
    "varianten": {
     "default": {
      "w": 350,
@@ -280,7 +280,7 @@
    }
   },
   "MotivationalToast": {
-   "setId": "2003:2883",
+   "setId": "2011:5509",
    "varianten": {
     "default": {
      "w": 398,
@@ -298,7 +298,7 @@
    }
   },
   "DeviceSelectionModal": {
-   "setId": "2003:2837",
+   "setId": "2008:4653",
    "varianten": {
     "kind=rower": {
      "w": 398,
@@ -329,7 +329,7 @@
    }
   },
   "EmptyState": {
-   "setId": "2003:2763",
+   "setId": "2010:5385",
    "varianten": {
     "size=sm": {
      "w": 343.83,
@@ -360,7 +360,7 @@
    }
   },
   "PrBadge": {
-   "setId": "2003:2752",
+   "setId": "2011:5476",
    "varianten": {
     "size=sm": {
      "w": 76.08,
@@ -391,7 +391,7 @@
    }
   },
   "FormField": {
-   "setId": "2004:3890",
+   "setId": "2010:5398",
    "varianten": {
     "secureTextEntry=true": {
      "w": 252,
@@ -422,7 +422,7 @@
    }
   },
   "WorkoutCard": {
-   "setId": "2004:3877",
+   "setId": "2008:4808",
    "varianten": {
     "default": {
      "w": 278.11,
@@ -440,7 +440,7 @@
    }
   },
   "ErrorState": {
-   "setId": "2004:3858",
+   "setId": "2008:4668",
    "varianten": {
     "size=sm": {
      "w": 334.42,
@@ -471,7 +471,7 @@
    }
   },
   "SplitsList": {
-   "setId": "2004:3843",
+   "setId": "2008:4789",
    "varianten": {
     "default": {
      "w": 298.61,
@@ -489,7 +489,7 @@
    }
   },
   "GoalProgressCard": {
-   "setId": "2004:3809",
+   "setId": "2008:4687",
    "varianten": {
     "default": {
      "w": 292.72,
@@ -507,7 +507,7 @@
    }
   },
   "Segmented": {
-   "setId": "2004:3826",
+   "setId": "2009:5062",
    "varianten": {
     "variant=filled": {
      "w": 131.53,
@@ -538,7 +538,7 @@
    }
   },
   "HrStatusBar": {
-   "setId": "2004:3734",
+   "setId": "2008:4766",
    "varianten": {
     "hrStatus=idle": {
      "w": 259.53,
@@ -608,7 +608,7 @@
    }
   },
   "WheelPicker": {
-   "setId": "2004:3370",
+   "setId": "2012:5783",
    "varianten": {
     "showPill=true, surface=base": {
      "w": 97.42,
@@ -665,7 +665,7 @@
    }
   },
   "IdlePhase": {
-   "setId": "2004:3748",
+   "setId": "2010:5224",
    "varianten": {
     "Playground": {
      "w": 450,
@@ -683,7 +683,7 @@
    }
   },
   "BleStatusBar": {
-   "setId": "2004:3446",
+   "setId": "2009:4893",
    "varianten": {
     "bleStatus=idle": {
      "w": 236.7,
@@ -792,7 +792,7 @@
    }
   },
   "DeviceRow": {
-   "setId": "2004:3686",
+   "setId": "2009:5077",
    "varianten": {
     "icon=dot, loading=true, actionDisabled=true": {
      "w": 267.02,
@@ -901,7 +901,7 @@
    }
   },
   "GoalSegments": {
-   "setId": "2004:3609",
+   "setId": "2009:5010",
    "varianten": {
     "selected=none": {
      "w": 189.47,
@@ -971,7 +971,7 @@
    }
   },
   "KPI": {
-   "setId": "2004:3543",
+   "setId": "2009:5174",
    "varianten": {
     "highlighted=true, compact=true, fill=true, loading=true": {
      "w": 148.86,

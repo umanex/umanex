@@ -2,7 +2,7 @@
  "$comment": "Neergeslagen Figma-staat. NIET met de hand bewerken — ververs via apps/rowtrack/CLAUDE.md.",
  "schemaVersie": 2,
  "fileKey": "QkRgMc7Quqtbow71DiYa1n",
- "fileName": "RowTrack — Design System",
+ "fileName": "RowTrack -  Design System",
  "gegenereerd": "2026-09-08",
  "collections": {
   "Core": {
@@ -1399,7 +1399,7 @@
    "pageId": "2001:275",
    "primary": {
     "name": "Chip",
-    "id": "2004:4050",
+    "id": "2008:4551",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "active": {
@@ -1412,11 +1412,11 @@
     "varianten": [
      {
       "name": "active=true",
-      "id": "2004:4044"
+      "id": "2008:4545"
      },
      {
       "name": "active=false",
-      "id": "2004:4049"
+      "id": "2008:4550"
      }
     ]
    },
@@ -1426,7 +1426,7 @@
    "pageId": "2001:287",
    "primary": {
     "name": "default",
-    "id": "2006:4516",
+    "id": "2011:5439",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1437,7 +1437,7 @@
    "pageId": "2001:290",
    "primary": {
     "name": "default",
-    "id": "2006:4524",
+    "id": "2008:4712",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1448,7 +1448,7 @@
    "pageId": "2001:293",
    "primary": {
     "name": "default",
-    "id": "2006:4532",
+    "id": "2009:5195",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1459,7 +1459,7 @@
    "pageId": "2001:296",
    "primary": {
     "name": "default",
-    "id": "2006:4508",
+    "id": "2009:4949",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1470,7 +1470,7 @@
    "pageId": "2001:299",
    "primary": {
     "name": "default",
-    "id": "2006:4506",
+    "id": "2008:4553",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1481,7 +1481,7 @@
    "pageId": "2001:302",
    "primary": {
     "name": "default",
-    "id": "2006:4504",
+    "id": "2010:5361",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1492,7 +1492,7 @@
    "pageId": "2001:305",
    "primary": {
     "name": "default",
-    "id": "2006:4502",
+    "id": "2008:4585",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1503,7 +1503,7 @@
    "pageId": "2001:308",
    "primary": {
     "name": "default",
-    "id": "2004:4495",
+    "id": "2009:5072",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1514,7 +1514,7 @@
    "pageId": "2001:312",
    "primary": {
     "name": "default",
-    "id": "2004:4492",
+    "id": "2008:4589",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1525,7 +1525,7 @@
    "pageId": "2001:317",
    "primary": {
     "name": "TabLabel",
-    "id": "2004:4500",
+    "id": "2008:4594",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "focused": {
@@ -1538,11 +1538,11 @@
     "varianten": [
      {
       "name": "focused=true",
-      "id": "2004:4497"
+      "id": "2008:4591"
      },
      {
       "name": "focused=false",
-      "id": "2004:4499"
+      "id": "2008:4593"
      }
     ]
    },
@@ -1552,7 +1552,7 @@
    "pageId": "2001:323",
    "primary": {
     "name": "default",
-    "id": "2004:4471",
+    "id": "2008:4772",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1563,7 +1563,7 @@
    "pageId": "2001:330",
    "primary": {
     "name": "default",
-    "id": "2004:4465",
+    "id": "2010:5374",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1574,7 +1574,7 @@
    "pageId": "2001:335",
    "primary": {
     "name": "default",
-    "id": "2004:4077",
+    "id": "2009:4900",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1585,7 +1585,7 @@
    "pageId": "2001:343",
    "primary": {
     "name": "default",
-    "id": "2006:4540",
+    "id": "2011:5509",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1596,7 +1596,7 @@
    "pageId": "2001:352",
    "primary": {
     "name": "DeviceSelectionModal",
-    "id": "2004:4488",
+    "id": "2008:4653",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "kind": {
@@ -1609,11 +1609,11 @@
     "varianten": [
      {
       "name": "kind=rower",
-      "id": "2004:4479"
+      "id": "2008:4634"
      },
      {
       "name": "kind=hr",
-      "id": "2004:4487"
+      "id": "2008:4652"
      }
     ]
    },
@@ -1623,7 +1623,7 @@
    "pageId": "2001:370",
    "primary": {
     "name": "EmptyState",
-    "id": "2004:4070",
+    "id": "2010:5385",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "size": {
@@ -1636,11 +1636,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2004:4064"
+      "id": "2010:5379"
      },
      {
       "name": "size=lg",
-      "id": "2004:4069"
+      "id": "2010:5384"
      }
     ]
    },
@@ -1650,7 +1650,7 @@
    "pageId": "2001:382",
    "primary": {
     "name": "PrBadge",
-    "id": "2004:4059",
+    "id": "2011:5476",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "size": {
@@ -1663,11 +1663,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2004:4054"
+      "id": "2011:5471"
      },
      {
       "name": "size=md",
-      "id": "2004:4058"
+      "id": "2011:5475"
      }
     ]
    },
@@ -1677,7 +1677,7 @@
    "pageId": "2001:403",
    "primary": {
     "name": "FormField",
-    "id": "2004:4039",
+    "id": "2010:5398",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "secureTextEntry": {
@@ -1690,11 +1690,11 @@
     "varianten": [
      {
       "name": "secureTextEntry=true",
-      "id": "2004:4033"
+      "id": "2010:5392"
      },
      {
       "name": "secureTextEntry=false",
-      "id": "2004:4038"
+      "id": "2010:5397"
      }
     ]
    },
@@ -1704,7 +1704,7 @@
    "pageId": "2001:417",
    "primary": {
     "name": "default",
-    "id": "2004:4026",
+    "id": "2008:4808",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1715,7 +1715,7 @@
    "pageId": "2001:437",
    "primary": {
     "name": "ErrorState",
-    "id": "2004:4007",
+    "id": "2008:4668",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "size": {
@@ -1728,11 +1728,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2004:3999"
+      "id": "2008:4660"
      },
      {
       "name": "size=lg",
-      "id": "2004:4006"
+      "id": "2008:4667"
      }
     ]
    },
@@ -1742,7 +1742,7 @@
    "pageId": "2001:453",
    "primary": {
     "name": "default",
-    "id": "2004:3992",
+    "id": "2008:4789",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1753,7 +1753,7 @@
    "pageId": "2001:471",
    "primary": {
     "name": "default",
-    "id": "2004:3975",
+    "id": "2008:4687",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1764,7 +1764,7 @@
    "pageId": "2001:491",
    "primary": {
     "name": "Segmented",
-    "id": "2004:3956",
+    "id": "2009:5062",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "variant": {
@@ -1777,11 +1777,11 @@
     "varianten": [
      {
       "name": "variant=filled",
-      "id": "2004:3947"
+      "id": "2009:5042"
      },
      {
       "name": "variant=band",
-      "id": "2004:3955"
+      "id": "2009:5061"
      }
     ]
    },
@@ -1791,7 +1791,7 @@
    "pageId": "2001:509",
    "primary": {
     "name": "HrStatusBar",
-    "id": "2004:4281",
+    "id": "2008:4766",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "hrStatus": {
@@ -1807,23 +1807,23 @@
     "varianten": [
      {
       "name": "hrStatus=idle",
-      "id": "2004:4242"
+      "id": "2008:4721"
      },
      {
       "name": "hrStatus=scanning",
-      "id": "2004:4252"
+      "id": "2008:4734"
      },
      {
       "name": "hrStatus=waiting",
-      "id": "2004:4262"
+      "id": "2008:4747"
      },
      {
       "name": "hrStatus=connected",
-      "id": "2004:4271"
+      "id": "2008:4756"
      },
      {
       "name": "hrStatus=error",
-      "id": "2004:4280"
+      "id": "2008:4765"
      }
     ]
    },
@@ -1833,7 +1833,7 @@
    "pageId": "2001:558",
    "primary": {
     "name": "WheelPicker",
-    "id": "2004:3370",
+    "id": "2012:5783",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "showPill": {
@@ -1852,19 +1852,19 @@
     "varianten": [
      {
       "name": "showPill=true, surface=base",
-      "id": "2004:3278"
+      "id": "2011:5588"
      },
      {
       "name": "showPill=true, surface=raised",
-      "id": "2004:3309"
+      "id": "2011:5637"
      },
      {
       "name": "showPill=false, surface=base",
-      "id": "2004:3339"
+      "id": "2011:5685"
      },
      {
       "name": "showPill=false, surface=raised",
-      "id": "2004:3369"
+      "id": "2012:5782"
      }
     ]
    },
@@ -1874,7 +1874,7 @@
    "pageId": "2001:682",
    "primary": {
     "name": "Playground",
-    "id": "2004:4191",
+    "id": "2010:5224",
     "type": "COMPONENT",
     "variantProperties": null,
     "varianten": null
@@ -1882,17 +1882,17 @@
    "extra": [
     {
      "name": "Niet Verbonden",
-     "id": "2004:4205",
+     "id": "2010:5253",
      "type": "COMPONENT"
     },
     {
      "name": "Doel Afstand",
-     "id": "2004:4219",
+     "id": "2010:5282",
      "type": "COMPONENT"
     },
     {
      "name": "Toestel Keuze",
-     "id": "2004:4233",
+     "id": "2010:5339",
      "type": "COMPONENT"
     }
    ]
@@ -1901,7 +1901,7 @@
    "pageId": "2001:743",
    "primary": {
     "name": "BleStatusBar",
-    "id": "2004:4456",
+    "id": "2009:4893",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "bleStatus": {
@@ -1920,35 +1920,35 @@
     "varianten": [
      {
       "name": "bleStatus=idle",
-      "id": "2004:4389"
+      "id": "2008:4817"
      },
      {
       "name": "bleStatus=scanning",
-      "id": "2004:4399"
+      "id": "2008:4830"
      },
      {
       "name": "bleStatus=connecting",
-      "id": "2004:4409"
+      "id": "2008:4843"
      },
      {
       "name": "bleStatus=discovering",
-      "id": "2004:4419"
+      "id": "2008:4856"
      },
      {
       "name": "bleStatus=connected",
-      "id": "2004:4428"
+      "id": "2008:4865"
      },
      {
       "name": "bleStatus=disconnecting",
-      "id": "2004:4437"
+      "id": "2008:4874"
      },
      {
       "name": "bleStatus=reconnecting",
-      "id": "2004:4446"
+      "id": "2008:4883"
      },
      {
       "name": "bleStatus=error",
-      "id": "2004:4455"
+      "id": "2009:4892"
      }
     ]
    },
@@ -1958,7 +1958,7 @@
    "pageId": "2001:820",
    "primary": {
     "name": "DeviceRow",
-    "id": "2004:3686",
+    "id": "2009:5077",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "icon": {
@@ -1983,35 +1983,35 @@
     "varianten": [
      {
       "name": "icon=dot, loading=true, actionDisabled=true",
-      "id": "2004:3619"
+      "id": "2009:4962"
      },
      {
       "name": "icon=dot, loading=true, actionDisabled=false",
-      "id": "2004:3629"
+      "id": "2009:4975"
      },
      {
       "name": "icon=dot, loading=false, actionDisabled=true",
-      "id": "2004:3638"
+      "id": "2009:4984"
      },
      {
       "name": "icon=dot, loading=false, actionDisabled=false",
-      "id": "2004:3647"
+      "id": "2009:5015"
      },
      {
       "name": "icon=heart, loading=true, actionDisabled=true",
-      "id": "2004:3657"
+      "id": "2009:5032"
      },
      {
       "name": "icon=heart, loading=true, actionDisabled=false",
-      "id": "2004:3667"
+      "id": "2009:5051"
      },
      {
       "name": "icon=heart, loading=false, actionDisabled=true",
-      "id": "2004:3676"
+      "id": "2009:5066"
      },
      {
       "name": "icon=heart, loading=false, actionDisabled=false",
-      "id": "2004:3685"
+      "id": "2009:5076"
      }
     ]
    },
@@ -2021,7 +2021,7 @@
    "pageId": "2001:898",
    "primary": {
     "name": "GoalSegments",
-    "id": "2004:4177",
+    "id": "2009:5010",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "selected": {
@@ -2037,23 +2037,23 @@
     "varianten": [
      {
       "name": "selected=none",
-      "id": "2004:4124"
+      "id": "2009:4913"
      },
      {
       "name": "selected=duration",
-      "id": "2004:4137"
+      "id": "2009:4926"
      },
      {
       "name": "selected=distance",
-      "id": "2004:4150"
+      "id": "2009:4939"
      },
      {
       "name": "selected=split",
-      "id": "2004:4163"
+      "id": "2009:4994"
      },
      {
       "name": "selected=watts",
-      "id": "2004:4176"
+      "id": "2009:5009"
      }
     ]
    },
@@ -2063,7 +2063,7 @@
    "pageId": "2001:970",
    "primary": {
     "name": "KPI",
-    "id": "2004:4380",
+    "id": "2009:5174",
     "type": "COMPONENT_SET",
     "variantProperties": {
      "highlighted": {
@@ -2094,67 +2094,67 @@
     "varianten": [
      {
       "name": "highlighted=true, compact=true, fill=true, loading=true",
-      "id": "2004:4291"
+      "id": "2009:5085"
      },
      {
       "name": "highlighted=true, compact=true, fill=true, loading=false",
-      "id": "2004:4295"
+      "id": "2009:5089"
      },
      {
       "name": "highlighted=true, compact=true, fill=false, loading=true",
-      "id": "2004:4303"
+      "id": "2009:5097"
      },
      {
       "name": "highlighted=true, compact=true, fill=false, loading=false",
-      "id": "2004:4307"
+      "id": "2009:5101"
      },
      {
       "name": "highlighted=true, compact=false, fill=true, loading=true",
-      "id": "2004:4315"
+      "id": "2009:5109"
      },
      {
       "name": "highlighted=true, compact=false, fill=true, loading=false",
-      "id": "2004:4319"
+      "id": "2009:5113"
      },
      {
       "name": "highlighted=true, compact=false, fill=false, loading=true",
-      "id": "2004:4327"
+      "id": "2009:5121"
      },
      {
       "name": "highlighted=true, compact=false, fill=false, loading=false",
-      "id": "2004:4331"
+      "id": "2009:5125"
      },
      {
       "name": "highlighted=false, compact=true, fill=true, loading=true",
-      "id": "2004:4339"
+      "id": "2009:5133"
      },
      {
       "name": "highlighted=false, compact=true, fill=true, loading=false",
-      "id": "2004:4343"
+      "id": "2009:5137"
      },
      {
       "name": "highlighted=false, compact=true, fill=false, loading=true",
-      "id": "2004:4351"
+      "id": "2009:5145"
      },
      {
       "name": "highlighted=false, compact=true, fill=false, loading=false",
-      "id": "2004:4355"
+      "id": "2009:5149"
      },
      {
       "name": "highlighted=false, compact=false, fill=true, loading=true",
-      "id": "2004:4363"
+      "id": "2009:5157"
      },
      {
       "name": "highlighted=false, compact=false, fill=true, loading=false",
-      "id": "2004:4367"
+      "id": "2009:5161"
      },
      {
       "name": "highlighted=false, compact=false, fill=false, loading=true",
-      "id": "2004:4375"
+      "id": "2009:5169"
      },
      {
       "name": "highlighted=false, compact=false, fill=false, loading=false",
-      "id": "2004:4379"
+      "id": "2009:5173"
      }
     ]
    },
