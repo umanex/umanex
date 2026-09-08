@@ -73,10 +73,10 @@ const NIET_VISUEEL = {
 const BEKENDE_GATEN = 46;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1906;
+const BEKENDE_VOORKOMENS = 1929;   // 1906 + 23 uit de modal-overlays, die sinds 2026-09-08 gemeten worden
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen. */
-const LAAGNAAM_DEKKING = 75.1;
+const LAAGNAAM_DEKKING = 75.4;
 /** Posities die `stabiliseer()` moest gladstrijken. `instabiel` is ná die pas gemeten en dus
  *  per constructie leeg — dit is de enige onafhankelijke maat voor dezelfde eigenschap. */
 const BEKENDE_INSTABIELE_POSITIES = 2;

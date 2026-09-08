@@ -519,9 +519,22 @@ function markeerSlots(comp, items, assen, fouten) {
  * 60 tokengaten rapporteren is ruis: het is één ontwerpbeslissing (gerandomiseerde
  * decoratie), geen zestig ontbrekende tokens. Ze worden geteld als decoratief en niet
  * als gat — expliciet, want stil weglaten ziet er identiek uit als "geen probleem".
+ *
+ * De toets is de VORM, niet de storynaam. Tot 2026-09-08 stond hier
+ * `comp === 'MotivationalToast'`, en dat brak zodra de toast óók als overlay binnen
+ * ActivePhase gemeten werd: `comp` was daar `'ActivePhase'`, de filter zweeg, en de
+ * [binding]-as sprong van 46 naar 109 ongebonden waarden — hot pink, goud, en radii als
+ * 3,2993. Een componentnaam als filtersleutel beschrijft twee dingen tegelijk (welke story
+ * render ik / bij welk component hoort deze node) en is dus geen sleutel.
+ *
+ * De handtekening is gemeten, niet bedacht: van alle 120 nodes met een gebroken radius in
+ * de hele spec is er GEEN ENKELE die niet vierkant, kinderloos, tekstloos en kleiner dan
+ * 20 px is. Overmatchen kan dus niet — er is niets anders om te matchen.
  */
 const decoratief = (comp, node) =>
-  comp === 'MotivationalToast' && node.radius?.[0] > 0 && !Number.isInteger(node.radius[0]);
+  node.radius?.[0] > 0 && !Number.isInteger(node.radius[0])
+  && !(node.kinderen ?? []).length && !node.tekst
+  && Math.abs(node.w - node.h) < 0.01 && node.w < 20;
 
 /** Voegt variabele-verwijzingen toe aan een gemeten boom, per eigenschapssoort. */
 function bind(node, pad, comp) {
@@ -591,7 +604,7 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     const r = await meet(d.storyId, c.args);
     if (r.fout) { spec.fouten.push(`${comp} [${c.naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    for (const o of r.overlays ?? []) bind(o, '', comp);
+    r.overlays?.forEach((o, i) => bind(o, `overlay${i}`, comp));
     varianten.push({ naam: c.naam, args: c.args, boom: r.boom, overlays: r.overlays, storyArgs: r.args });
   }
   (spec.naamStats ??= []).push(...benoemAlles(comp, varianten));   // laagnamen: één beslissing per component
@@ -610,7 +623,7 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     const r = await meet(e.id, {});
     if (r.fout) { spec.fouten.push(`${comp} [${naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    for (const o of r.overlays ?? []) bind(o, '', comp);
+    r.overlays?.forEach((o, i) => bind(o, `overlay${i}`, comp));
     frames.push({ naam, storyId: e.id, boom: r.boom, overlays: r.overlays });
   }
   (spec.naamStats ??= []).push(...benoemAlles(comp, frames));
