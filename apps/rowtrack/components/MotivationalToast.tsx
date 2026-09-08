@@ -9,7 +9,7 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from 'react-native';
-import { Button } from '@/components';
+import { Button } from '@/components/Button';   // direct, geen barrel — zie workout/IdlePhase.tsx
 import { t } from '@/i18n';
 import { bg, fg, fontFamily, fontSize, componentRadius, space } from '@/constants';
 

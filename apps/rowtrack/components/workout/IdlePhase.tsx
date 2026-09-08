@@ -12,15 +12,16 @@ import type { ConnectionStatus, FoundDevice, HRStatus } from '@/lib/ble/types';
 import { DeviceSelectionModal, type DeviceSelectionKind } from './DeviceSelectionModal';
 import type { GoalType } from '@/lib/workout-goals';
 import { buildGoalSuggestions } from '@/lib/workout-goals';
-import {
-  BleStatusBar,
-  Button,
-  HrStatusBar,
-  GoalSegments,
-  Chip,
-  WheelPicker,
-} from '@/components';
-import type { GoalSegmentType } from '@/components';
+// DIRECTE imports, geen barrel. `@/components` her-exporteert alles, dus één import trok de
+// StyleSheet.create van elke component de preview-iframe in — en die sleutels concurreren
+// daarna om élke node, want react-native-web deelt zijn atomaire klassen globaal. Vite
+// tree-shaket een top-level StyleSheet.create niet weg.
+import { BleStatusBar } from '@/components/BleStatusBar';
+import { Button } from '@/components/Button';
+import { HrStatusBar } from '@/components/HrStatusBar';
+import { GoalSegments, type GoalSegmentType } from '@/components/GoalSegments';
+import { Chip } from '@/components/Chip';
+import { WheelPicker } from '@/components/WheelPicker';
 import {
   buildDurItems,
   buildDistItems,

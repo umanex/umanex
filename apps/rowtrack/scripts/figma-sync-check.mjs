@@ -80,8 +80,16 @@ const BEKENDE_VOORKOMENS = 1947;   // 1929 + 18 uit het ActivePhase-landscape-fr
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
  *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
  *  (spinner, modal-hostketen, scroll-wrappers) staan er niet meer in, want die kunnen per
- *  constructie geen code-naam krijgen. Over álle nodes is hetzelfde getal 73,8%. */
-const LAAGNAAM_DEKKING = 83.8;
+ *  constructie geen code-naam krijgen.
+ *
+ *  83,8 -> 83,4 bij het vervangen van de barrel-import door directe imports, en dat is WINST
+ *  ondanks het lagere getal. Gemeten: precies acht nodes verschoven, alle acht in IdlePhase.
+ *  Ze heetten `fade` (uit BottomFade.tsx) en `errorText` (uit ErrorMessage.tsx) — twee
+ *  componenten die IdlePhase niet rendert; die sleutels stonden alleen in de preview-iframe
+ *  omdat `@/components` alles her-exporteert. Nu vallen ze terug op `overlay` (structureel,
+ *  telt niet als code-naam) en winnen acht andere nodes `actionText` uit DeviceRow.tsx, dat
+ *  IdlePhase wél rendert. Ambigue nodes daalden in dezelfde stap van 206 naar 111. */
+const LAAGNAAM_DEKKING = 83.4;
 /**
  * Hoe vaak de HEURISTISCHE componentgrens nog vuurt. Sinds de testID-ronde van 2026-09-08 staat
  * de grens als feit in de DOM, dus elke treffer hier is een node waar de code hem niet
