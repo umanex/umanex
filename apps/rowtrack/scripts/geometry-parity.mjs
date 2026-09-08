@@ -50,11 +50,16 @@
  * apps/rowtrack/CLAUDE.md → Verify-pad. Schema 1 (alleen wortels) wordt geweigerd, niet
  * stil half gelezen.
  *
- * Gebruik: node scripts/geometry-parity.mjs [--verbose] [--selftest]
+ * Gebruik: node scripts/geometry-parity.mjs [--verbose] [--alles] [--selftest]
+ *   --alles                 elk verschil afdrukken in plaats van de eerste 40
+ *   --figma=<pad>           de Figma-kant elders lezen (poort-tegenproef, CI-fixture)
+ *   --schrijf-fixture=<pad> een uit de spec gesynthetiseerde Figma-kant wegschrijven
+ *   --zonder-uitsluiting    figma/niet-reproduceerbaar.json negeren (tegenproef van de lijst)
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bedektPredikaat, echteKinderen, heeftVulling, isIcoon, isTekstNode, kindPad } from './spec-boom.mjs';
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
 const VERBOSE = process.argv.includes('--verbose');
@@ -69,6 +74,22 @@ const FIXTURE = vlag('schrijf-fixture');
 
 const spec = JSON.parse(readFileSync(join(APP, 'figma/build-spec.min.json'), 'utf8'));
 
+/**
+ * Nodes die per meetmoment een andere maat hebben — een roterende spinner, gerandomiseerde
+ * confetti. GEMETEN door scripts/instabiele-nodes.mjs (twee walker-runs, node voor node), niet
+ * met de hand opgeschreven: een echte afwijking hoort zich hier niet in te kunnen verstoppen.
+ * Ontbreekt het bestand, dan sluit deze as niets uit en zégt hij dat — een stille 0 zou als
+ * "er valt niets uit te sluiten" lezen.
+ */
+const nrPad = join(APP, 'figma/niet-reproduceerbaar.json');
+// --zonder-uitsluiting is de TEGENPROEF van de uitsluitingslijst zelf: een mutatie binnen een
+// uitgesloten subboom hoort mét de lijst stil te blijven en zónder de lijst rood te worden.
+// Blijft hij in beide gevallen stil, dan sluit de lijst niets uit maar meet de as daar niets —
+// twee toestanden die er in de uitvoer identiek uitzien.
+const nietReproduceerbaar = (!process.argv.includes('--zonder-uitsluiting') && existsSync(nrPad))
+  ? new Set(JSON.parse(readFileSync(nrPad, 'utf8')).paden)
+  : null;
+
 // Tolerantie. Figma en Chromium ronden subpixels verschillend af; 0,5px is ruim genoeg voor
 // die ruis en eng genoeg dat elke echte maatwijziging (de kleinste stap in de spacingschaal
 // is 2px) er ruim doorheen komt.
@@ -81,37 +102,13 @@ const F = { h: 0, paddingLeft: 1, paddingRight: 2, itemSpacing: 3, radius: 4, st
 const VELDNAMEN = ['h', 'paddingLeft', 'paddingRight', 'itemSpacing', 'radius', 'strokeWeight', 'opacity', 'vlaggen'];
 const VULLING = 1, RAND = 2, EFFECT = 4;
 
-/** Regel 3: een Ionicons-glyph wordt een placeholder-frame, geen tekst. */
-const isIcoon = (n) => !!n.t && !n.k && /^ionicons$/i.test(n.t.f ?? '');
-/** Een pure tekstnode: in Figma geen frame, dus zonder frame-eigenschappen. */
-const isTekstNode = (n) => !!n.t && !n.k;
-
-/**
- * Regel 1: welke kinderen de builder in de `fills` van hun ouder opvouwt.
- * Meet tegen de CONTENT-box, niet de border-box: een absoluut kind met inset 0 valt binnen
- * de rand van zijn ouder (gemeten op Button primary lg — gradient 151,05x42 op dx=dy=1 in een
- * ouder van 153,05x44 met rand 1). Een check op `w >= ouder.w - 1` mist die dus.
- * Identiek aan `bedekt` in figma/builder.js:217-220.
- */
-function bedektPredikaat(n) {
-  const rand = n.border ?? 0;
-  return (k) => k.abs && !k.k && !k.t && (k.grad || k.bg)
-    && Math.abs(k.dx ?? 0) <= rand + 0.5 && Math.abs(k.dy ?? 0) <= rand + 0.5
-    && k.w >= n.w - 2 * rand - 0.5 && k.h >= n.h - 2 * rand - 0.5;
-}
-
-/** Draagt deze node een vulling — zelf of via een opgevouwen achtergrondkind (regel 1)? */
-function heeftVulling(n) {
-  if ((n.bg && n.bg.a > 0) || n.grad) return true;
-  return (n.k ?? []).some(bedektPredikaat(n));
-}
 
 /**
  * De kindparen tussen spec en Figma, met alle drie de syntheseregels erin. Geeft de gepaarde
  * kinderen plus wat er over is aan elke kant — de lengteverschillen zijn zelf een bevinding.
  */
 function kinderparen(specNode, figNode) {
-  const echte = (specNode.k ?? []).filter((k) => !bedektPredikaat(specNode)(k));
+  const echte = echteKinderen(specNode);
   let fig = figNode[F.k] ?? [];
   // Regel 2: tekst EN kinderen -> de builder hangt er achteraan een `label`-tekstkind aan.
   const labelVerwacht = !!specNode.t && !!specNode.k;
@@ -123,9 +120,20 @@ function kinderparen(specNode, figNode) {
 /** Vergelijk één node en daal af. Vult `ctx` met bevindingen. */
 function loop(specNode, figNode, pad, ctx) {
   if (isIcoon(specNode)) { ctx.overgeslagen.push(`${pad}: icoon-placeholder (regel 3)`); return; }
+  if (nietReproduceerbaar?.has(pad)) { ctx.instabiel.push(pad); return; }
   ctx.nodes++;
 
   const tekst = isTekstNode(specNode);
+  // HOOGTE OP EEN TEKSTNODE is alleen een uitspraak over de builder waar hij hem ZELF zette.
+  // builder.js:148-153 zet `textAutoResize: 'HEIGHT'` plus een expliciete resize zodra de
+  // browser afbrak (h > 1,5 regelhoogte), en laat Figma anders bewust zelf meten met
+  // `WIDTH_AND_HEIGHT` — omdat Figma's tekstengine dezelfde tekst iets breder meet en een
+  // label dat in de browser net op één regel past er anders in Figma over twee gaat.
+  // Waar Figma de hoogte bepaalt, meet vergelijken de twee tekstengines en niet de bouw.
+  // Gemeten 2026-09-08: 20 zulke verschillen, tot 63 tegen 48 op een emoji-glyph.
+  const enkeleRegel = tekst ? (specNode.t.lh ?? specNode.t.px * 1.35) : 0;
+  const hoogteGezet = !tekst || specNode.h > enkeleRegel * 1.5;
+  if (tekst && !hoogteGezet) ctx.tekstHoogte++;
   const vlaggen = figNode[F.vlaggen] ?? 0;
   const paar = [
     // HOOGTE geldt ook op een tekstnode: de builder zet daar `textAutoResize` en Figma
@@ -144,6 +152,7 @@ function loop(specNode, figNode, pad, ctx) {
   const FRAME_ALLEEN = new Set(['paddingLeft', 'paddingRight', 'gap', 'radius', 'randbreedte']);
   for (const [naam, browser, figma] of paar) {
     if (tekst && FRAME_ALLEEN.has(naam)) continue;
+    if (naam === 'hoogte' && !hoogteGezet) continue;
     ctx.velden++;
     if (!dichtbij(browser, figma)) ctx.verschillen.push(`${pad} ${naam}: browser ${browser} tegen Figma ${figma}`);
   }
@@ -165,12 +174,12 @@ function loop(specNode, figNode, pad, ctx) {
   if (labelVerwacht && !labelGevonden) ctx.verschillen.push(`${pad} label-kind: browser wel (tekst naast kinderen) tegen Figma niet`);
   if (echte.length !== fig.length) ctx.verschillen.push(`${pad} kinderen: browser ${echte.length} tegen Figma ${fig.length}`);
   for (let i = 0; i < Math.min(echte.length, fig.length); i++)
-    loop(echte[i], fig[i], `${pad}>${i}:${echte[i].naam ?? '?'}`, ctx);
+    loop(echte[i], fig[i], kindPad(pad, i, echte[i]), ctx);
 }
 
 /** De hele meting. Geeft een verse ctx terug, zodat de zelftest hem los kan draaien. */
 function meet(fig, spec) {
-  const ctx = { verschillen: [], overgeslagen: [], nieuw: [], gemeten: [], velden: 0, nodes: 0 };
+  const ctx = { verschillen: [], overgeslagen: [], nieuw: [], gemeten: [], instabiel: [], velden: 0, nodes: 0, tekstHoogte: 0 };
   const groepen = [
     ['componenten', spec.componenten, (d) => d.varianten],
     ['schermen', spec.schermen ?? {}, (d) => d.frames],
@@ -334,17 +343,25 @@ if (fig.schema !== 2) {
 const r = meet(fig, spec);
 console.log(`geometry-parity — ${r.gemeten.length} varianten, ${r.nodes} nodes, ${r.velden} velden vergeleken (tolerantie ${TOL}px)`);
 console.log(`Figma-kant gelezen op ${fig.gegenereerd}\n`);
+console.log(nietReproduceerbaar
+  ? `${r.instabiel.length} node(s) niet reproduceerbaar en dus overgeslagen (gemeten door scripts/instabiele-nodes.mjs: roterende spinner, gerandomiseerde confetti)`
+  : 'GEEN figma/niet-reproduceerbaar.json — er wordt niets uitgesloten; draai `npm run instabiele-nodes`');
+console.log(`${r.tekstHoogte} tekstnode(s) waar Figma de hoogte bepaalt (textAutoResize WIDTH_AND_HEIGHT) — hoogte daar niet vergeleken\n`);
 if (r.overgeslagen.length) { console.log(`${r.overgeslagen.length} node(s) overgeslagen:`); for (const o of r.overgeslagen.slice(0, 10)) console.log('  -- ' + o); if (r.overgeslagen.length > 10) console.log(`  -- ... en ${r.overgeslagen.length - 10} andere`); console.log(''); }
 if (r.nieuw.length) { console.log(`${r.nieuw.length} nog niet in Figma (geen verschil, wel werk):`); for (const o of r.nieuw.slice(0, 15)) console.log('  ~~ ' + o); if (r.nieuw.length > 15) console.log(`  ~~ ... en ${r.nieuw.length - 15} andere`); console.log(''); }
 if (r.verschillen.length) {
-  for (const v of r.verschillen.slice(0, 40)) console.log('  FAIL ' + v);
-  if (r.verschillen.length > 40) console.log(`  ... en ${r.verschillen.length - 40} andere`);
+  // --alles drukt élk verschil af. Een afgekapte lijst is precies de vorm waarin een tweede
+  // faalklasse achter de eerste verdwijnt.
+  const max = process.argv.includes('--alles') ? Infinity : 40;
+  for (const v of r.verschillen.slice(0, max)) console.log('  FAIL ' + v);
+  if (r.verschillen.length > max) console.log(`  ... en ${r.verschillen.length - max} andere (draai met --alles)`);
   console.log(`\n${r.verschillen.length} verschil(len) tussen de Figma-node en de browser-render.`);
   process.exit(1);
 }
 if (VERBOSE) for (const g of r.gemeten) console.log('  ok ' + g);
-console.log('Geen verschil. Hoogte, horizontale padding, gap, radius, randbreedte, opacity, het');
-console.log('aantal kinderen en de aanwezigheid van vulling/rand/effect komen op elke node overeen.');
+console.log(`Geen verschil over ${r.nodes} nodes. Horizontale padding, gap, radius, randbreedte, opacity,`);
+console.log('het aantal kinderen en de aanwezigheid van vulling/rand/effect komen overal overeen, en');
+console.log(`hoogte op elke node behalve de ${r.tekstHoogte} tekstnodes waar Figma hem zelf bepaalt.`);
 console.log('NIET gemeten: breedte (tekstgedreven — Figma en Chromium meten dezelfde tekst anders),');
-console.log('kleurwaarde per node, schaduwvorm, icoonvorm, frame-eigenschappen op tekstnodes, en');
-console.log('alles wat de bouwspec afkapte (voorbij diepte 4 of 8 broers per niveau).');
+console.log('kleurwaarde per node, schaduwvorm, icoonvorm, frame-eigenschappen op tekstnodes, de');
+console.log(`${r.instabiel.length} niet-reproduceerbare nodes hierboven, en alles wat de bouwspec afkapte.`);

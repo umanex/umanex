@@ -59,20 +59,23 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
 4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
 b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
 ed214f1 refactor(rowtrack): one source for which story components are screens
 b275fd6 fix(rowtrack): de confetti-uitsluiting toetst de vorm, niet de storynaam
-08a0ddc fix(rowtrack): de walker ziet de modal-portalen naast de schermboom
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  M  apps/rowtrack/scripts/laagnamen.mjs
+  M  apps/rowtrack/figma/geometry.figma.json
+  M  apps/rowtrack/figma/manifest.json
+  A  apps/rowtrack/figma/niet-reproduceerbaar.json
+  M  apps/rowtrack/package.json
+  M  apps/rowtrack/scripts/geometry-parity.mjs
+  A  apps/rowtrack/scripts/instabiele-nodes.mjs
+  A  apps/rowtrack/scripts/spec-boom.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
