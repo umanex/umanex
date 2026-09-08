@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { Animated } from 'react-native';
+import { TOESTEL } from '../../.storybook/toestel';
 import { ActivePhase } from './ActivePhase';
 import type { WorkoutMetricsState } from '@/lib/hooks/useWorkoutMetrics';
 
@@ -107,6 +108,9 @@ const meta = {
   },
   parameters: {
     figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-13601' },
+    // Een scherm rendert full-bleed op toestelmaat in plaats van hug-met-lucht: zonder dit
+    // mat ActivePhase 303,52 x 719. Zie .storybook/toestel.ts.
+    toestel: TOESTEL.portret,
   },
 } satisfies Meta<typeof ActivePhase>;
 
@@ -226,4 +230,13 @@ export const SamenvattingZonderHartslag: Story = {
     hrStatus: 'idle',
     hrBpm: null,
   },
+};
+
+/**
+ * Landscape: twee gelijke kolommen met een verticale progress-bar ertussen. De layout
+ * schakelt op `useWindowDimensions()`, dus dit is de enige story die het viewport kantelt —
+ * en daarmee de enige meting die de landscape-tak van ActivePhase überhaupt raakt.
+ */
+export const Landscape: Story = {
+  parameters: { toestel: TOESTEL.landschap },
 };

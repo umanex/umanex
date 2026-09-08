@@ -194,7 +194,18 @@ const server = createServer((q, r) => {
 await new Promise(r => server.listen(0, r));
 const poort = server.address().port;
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 430, height: 932 } });  // iPhone-breedte
+// iPhone 14 Pro Max, logische punten. Een SCHERM-story mag hiervan afwijken via
+// `parameters.toestel` — zie .storybook/toestel.ts en `meet()` hieronder.
+const VIEWPORT = { width: 430, height: 932 };
+const page = await browser.newPage({ viewport: { ...VIEWPORT } });
+let huidigViewport = { ...VIEWPORT };
+/** Zet het viewport en meld of het echt veranderde. */
+async function zetViewport(width, height) {
+  if (huidigViewport.width === width && huidigViewport.height === height) return false;
+  await page.setViewportSize({ width, height });
+  huidigViewport = { width, height };
+  return true;
+}
 
 /** Alle combinaties van de assen, als lijst van {naam, args}. */
 function combinaties(assenObj) {
@@ -461,7 +472,10 @@ function erfMaatVanOuder(node, ouder) {
   for (const k of node.kinderen ?? []) erfMaatVanOuder(k, node);
 }
 
-async function meet(storyId, args) {
+async function meet(storyId, args, herladen = false) {
+  // Terug naar het standaard-viewport, tenzij dit de tweede ronde van een kantelende story is.
+  // Zonder dit lekt de landscape-maat door naar de volgende story en meet die stil verkeerd.
+  if (!herladen) await zetViewport(VIEWPORT.width, VIEWPORT.height);
   const q = (Object.keys(args).length ? `&args=${encodeURIComponent(argsQuery(args))}` : '')
     // --rnw-keys-uit is de NEGATIEVE CONTROLE van de sleutelkaart. Zonder hem is "elke node
     // heet wrapper" niet te onderscheiden van "het instrument staat uit": beide geven een
@@ -470,6 +484,16 @@ async function meet(storyId, args) {
   await page.goto(`http://localhost:${poort}/iframe.html?id=${storyId}&viewMode=story${q}`,
     { waitUntil: 'networkidle', timeout: 20000 });
   await page.waitForTimeout(120);
+  // `parameters.toestel` staat NIET in index.json — Storybook indexeert alleen titel, naam en
+  // tags. Hij is dus pas ná het laden te lezen, en een story die kantelt kost daarom één extra
+  // laadbeurt. Alleen de landscape-story betaalt die: portret is al het standaard-viewport.
+  if (!herladen) {
+    const t = await page.evaluate(async (id) => {
+      try { const ctx = await window.__STORYBOOK_PREVIEW__?.loadStory?.({ storyId: id }); return ctx?.parameters?.toestel ?? null; }
+      catch (e) { return null; }
+    }, storyId);
+    if (t?.breedte && await zetViewport(t.breedte, t.hoogte)) return meet(storyId, args, true);
+  }
   const r = await page.evaluate(WALKER);
   if (r.boom) erfMaatVanOuder(r.boom, null);
   for (const o of r.overlays ?? []) erfMaatVanOuder(o, null);

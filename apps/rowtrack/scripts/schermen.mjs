@@ -18,7 +18,7 @@
  */
 export const SCHERMEN = {
   ActivePhase: {
-    frames: ['Playground', 'Doel Afstand', 'Zonder Hartslagband', 'Doel Bereikt', 'Samenvatting'],
+    frames: ['Playground', 'Doel Afstand', 'Zonder Hartslagband', 'Doel Bereikt', 'Samenvatting', 'Landscape'],
     reden: 'schermcompositie — bleStatus × hrStatus × phase × hasProfileWeight zou 160 nodes eisen voor één scherm, en die assen zijn in beeld niet orthogonaal; hoort in RowTrack - Design op Screens v2',
   },
   IdlePhase: {
