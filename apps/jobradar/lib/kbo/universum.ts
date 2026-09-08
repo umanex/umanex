@@ -66,11 +66,23 @@ export const PAGINA_GROOTTE = 60
  */
 export const VEROUDERD_NA_DAGEN = 7
 
+/** Waar een prospect vandaan komt. `beide` is de vereniging, niet de doorsnede. */
+export type Herkomst = 'kbo' | 'csv' | 'beide'
+
 export type ProspectFilter = {
   regions: RegionCode[]
   zoek?: string
   /** De RSZ-zeef. Standaard aan; zonder hem is het tabblad grotendeels eenmanszaken. */
   alleenWerkgevers: boolean
+  /** Welke bron(nen). Standaard `beide`. */
+  herkomst: Herkomst
+  /**
+   * Zeeft op `ebitda > 0`. Standaard uit: hij verbergt 44 van de 218 CSV-rijen, en een
+   * lijst die stil een vijfde van zichzelf wegneemt is precies de afkapping-zonder-melding
+   * die deze app elders vermijdt. Een KBO-rij draagt géén EBITDA, dus met de zeef aan
+   * verdwijnt die herkomst volledig — dat is bedoeld, en de UI zegt het.
+   */
+  alleenWinstgevend: boolean
   /** 1-gebaseerd. */
   pagina: number
 }
@@ -86,6 +98,19 @@ export type ProspectRij = {
   codes: string | null
   website: string | null
   werkgever: number
+  /** 1 wanneer dit bedrijf ook in de aangeleverde CSV staat. SQLite kent geen boolean. */
+  uitCsv: number
+  /**
+   * De CSV-kolommen. Allemaal nullable, want een KBO-rij draagt ze niet — en `null` is hier
+   * "niet bekend", nooit nul: 44 rijen hebben een lege `ondernemingswaarde` omdat hun EBITDA
+   * negatief is en de multiple dan niet toepasbaar.
+   */
+  csvNaam: string | null
+  werknemers: number | null
+  ebitda: number | null
+  multiple: number | null
+  ondernemingswaarde: number | null
+  eigenVermogen: number | null
 }
 
 /** `(zip BETWEEN ? AND ? OR …)` voor de gekozen regio's, plus de parameters. */
@@ -126,14 +151,28 @@ export function bouwProspectSql(
   const waar: string[] = ["e.Status = 'AC'"]
 
   const codes = PROSPECT_NACE
-  waar.push(
-    `EXISTS (SELECT 1 FROM activity a
+  const naceZeef = `EXISTS (SELECT 1 FROM activity a
        WHERE a.EntityNumber = e.EnterpriseNumber
          AND a.NaceVersion = ?
          AND a.Classification = 'MAIN'
          AND a.NaceCode IN (${codes.map(() => '?').join(', ')}))`
-  )
-  params.push(NACE_VERSIE, ...codes)
+
+  // De herkomst beslist wélke zeef geldt, niet of er nog een filter bovenop komt.
+  //
+  // Voor `csv` valt de NACE-zeef weg, en dat is de bedoeling: de aangeleverde lijst draagt
+  // 40 verschillende hoofdactiviteiten waarvan er maar 178 van de 218 binnen de zes codes
+  // van het KBO-universum vallen (gemeten 2026-09-08). Wie de zeef laat staan, verliest
+  // veertig bedrijven die de gebruiker zelf heeft uitgekozen — stil, want de lijst toont
+  // gewoon een kleiner getal.
+  if (filter.herkomst === 'kbo') {
+    waar.push(naceZeef)
+    params.push(NACE_VERSIE, ...codes)
+  } else if (filter.herkomst === 'csv') {
+    waar.push('cp.enterprise_number IS NOT NULL')
+  } else {
+    waar.push(`(${naceZeef} OR cp.enterprise_number IS NOT NULL)`)
+    params.push(NACE_VERSIE, ...codes)
+  }
 
   const regio = regioClausule(filter.regions)
   waar.push(regio.sql)
@@ -144,17 +183,27 @@ export function bouwProspectSql(
     params.push(RSZ_GROEP)
   }
 
+  if (filter.alleenWinstgevend) {
+    // `NULL > 0` is in SQL niet waar maar onbekend, en onbekend zeeft weg. Een KBO-rij
+    // zonder CSV-tegenhanger valt hier dus vanzelf uit — precies wat bedoeld is.
+    waar.push('cp.ebitda > 0')
+  }
+
   const term = filter.zoek?.trim()
   if (term) {
     waar.push(
-      `EXISTS (SELECT 1 FROM denomination dz
-         WHERE dz.EntityNumber = e.EnterpriseNumber AND dz.Denomination LIKE ? COLLATE NOCASE)`
+      `(EXISTS (SELECT 1 FROM denomination dz
+         WHERE dz.EntityNumber = e.EnterpriseNumber AND dz.Denomination LIKE ? COLLATE NOCASE)
+        OR cp.name LIKE ? COLLATE NOCASE)`
     )
-    params.push(`%${term}%`)
+    params.push(`%${term}%`, `%${term}%`)
   }
 
+  // De LEFT JOIN staat in `van` en niet in de SELECT, zodat teller en lijst hem allebei
+  // dragen. Zonder dat zou `cp.…` in de WHERE van de telling een onbekende kolom zijn.
   const van = `FROM enterprise e
       JOIN address ad ON ad.EntityNumber = e.EnterpriseNumber AND ad.TypeOfAddress = '${ZETEL}'
+      LEFT JOIN jr.csv_prospects cp ON cp.enterprise_number = e.EnterpriseNumber
      WHERE ${waar.join('\n       AND ')}`
 
   if (opties.tellen) {
@@ -181,12 +230,43 @@ export function bouwProspectSql(
              (SELECT c.Value FROM contact c
                WHERE c.EntityNumber = e.EnterpriseNumber AND c.ContactType = 'WEB' LIMIT 1) AS website,
              EXISTS (SELECT 1 FROM activity r
-               WHERE r.EntityNumber = e.EnterpriseNumber AND r.ActivityGroup = '${RSZ_GROEP}') AS werkgever
+               WHERE r.EntityNumber = e.EnterpriseNumber AND r.ActivityGroup = '${RSZ_GROEP}') AS werkgever,
+             (cp.enterprise_number IS NOT NULL) AS uitCsv,
+             cp.name AS csvNaam,
+             cp.employee_count AS werknemers,
+             cp.ebitda AS ebitda,
+             cp.valuation_multiple AS multiple,
+             cp.enterprise_value AS ondernemingswaarde,
+             cp.equity_value AS eigenVermogen
         ${van}
         ORDER BY e.StartDate DESC, e.EnterpriseNumber
         LIMIT ? OFFSET ?`,
     params: [...selectParams, ...params, ...paginaParams],
   }
+}
+
+/**
+ * Telt de CSV-rijen die géén KBO-tegenhanger hebben en dus buiten `bouwProspectSql` vallen.
+ *
+ * Die query vertrekt van `enterprise`, dus een bedrijf dat niet in de spiegel staat kan er
+ * per constructie niet in voorkomen — gemeten op het geleverde bestand zijn dat er 3. Ze
+ * dragen ook geen postcode, en het regiofilter is een harde `WHERE` op `ad.Zipcode`, dus ze
+ * kunnen geen enkele regioselectie passeren. Stil weglaten is precies de faalklasse die deze
+ * app vermijdt; daarom komen ze hier als telling terug en meldt de UI ze boven de lijst.
+ */
+export function bouwZonderKboSql(filter: ProspectFilter): { sql: string; params: unknown[] } {
+  const waar = ['NOT EXISTS (SELECT 1 FROM enterprise e WHERE e.EnterpriseNumber = cp.enterprise_number)']
+  const params: unknown[] = []
+
+  if (filter.alleenWinstgevend) waar.push('cp.ebitda > 0')
+
+  const term = filter.zoek?.trim()
+  if (term) {
+    waar.push('cp.name LIKE ? COLLATE NOCASE')
+    params.push(`%${term}%`)
+  }
+
+  return { sql: `SELECT COUNT(*) AS n FROM jr.csv_prospects cp WHERE ${waar.join(' AND ')}`, params }
 }
 
 /** Jaren sinds oprichting, of null wanneer KBO geen datum heeft. */

@@ -29,6 +29,7 @@ ELEMENTS:    - Import-CLI `pnpm --filter jobradar prospects:import <pad.csv>`
              - Herkomst-filter als segmented control ín de bestaande `FilterBar`,
                naast het regio- en statusfilter: KBO · CSV · beide
              - Omvang- en EBITDA-regel op `ProspectCard`, alleen voor CSV-rijen
+             - Filter "alleen winstgevend" — een schakelaar naast het herkomst-filter
              - Lege staat: nog niets geïmporteerd, mét het commando dat dat oplost
 
 BEHAVIOUR:   - Import is idempotent: hetzelfde bestand twee keer laat de rijen ongemoeid
@@ -43,6 +44,15 @@ BEHAVIOUR:   - Import is idempotent: hetzelfde bestand twee keer laat de rijen o
                buiten de huidige selectie vallen, zoals de bron-waarschuwingen dat al doen
              - Import raakt `prospect_status` niet aan
              - De financiële kolommen sorteren en filteren, maar voeden geen score
+             - "Alleen winstgevend" zeeft op `ebitda > 0`. Gemeten op het geleverde
+               bestand: 44 van de 218 zijn verlieslatend, en dat zijn exact dezelfde 44
+               als die met een lege `enterpriseValue` — waar EBITDA positief is geldt
+               `enterpriseValue = ebitda × valuationMultiple` tot op de cent, dus die
+               kolom is afgeleid en bij verlies niet berekenbaar. De schakelaar staat
+               standaard **uit**: een lijst die stil een vijfde van zichzelf verbergt is
+               precies de afkapping-zonder-melding die deze app elders vermijdt
+             - Een KBO-rij draagt geen EBITDA. Met de zeef aan verdwijnt de KBO-herkomst
+               dus volledig; dat moet de UI zeggen, niet stil doen
 
 CONSTRAINTS: - Het CSV-bestand blijft buiten git: pad als argument, opslag in `.data/`
              - Geen upload-route — deze app heeft geen auth
@@ -109,6 +119,9 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 - [ ] De rij `DAENINCK, AUDENAERT en Co` komt heel binnen op nummer `0465416688` — bewijs: `SELECT name` op dat nummer (dit is de regel waarop een naïeve komma-split brak, gemeten 2026-09-08)
 - [ ] De 3 nummers zonder KBO-treffer (`0899434379`, `0468585818`, `0835734875`) staan in de lijst met naam en stad — bewijs: DOM-telling op die drie kaarten in de flow-harness
 - [ ] Met alleen WVL geselecteerd meldt de lijst hoeveel regioloze CSV-rijen buiten de selectie vallen — bewijs: de tekst van die melding in de DOM
+- [ ] "Alleen winstgevend" laat 174 van de 218 CSV-rijen over — bewijs: de teller in de DOM tegen `SELECT count(*) FROM csv_prospects WHERE ebitda > 0`
+- [ ] Die schakelaar staat bij het laden uit — bewijs: de `aria-checked`/`checked`-waarde bij de eerste render
+- [ ] Met de zeef aan meldt de UI dat de KBO-herkomst geen EBITDA draagt — bewijs: de tekst van die melding in de DOM
 - [ ] `csv_prospects` ontstaat op een bestaande database zonder migratiestap — bewijs: `.tables` op een kopie van `jobradar.db` vóór en ná één `getDb()`
 - [ ] Een bedrijf dat in beide bronnen zit levert één kaart, niet twee — bewijs: DOM-telling van kaarten met dat ondernemingsnummer, hoort 1 te zijn
 - [ ] Typologie: het herkomst-filter is een segmented control en staat binnen `FilterBar` — bewijs: de gerenderde markup van dat element in de DOM
@@ -128,3 +141,4 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 - 2026-09-08: Typologie beslist (Jeroen): segmented control in de bestaande `FilterBar`, geen apart CSV-tabblad. Daarmee zijn de vier kritische items van deze briefing beantwoord.
 - 2026-09-08: Twee constraints gecorrigeerd op de bron in plaats van op aanname. De `SCHEMA_VERSION 6 → 7`-migratiestap bestond niet: er is geen migratiemechanisme en de constante heeft nul lezers — de enige twee vermeldingen stonden in deze briefings zelf. En de import-CLI kan `getDb()` niet aanroepen (`server-only`).
 - 2026-09-08: Regiogedrag beslist. Een CSV-rij zonder KBO-adres heeft geen postcode en kan het regiofilter per constructie niet passeren. Gekozen: buiten de selectie laten vallen maar het aantal melden, boven stil weglaten (verbergt data) en boven altijd tonen (maakt het filter onwaar).
+- 2026-09-08: Verlieslatendheid wordt een filter, geen label op de kaart (Jeroen). Standaard uit, want de zeef verbergt 44 van de 218 en zou anders stil een vijfde van de lijst wegnemen.

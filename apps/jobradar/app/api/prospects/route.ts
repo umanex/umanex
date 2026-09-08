@@ -5,6 +5,7 @@ import * as schema from '@/lib/db/schema'
 import { haalProspects } from '@/lib/kbo/spiegel'
 import { ALL_REGIONS, type RegionCode } from '@/lib/regions'
 import type { ItemStatus } from '@/lib/db/schema'
+import type { Herkomst } from '@/lib/kbo/universum'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,11 +25,19 @@ export async function GET(request: Request) {
   const gevraagd = url.searchParams.getAll('regio').filter((r): r is RegionCode =>
     (ALL_REGIONS as string[]).includes(r)
   )
+  const herkomstRuw = url.searchParams.get('herkomst')
+  const herkomst: Herkomst =
+    herkomstRuw === 'kbo' || herkomstRuw === 'csv' ? herkomstRuw : 'beide'
+
   const filter = {
     regions: gevraagd.length ? gevraagd : ALL_REGIONS,
     zoek: url.searchParams.get('zoek') ?? undefined,
     // Standaard aan: zonder deze zeef is 80% van de lijst zonder personeel.
     alleenWerkgevers: url.searchParams.get('werkgevers') !== '0',
+    herkomst,
+    // Standaard uit, anders verbergt de lijst stil de verlieslatende bedrijven — op het
+    // geleverde bestand 44 van de 218.
+    alleenWinstgevend: url.searchParams.get('winstgevend') === '1',
     pagina: Number(url.searchParams.get('pagina') ?? '1'),
   }
 
@@ -52,6 +61,7 @@ export async function GET(request: Request) {
     totaal: resultaat.totaal,
     pagina: resultaat.pagina,
     paginas: resultaat.paginas,
+    zonderKbo: resultaat.zonderKbo,
     prospects: resultaat.rijen.map((r) => ({
       ...r,
       status: statussen.get(r.nummer) ?? 'new',

@@ -3,7 +3,14 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 import Database from 'better-sqlite3'
 import { kboDatum } from './csv'
-import { bouwProspectSql, NACE_LABEL, PAGINA_GROOTTE, type ProspectFilter, type ProspectRij } from './universum'
+import {
+  bouwProspectSql,
+  bouwZonderKboSql,
+  NACE_LABEL,
+  PAGINA_GROOTTE,
+  type ProspectFilter,
+  type ProspectRij,
+} from './universum'
 import { zoekOnderneming } from './koppeling'
 import type { RegionCode } from '../regions'
 
@@ -19,6 +26,9 @@ import type { RegionCode } from '../regions'
 
 const PAD = () => process.env.KBO_DB_PATH ?? join(process.cwd(), '.data', 'kbo.db')
 
+/** Zelfde afleiding als `lib/db/index.ts`, want het is dezelfde database. */
+const APP_DB_PAD = () => process.env.JOBRADAR_DB_PATH ?? join(process.cwd(), '.data', 'jobradar.db')
+
 export type SpiegelStaat =
   | { soort: 'ontbreekt'; pad: string }
   | { soort: 'ok'; snapshot: string | null; extract: string | null; ouderdomDagen: number | null }
@@ -29,6 +39,12 @@ export type ProspectResultaat = {
   totaal: number
   pagina: number
   paginas: number
+  /**
+   * CSV-rijen zonder KBO-tegenhanger. Ze kunnen niet in de lijst staan — die vertrekt van
+   * `enterprise` en ze dragen geen postcode voor het regiofilter — maar ze verdwijnen niet
+   * stil: de UI meldt het aantal boven de lijst.
+   */
+  zonderKbo: number
 }
 
 let verbinding: Database.Database | null = null
@@ -36,7 +52,30 @@ let verbinding: Database.Database | null = null
 function open(): Database.Database | null {
   const pad = PAD()
   if (!existsSync(pad)) return null
-  if (!verbinding) verbinding = new Database(pad, { readonly: true, fileMustExist: true })
+  if (!verbinding) {
+    verbinding = new Database(pad, { readonly: true, fileMustExist: true })
+    // De prospect-lijst leest uit twee databases: de rijen uit de spiegel, de CSV-bron en
+    // de statussen uit `jobradar.db`. Eén ATTACH in plaats van twee verbindingen die in JS
+    // samengevoegd worden, want alleen zo delen de telling en de lijst hun WHERE — en
+    // lopen `totaal` en `paginas` niet uiteen van wat er werkelijk staat.
+    //
+    // Gemeten 2026-09-08 op better-sqlite3 12.10.0: een ATTACH op een readonly verbinding
+    // lukt, leest, joint over beide databases — en een INSERT erdoorheen wordt geweigerd
+    // met "attempt to write a readonly database". De readonly-vlag draagt dus door.
+    const appDb = APP_DB_PAD()
+    if (existsSync(appDb)) {
+      verbinding.exec(`ATTACH DATABASE '${appDb.replace(/'/g, "''")}' AS jr`)
+    } else {
+      // Zonder de app-database bestaat `jr.csv_prospects` niet en zou élke query falen op
+      // een onbekende tabel. Een lege tabel in het geheugen houdt de SQL geldig en levert
+      // exact wat waar is: geen CSV-herkomst.
+      verbinding.exec(`ATTACH DATABASE ':memory:' AS jr`)
+      verbinding.exec(`CREATE TABLE jr.csv_prospects (
+        enterprise_number TEXT PRIMARY KEY, name TEXT, nace_label TEXT, city TEXT,
+        employee_count REAL, ebitda REAL, valuation_multiple REAL,
+        enterprise_value REAL, equity_value REAL, bestandsnaam TEXT, imported_at TEXT)`)
+    }
+  }
   return verbinding
 }
 
@@ -58,7 +97,10 @@ function staatVan(db: Database.Database, vandaag: string): SpiegelStaat {
 export function haalProspects(filter: ProspectFilter, vandaag: string): ProspectResultaat {
   const db = open()
   if (!db) {
-    return { staat: { soort: 'ontbreekt', pad: PAD() }, rijen: [], totaal: 0, pagina: 1, paginas: 0 }
+    // Ook de CSV-bron is hier onzichtbaar: de lijst vertrekt van `enterprise`, dus zonder
+    // spiegel is er niets om op te joinen. Dat is een echte beperking en geen detail — de
+    // lege toestand in de UI zegt het erbij.
+    return { staat: { soort: 'ontbreekt', pad: PAD() }, rijen: [], totaal: 0, pagina: 1, paginas: 0, zonderKbo: 0 }
   }
 
   const telling = bouwProspectSql(filter, { tellen: true })
@@ -67,12 +109,16 @@ export function haalProspects(filter: ProspectFilter, vandaag: string): Prospect
   const lijst = bouwProspectSql(filter)
   const rijen = db.prepare(lijst.sql).all(...lijst.params) as ProspectRij[]
 
+  const buiten = bouwZonderKboSql(filter)
+  const zonderKbo = (db.prepare(buiten.sql).get(...buiten.params) as { n: number }).n
+
   return {
     staat: staatVan(db, vandaag),
     rijen,
     totaal,
     pagina: Math.max(1, Math.trunc(filter.pagina || 1)),
     paginas: Math.max(1, Math.ceil(totaal / PAGINA_GROOTTE)),
+    zonderKbo,
   }
 }
 
