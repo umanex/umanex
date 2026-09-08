@@ -1401,7 +1401,7 @@
     "name": "Chip",
     "id": "2016:12272",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "tgifvu:11",
     "componentProperties": [
      "value#2016:212",
@@ -1437,7 +1437,7 @@
     "name": "default",
     "id": "2016:10368",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "nfevam:23",
     "componentProperties": [
      "title#2016:99"
@@ -1461,7 +1461,7 @@
     "name": "default",
     "id": "2016:10942",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1rlvu83:75",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1483,7 +1483,7 @@
     "name": "default",
     "id": "2016:10704",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1srt9n7:32",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1505,7 +1505,7 @@
     "name": "default",
     "id": "2016:12240",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1ib2pk3:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1527,7 +1527,7 @@
     "name": "default",
     "id": "2016:12242",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "13nfy41:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1549,7 +1549,7 @@
     "name": "default",
     "id": "2016:12244",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "v0bb3:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1571,7 +1571,7 @@
     "name": "default",
     "id": "2016:11105",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1j7ln7v:2",
     "componentProperties": [
      "title#2016:197"
@@ -1595,7 +1595,7 @@
     "name": "default",
     "id": "2016:11108",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "aa7jmk:3",
     "componentProperties": [
      "label#2016:198"
@@ -1619,7 +1619,7 @@
     "name": "default",
     "id": "2016:12248",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "ruoq2m:4",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1641,7 +1641,7 @@
     "name": "TabLabel",
     "id": "2016:11113",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "j64fos:5",
     "componentProperties": [
      "label#2016:199",
@@ -1676,7 +1676,7 @@
     "name": "default",
     "id": "2016:12261",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "18aimu2:6",
     "componentProperties": [
      "value#2016:209",
@@ -1702,7 +1702,7 @@
     "name": "default",
     "id": "2016:11117",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "12fz620:4",
     "componentProperties": [
      "message#2016:202"
@@ -1726,7 +1726,7 @@
     "name": "default",
     "id": "2016:12255",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "c2sgv7:7",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1748,7 +1748,7 @@
     "name": "default",
     "id": "2016:10273",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1pfgvm8:19",
     "componentProperties": [
      "message#2016:98"
@@ -1772,7 +1772,7 @@
     "name": "DeviceSelectionModal",
     "id": "2016:10672",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "kzd543:67",
     "componentProperties": [
      "kind"
@@ -1806,7 +1806,7 @@
     "name": "EmptyState",
     "id": "2016:10239",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "mwl5g8:11",
     "componentProperties": [
      "title#2016:83",
@@ -1842,7 +1842,7 @@
     "name": "PrBadge",
     "id": "2016:11139",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "14o9bc9:9",
     "componentProperties": [
      "label#2016:206",
@@ -1877,7 +1877,7 @@
     "name": "FormField",
     "id": "2016:11130",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1gc4glq:13",
     "componentProperties": [
      "label#2016:203",
@@ -1912,7 +1912,7 @@
     "name": "default",
     "id": "2016:10309",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "4quq3r:19",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1934,7 +1934,7 @@
     "name": "ErrorState",
     "id": "2016:10254",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "ohe85z:15",
     "componentProperties": [
      "title#2016:89",
@@ -1971,7 +1971,7 @@
     "name": "default",
     "id": "2016:10290",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "gb6f7h:17",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1993,7 +1993,7 @@
     "name": "default",
     "id": "2016:10345",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "16oozbi:19",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -2015,7 +2015,7 @@
     "name": "Segmented",
     "id": "2016:10326",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "s4tj31:17",
     "componentProperties": [
      "variant"
@@ -2049,7 +2049,7 @@
     "name": "HrStatusBar",
     "id": "2016:10516",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "3j6qvs:54",
     "componentProperties": [
      "hrStatus"
@@ -2098,7 +2098,7 @@
     "name": "WheelPicker",
     "id": "2016:11454",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "5zikdq:315",
     "componentProperties": [
      "showPill",
@@ -2147,7 +2147,7 @@
     "name": "Playground",
     "id": "2016:11814",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "vzdw92:140",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -2184,7 +2184,7 @@
     "name": "BleStatusBar",
     "id": "2016:10462",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1hamq4a:85",
     "componentProperties": [
      "deviceName#2016:103",
@@ -2249,7 +2249,7 @@
     "name": "DeviceRow",
     "id": "2016:10605",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "12xhilt:89",
     "componentProperties": [
      "label#2016:112",
@@ -2323,7 +2323,7 @@
     "name": "GoalSegments",
     "id": "2016:10867",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "znasr2:66",
     "componentProperties": [
      "selected"
@@ -2372,7 +2372,7 @@
     "name": "KPI",
     "id": "2016:10801",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "1ob53o5:97",
     "componentProperties": [
      "label#2016:130",
@@ -2485,7 +2485,7 @@
     "name": "Button",
     "id": "2016:11103",
     "type": "COMPONENT_SET",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "763smk:161",
     "componentProperties": [
      "title#2016:164",
@@ -2494,7 +2494,7 @@
      "loading",
      "disabled"
     ],
-    "eigenVulling": 1,
+    "eigenVulling": 0,
     "variantenMetVulling": 0,
     "variantProperties": {
      "variant": {
@@ -2663,7 +2663,7 @@
     "name": "Playground",
     "id": "2016:11498",
     "type": "COMPONENT",
-    "publishStatus": "CHANGED",
+    "publishStatus": "CURRENT",
     "bouwhash": "fxn12y:44",
     "componentProperties": [],
     "eigenVulling": 0,
