@@ -124,13 +124,23 @@ for (const [comp, d] of Object.entries(spec.componenten)) {
   uit.componenten[comp] = {
     assen: d.assen,
     slots: d.slots ?? [],
-    varianten: d.varianten.map(v => ({ naam: v.naam, boom: snoei(v.boom, 0, '', `${comp}[${v.naam}]`) })),
+    varianten: d.varianten.map(v => ({
+      naam: v.naam,
+      boom: snoei(v.boom, 0, '', `${comp}[${v.naam}]`),
+      // Een <Modal>-portal is een APARTE boom naast de hoofdboom, geen kind ervan. De builder
+      // legt hem als absoluut kind over het frame — zoals de DOM hem over het viewport legt.
+      ...(v.overlays?.length ? { overlays: v.overlays.map((o, i) => snoei(o, 0, '', `${comp}[${v.naam}] overlay${i}`)) } : {}),
+    })),
   };
 }
 for (const [comp, d] of Object.entries(spec.schermen)) {
   uit.schermen[comp] = {
     afgeschrevenAssen: d.afgeschrevenAssen,
-    frames: d.frames.map(f => ({ naam: f.naam, boom: snoei(f.boom, 0, '', `${comp}[${f.naam}]`) })),
+    frames: d.frames.map(f => ({
+      naam: f.naam,
+      boom: snoei(f.boom, 0, '', `${comp}[${f.naam}]`),
+      ...(f.overlays?.length ? { overlays: f.overlays.map((o, i) => snoei(o, 0, '', `${comp}[${f.naam}] overlay${i}`)) } : {}),
+    })),
   };
 }
 writeFileSync(join(APP, 'figma/build-spec.min.json'), JSON.stringify(uit));
@@ -166,8 +176,13 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
   const namenVan = (n) => [n.naam, ...(n.k ?? []).flatMap(namenVan)];
 
   for (const [comp, d] of Object.entries({ ...uit.componenten, ...uit.schermen })) {
-    const bomen = (d.varianten ?? d.frames ?? []).map(v => v.boom);
-    for (const b of bomen) for (const n of plat(b)) {
+    const items = d.varianten ?? d.frames ?? [];
+    const bomen = items.map(v => v.boom);
+    // De overlays tellen mee in de DEKKING (ze staan straks in Figma), maar niet in de
+    // stabiliteitsvergelijking hieronder: die groepeert varianten op boomvorm, en een
+    // modalboom hoort niet tegen een schermboom gelegd te worden.
+    const alleBomen = [...bomen, ...items.flatMap(v => v.overlays ?? [])];
+    for (const b of alleBomen) for (const n of plat(b)) {
       nodes++;
       perBron[n.naamBron ?? 'sleutel'] = (perBron[n.naamBron ?? 'sleutel'] ?? 0) + 1;
       perNaam.set(n.naam, (perNaam.get(n.naam) ?? 0) + 1);

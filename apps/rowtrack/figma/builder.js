@@ -396,12 +396,25 @@ for (const [comp, d] of Object.entries(SPEC)) {
   let x = 0;
   for (const v of items) {
     const node = await maak(v.boom, comp);
-    const c = wrapper(v.naam, v.boom.w, v.boom.h);
+    // De wrapper is zo groot als de grootste van hoofdboom en overlays: een modal bedekt het
+    // hele viewport en is dus vaak hoger dan het scherm eronder.
+    const br = Math.max(v.boom.w, ...(v.overlays ?? []).map(o => o.w));
+    const ho = Math.max(v.boom.h, ...(v.overlays ?? []).map(o => o.h));
+    const c = wrapper(v.naam, br, ho);
     c.x = x; c.y = 0;
     page.appendChild(c);
     c.appendChild(node);
     node.x = 0; node.y = 0;
-    x += Math.ceil(v.boom.w) + 48;
+    // Een <Modal> portaleert in de DOM naar `body` en ligt dus OVER het scherm, niet erin.
+    // Zo bouwen we hem ook: een los kind van de wrapper, absoluut op (0,0). Tot 2026-09-08
+    // bestond hij voor de walker niet — drie ActivePhase-frames waren daardoor
+    // dubbelgangers en de hele summary had nul meting.
+    for (const o of v.overlays ?? []) {
+      const ov = await maak(o, comp);
+      c.appendChild(ov);
+      ov.x = 0; ov.y = 0;
+    }
+    x += Math.ceil(br) + 48;
     comps.push(c);
   }
   let hoofd = comps[0];

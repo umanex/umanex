@@ -39,8 +39,8 @@ if (process.argv.includes('--hernoem')) {
   const spec = JSON.parse(readFileSync(specPad, 'utf8'));
   let n = 0;
   spec.naamStats = [];
-  for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(benoem(comp, d.varianten.map(v => v.boom))); n++; }
-  for (const [comp, d] of Object.entries(spec.schermen)) { spec.naamStats.push(benoem(comp, d.frames.map(f => f.boom))); n++; }
+  for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(...benoemAlles(comp, d.varianten)); n++; }
+  for (const [comp, d] of Object.entries(spec.schermen)) { spec.naamStats.push(...benoemAlles(comp, d.frames)); n++; }
   writeFileSync(specPad, JSON.stringify(spec, null, 1));
   console.log(`hernoemd: ${n} componenten in figma/build-spec.json — draai nu figma-build-prune.mjs`);
   process.exit(0);
@@ -213,6 +213,21 @@ function combinaties(assenObj) {
 }
 
 /** Storybook-args in de URL: booleans als !true/!false. */
+/**
+ * Namen toekennen aan een component: eerst de hoofdbomen, dan de overlays als eigen groep.
+ *
+ * Een overlay (een <Modal>-portal) is een APARTE boom naast de schermboom, geen kind ervan.
+ * Ze samen in één `benoem()` gooien zou `stabiliseer()` een schermboom tegen een modalboom
+ * laten vergelijken; apart houden laat hem de modal van variant A tegen die van variant B
+ * leggen, wat wél dezelfde vorm is.
+ */
+function benoemAlles(comp, items) {
+  const stats = [benoem(comp, items.map(x => x.boom))];
+  const alleOverlays = items.flatMap(x => x.overlays ?? []);
+  if (alleOverlays.length) stats.push(benoem(comp, alleOverlays));
+  return stats;
+}
+
 const argsQuery = args => Object.entries(args)
   .map(([k, v]) => `${k}:${typeof v === 'boolean' ? '!' + v : v}`).join(';');
 
@@ -247,27 +262,37 @@ const WALKER = () => {
   let kinderen = [...decorator.children];
 
   // Een <Modal> portaleert in react-native-web BUITEN #storybook-root, naar document.body.
-  // Gemeten 2026-09-07: MotivationalToast en DeviceSelectionModal gaven dan "0 kinderen"
-  // terwijl ze prima renderden. Zonder deze tak zou een overlay-component stil als leeg
-  // gelezen worden — dezelfde vorm als een echte lege render.
-  // Ook een <Modal>-sheet die WEL een kind achterlaat in de decorator, maar een leeg kind
-  // van 0x0: BottomSheet, GoalSheet en HealthConsentScreen deden dat (gemeten 2026-09-07).
-  // De portal-tak vuurde niet omdat kinderen.length 1 was.
+  // Anker op INHOUD, niet op afmeting: de portal-wortel heeft hoogte 0 omdat de modal erin
+  // absoluut gepositioneerd is. Een filter op `height > 0` sneed hem precies weg (gemeten
+  // 2026-09-07 — eerste poging vond nul portals terwijl er één stond). Storybook's eigen
+  // wrappers dragen een id of een sb-class; de portal geen van beide.
+  const portalen = [...document.body.children].filter(el =>
+    el.tagName !== 'SCRIPT' && el.tagName !== 'SVG' && el.tagName !== 'svg' &&
+    !el.id && !/\bsb-/.test(String(el.className || '')) &&
+    !el.contains(root) && (el.textContent || '').trim().length > 0);
+
+  // Een <Modal>-sheet laat soms WEL een kind in de decorator achter, maar een leeg kind van
+  // 0x0: BottomSheet, GoalSheet en HealthConsentScreen deden dat (gemeten 2026-09-07).
   if (kinderen.length === 1) {
     const r0 = kinderen[0].getBoundingClientRect();
     if (r0.width < 2 && r0.height < 2 && kinderen[0].children.length === 0) kinderen = [];
   }
+
+  // WAT ER TOT 2026-09-08 MISGING: de portal werd alléén geraadpleegd als de decorator leeg
+  // was. Een SCHERM met een modal erover heeft allebei — en dan viel de modal weg. Gemeten
+  // op de gecommitte spec: de ActivePhase-frames Playground, Doel Bereikt en Samenvatting
+  // hadden alle drie 45 nodes met exact dezelfde teksthash, want de summary-Modal en de
+  // toast bestonden voor de walker niet. Vier componenten uit de refactor (SummaryTitle,
+  // PrBanner, SummaryKpiBand, StatsTable) hadden daardoor nul schermmeting.
+  //
+  // Nu: de decorator-inhoud is de BOOM, de portalen zijn OVERLAYS die er absoluut overheen
+  // liggen — precies wat de DOM doet, en wat je in Figma wil zien.
+  let overlays = [];
   if (kinderen.length === 0) {
-    // Anker op INHOUD, niet op afmeting: de portal-wortel heeft hoogte 0 omdat de modal
-    // erin absoluut gepositioneerd is. Een filter op `height > 0` sneed hem precies weg
-    // (gemeten 2026-09-07 — eerste poging vond nul portals terwijl er één stond).
-    // Storybook's eigen wrappers dragen een id of een sb-class; de portal geen van beide.
-    const buiten = [...document.body.children].filter(el =>
-      el.tagName !== 'SCRIPT' && el.tagName !== 'SVG' && el.tagName !== 'svg' &&
-      !el.id && !/\bsb-/.test(String(el.className || '')) &&
-      !el.contains(root) && (el.textContent || '').trim().length > 0);
-    if (buiten.length === 1) kinderen = [buiten[0]];
-    else if (buiten.length > 1) return { fout: `${buiten.length} portal-wortels buiten #storybook-root` };
+    if (portalen.length === 1) kinderen = [portalen[0]];
+    else if (portalen.length > 1) return { fout: `${portalen.length} portal-wortels buiten #storybook-root` };
+  } else {
+    overlays = portalen;
   }
   if (kinderen.length !== 1) return { fout: `verwacht 1 kind onder de decorator, kreeg ${kinderen.length}` };
 
@@ -400,7 +425,16 @@ const WALKER = () => {
     }
     return o;
   }
-  return { boom: lees(kinderen[0], 0, null) };
+  // De overlays krijgen `abs` mee: ze liggen in de DOM over het viewport, en de builder legt
+  // ze zo als absoluut gepositioneerd kind naast de schermboom in plaats van eronder in de
+  // auto-layout-stroom.
+  const boom = lees(kinderen[0], 0, null);
+  const overlayBomen = overlays.map(el => {
+    const o = lees(el, 0, null);
+    o.positie = 'absolute'; o.dx = 0; o.dy = 0;
+    return o;
+  });
+  return overlayBomen.length ? { boom, overlays: overlayBomen } : { boom };
 };
 
 // ---------------------------------------------------------------------------
@@ -438,6 +472,7 @@ async function meet(storyId, args) {
   await page.waitForTimeout(120);
   const r = await page.evaluate(WALKER);
   if (r.boom) erfMaatVanOuder(r.boom, null);
+  for (const o of r.overlays ?? []) erfMaatVanOuder(o, null);
   // De args van deze story, uit Storybook's eigen preview-API. Die geven de WAARDE van elke
   // prop ('Start training'), en daarmee is de slot-koppeling meetbaar in plaats van geraden:
   // de tekstnode met exact die inhoud is de doelnode.
@@ -556,9 +591,10 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     const r = await meet(d.storyId, c.args);
     if (r.fout) { spec.fouten.push(`${comp} [${c.naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    varianten.push({ naam: c.naam, args: c.args, boom: r.boom, storyArgs: r.args });
+    for (const o of r.overlays ?? []) bind(o, '', comp);
+    varianten.push({ naam: c.naam, args: c.args, boom: r.boom, overlays: r.overlays, storyArgs: r.args });
   }
-  (spec.naamStats ??= []).push(benoem(comp, varianten.map(v => v.boom)));   // laagnamen: één beslissing per component
+  (spec.naamStats ??= []).push(...benoemAlles(comp, varianten));   // laagnamen: één beslissing per component
   const slots = markeerSlots(comp, varianten.map(v => ({ naam: v.naam, boom: v.boom, args: v.storyArgs })), d.assen, spec.fouten);
   spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, slots, varianten };
   process.stderr.write(`  ${comp}: ${varianten.length}/${combis.length}\n`);
@@ -574,9 +610,10 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     const r = await meet(e.id, {});
     if (r.fout) { spec.fouten.push(`${comp} [${naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    frames.push({ naam, storyId: e.id, boom: r.boom });
+    for (const o of r.overlays ?? []) bind(o, '', comp);
+    frames.push({ naam, storyId: e.id, boom: r.boom, overlays: r.overlays });
   }
-  (spec.naamStats ??= []).push(benoem(comp, frames.map(f => f.boom)));
+  (spec.naamStats ??= []).push(...benoemAlles(comp, frames));
   spec.schermen[comp] = { frames, afgeschrevenAssen: assen.componenten[comp].assen };
   process.stderr.write(`  ${comp} (scherm): ${frames.length}/${storyNamen.length}\n`);
 }
