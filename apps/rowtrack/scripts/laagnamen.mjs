@@ -19,67 +19,85 @@
 export const DREMPEL = 0.34;
 
 const plat = (n, uit = []) => { uit.push(n); for (const k of n.kinderen ?? []) plat(k, uit); return uit; };
+/** Boomvorm als string — twee varianten met dezelfde vorm zijn positie-voor-positie vergelijkbaar. */
+const vorm = (n) => `${(n.kinderen ?? []).length}(${(n.kinderen ?? []).map(vorm).join('')})`;
 const sleutelId = (c) => `${c.b}/${c.s}`;
 
-/** Bestandspad -> componentnaam, voor de "genest component"-tak. */
+/**
+ * Bestandspad -> componentnaam, voor de "genest component"-tak.
+ *
+ * Een `.stories.tsx` is géén componentbron: die stript maar één extensie en leverde daardoor
+ * laagnamen als `BottomSheet.stories` en `Skeleton.stories` (gemeten 2026-09-08).
+ */
 function componentVan(bron) {
-  const blad = bron.split('/').pop().replace(/\.tsx?$/, '');
-  return /^[A-Z]/.test(blad) ? blad : null;
+  const blad = bron.split('/').pop();
+  if (/\.stories\.tsx?$/.test(blad)) return null;
+  const naam = blad.replace(/\.tsx?$/, '');
+  return /^[A-Z]/.test(naam) && !naam.includes('.') ? naam : null;
 }
 
 /**
- * Vouw variant-alternatieven samen tot één stamnaam.
+ * Vouw variant-alternatieven samen tot één stamnaam — met POSITIEF bewijs.
  *
- * Twee sleutels uit dezelfde `create`-aanroep zijn ALTERNATIEVEN als geen enkele node ooit
- * een eigen klasse van allebei draagt. Dat scheidt een ternary (`size === 'lg' ? a : b`,
- * ErrorState) van een array (`[basis, modifier]`, PrBadge) zonder te raden: bij een array
- * staan beide sleutels tegelijk op dezelfde node, bij een ternary nooit.
+ * De vorige versie vouwde elk paar sleutels dat nooit samen op één node stond. Dat is een
+ * negatief bewijs, en het bewijst het verkeerde: twee sleutels die op twee verschillende
+ * ELEMENTEN zitten botsen per constructie ook nooit. Gemeten 2026-09-08 op de gecommitte
+ * spec: `smallValue`/`smallUnit` uit WheelPicker werden `small`/`small`, en er stonden
+ * **295 ouders met twee of meer identieke kindnamen** in (`small` 128×, `kpi` 90×,
+ * `overlay` 80×, `big` 64×) — plus `scr`, een niet-bestaand woord uit `screen`+`scrollView`.
+ * `valueRow > small / small` draagt niet meer informatie dan `0 / 1`.
  *
- * Alleen alternatieven met een gedeeld voorvoegsel van >= 3 tekens worden gevouwen — anders
- * is er geen naam die beide beschrijft (`band`/`filled` in Segmented) en valt de node door
- * naar de terugval.
+ * Het bewijs dat er wél toe doet: twee sleutels zijn alternatieven wanneer ze om de beurt op
+ * DEZELFDE POSITIE in de boom winnen, in verschillende varianten. Dat is precies wat een
+ * ternary doet (`size === 'lg' ? containerLg : containerSm`) en wat twee zusjes nooit doen.
+ *
+ * @param bomen    alle varianten, met een rauwe winnaar (`ruw`) per node
  */
-function vouwAlternatieven(nodes) {
-  const eigenPer = new Map();          // sleutelId -> Set van klassen die alleen die sleutel heeft
-  const perBron = new Map();           // bronId -> Set van sleutelIds
-  const meta = new Map();              // sleutelId -> kandidaat-meta
-  for (const n of nodes)
-    for (const c of n.kandidaten ?? []) {
-      const id = sleutelId(c);
-      meta.set(id, c);
-      if (!perBron.has(c.b)) perBron.set(c.b, new Set());
-      perBron.get(c.b).add(id);
-      if (!eigenPer.has(id)) eigenPer.set(id, new Set());
-      for (const k of c.eigen) eigenPer.get(id).add(k);
-    }
-
-  // Per node: welke klassen horen bij welke sleutel? Twee sleutels "botsen" als een node
-  // een klasse draagt die exclusief van A is én een klasse die exclusief van B is.
-  const botst = new Set();
-  for (const n of nodes) {
-    const k = n.kandidaten ?? [];
-    for (let i = 0; i < k.length; i++)
-      for (let j = i + 1; j < k.length; j++) {
-        const a = k[i], b = k[j];
-        if (a.b !== b.b) continue;
-        const aEigen = a.eigen.filter(x => !b.eigen.includes(x));
-        const bEigen = b.eigen.filter(x => !a.eigen.includes(x));
-        if (aEigen.length && bEigen.length) botst.add([sleutelId(a), sleutelId(b)].sort().join('|'));
-      }
+function vouwAlternatieven(bomen, meta) {
+  // Alleen varianten met dezelfde boomvorm zijn positie-voor-positie vergelijkbaar.
+  const groepen = new Map();
+  for (const b of bomen) {
+    const v = vorm(b);
+    if (!groepen.has(v)) groepen.set(v, []);
+    groepen.get(v).push(b);
   }
 
+  const paren = new Set();
+  for (const [, g] of groepen) {
+    if (g.length < 2) continue;
+    const rijen = g.map(b => plat(b));
+    for (let i = 0; i < rijen[0].length; i++) {
+      const winnaars = [...new Set(rijen.map(r => r[i].ruw).filter(Boolean))];
+      for (let a = 0; a < winnaars.length; a++)
+        for (let b = a + 1; b < winnaars.length; b++) paren.add([winnaars[a], winnaars[b]].sort().join('|'));
+    }
+  }
+
+  // Botsen ze tóch ergens samen op één node, dan is het een array-compositie
+  // (`[styles.badge, small && styles.badgeSm]`) en geen alternatief.
+  const botst = new Set();
+  for (const b of bomen)
+    for (const n of plat(b)) {
+      const k = n.kandidaten ?? [];
+      for (let i = 0; i < k.length; i++)
+        for (let j = i + 1; j < k.length; j++) {
+          const x = k[i], y = k[j];
+          if (x.b !== y.b) continue;
+          const xEigen = x.eigen.filter((c) => !y.eigen.includes(c));
+          const yEigen = y.eigen.filter((c) => !x.eigen.includes(c));
+          if (xEigen.length && yEigen.length) botst.add([sleutelId(x), sleutelId(y)].sort().join('|'));
+        }
+    }
+
   const vouw = new Map();
-  for (const [, ids] of perBron) {
-    const lijst = [...ids];
-    for (let i = 0; i < lijst.length; i++)
-      for (let j = i + 1; j < lijst.length; j++) {
-        const [a, b] = [lijst[i], lijst[j]];
-        if (botst.has([a, b].sort().join('|'))) continue;
-        const na = meta.get(a).s, nb = meta.get(b).s;
-        const stam = gedeeldeStam(na, nb);
-        if (!stam) continue;
-        vouw.set(a, stam); vouw.set(b, stam);
-      }
+  for (const paar of paren) {
+    if (botst.has(paar)) continue;
+    const [a, b] = paar.split('|');
+    const ma = meta.get(a), mb = meta.get(b);
+    if (!ma || !mb || ma.b !== mb.b) continue;          // verschillende bronbestanden: geen paar
+    const stam = gedeeldeStam(ma.s, mb.s);
+    if (!stam) continue;
+    vouw.set(a, stam); vouw.set(b, stam);
   }
   return vouw;
 }
@@ -120,7 +138,6 @@ function gedeeldeStam(a, b) {
  * plaats van te verdwijnen in een gelijk getal.
  */
 export function stabiliseer(bomen) {
-  const vorm = (n) => `${(n.kinderen ?? []).length}(${(n.kinderen ?? []).map(vorm).join('')})`;
   const groepen = new Map();
   for (const b of bomen) {
     const v = vorm(b);
@@ -170,36 +187,85 @@ function terugval(n, ouder) {
  * @param {object[]} bomen     de boom van elke variant
  */
 export function benoem(comp, bomen) {
-  const alle = bomen.flatMap(b => plat(b));
-  const vouw = vouwAlternatieven(alle);
-
   // Universeel = de sleutel komt in ELKE variant ergens boven de drempel voor. Een
   // universele sleutel is de identiteit van het element, een conditionele de modifier —
   // en de modifier is precies wat de variant-as al uitdrukt.
-  const perVariant = bomen.map(b => new Set(
-    plat(b).flatMap(n => (n.kandidaten ?? [])
-      .filter(c => c.eigen.length / c.n >= DREMPEL)
-      .map(c => vouw.get(sleutelId(c)) ?? sleutelId(c)))));
-  const universeel = new Set([...(perVariant[0] ?? [])].filter(s => perVariant.every(p => p.has(s))));
+  const universaliteit = (vouw) => {
+    const perVariant = bomen.map(b => new Set(
+      plat(b).flatMap(n => (n.kandidaten ?? [])
+        .filter(c => c.eigen.length / c.n >= DREMPEL)
+        .map(c => vouw.get(sleutelId(c)) ?? sleutelId(c)))));
+    return new Set([...(perVariant[0] ?? [])].filter(s => perVariant.every(p => p.has(s))));
+  };
+  const rangschik = (n, vouw, universeel) => (n.kandidaten ?? [])
+    .map(c => {
+      const id = sleutelId(c);
+      return { ...c, id, naam: vouw.get(id) ?? c.s, cov: c.eigen.length / c.n, d: c.eigen.length,
+               u: universeel.has(vouw.get(id) ?? id) ? 0 : 1 };
+    })
+    .filter(c => c.cov >= DREMPEL)
+    .sort((a, b) => a.u - b.u || b.cov - a.cov || b.d - a.d || a.v - b.v);
 
+  // PAS 1 — een rauwe winnaar per node, zonder vouwen. Die is nodig om te zien welke twee
+  // sleutels om de beurt op DEZELFDE POSITIE winnen; dat is het positieve bewijs dat ze
+  // alternatieven zijn, en zonder die pas is er alleen het negatieve "ze botsen nooit".
+  const leeg = new Map();
+  const universeelRuw = universaliteit(leeg);
+  const meta = new Map();
+  for (const b of bomen)
+    for (const n of plat(b)) {
+      const w = rangschik(n, leeg, universeelRuw)[0];
+      n.ruw = w ? w.id : null;
+      if (w) meta.set(w.id, w);
+    }
+
+  const vouw = vouwAlternatieven(bomen, meta);
+  const universeel = universaliteit(vouw);
+
+  /** Hoe vaak wint elke bron in de subboom van `n`? Gebruikt de rauwe winnaars uit pas 1. */
+  const subboomCache = new Map();
+  const bronnenInSubboom = (n) => {
+    if (subboomCache.has(n)) return subboomCache.get(n);
+    const tel = new Map();
+    for (const x of plat(n)) {
+      const w = x.ruw ? meta.get(x.ruw) : null;
+      if (w) tel.set(w.b, (tel.get(w.b) ?? 0) + 1);
+    }
+    subboomCache.set(n, tel);
+    return tel;
+  };
+
+  // PAS 2 — opnieuw kiezen, nu mét de gevouwen namen, en daarna stabiliseren.
   for (const boom of bomen) loop(boom, null, true);
   stabiliseer(bomen);
 
   function loop(n, ouder, isWortel) {
-    const k = (n.kandidaten ?? [])
-      .map(c => {
-        const id = sleutelId(c);
-        const naam = vouw.get(id) ?? c.s;
-        return { ...c, id, naam, cov: c.eigen.length / c.n, d: c.eigen.length,
-                 u: universeel.has(vouw.get(id) ?? id) ? 0 : 1 };
-      })
-      .filter(c => c.cov >= DREMPEL)
-      .sort((a, b) => a.u - b.u || b.cov - a.cov || b.d - a.d || a.v - b.v);
+    const k = rangschik(n, vouw, universeel);
     const w = k[0];
     n.naamAmbigu = !!(w && k[1] && k[1].u === w.u && k[1].cov === w.cov && k[1].d === w.d && k[1].naam !== w.naam);
 
     if (isWortel) { n.naam = comp; n.naamBron = 'component'; }
-    else if (w && w.b !== ouder?.naamBronId && componentVan(w.bron) && componentVan(w.bron) !== comp) {
+    // Een genest component is pas een genest component als MEER DAN ÉÉN node in zijn subboom
+    // uit dezelfde bron wint. Eén node die toevallig een stijl deelt is geen component.
+    //
+    // Atomaire klassen zijn globaal gedeeld over álle StyleSheet.create-aanroepen in de
+    // preview-iframe, dus een generieke wrapper haalt moeiteloos volledige dekking op een
+    // sleutel uit een wildvreemd bestand. Gemeten 2026-09-08: MotivationalToast kreeg de
+    // keten `WheelPicker > wrapper > fadeTop > GoalSegments > overlay > BottomFade`, waarvan
+    // het component er geen enkele gebruikt — `WheelPicker` won op `fadeTop 1/1` en
+    // `GoalSegments` op `segmentInactive 1/1`. Een écht genest component (ErrorState > Button)
+    // wint op `base 5/5` én heeft een kind dat óók uit Button.tsx wint.
+    // De ruil, gemeten 2026-09-08: van 27 comp->vreemde-naam-paren naar 12, en alle twaalf
+    // zijn tegen de broncode getoetst (het genoemde component komt letterlijk in het bestand
+    // van de ouder voor). De kost is één groeperingslabel: `IdlePhase > WheelPicker` valt weg
+    // omdat de wortel van die subboom op `pickerCenter` (1 klasse) wint. De subboom draagt
+    // daar nog wél WheelPickers eigen sleutelnamen, dus het pad blijft eerlijk.
+    //
+    // `w.d >= 2`: één gedeelde atomaire klasse is geen bewijs. `fadeTop` is `{position:absolute}`
+    // en verklaart daarmee élke absoluut gepositioneerde wrapper voor 100% — twee zulke nodes
+    // in een subboom halen de telling hierboven zonder dat er iets van dat component staat.
+    else if (w && w.d >= 2 && w.b !== ouder?.naamBronId && componentVan(w.bron) && componentVan(w.bron) !== comp
+             && bronnenInSubboom(n).get(w.b) >= 2) {
       n.naam = componentVan(w.bron); n.naamBron = 'component';
     } else if (w) {
       n.naam = w.naam; n.naamBron = vouw.has(w.id) ? 'gefold' : 'sleutel';

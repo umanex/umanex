@@ -59,15 +59,21 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+96eb889 docs(rowtrack): reviewronde 1 — 25 bevindingen op een groene acceptatielijst
 02acf5f chore(rowtrack): manifest na de herpublicatie
 c9388ea chore(rowtrack): manifest en geometrie na de achtergrondmigratie
 d0373df fix(rowtrack): de app-achtergrond hoort achter de component, niet erin
 1e5e31c docs(rowtrack): de poort geweigerd gemeten, en de instance-toets als gat benoemd
-59d38ee docs(rowtrack): bewijs bij de twee afgeschreven acceptatie-assen
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/builder.js
+  M  apps/rowtrack/figma/laagnamen.json
+  M  apps/rowtrack/scripts/figma-build-spec.mjs
+  M  apps/rowtrack/scripts/figma-poort-selftest.mjs
+  M  apps/rowtrack/scripts/laagnamen.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

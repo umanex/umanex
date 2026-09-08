@@ -318,23 +318,31 @@ function achtergrondVlak(page, doelen) {
 }
 
 /**
- * Vingerafdruk van een gebouwde deelboom. Bewust grof: type, naam, afgeronde maat en de
- * tekstinhoud. Dat is genoeg om HANDWERK te zien (iets hernoemd, verplaatst, hertypt,
+ * Vingerafdruk van een gebouwde deelboom. Bewust grof: pad, type, naam, afgeronde maat en
+ * de tekstinhoud. Dat is genoeg om HANDWERK te zien (iets hernoemd, verplaatst, hertypt,
  * toegevoegd of weggehaald) zonder rood te worden op subpixel-ruis die Figma zelf
  * introduceert bij een herbouw.
  */
 function bouwhash(node) {
+  // Elk deel draagt zijn PAD in de boom. De vorige versie duwde de nodes op een stapel en
+  // sorteerde de strings — daardoor was de hash een multiset zonder ouder-kindrelatie en
+  // zonder broervolgorde, en waren precies de meest voorkomende handmatige Figma-edits
+  // onzichtbaar. Gemeten 2026-09-08 op de echte functie: twee broers omdraaien, een tekstnode
+  // naar een ander frame slepen en twee zusternamen omwisselen gaven alle drie een IDENTIEKE
+  // hash, dus `poort()` liet ze door en de builder leegde de pagina. Broervolgorde ís de
+  // visuele volgorde in een auto-layout.
+  //
+  // Een diepte-eerst wandeling is al deterministisch, dus het sorteren was niet alleen
+  // destructief maar ook overbodig.
   const delen = [];
-  const stapel = [node];
-  while (stapel.length) {
-    const n = stapel.pop();
-    delen.push(`${n.type}|${n.name}|${Math.round(n.width)}x${Math.round(n.height)}` +
+  (function loop(n, pad) {
+    delen.push(`${pad}|${n.type}|${n.name}|${Math.round(n.width)}x${Math.round(n.height)}` +
                (n.type === 'TEXT' ? '|' + n.characters : ''));
-    if ('children' in n) stapel.push(...n.children);
-  }
+    if ('children' in n) n.children.forEach((k, i) => loop(k, `${pad}/${i}`));
+  })(node, '');
   // FNV-1a; geen crypto nodig, en deterministisch in de plugin-sandbox.
   let h = 0x811c9dc5;
-  const str = delen.sort().join('\n');
+  const str = delen.join('\n');
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
   return (h >>> 0).toString(36) + ':' + delen.length;
 }

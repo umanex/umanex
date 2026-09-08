@@ -41,7 +41,9 @@ const { bouwhash, poort } = await scope(meldingen);
 // --- stub-nodes -------------------------------------------------------------------------
 const T = (naam, tekst) => ({ type: 'TEXT', name: naam, width: 100, height: 20, characters: tekst });
 const F = (naam, kinderen = [], w = 320, h = 48) => ({ type: 'FRAME', name: naam, width: w, height: h, children: kinderen });
-const boom = () => F('Button', [F('content', [T('label', 'Start training')])]);
+// Twee broers onder `content`: zonder een tweede broer is een omdraai-mutatie een no-op en
+// meet de structuur-tegenproef niets (gemeten 2026-09-08 — hij stond groen op een lijst van één).
+const boom = () => F('Button', [F('content', [T('label', 'Start training'), T('unit', 'm')])]);
 
 /** Maak een pagina-stub met één kind, en hang er publicatiestatus + pluginData aan. */
 function pagina(kind, { status = 'UNPUBLISHED', hash = null } = {}) {
@@ -83,6 +85,13 @@ const mutaties = {
   vergroot:    (n) => { n.children[0].width = 260; },
   toegevoegd:  (n) => { n.children.push(T('badge', 'PR')); },
   weggehaald:  (n) => { n.children[0].children.pop(); },
+  // Structuur. Deze drie gaven vóór 2026-09-08 een IDENTIEKE hash, omdat de vorige versie
+  // zijn delen sorteerde en dus een multiset was: broervolgorde en ouder-kindrelatie
+  // verdwenen. In een auto-layout ís de broervolgorde de visuele volgorde, dus dit is de
+  // meest voorkomende handmatige edit — precies de klasse die de poort moet zien.
+  omgedraaid: (n) => { const k = n.children[0].children; k.push(k.shift()); },
+  verplaatst: (n) => { const k = n.children[0].children; n.children.push(k.pop()); },
+  omgewisseld: (n) => { const k = n.children[0].children; const na = k[0].name; k[0].name = k[1].name; k[1].name = na; },
 };
 for (const [naam, muteer] of Object.entries(mutaties)) {
   const oud = bouwhash(boom());
@@ -121,7 +130,7 @@ for (const [naam, muteer] of Object.entries(mutaties)) {
 
 // --- 6. de hash zelf: dezelfde boom, dezelfde vingerafdruk --------------------------------
 eis('bouwhash is deterministisch', bouwhash(boom()) === bouwhash(boom()));
-eis('bouwhash draagt het knooppunt-aantal', bouwhash(boom()).split(':')[1] === '3');
+eis('bouwhash draagt het knooppunt-aantal', bouwhash(boom()).split(':')[1] === '4');
 
 // --- verslag ------------------------------------------------------------------------------
 const stuk = gevallen.filter((g) => !g.ok);

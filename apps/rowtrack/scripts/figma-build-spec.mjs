@@ -19,11 +19,32 @@
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { benoem } from './laagnamen.mjs';
+
+
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+/**
+ * `--hernoem` draait ALLEEN de naamgevingspas opnieuw, op de bestaande figma/build-spec.json.
+ *
+ * De kandidaten per node staan al in die spec, dus een naamiteratie hoeft de 118 varianten
+ * niet opnieuw in Chromium te renderen. Dat scheelt twee minuten per ronde en, belangrijker,
+ * het houdt de meting constant: je verandert de naamregel en niets anders.
+ */
+if (process.argv.includes('--hernoem')) {
+  const specPad = join(APP, 'figma/build-spec.json');
+  const spec = JSON.parse(readFileSync(specPad, 'utf8'));
+  let n = 0;
+  for (const [comp, d] of Object.entries(spec.componenten)) { benoem(comp, d.varianten.map(v => v.boom)); n++; }
+  for (const [comp, d] of Object.entries(spec.schermen)) { benoem(comp, d.frames.map(f => f.boom)); n++; }
+  writeFileSync(specPad, JSON.stringify(spec, null, 1));
+  console.log(`hernoemd: ${n} componenten in figma/build-spec.json — draai nu figma-build-prune.mjs`);
+  process.exit(0);
+}
+
 const STATIC = join(APP, 'storybook-static');
 const assen = JSON.parse(readFileSync(join(APP, 'figma/story-axes.json'), 'utf8'));
 const payload = JSON.parse(readFileSync(join(APP, 'figma/tokens-payload.json'), 'utf8'));
