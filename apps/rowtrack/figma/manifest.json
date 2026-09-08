@@ -2619,6 +2619,339 @@
     ]
    },
    "extra": []
+  },
+  "GoalPill": {
+   "pageId": "2026:15611",
+   "primary": {
+    "name": "default",
+    "id": "2026:15618",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1g2s7y9:7",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15619",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "SubtitleProgress": {
+   "pageId": "2026:15620",
+   "primary": {
+    "name": "default",
+    "id": "2026:15626",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1g2h3d2:6",
+    "componentProperties": [
+     "left#2026:482"
+    ],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15627",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "HeroPanel": {
+   "pageId": "2026:15628",
+   "primary": {
+    "name": "default",
+    "id": "2026:15640",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "jasb47:12",
+    "componentProperties": [
+     "heroLabel#2026:483",
+     "heroText#2026:484",
+     "subLabel#2026:485"
+    ],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15641",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "ActiveHeader": {
+   "pageId": "2026:15642",
+   "primary": {
+    "name": "default",
+    "id": "2026:15654",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "9rbw81:12",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15655",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "ProgressBar": {
+   "pageId": "2026:15656",
+   "primary": {
+    "name": "ProgressBar",
+    "id": "2026:15687",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "w3d562:31",
+    "componentProperties": [
+     "fillKind",
+     "richting"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "fillKind": {
+      "values": [
+       "none",
+       "gradient",
+       "success",
+       "warning"
+      ]
+     },
+     "richting": {
+      "values": [
+       "h",
+       "v"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "fillKind=none, richting=h",
+      "id": "2026:15659"
+     },
+     {
+      "name": "fillKind=none, richting=v",
+      "id": "2026:15662"
+     },
+     {
+      "name": "fillKind=gradient, richting=h",
+      "id": "2026:15666"
+     },
+     {
+      "name": "fillKind=gradient, richting=v",
+      "id": "2026:15670"
+     },
+     {
+      "name": "fillKind=success, richting=h",
+      "id": "2026:15674"
+     },
+     {
+      "name": "fillKind=success, richting=v",
+      "id": "2026:15678"
+     },
+     {
+      "name": "fillKind=warning, richting=h",
+      "id": "2026:15682"
+     },
+     {
+      "name": "fillKind=warning, richting=v",
+      "id": "2026:15686"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "KpiRow": {
+   "pageId": "2026:15688",
+   "primary": {
+    "name": "KpiRow",
+    "id": "2026:15801",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "6v97ul:113",
+    "componentProperties": [
+     "label#2026:486",
+     "value#2026:503",
+     "fill",
+     "divider",
+     "disabled",
+     "loading"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "fill": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "divider": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "disabled": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "loading": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "fill=true, divider=true, disabled=true, loading=true",
+      "id": "2026:15697"
+     },
+     {
+      "name": "fill=true, divider=true, disabled=true, loading=false",
+      "id": "2026:15702"
+     },
+     {
+      "name": "fill=true, divider=true, disabled=false, loading=true",
+      "id": "2026:15711"
+     },
+     {
+      "name": "fill=true, divider=true, disabled=false, loading=false",
+      "id": "2026:15716"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=true, loading=true",
+      "id": "2026:15725"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=true, loading=false",
+      "id": "2026:15730"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=false, loading=true",
+      "id": "2026:15739"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=false, loading=false",
+      "id": "2026:15744"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=true, loading=true",
+      "id": "2026:15753"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=true, loading=false",
+      "id": "2026:15758"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=false, loading=true",
+      "id": "2026:15767"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=false, loading=false",
+      "id": "2026:15772"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=true, loading=true",
+      "id": "2026:15781"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=true, loading=false",
+      "id": "2026:15786"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=false, loading=true",
+      "id": "2026:15795"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=false, loading=false",
+      "id": "2026:15800"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "ConnectionOverlay": {
+   "pageId": "2026:15802",
+   "primary": {
+    "name": "ConnectionOverlay",
+    "id": "2026:15885",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "rkcj90:83",
+    "componentProperties": [
+     "bleStatus"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "bleStatus": {
+      "values": [
+       "idle",
+       "scanning",
+       "connecting",
+       "discovering",
+       "disconnecting",
+       "reconnecting",
+       "error"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "bleStatus=idle",
+      "id": "2026:15814"
+     },
+     {
+      "name": "bleStatus=scanning",
+      "id": "2026:15826"
+     },
+     {
+      "name": "bleStatus=connecting",
+      "id": "2026:15838"
+     },
+     {
+      "name": "bleStatus=discovering",
+      "id": "2026:15850"
+     },
+     {
+      "name": "bleStatus=disconnecting",
+      "id": "2026:15862"
+     },
+     {
+      "name": "bleStatus=reconnecting",
+      "id": "2026:15874"
+     },
+     {
+      "name": "bleStatus=error",
+      "id": "2026:15884"
+     }
+    ]
+   },
+   "extra": []
   }
  }
 }

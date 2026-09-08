@@ -1,5 +1,5 @@
 # Context Snapshot — rowtrack
-_Gegenereerd op 2026-09-08_
+_Gegenereerd op 2026-09-09_
 
 ## Project
 - **App:** rowtrack
@@ -52,6 +52,13 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | Subtitle | `apps/rowtrack/components/Subtitle.tsx` | components | — | — | — |
 | TabLabel | `apps/rowtrack/components/TabLabel.tsx` | components | — | — | — |
 | WheelPicker | `apps/rowtrack/components/WheelPicker.tsx` | components | — | — | — |
+| ActiveHeader | `apps/rowtrack/components/workout/active/ActiveHeader.tsx` | active | — | — | — |
+| ConnectionOverlay | `apps/rowtrack/components/workout/active/ConnectionOverlay.tsx` | active | — | — | — |
+| GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
+| HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
+| KpiRow | `apps/rowtrack/components/workout/active/KpiRow.tsx` | active | — | — | — |
+| ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
+| SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
 | IdlePhase | `apps/rowtrack/components/workout/IdlePhase.tsx` | workout | — | — | — |
@@ -59,16 +66,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-05f33bb chore(rowtrack): Figma round A — rebuild the library on the new layer names
-cebd5da test(rowtrack): three levels of counter-proof for the naming ladder
-642b820 refactor(rowtrack): direct imports instead of the barrel inside components
-849f532 feat(rowtrack): the naming ladder uses the declared boundary, not a guess
-ffe034c feat(rowtrack): the walker reads the component boundary, and proves it landed
+58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
+e9b4004 chore(rowtrack): remeasure the non-reproducible nodes after cut 6
+945ffa1 refactor(rowtrack): cut 6 — ConnectionOverlay
+784c2bd refactor(rowtrack): cut 5 — ProgressBar
+db48bdc refactor(rowtrack): cut 4 — ActiveHeader
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/context-snapshot.md
+  M  apps/rowtrack/components/workout/active/ActiveHeader.stories.tsx
+  M  apps/rowtrack/components/workout/active/ConnectionOverlay.stories.tsx
+  M  apps/rowtrack/components/workout/active/GoalPill.stories.tsx
+  M  apps/rowtrack/components/workout/active/HeroPanel.stories.tsx
+  M  apps/rowtrack/components/workout/active/KpiRow.stories.tsx
+  M  apps/rowtrack/components/workout/active/ProgressBar.stories.tsx
+  M  apps/rowtrack/components/workout/active/SubtitleProgress.stories.tsx
+  M  apps/rowtrack/figma/geometry.figma.json
+  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/scripts/figma-sync-check.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

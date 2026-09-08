@@ -1,7 +1,7 @@
 {
  "$comment": "GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.",
- "aantalUniek": 46,
- "aantalVoorkomens": 1947,
+ "aantalUniek": 47,
+ "aantalVoorkomens": 1990,
  "decoratiefGenegeerd": 120,
  "uniek": [
   "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
@@ -48,6 +48,7 @@
   "text style = ionicons 18px ls=0",
   "text style = ionicons 20px ls=0",
   "text style = ionicons 24px ls=0",
+  "text style = ionicons 40px ls=0",
   "text style = ionicons 48px ls=0",
   "text style = ionicons 64px ls=0"
  ],
@@ -174,6 +175,31 @@
    "text style = AlbertSans_600SemiBold 15px ls=0",
    "text style = BarlowCondensed_700Bold 18px ls=0",
    "text style = ionicons 18px ls=0"
+  ],
+  "ActiveHeader": [
+   "text style = AlbertSans_600SemiBold 14px ls=2.8",
+   "text style = AlbertSans_700Bold 16px ls=0",
+   "text style = AlbertSans_700Bold 18px ls=-0.45",
+   "text style = ionicons 18px ls=0"
+  ],
+  "ConnectionOverlay": [
+   "text style = AlbertSans_400Regular 16px ls=0",
+   "text style = ionicons 40px ls=0"
+  ],
+  "GoalPill": [
+   "text style = AlbertSans_600SemiBold 14px ls=2.8",
+   "text style = AlbertSans_700Bold 16px ls=0",
+   "text style = AlbertSans_700Bold 18px ls=-0.45"
+  ],
+  "HeroPanel": [
+   "text style = AlbertSans_300Light 36px ls=-0.9"
+  ],
+  "KpiRow": [
+   "text style = AlbertSans_300Light 22px ls=1.1",
+   "text style = AlbertSans_500Medium 28px ls=-0.7"
+  ],
+  "SubtitleProgress": [
+   "text style = AlbertSans_300Light 36px ls=-0.9"
   ],
   "ActivePhase": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.85}",

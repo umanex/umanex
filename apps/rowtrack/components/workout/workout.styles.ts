@@ -17,22 +17,6 @@ export const styles = StyleSheet.create({
     backgroundColor: bg.base,
     paddingHorizontal: layout.screenHorizontal,
   },
-  connectionOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: space['16'],
-  },
-  connectionText: {
-    fontFamily: fontFamily.albertSansRegular,
-    fontSize: fontSize['16'],
-    color: fg.secondary,
-    textAlign: 'center',
-  },
-  connectionElapsed: {
-    ...typeStyles.italicConnector,
-    color: fg.secondary,
-  },
   modalOverlay: {
     flex: 1,
     backgroundColor: overlay.scrim,

@@ -444,9 +444,96 @@
    },
    "uitgesloten": {},
    "variantNodes": 320
+  },
+  "ActiveHeader": {
+   "storyId": "componenten-activeheader--playground",
+   "titel": "Componenten/ActiveHeader",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "ConnectionOverlay": {
+   "storyId": "componenten-connectionoverlay--playground",
+   "titel": "Componenten/ConnectionOverlay",
+   "assen": {
+    "bleStatus": [
+     "idle",
+     "scanning",
+     "connecting",
+     "discovering",
+     "disconnecting",
+     "reconnecting",
+     "error"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 7
+  },
+  "GoalPill": {
+   "storyId": "componenten-goalpill--playground",
+   "titel": "Componenten/GoalPill",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "HeroPanel": {
+   "storyId": "componenten-heropanel--playground",
+   "titel": "Componenten/HeroPanel",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "KpiRow": {
+   "storyId": "componenten-kpirow--playground",
+   "titel": "Componenten/KpiRow",
+   "assen": {
+    "fill": [
+     true,
+     false
+    ],
+    "divider": [
+     true,
+     false
+    ],
+    "disabled": [
+     true,
+     false
+    ],
+    "loading": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 16
+  },
+  "ProgressBar": {
+   "storyId": "componenten-progressbar--playground",
+   "titel": "Componenten/ProgressBar",
+   "assen": {
+    "fillKind": [
+     "none",
+     "gradient",
+     "success",
+     "warning"
+    ],
+    "richting": [
+     "h",
+     "v"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 8
+  },
+  "SubtitleProgress": {
+   "storyId": "componenten-subtitleprogress--playground",
+   "titel": "Componenten/SubtitleProgress",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
   }
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 595
+ "totaalVariantNodes": 630
 }

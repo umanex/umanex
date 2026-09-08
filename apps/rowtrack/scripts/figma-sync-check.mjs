@@ -72,10 +72,14 @@ const NIET_VISUEEL = {
  * nieuw gat zichtbaar terwijl de bekende gaten de as niet elke run rood maken.
  * Elk gat heeft een item in apps/rowtrack/BACKLOG.md.
  */
-const BEKENDE_GATEN = 46;
+// 46 -> 47 op 2026-09-09: `text style = ionicons 40px` uit de foutstaat van ConnectionOverlay.
+// Geen nieuw gat in de code maar een nieuw MEETBAAR gat — het waarschuwingsicoon zat in
+// ActivePhase achter `bleStatus !== 'connected'`, en alle schermframes staan op `connected`.
+// Snede 6 gaf de overlay een eigen story mét foutvariant, en pas daar rendert dat icoon.
+const BEKENDE_GATEN = 47;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1947;   // 1929 + 18 uit het ActivePhase-landscape-frame, dat sinds 2026-09-08 gemeten wordt
+const BEKENDE_VOORKOMENS = 1990;   // 1947 + 43: de zeven uitgesneden componenten hebben elk een eigen story, dus dezelfde ongebonden waarden worden nu ook BUITEN het scherm gemeten
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
  *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
@@ -88,8 +92,12 @@ const BEKENDE_VOORKOMENS = 1947;   // 1929 + 18 uit het ActivePhase-landscape-fr
  *  componenten die IdlePhase niet rendert; die sleutels stonden alleen in de preview-iframe
  *  omdat `@/components` alles her-exporteert. Nu vallen ze terug op `overlay` (structureel,
  *  telt niet als code-naam) en winnen acht andere nodes `actionText` uit DeviceRow.tsx, dat
- *  IdlePhase wél rendert. Ambigue nodes daalden in dezelfde stap van 206 naar 111. */
-const LAAGNAAM_DEKKING = 83.4;
+ *  IdlePhase wél rendert. Ambigue nodes daalden in dezelfde stap van 206 naar 111.
+ *
+ *  83,4 -> 84,4 na de zeven sneden van ingreep 2: elke uitgesneden component draagt zijn eigen
+ *  StyleSheet, dus zijn nodes winnen nu een sleutel uit hun eigen bestand in plaats van terug te
+ *  vallen. `activeStyles` bestaat niet meer. */
+const LAAGNAAM_DEKKING = 84.4;
 /**
  * Hoe vaak de HEURISTISCHE componentgrens nog vuurt. Sinds de testID-ronde van 2026-09-08 staat
  * de grens als feit in de DOM, dus elke treffer hier is een node waar de code hem niet
