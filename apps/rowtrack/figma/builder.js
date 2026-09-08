@@ -85,7 +85,7 @@ async function maak(n, naamPad) {
     if (!stijl && !font) {
       // Ionicons: privégebruik-glyphs zonder font. Zichtbaar icoonslot i.p.v. stilte.
       const ph = figma.createFrame();
-      ph.name = `Icon ${Math.round(n.t.px)}`;
+      ph.name = n.naam || 'icon';        // nooit de maat in de naam: die verandert mee met de variant
       ph.resize(Math.max(1, n.w), Math.max(1, n.h));
       ph.fills = [];
       ph.strokes = [{ type: 'SOLID', color: { r: 0.94, g: 0.33, b: 0.33 }, opacity: 0.4 }];
@@ -133,11 +133,16 @@ async function maak(n, naamPad) {
     } else {
       t.textAutoResize = 'WIDTH_AND_HEIGHT';
     }
+    // NA `characters`, en altijd. Figma zet `autoRename` aan zolang de naam niet expliciet
+    // gezet is, en hernoemt de laag dan bij elke toewijzing aan `characters` naar de tekst
+    // zelf — precies wat regel 1 van het leesbaarheidscontract verbiedt. In de vorige ronde
+    // heetten alle 613 tekstnodes daardoor naar hun eigen copy ("Doel bereikt!").
+    t.name = n.naam || 'label';
     return t;
   }
 
   const f = figma.createFrame();
-  f.name = naamPad.split('>').pop() || 'Frame';
+  f.name = n.naam || 'wrapper';        // het besluit komt uit scripts/laagnamen.mjs
   f.clipsContent = false;
   if (n.k && n.rij !== undefined) {
     f.layoutMode = n.rij ? 'HORIZONTAL' : 'VERTICAL';
@@ -221,7 +226,7 @@ async function maak(n, naamPad) {
   if (n.opacity !== undefined) f.opacity = n.opacity;
   if (n.schaduwStyle && ES.get(n.schaduwStyle)) await f.setEffectStyleIdAsync(ES.get(n.schaduwStyle).id);
   for (const [i, k] of echteKinderen.entries()) {
-    const kind = await maak(k, `${naamPad}>${i}`);
+    const kind = await maak(k, `${naamPad}>${k.naam ?? i}`);   // meldingen lezen als Chip>row>value
     f.appendChild(kind);
     // Een absoluut kind dat de ouder NIET volledig bedekt blijft een echte node, maar valt
     // buiten de stroom — anders duwt hij de auto-layout uit elkaar.
@@ -231,7 +236,7 @@ async function maak(n, naamPad) {
       kind.y = k.dy ?? 0;
     }
   }
-  if (n.t) f.appendChild(await maak({ ...n, k: null }, `${naamPad}>tekst`));
+  if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`));
   return f;
 }
 

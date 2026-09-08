@@ -18,6 +18,7 @@
  */
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
+import { benoem } from './laagnamen.mjs';
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -196,6 +197,28 @@ const argsQuery = args => Object.entries(args)
 // De DOM-walker draait in de pagina. Hij levert een boom met rauwe waarden; het mappen naar
 // variabelen gebeurt in Node, zodat de tokenkennis op één plek staat.
 const WALKER = () => {
+  /**
+   * De sleutelkaart is een MEETINSTRUMENT, geen bron die leeg mag zijn. Een lege kaart en
+   * "dit component heeft geen StyleSheet-sleutels" zien er identiek uit; het verschil is
+   * alleen te zien door hier hard te falen. `.storybook/rnw-style-keys.ts` vult hem.
+   */
+  const kaart = window.__RNW_KEYS__;
+  if (!kaart) return { fout: 'geen window.__RNW_KEYS__ — .storybook/rnw-style-keys.ts niet geladen' };
+  if (kaart.uit) return { fout: 'sleutelkaart uitgeschakeld (?rnwKeysUit=1)' };
+  if (!kaart.actief) return { fout: 'StyleSheet.create niet gewrapt — de aftap hing er niet in' };
+  if (kaart.fouten.length && !kaart.bronnen.length)
+    return { fout: `sleutelkaart leeg met fouten: ${kaart.fouten.slice(0, 2).join(' | ')}` };
+  // Nul bronnen zónder fouten is GELDIG: `Icon` doet geen enkele StyleSheet.create-aanroep.
+  // Elke node valt dan terug op de ladder, en dat is de juiste uitkomst — geen meetfout.
+
+  // Alleen app-code doet mee. De wrapper wist de herkomst na elke lezing, dus een aanroep
+  // uit react-native-web zelf komt hier per constructie niet in.
+  const sleutelIndex = [];
+  for (const b of kaart.bronnen)
+    for (const s of b.sleutels)
+      sleutelIndex.push({ bronId: b.id, bron: b.bron, naam: s.naam, volgorde: s.volgorde,
+                          klassen: new Set(s.klassen) });
+
   const root = document.querySelector('#storybook-root');
   const decorator = root?.firstElementChild;
   if (!decorator) return { fout: 'geen decorator' };
@@ -295,6 +318,22 @@ const WALKER = () => {
         transform: cs.textTransform,
       };
     }
+    // Welke StyleSheet-sleutels verklaren de klassen van deze node? De klassen zijn atomair
+    // en `styleq` gooit overschreven klassen wég, dus een basisstijl is nooit volledig
+    // aanwezig zodra een modifier hem raakt (PrBadge: `badgeSm` overschrijft 4 van `badge`'s
+    // 8 properties). Daarom OVERLAP en geen subset. De drempel wordt in Node gelegd, uit de
+    // verdeling in figma/laagnamen.json — hier wordt alleen gemeten.
+    const klassen = String(el.getAttribute('class') || '').split(/\s+/).filter(Boolean);
+    const rk = new Set(klassen.filter(c => c.startsWith('r-')));
+    o.rol = el.getAttribute('role') || null;
+    o.kandidaten = [];
+    for (const k of sleutelIndex) {
+      const eigen = [];
+      for (const c of k.klassen) if (rk.has(c)) eigen.push(c);
+      if (eigen.length)
+        o.kandidaten.push({ b: k.bronId, bron: k.bron, s: k.naam, v: k.volgorde, n: k.klassen.size, eigen });
+    }
+
     if (el.tagName.toLowerCase() === 'svg' || el.querySelector?.(':scope > svg')) o.bevatSvg = true;
     const doorvoer = isDoorvoer(el, cs);
     if (doorvoer) o.doorvoer = true;
@@ -367,7 +406,11 @@ function erfMaatVanOuder(node, ouder) {
 }
 
 async function meet(storyId, args) {
-  const q = Object.keys(args).length ? `&args=${encodeURIComponent(argsQuery(args))}` : '';
+  const q = (Object.keys(args).length ? `&args=${encodeURIComponent(argsQuery(args))}` : '')
+    // --rnw-keys-uit is de NEGATIEVE CONTROLE van de sleutelkaart. Zonder hem is "elke node
+    // heet wrapper" niet te onderscheiden van "het instrument staat uit": beide geven een
+    // gevulde spec zonder foutmelding. Met de vlag hoort de walker hard te falen.
+    + (process.argv.includes('--rnw-keys-uit') ? '&rnwKeysUit=1' : '');
   await page.goto(`http://localhost:${poort}/iframe.html?id=${storyId}&viewMode=story${q}`,
     { waitUntil: 'networkidle', timeout: 20000 });
   await page.waitForTimeout(120);
@@ -458,6 +501,7 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     bind(r.boom, '', comp);
     varianten.push({ naam: c.naam, args: c.args, boom: r.boom });
   }
+  benoem(comp, varianten.map(v => v.boom));   // laagnamen: één beslissing per component
   spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, varianten };
   process.stderr.write(`  ${comp}: ${varianten.length}/${combis.length}\n`);
 }
@@ -474,11 +518,30 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     bind(r.boom, '', comp);
     frames.push({ naam, storyId: e.id, boom: r.boom });
   }
+  benoem(comp, frames.map(f => f.boom));
   spec.schermen[comp] = { frames, afgeschrevenAssen: assen.componenten[comp].assen };
   process.stderr.write(`  ${comp} (scherm): ${frames.length}/${storyNamen.length}\n`);
 }
 
 await browser.close(); server.close();
+
+// ---- Poort vóór het schrijven ----------------------------------------------------------
+// Deze stap SCHRIJFT: figma/build-spec.json is de invoer van de builder én van de guard. Een
+// mislukte meting die tóch wegschrijft, vervangt een goede spec door een lege — en exit 0
+// maakt dat onzichtbaar. Gemeten 2026-09-08: de negatieve controle (`--rnw-keys-uit`) liet
+// alle 33 componenten op 0 varianten uitkomen en het script overschreef vrolijk de goede
+// spec met exit 0. Een component zonder enkele variant is per definitie een meetfout, nooit
+// een geldige uitkomst.
+const leeg = [
+  ...Object.entries(spec.componenten).filter(([, d]) => !d.varianten.length).map(([c]) => c),
+  ...Object.entries(spec.schermen).filter(([, d]) => !d.frames.length).map(([c]) => c),
+];
+if (leeg.length) {
+  console.error(`\nGEEN SPEC GESCHREVEN — ${leeg.length} component(en) leverden nul varianten: ${leeg.slice(0, 8).join(', ')}${leeg.length > 8 ? ', …' : ''}`);
+  console.error(`Eerste fouten:\n  ${spec.fouten.slice(0, 3).join('\n  ')}`);
+  console.error('figma/build-spec.json is ONGEWIJZIGD gelaten.');
+  process.exit(2);
+}
 
 writeFileSync(join(APP, 'figma/build-spec.json'), JSON.stringify(spec, null, 1));
 const nVar = Object.values(spec.componenten).reduce((n, c) => n + c.varianten.length, 0);

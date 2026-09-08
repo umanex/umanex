@@ -1,6 +1,6 @@
 {
  "$comment": "Neergeslagen Figma-staat. NIET met de hand bewerken — ververs via apps/rowtrack/CLAUDE.md.",
- "schemaVersie": 2,
+ "schemaVersie": 3,
  "fileKey": "QkRgMc7Quqtbow71DiYa1n",
  "fileName": "RowTrack -  Design System",
  "gegenereerd": "2026-09-08",
@@ -50,10 +50,6 @@
     "color/alpha/red-deep-30",
     "fontFamily/sourceSerif",
     "fontFamily/albertSans",
-    "fontWeight/light",
-    "fontWeight/regular",
-    "fontWeight/medium",
-    "fontWeight/semibold",
     "fontWeight/italic",
     "fontWeight/bold",
     "fontSize/9",
@@ -128,7 +124,11 @@
     "opacity/0",
     "opacity/40",
     "opacity/55",
-    "opacity/100"
+    "opacity/100",
+    "fontWeight/light",
+    "fontWeight/regular",
+    "fontWeight/medium",
+    "fontWeight/semibold"
    ],
    "waarden": {
     "color/neutral/0": {
@@ -441,18 +441,6 @@
     "fontFamily/albertSans": {
      "waarde": "Albert Sans"
     },
-    "fontWeight/light": {
-     "waarde": "300"
-    },
-    "fontWeight/regular": {
-     "waarde": "400"
-    },
-    "fontWeight/medium": {
-     "waarde": "500"
-    },
-    "fontWeight/semibold": {
-     "waarde": "600"
-    },
     "fontWeight/italic": {
      "waarde": "Italic"
     },
@@ -677,6 +665,18 @@
     },
     "opacity/100": {
      "waarde": 100
+    },
+    "fontWeight/light": {
+     "waarde": 300
+    },
+    "fontWeight/regular": {
+     "waarde": 400
+    },
+    "fontWeight/medium": {
+     "waarde": 500
+    },
+    "fontWeight/semibold": {
+     "waarde": 600
     }
    }
   },
@@ -1401,6 +1401,8 @@
     "name": "Chip",
     "id": "2013:7988",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "active": {
       "values": [
@@ -1428,6 +1430,8 @@
     "name": "default",
     "id": "2013:8044",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1439,6 +1443,8 @@
     "name": "default",
     "id": "2013:8134",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1450,6 +1456,8 @@
     "name": "default",
     "id": "2013:8166",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1461,6 +1469,8 @@
     "name": "default",
     "id": "2013:7942",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1472,6 +1482,8 @@
     "name": "default",
     "id": "2013:7944",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1483,6 +1495,8 @@
     "name": "default",
     "id": "2013:7946",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1494,6 +1508,8 @@
     "name": "default",
     "id": "2013:7948",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1505,6 +1521,8 @@
     "name": "default",
     "id": "2013:7951",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1516,6 +1534,8 @@
     "name": "default",
     "id": "2013:7955",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1527,6 +1547,8 @@
     "name": "TabLabel",
     "id": "2013:7977",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "focused": {
       "values": [
@@ -1554,6 +1576,8 @@
     "name": "default",
     "id": "2013:7972",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1565,6 +1589,8 @@
     "name": "default",
     "id": "2013:7959",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1576,6 +1602,8 @@
     "name": "default",
     "id": "2013:7966",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1587,6 +1615,8 @@
     "name": "default",
     "id": "2013:8185",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1598,6 +1628,8 @@
     "name": "DeviceSelectionModal",
     "id": "2013:8876",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "kind": {
       "values": [
@@ -1625,6 +1657,8 @@
     "name": "EmptyState",
     "id": "2013:8008",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "size": {
       "values": [
@@ -1652,6 +1686,8 @@
     "name": "PrBadge",
     "id": "2013:7997",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "size": {
       "values": [
@@ -1679,6 +1715,8 @@
     "name": "FormField",
     "id": "2013:8021",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "secureTextEntry": {
       "values": [
@@ -1706,6 +1744,8 @@
     "name": "default",
     "id": "2013:8204",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1717,6 +1757,8 @@
     "name": "ErrorState",
     "id": "2013:8059",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "size": {
       "values": [
@@ -1744,6 +1786,8 @@
     "name": "default",
     "id": "2013:8221",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1755,6 +1799,8 @@
     "name": "default",
     "id": "2013:8240",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1766,6 +1812,8 @@
     "name": "Segmented",
     "id": "2013:8257",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "variant": {
       "values": [
@@ -1793,6 +1841,8 @@
     "name": "HrStatusBar",
     "id": "2013:8311",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "hrStatus": {
       "values": [
@@ -1835,6 +1885,8 @@
     "name": "WheelPicker",
     "id": "2013:9191",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "showPill": {
       "values": [
@@ -1876,6 +1928,8 @@
     "name": "Playground",
     "id": "2013:9551",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },
@@ -1903,6 +1957,8 @@
     "name": "BleStatusBar",
     "id": "2013:8396",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "bleStatus": {
       "values": [
@@ -1960,6 +2016,8 @@
     "name": "DeviceRow",
     "id": "2013:8485",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "icon": {
       "values": [
@@ -2023,6 +2081,8 @@
     "name": "GoalSegments",
     "id": "2013:8551",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "selected": {
       "values": [
@@ -2065,6 +2125,8 @@
     "name": "KPI",
     "id": "2013:8648",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "highlighted": {
       "values": [
@@ -2166,6 +2228,8 @@
     "name": "Button",
     "id": "2013:8809",
     "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": {
      "variant": {
       "values": [
@@ -2333,6 +2397,8 @@
     "name": "Playground",
     "id": "2013:9235",
     "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": null,
     "variantProperties": null,
     "varianten": null
    },

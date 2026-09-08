@@ -128,6 +128,27 @@ const MUTATIES = [
   { as: 'controle-publicatie', zwijgt: true, wat: 'gepubliceerd, mét bouwhash, spec niet jonger', doe: m => {
       schema3(m, { publiceer: 2, bouwhash: true }); } },
 
+  // --- laagnaam-as: vier defecten, twee controles -------------------------
+  { as: 'laagnaam', wat: 'laat een node een kaal cijfer heten', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.indexNamen = 2; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'laat een tekstnode zijn eigen copy dragen', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.copyNamen = 1; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'laat twee isomorfe varianten uit elkaar lopen', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.instabiel = ['ErrorState: variant 0 tegen 1']; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'laat de dekking dalen', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.echteNaamPct = 60; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'laat de dekking stijgen (ratel moet bijgesteld)', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.echteNaamPct = 88.4; schrijf(m, 'figma/laagnamen.json', x); } },
+  // Ambiguïteit is een RAPPORTAGE, geen defect: twee sleutels die even goed passen geven een
+  // deterministische maar willekeurige keuze. Zou de as hierop afgaan, dan was hij niet meer
+  // te onderscheiden van een echte naamfout.
+  { as: 'controle-ambigu', zwijgt: true, wat: 'verdrievoudig het aantal ambigue nodes', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.ambigu = 999; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'controle-naamlijst', zwijgt: true, wat: 'hernoem een laag in de namen-telling', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json');
+      const k = Object.keys(x.namen)[0]; x.namen['zomaarwat'] = x.namen[k]; delete x.namen[k];
+      schrijf(m, 'figma/laagnamen.json', x); } },
+
   // --- controle-mutaties: velden die de guard NIET leest -------------------
   { as: 'controle-fileName', zwijgt: true, wat: 'hernoem het Figma-bestand', doe: m => {
       const x = lees(m, 'figma/manifest.json'); x.fileName = 'Iets Anders'; schrijf(m, 'figma/manifest.json', x); } },

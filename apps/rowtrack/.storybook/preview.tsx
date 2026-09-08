@@ -1,3 +1,7 @@
+// MOET de eerste import blijven: ESM hijst imports, dus de body van dit bestand draait
+// vóór die van preview.tsx én vóór elke lui geladen story-module — en dat is precies het
+// venster waarin `StyleSheet.create` nog niet is aangeroepen. Zie het bestand zelf.
+import './rnw-style-keys';
 import type { Preview } from '@storybook/react-native-web-vite';
 import { View } from 'react-native';
 import { bg } from '@/constants';

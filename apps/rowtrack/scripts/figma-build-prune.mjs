@@ -33,6 +33,13 @@ const r2 = n => typeof n === 'number' ? Math.round(n * 100) / 100 : n;
 
 function snoei(node, diepte, pad, comp) {
   const o = { w: r2(node.w), h: r2(node.h) };
+  // De laagnaam is een BESLUIT van scripts/laagnamen.mjs; het bewijs (rKlassen, kandidaten)
+  // blijft in de 6 MB build-spec.json en reist niet mee. `naamBron` alleen als hij afwijkt
+  // van de norm — een sleutelnaam is de norm en hoeft niet in elk knooppunt herhaald.
+  o.naam = node.naam ?? 'wrapper';
+  if (node.naamBron && node.naamBron !== 'sleutel') o.naamBron = node.naamBron;
+  if (node.naamAmbigu) o.naamAmbigu = true;
+  if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
   if (node.richting && node.display?.includes('flex')) o.rij = node.richting.startsWith('row');
   if (node.gap) { o.gap = r2(node.gap); if (node.gapVar) o.gapVar = node.gapVar; }
   if (node.padding.some(p => p)) {
@@ -142,6 +149,45 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
   uniek: uniekeGaten,
   perComponent: Object.fromEntries(Object.entries(perComponent).map(([k, v]) => [k, [...v].sort()])),
 }, null, 1));
+
+// ---- Laagnamen: meten op wat er ECHT in Figma komt ------------------------------------
+// De ongesnoeide boom telt 7 626 nodes, waarvan er duizenden worden afgekapt vóór ze Figma
+// bereiken. Een dekkingspercentage op die noemer meet iets dat niemand ooit ziet. Vandaar
+// dit bestand ná de snoei, met dezelfde vorm als ongebonden.json.
+{
+  const plat = (n, u = []) => { u.push(n); for (const k of n.kinderen ?? n.k ?? []) plat(k, u); return u; };
+  const perBron = { sleutel: 0, gefold: 0, component: 0, rol: 0, terugval: 0 };
+  const perNaam = new Map();
+  let nodes = 0, ambigu = 0, gestabiliseerd = 0, indexNamen = 0, copyNamen = 0;
+  const instabiel = [];
+  const vorm = (n) => `${(n.k ?? []).length}(${(n.k ?? []).map(vorm).join('')})`;
+  const namenVan = (n) => [n.naam, ...(n.k ?? []).flatMap(namenVan)];
+
+  for (const [comp, d] of Object.entries({ ...uit.componenten, ...uit.schermen })) {
+    const bomen = (d.varianten ?? d.frames ?? []).map(v => v.boom);
+    for (const b of bomen) for (const n of plat(b)) {
+      nodes++;
+      perBron[n.naamBron ?? 'sleutel'] = (perBron[n.naamBron ?? 'sleutel'] ?? 0) + 1;
+      perNaam.set(n.naam, (perNaam.get(n.naam) ?? 0) + 1);
+      if (n.naamAmbigu) ambigu++;
+      if (n.naamGestabiliseerd) gestabiliseerd++;
+      if (/^\d+$/.test(String(n.naam))) indexNamen++;
+      if (n.t && n.naam === n.t.s) copyNamen++;
+    }
+    const groepen = new Map();
+    bomen.forEach((b, i) => { const v = vorm(b); if (!groepen.has(v)) groepen.set(v, []); groepen.get(v).push({ i, n: namenVan(b).join('>') }); });
+    for (const [, g] of groepen) for (const x of g.slice(1)) if (x.n !== g[0].n) instabiel.push(`${comp}: variant ${g[0].i} tegen ${x.i}`);
+  }
+  const echt = perBron.sleutel + perBron.gefold + perBron.component;
+  writeFileSync(join(APP, 'figma/laagnamen.json'), JSON.stringify({
+    $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Dekking en variant-stabiliteit van de laagnamen, gemeten op de GESNOEIDE boom — dat is wat Figma krijgt.',
+    nodes, perBron, echteNaamPct: +(100 * echt / nodes).toFixed(1),
+    ambigu, gestabiliseerd, indexNamen, copyNamen, instabiel,
+    namen: Object.fromEntries([...perNaam].sort((a, b) => b[1] - a[1])),
+  }, null, 1));
+  console.log(`laagnamen: ${(100 * echt / nodes).toFixed(1)}% uit de code (${echt}/${nodes}), ` +
+              `${indexNamen} cijfernamen, ${copyNamen} copy-namen, ${instabiel.length} instabiel -> figma/laagnamen.json`);
+}
 
 const kb = o => Math.round(JSON.stringify(o).length / 1024);
 console.log(`gesnoeid: ${kb(uit)} KB (was ${Math.round(JSON.stringify(spec).length/1024)} KB)`);
