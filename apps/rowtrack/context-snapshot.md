@@ -59,15 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-02acf5f chore(rowtrack): manifest na de herpublicatie
-c9388ea chore(rowtrack): manifest en geometrie na de achtergrondmigratie
-d0373df fix(rowtrack): de app-achtergrond hoort achter de component, niet erin
-1e5e31c docs(rowtrack): de poort geweigerd gemeten, en de instance-toets als gat benoemd
-59d38ee docs(rowtrack): bewijs bij de twee afgeschreven acceptatie-assen
+c99ccbc feat(rowtrack): herbouw met de gecorrigeerde laagnamen en slots
+73d80cc docs(rowtrack): het bewijs staat nu ín de acceptatieregel
+a8bd5d2 docs(rowtrack): elk R-item draagt bewijs, en de opmaak triggert de as-mix-hook niet meer
+f4824d9 fix(rowtrack): de resterende twintig bevindingen uit reviewronde 1
+e907003 fix(rowtrack): R01, R02, R07, R08, R14 uit reviewronde 1
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)

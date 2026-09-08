@@ -1399,13 +1399,13 @@
    "pageId": "2001:275",
    "primary": {
     "name": "Chip",
-    "id": "2016:12272",
+    "id": "2020:12347",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "tgifvu:11",
+    "bouwhash": "1yt0clz:11",
     "componentProperties": [
-     "value#2016:212",
-     "unit#2016:215",
+     "value#2020:227",
+     "unit#2020:230",
      "active"
     ],
     "eigenVulling": 1,
@@ -1421,11 +1421,11 @@
     "varianten": [
      {
       "name": "active=true",
-      "id": "2016:12266"
+      "id": "2020:12341"
      },
      {
       "name": "active=false",
-      "id": "2016:12271"
+      "id": "2020:12346"
      }
     ]
    },
@@ -1435,12 +1435,12 @@
    "pageId": "2001:287",
    "primary": {
     "name": "default",
-    "id": "2016:10368",
+    "id": "2020:12513",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "nfevam:23",
+    "bouwhash": "11k6hol:23",
     "componentProperties": [
-     "title#2016:99"
+     "title#2020:255"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1450,7 +1450,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12273",
+     "id": "2020:12514",
      "type": "RECTANGLE"
     }
    ]
@@ -1459,10 +1459,10 @@
    "pageId": "2001:290",
    "primary": {
     "name": "default",
-    "id": "2016:10942",
+    "id": "2020:13080",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "1rlvu83:75",
+    "bouwhash": "nr1euc:75",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1472,7 +1472,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12274",
+     "id": "2020:13081",
      "type": "RECTANGLE"
     }
    ]
@@ -1481,10 +1481,10 @@
    "pageId": "2001:293",
    "primary": {
     "name": "default",
-    "id": "2016:10704",
+    "id": "2020:12841",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "1srt9n7:32",
+    "bouwhash": "jfsxxc:32",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1494,7 +1494,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12275",
+     "id": "2020:12842",
      "type": "RECTANGLE"
     }
    ]
@@ -1503,10 +1503,10 @@
    "pageId": "2001:296",
    "primary": {
     "name": "default",
-    "id": "2016:12240",
+    "id": "2020:12292",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "1ib2pk3:2",
+    "bouwhash": "24w3jg:2",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1516,7 +1516,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12276",
+     "id": "2020:12293",
      "type": "RECTANGLE"
     }
    ]
@@ -1525,10 +1525,10 @@
    "pageId": "2001:299",
    "primary": {
     "name": "default",
-    "id": "2016:12242",
+    "id": "2020:12295",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "13nfy41:2",
+    "bouwhash": "u5mmge:2",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1538,7 +1538,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12277",
+     "id": "2020:12296",
      "type": "RECTANGLE"
     }
    ]
@@ -1547,10 +1547,10 @@
    "pageId": "2001:302",
    "primary": {
     "name": "default",
-    "id": "2016:12244",
+    "id": "2020:12298",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "v0bb3:2",
+    "bouwhash": "13d2wiu:2",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1560,7 +1560,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12278",
+     "id": "2020:12299",
      "type": "RECTANGLE"
     }
    ]
@@ -1569,12 +1569,12 @@
    "pageId": "2001:305",
    "primary": {
     "name": "default",
-    "id": "2016:11105",
+    "id": "2020:12301",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "1j7ln7v:2",
+    "bouwhash": "1pdmpb2:2",
     "componentProperties": [
-     "title#2016:197"
+     "title#2020:218"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1584,7 +1584,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12279",
+     "id": "2020:12302",
      "type": "RECTANGLE"
     }
    ]
@@ -1593,12 +1593,12 @@
    "pageId": "2001:308",
    "primary": {
     "name": "default",
-    "id": "2016:11108",
+    "id": "2020:12305",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "aa7jmk:3",
+    "bouwhash": "1ozpnph:3",
     "componentProperties": [
-     "label#2016:198"
+     "label#2020:219"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1608,7 +1608,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12280",
+     "id": "2020:12306",
      "type": "RECTANGLE"
     }
    ]
@@ -1617,10 +1617,10 @@
    "pageId": "2001:312",
    "primary": {
     "name": "default",
-    "id": "2016:12248",
+    "id": "2020:12310",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "ruoq2m:4",
+    "bouwhash": "lrydiv:4",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1630,7 +1630,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12281",
+     "id": "2020:12311",
      "type": "RECTANGLE"
     }
    ]
@@ -1639,12 +1639,12 @@
    "pageId": "2001:317",
    "primary": {
     "name": "TabLabel",
-    "id": "2016:11113",
+    "id": "2020:12316",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "j64fos:5",
+    "bouwhash": "1mcke8a:5",
     "componentProperties": [
-     "label#2016:199",
+     "label#2020:220",
      "focused"
     ],
     "eigenVulling": 1,
@@ -1660,11 +1660,11 @@
     "varianten": [
      {
       "name": "focused=true",
-      "id": "2016:11110"
+      "id": "2020:12313"
      },
      {
       "name": "focused=false",
-      "id": "2016:11112"
+      "id": "2020:12315"
      }
     ]
    },
@@ -1674,14 +1674,14 @@
    "pageId": "2001:323",
    "primary": {
     "name": "default",
-    "id": "2016:12261",
+    "id": "2020:12335",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "18aimu2:6",
+    "bouwhash": "1tdtfwl:6",
     "componentProperties": [
-     "value#2016:209",
-     "unit#2016:210",
-     "label#2016:211"
+     "value#2020:224",
+     "unit#2020:225",
+     "label#2020:226"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1691,7 +1691,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12282",
+     "id": "2020:12336",
      "type": "RECTANGLE"
     }
    ]
@@ -1700,12 +1700,12 @@
    "pageId": "2001:330",
    "primary": {
     "name": "default",
-    "id": "2016:11117",
+    "id": "2020:12320",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "12fz620:4",
+    "bouwhash": "pgu0w8:4",
     "componentProperties": [
-     "message#2016:202"
+     "message#2020:223"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1715,7 +1715,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12283",
+     "id": "2020:12321",
      "type": "RECTANGLE"
     }
    ]
@@ -1724,10 +1724,10 @@
    "pageId": "2001:335",
    "primary": {
     "name": "default",
-    "id": "2016:12255",
+    "id": "2020:12328",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "c2sgv7:7",
+    "bouwhash": "1sfhnhn:7",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1737,7 +1737,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12284",
+     "id": "2020:12329",
      "type": "RECTANGLE"
     }
    ]
@@ -1746,12 +1746,12 @@
    "pageId": "2001:343",
    "primary": {
     "name": "default",
-    "id": "2016:10273",
+    "id": "2020:12414",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "1pfgvm8:19",
+    "bouwhash": "1tgjm60:19",
     "componentProperties": [
-     "message#2016:98"
+     "message#2020:254"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1761,7 +1761,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12285",
+     "id": "2020:12415",
      "type": "RECTANGLE"
     }
    ]
@@ -1770,10 +1770,10 @@
    "pageId": "2001:352",
    "primary": {
     "name": "DeviceSelectionModal",
-    "id": "2016:10672",
+    "id": "2020:12809",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "kzd543:67",
+    "bouwhash": "xvv88m:67",
     "componentProperties": [
      "kind"
     ],
@@ -1790,11 +1790,11 @@
     "varianten": [
      {
       "name": "kind=rower",
-      "id": "2016:10638"
+      "id": "2020:12775"
      },
      {
       "name": "kind=hr",
-      "id": "2016:10671"
+      "id": "2020:12808"
      }
     ]
    },
@@ -1804,13 +1804,13 @@
    "pageId": "2001:370",
    "primary": {
     "name": "EmptyState",
-    "id": "2016:10239",
+    "id": "2020:12358",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "mwl5g8:11",
+    "bouwhash": "1sat3cd:11",
     "componentProperties": [
-     "title#2016:83",
-     "subtitle#2016:86",
+     "title#2020:233",
+     "subtitle#2020:236",
      "size"
     ],
     "eigenVulling": 1,
@@ -1826,11 +1826,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2016:10233"
+      "id": "2020:12352"
      },
      {
       "name": "size=lg",
-      "id": "2016:10238"
+      "id": "2020:12357"
      }
     ]
    },
@@ -1840,12 +1840,12 @@
    "pageId": "2001:382",
    "primary": {
     "name": "PrBadge",
-    "id": "2016:11139",
+    "id": "2020:12380",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "14o9bc9:9",
+    "bouwhash": "yxzq0v:9",
     "componentProperties": [
-     "label#2016:206",
+     "label#2020:242",
      "size"
     ],
     "eigenVulling": 1,
@@ -1861,11 +1861,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2016:11134"
+      "id": "2020:12375"
      },
      {
       "name": "size=md",
-      "id": "2016:11138"
+      "id": "2020:12379"
      }
     ]
    },
@@ -1875,12 +1875,12 @@
    "pageId": "2001:403",
    "primary": {
     "name": "FormField",
-    "id": "2016:11130",
+    "id": "2020:12371",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "1gc4glq:13",
+    "bouwhash": "15kb2j2:13",
     "componentProperties": [
-     "label#2016:203",
+     "label#2020:239",
      "secureTextEntry"
     ],
     "eigenVulling": 1,
@@ -1896,11 +1896,11 @@
     "varianten": [
      {
       "name": "secureTextEntry=true",
-      "id": "2016:11124"
+      "id": "2020:12365"
      },
      {
       "name": "secureTextEntry=false",
-      "id": "2016:11129"
+      "id": "2020:12370"
      }
     ]
    },
@@ -1910,10 +1910,10 @@
    "pageId": "2001:417",
    "primary": {
     "name": "default",
-    "id": "2016:10309",
+    "id": "2020:12452",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "4quq3r:19",
+    "bouwhash": "17ujk1f:19",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1923,7 +1923,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12286",
+     "id": "2020:12453",
      "type": "RECTANGLE"
     }
    ]
@@ -1932,14 +1932,14 @@
    "pageId": "2001:437",
    "primary": {
     "name": "ErrorState",
-    "id": "2016:10254",
+    "id": "2020:12395",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "ohe85z:15",
+    "bouwhash": "tf9vvg:15",
     "componentProperties": [
-     "title#2016:89",
-     "subtitle#2016:92",
-     "retryLabel#2016:95",
+     "title#2020:245",
+     "subtitle#2020:248",
+     "retryLabel#2020:251",
      "size"
     ],
     "eigenVulling": 1,
@@ -1955,11 +1955,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2016:10246"
+      "id": "2020:12387"
      },
      {
       "name": "size=lg",
-      "id": "2016:10253"
+      "id": "2020:12394"
      }
     ]
    },
@@ -1969,10 +1969,10 @@
    "pageId": "2001:453",
    "primary": {
     "name": "default",
-    "id": "2016:10290",
+    "id": "2020:12432",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "gb6f7h:17",
+    "bouwhash": "11u9u8f:17",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1982,7 +1982,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12287",
+     "id": "2020:12433",
      "type": "RECTANGLE"
     }
    ]
@@ -1991,10 +1991,10 @@
    "pageId": "2001:471",
    "primary": {
     "name": "default",
-    "id": "2016:10345",
+    "id": "2020:12489",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "16oozbi:19",
+    "bouwhash": "1heb0eb:19",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -2004,7 +2004,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12288",
+     "id": "2020:12490",
      "type": "RECTANGLE"
     }
    ]
@@ -2013,10 +2013,10 @@
    "pageId": "2001:491",
    "primary": {
     "name": "Segmented",
-    "id": "2016:10326",
+    "id": "2020:12470",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "s4tj31:17",
+    "bouwhash": "3est61:17",
     "componentProperties": [
      "variant"
     ],
@@ -2033,11 +2033,11 @@
     "varianten": [
      {
       "name": "variant=filled",
-      "id": "2016:10317"
+      "id": "2020:12461"
      },
      {
       "name": "variant=band",
-      "id": "2016:10325"
+      "id": "2020:12469"
      }
     ]
    },
@@ -2047,10 +2047,10 @@
    "pageId": "2001:509",
    "primary": {
     "name": "HrStatusBar",
-    "id": "2016:10516",
+    "id": "2020:12653",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "3j6qvs:54",
+    "bouwhash": "1dndkrp:54",
     "componentProperties": [
      "hrStatus"
     ],
@@ -2070,23 +2070,23 @@
     "varianten": [
      {
       "name": "hrStatus=idle",
-      "id": "2016:10471"
+      "id": "2020:12608"
      },
      {
       "name": "hrStatus=scanning",
-      "id": "2016:10484"
+      "id": "2020:12621"
      },
      {
       "name": "hrStatus=waiting",
-      "id": "2016:10497"
+      "id": "2020:12634"
      },
      {
       "name": "hrStatus=connected",
-      "id": "2016:10506"
+      "id": "2020:12643"
      },
      {
       "name": "hrStatus=error",
-      "id": "2016:10515"
+      "id": "2020:12652"
      }
     ]
    },
@@ -2096,10 +2096,10 @@
    "pageId": "2001:558",
    "primary": {
     "name": "WheelPicker",
-    "id": "2016:11454",
+    "id": "2020:13557",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "5zikdq:315",
+    "bouwhash": "13mf59n:315",
     "componentProperties": [
      "showPill",
      "surface"
@@ -2123,19 +2123,19 @@
     "varianten": [
      {
       "name": "showPill=true, surface=base",
-      "id": "2016:11218"
+      "id": "2020:13321"
      },
      {
       "name": "showPill=true, surface=raised",
-      "id": "2016:11297"
+      "id": "2020:13400"
      },
      {
       "name": "showPill=false, surface=base",
-      "id": "2016:11375"
+      "id": "2020:13478"
      },
      {
       "name": "showPill=false, surface=raised",
-      "id": "2016:11453"
+      "id": "2020:13556"
      }
     ]
    },
@@ -2145,10 +2145,10 @@
    "pageId": "2001:682",
    "primary": {
     "name": "Playground",
-    "id": "2016:11814",
+    "id": "2020:13918",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "vzdw92:140",
+    "bouwhash": "14zaa7i:140",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -2158,22 +2158,22 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12289",
+     "id": "2020:14343",
      "type": "RECTANGLE"
     },
     {
      "name": "Niet Verbonden",
-     "id": "2016:11954",
+     "id": "2020:14058",
      "type": "COMPONENT"
     },
     {
      "name": "Doel Afstand",
-     "id": "2016:12094",
+     "id": "2020:14198",
      "type": "COMPONENT"
     },
     {
      "name": "Toestel Keuze",
-     "id": "2016:12238",
+     "id": "2020:14342",
      "type": "COMPONENT"
     }
    ]
@@ -2182,12 +2182,12 @@
    "pageId": "2001:743",
    "primary": {
     "name": "BleStatusBar",
-    "id": "2016:10462",
+    "id": "2020:12599",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "1hamq4a:85",
+    "bouwhash": "1q78p31:85",
     "componentProperties": [
-     "deviceName#2016:103",
+     "deviceName#2020:256",
      "bleStatus"
     ],
     "eigenVulling": 1,
@@ -2209,35 +2209,35 @@
     "varianten": [
      {
       "name": "bleStatus=idle",
-      "id": "2016:10386"
+      "id": "2020:12523"
      },
      {
       "name": "bleStatus=scanning",
-      "id": "2016:10399"
+      "id": "2020:12536"
      },
      {
       "name": "bleStatus=connecting",
-      "id": "2016:10412"
+      "id": "2020:12549"
      },
      {
       "name": "bleStatus=discovering",
-      "id": "2016:10425"
+      "id": "2020:12562"
      },
      {
       "name": "bleStatus=connected",
-      "id": "2016:10434"
+      "id": "2020:12571"
      },
      {
       "name": "bleStatus=disconnecting",
-      "id": "2016:10443"
+      "id": "2020:12580"
      },
      {
       "name": "bleStatus=reconnecting",
-      "id": "2016:10452"
+      "id": "2020:12589"
      },
      {
       "name": "bleStatus=error",
-      "id": "2016:10461"
+      "id": "2020:12598"
      }
     ]
    },
@@ -2247,13 +2247,13 @@
    "pageId": "2001:820",
    "primary": {
     "name": "DeviceRow",
-    "id": "2016:10605",
+    "id": "2020:12742",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "12xhilt:89",
+    "bouwhash": "yb72qd:89",
     "componentProperties": [
-     "label#2016:112",
-     "action#2016:121",
+     "label#2020:265",
+     "action#2020:274",
      "icon",
      "loading",
      "actionDisabled"
@@ -2283,35 +2283,35 @@
     "varianten": [
      {
       "name": "icon=dot, loading=true, actionDisabled=true",
-      "id": "2016:10529"
+      "id": "2020:12666"
      },
      {
       "name": "icon=dot, loading=true, actionDisabled=false",
-      "id": "2016:10542"
+      "id": "2020:12679"
      },
      {
       "name": "icon=dot, loading=false, actionDisabled=true",
-      "id": "2016:10551"
+      "id": "2020:12688"
      },
      {
       "name": "icon=dot, loading=false, actionDisabled=false",
-      "id": "2016:10560"
+      "id": "2020:12697"
      },
      {
       "name": "icon=heart, loading=true, actionDisabled=true",
-      "id": "2016:10573"
+      "id": "2020:12710"
      },
      {
       "name": "icon=heart, loading=true, actionDisabled=false",
-      "id": "2016:10586"
+      "id": "2020:12723"
      },
      {
       "name": "icon=heart, loading=false, actionDisabled=true",
-      "id": "2016:10595"
+      "id": "2020:12732"
      },
      {
       "name": "icon=heart, loading=false, actionDisabled=false",
-      "id": "2016:10604"
+      "id": "2020:12741"
      }
     ]
    },
@@ -2321,10 +2321,10 @@
    "pageId": "2001:898",
    "primary": {
     "name": "GoalSegments",
-    "id": "2016:10867",
+    "id": "2020:13005",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "znasr2:66",
+    "bouwhash": "1jjl620:66",
     "componentProperties": [
      "selected"
     ],
@@ -2344,23 +2344,23 @@
     "varianten": [
      {
       "name": "selected=none",
-      "id": "2016:10814"
+      "id": "2020:12952"
      },
      {
       "name": "selected=duration",
-      "id": "2016:10827"
+      "id": "2020:12965"
      },
      {
       "name": "selected=distance",
-      "id": "2016:10840"
+      "id": "2020:12978"
      },
      {
       "name": "selected=split",
-      "id": "2016:10853"
+      "id": "2020:12991"
      },
      {
       "name": "selected=watts",
-      "id": "2016:10866"
+      "id": "2020:13004"
      }
     ]
    },
@@ -2370,13 +2370,13 @@
    "pageId": "2001:970",
    "primary": {
     "name": "KPI",
-    "id": "2016:10801",
+    "id": "2020:12939",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "1ob53o5:97",
+    "bouwhash": "juoqh5:97",
     "componentProperties": [
-     "label#2016:130",
-     "value#2016:147",
+     "label#2020:283",
+     "value#2020:300",
      "highlighted",
      "compact",
      "fill",
@@ -2413,67 +2413,67 @@
     "varianten": [
      {
       "name": "highlighted=true, compact=true, fill=true, loading=true",
-      "id": "2016:10712"
+      "id": "2020:12850"
      },
      {
       "name": "highlighted=true, compact=true, fill=true, loading=false",
-      "id": "2016:10716"
+      "id": "2020:12854"
      },
      {
       "name": "highlighted=true, compact=true, fill=false, loading=true",
-      "id": "2016:10724"
+      "id": "2020:12862"
      },
      {
       "name": "highlighted=true, compact=true, fill=false, loading=false",
-      "id": "2016:10728"
+      "id": "2020:12866"
      },
      {
       "name": "highlighted=true, compact=false, fill=true, loading=true",
-      "id": "2016:10736"
+      "id": "2020:12874"
      },
      {
       "name": "highlighted=true, compact=false, fill=true, loading=false",
-      "id": "2016:10740"
+      "id": "2020:12878"
      },
      {
       "name": "highlighted=true, compact=false, fill=false, loading=true",
-      "id": "2016:10748"
+      "id": "2020:12886"
      },
      {
       "name": "highlighted=true, compact=false, fill=false, loading=false",
-      "id": "2016:10752"
+      "id": "2020:12890"
      },
      {
       "name": "highlighted=false, compact=true, fill=true, loading=true",
-      "id": "2016:10760"
+      "id": "2020:12898"
      },
      {
       "name": "highlighted=false, compact=true, fill=true, loading=false",
-      "id": "2016:10764"
+      "id": "2020:12902"
      },
      {
       "name": "highlighted=false, compact=true, fill=false, loading=true",
-      "id": "2016:10772"
+      "id": "2020:12910"
      },
      {
       "name": "highlighted=false, compact=true, fill=false, loading=false",
-      "id": "2016:10776"
+      "id": "2020:12914"
      },
      {
       "name": "highlighted=false, compact=false, fill=true, loading=true",
-      "id": "2016:10784"
+      "id": "2020:12922"
      },
      {
       "name": "highlighted=false, compact=false, fill=true, loading=false",
-      "id": "2016:10788"
+      "id": "2020:12926"
      },
      {
       "name": "highlighted=false, compact=false, fill=false, loading=true",
-      "id": "2016:10796"
+      "id": "2020:12934"
      },
      {
       "name": "highlighted=false, compact=false, fill=false, loading=false",
-      "id": "2016:10800"
+      "id": "2020:12938"
      }
     ]
    },
@@ -2483,18 +2483,18 @@
    "pageId": "2001:1068",
    "primary": {
     "name": "Button",
-    "id": "2016:11103",
+    "id": "2020:13242",
     "type": "COMPONENT_SET",
     "publishStatus": "CURRENT",
-    "bouwhash": "763smk:161",
+    "bouwhash": "uxwa0m:161",
     "componentProperties": [
-     "title#2016:164",
+     "title#2020:317",
      "variant",
      "size",
      "loading",
      "disabled"
     ],
-    "eigenVulling": 0,
+    "eigenVulling": 1,
     "variantenMetVulling": 0,
     "variantProperties": {
      "variant": {
@@ -2527,131 +2527,131 @@
     "varianten": [
      {
       "name": "variant=primary, size=md, loading=true, disabled=true",
-      "id": "2016:10949"
+      "id": "2020:13088"
      },
      {
       "name": "variant=primary, size=md, loading=true, disabled=false",
-      "id": "2016:10956"
+      "id": "2020:13095"
      },
      {
       "name": "variant=primary, size=md, loading=false, disabled=true",
-      "id": "2016:10959"
+      "id": "2020:13098"
      },
      {
       "name": "variant=primary, size=md, loading=false, disabled=false",
-      "id": "2016:10962"
+      "id": "2020:13101"
      },
      {
       "name": "variant=primary, size=lg, loading=true, disabled=true",
-      "id": "2016:10969"
+      "id": "2020:13108"
      },
      {
       "name": "variant=primary, size=lg, loading=true, disabled=false",
-      "id": "2016:10976"
+      "id": "2020:13115"
      },
      {
       "name": "variant=primary, size=lg, loading=false, disabled=true",
-      "id": "2016:10979"
+      "id": "2020:13118"
      },
      {
       "name": "variant=primary, size=lg, loading=false, disabled=false",
-      "id": "2016:10982"
+      "id": "2020:13121"
      },
      {
       "name": "variant=destructive, size=md, loading=true, disabled=true",
-      "id": "2016:10989"
+      "id": "2020:13128"
      },
      {
       "name": "variant=destructive, size=md, loading=true, disabled=false",
-      "id": "2016:10996"
+      "id": "2020:13135"
      },
      {
       "name": "variant=destructive, size=md, loading=false, disabled=true",
-      "id": "2016:10999"
+      "id": "2020:13138"
      },
      {
       "name": "variant=destructive, size=md, loading=false, disabled=false",
-      "id": "2016:11002"
+      "id": "2020:13141"
      },
      {
       "name": "variant=destructive, size=lg, loading=true, disabled=true",
-      "id": "2016:11009"
+      "id": "2020:13148"
      },
      {
       "name": "variant=destructive, size=lg, loading=true, disabled=false",
-      "id": "2016:11016"
+      "id": "2020:13155"
      },
      {
       "name": "variant=destructive, size=lg, loading=false, disabled=true",
-      "id": "2016:11019"
+      "id": "2020:13158"
      },
      {
       "name": "variant=destructive, size=lg, loading=false, disabled=false",
-      "id": "2016:11022"
+      "id": "2020:13161"
      },
      {
       "name": "variant=ghost, size=md, loading=true, disabled=true",
-      "id": "2016:11029"
+      "id": "2020:13168"
      },
      {
       "name": "variant=ghost, size=md, loading=true, disabled=false",
-      "id": "2016:11036"
+      "id": "2020:13175"
      },
      {
       "name": "variant=ghost, size=md, loading=false, disabled=true",
-      "id": "2016:11039"
+      "id": "2020:13178"
      },
      {
       "name": "variant=ghost, size=md, loading=false, disabled=false",
-      "id": "2016:11042"
+      "id": "2020:13181"
      },
      {
       "name": "variant=ghost, size=lg, loading=true, disabled=true",
-      "id": "2016:11049"
+      "id": "2020:13188"
      },
      {
       "name": "variant=ghost, size=lg, loading=true, disabled=false",
-      "id": "2016:11056"
+      "id": "2020:13195"
      },
      {
       "name": "variant=ghost, size=lg, loading=false, disabled=true",
-      "id": "2016:11059"
+      "id": "2020:13198"
      },
      {
       "name": "variant=ghost, size=lg, loading=false, disabled=false",
-      "id": "2016:11062"
+      "id": "2020:13201"
      },
      {
       "name": "variant=outline, size=md, loading=true, disabled=true",
-      "id": "2016:11069"
+      "id": "2020:13208"
      },
      {
       "name": "variant=outline, size=md, loading=true, disabled=false",
-      "id": "2016:11076"
+      "id": "2020:13215"
      },
      {
       "name": "variant=outline, size=md, loading=false, disabled=true",
-      "id": "2016:11079"
+      "id": "2020:13218"
      },
      {
       "name": "variant=outline, size=md, loading=false, disabled=false",
-      "id": "2016:11082"
+      "id": "2020:13221"
      },
      {
       "name": "variant=outline, size=lg, loading=true, disabled=true",
-      "id": "2016:11089"
+      "id": "2020:13228"
      },
      {
       "name": "variant=outline, size=lg, loading=true, disabled=false",
-      "id": "2016:11096"
+      "id": "2020:13235"
      },
      {
       "name": "variant=outline, size=lg, loading=false, disabled=true",
-      "id": "2016:11099"
+      "id": "2020:13238"
      },
      {
       "name": "variant=outline, size=lg, loading=false, disabled=false",
-      "id": "2016:11102"
+      "id": "2020:13241"
      }
     ]
    },
@@ -2661,10 +2661,10 @@
    "pageId": "2001:1238",
    "primary": {
     "name": "Playground",
-    "id": "2016:11498",
+    "id": "2020:13601",
     "type": "COMPONENT",
     "publishStatus": "CURRENT",
-    "bouwhash": "fxn12y:44",
+    "bouwhash": "vnkm3o:44",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -2674,27 +2674,27 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2018:12290",
+     "id": "2020:13778",
      "type": "RECTANGLE"
     },
     {
      "name": "Doel Afstand",
-     "id": "2016:11542",
+     "id": "2020:13645",
      "type": "COMPONENT"
     },
     {
      "name": "Zonder Hartslagband",
-     "id": "2016:11586",
+     "id": "2020:13689",
      "type": "COMPONENT"
     },
     {
      "name": "Doel Bereikt",
-     "id": "2016:11630",
+     "id": "2020:13733",
      "type": "COMPONENT"
     },
     {
      "name": "Samenvatting",
-     "id": "2016:11674",
+     "id": "2020:13777",
      "type": "COMPONENT"
     }
    ]

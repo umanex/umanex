@@ -12,7 +12,7 @@
  *
  * Gebruik: node scripts/figma-sync-selftest.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, utimesSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -68,7 +68,7 @@ function metVulling(m, { varianten = 0, los = 0 } = {}) {
  * en het is de enige manier om het "spec is jonger dan Figma"-venster op te wekken zonder
  * te wachten tot morgen.
  */
-function schema3(m, { publiceer = 0, bouwhash = true, specDagenNieuwer = 0 } = {}) {
+function schema3(m, { publiceer = 0, bouwhash = true } = {}) {
   const x = lees(m, 'figma/manifest.json');
   x.schemaVersie = 3;
   const paginas = Object.values(x.pages).filter(p => p.primary);
@@ -78,9 +78,27 @@ function schema3(m, { publiceer = 0, bouwhash = true, specDagenNieuwer = 0 } = {
     if (!bouwhash) delete p.primary.bouwhash;
   }
   schrijf(m, 'figma/manifest.json', x);
-  const spec = join(m, 'figma/build-spec.min.json');
-  const t = new Date(x.gegenereerd + 'T12:00:00Z').getTime() / 1000 + specDagenNieuwer * 86400;
-  utimesSync(spec, t, t);
+}
+
+/**
+ * Maak van de wegwerpkopie een git-repo en leg de twee bestanden in de gevraagde VOLGORDE vast.
+ *
+ * De `[publicatie]`-as leest sinds 2026-09-08 commit-tijden in plaats van mtimes: git bewaart
+ * geen mtimes, dus elke verse checkout stempelde "nu" en de as gaf vals alarm, terwijl het
+ * echte venster — een herbouw twee uur ná de ververs — op dagresolutie onzichtbaar was. Een
+ * tegenproef op mtime meet die as dus niet meer; hij moet door dezelfde poort als de echte code.
+ */
+function commitVolgorde(m, eerst, daarna) {
+  const git = (args, datum) => execFileSync('git', args, {
+    cwd: m, stdio: 'ignore',
+    env: { ...process.env, GIT_AUTHOR_DATE: datum, GIT_COMMITTER_DATE: datum,
+           GIT_AUTHOR_NAME: 'selftest', GIT_AUTHOR_EMAIL: 's@e', GIT_COMMITTER_NAME: 'selftest', GIT_COMMITTER_EMAIL: 's@e' },
+  });
+  git(['init', '-q']);
+  git(['add', eerst]);
+  git(['commit', '-q', '-m', 'eerst'], '2026-09-08T10:00:00+02:00');
+  git(['add', daarna]);
+  git(['commit', '-q', '-m', 'daarna'], '2026-09-08T14:00:00+02:00');
 }
 
 /**
@@ -142,10 +160,12 @@ const MUTATIES = [
   // gezond — die hoort de guard groen te laten.
   { as: 'publicatie', wat: 'publiceer een component zonder bouwhash', doe: m => {
       schema3(m, { publiceer: 2, bouwhash: false }); } },
-  { as: 'publicatie', wat: 'maak de bouwspec jonger dan de Figma-momentopname', doe: m => {
-      schema3(m, { publiceer: 2, bouwhash: true, specDagenNieuwer: 3 }); } },
-  { as: 'controle-publicatie', zwijgt: true, wat: 'gepubliceerd, mét bouwhash, spec niet jonger', doe: m => {
-      schema3(m, { publiceer: 2, bouwhash: true }); } },
+  { as: 'publicatie', wat: 'commit de bouwspec ná de Figma-momentopname', doe: m => {
+      schema3(m, { publiceer: 2, bouwhash: true });
+      commitVolgorde(m, 'figma/manifest.json', 'figma/build-spec.min.json'); } },
+  { as: 'controle-publicatie', zwijgt: true, wat: 'commit de bouwspec vóór de Figma-momentopname', doe: m => {
+      schema3(m, { publiceer: 2, bouwhash: true });
+      commitVolgorde(m, 'figma/build-spec.min.json', 'figma/manifest.json'); } },
 
   // --- laagnaam-as: vier defecten, twee controles -------------------------
   { as: 'laagnaam', wat: 'laat een node een kaal cijfer heten', doe: m => {
@@ -158,6 +178,11 @@ const MUTATIES = [
       const x = lees(m, 'figma/laagnamen.json'); x.echteNaamPct = 60; schrijf(m, 'figma/laagnamen.json', x); } },
   { as: 'laagnaam', wat: 'laat de dekking stijgen (ratel moet bijgesteld)', doe: m => {
       const x = lees(m, 'figma/laagnamen.json'); x.echteNaamPct = 88.4; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'een nieuwe naamconflict-bron (instabielePosities stijgt)', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.instabielePosities = 9;
+      x.instabielPerComponent = ['Chip:7', 'DeviceRow:1', 'KPI:1']; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'de producent levert het veld niet meer', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); delete x.instabielePosities; schrijf(m, 'figma/laagnamen.json', x); } },
   // Ambiguïteit is een RAPPORTAGE, geen defect: twee sleutels die even goed passen geven een
   // deterministische maar willekeurige keuze. Zou de as hierop afgaan, dan was hij niet meer
   // te onderscheiden van een echte naamfout.
@@ -177,6 +202,16 @@ const MUTATIES = [
   // hij de fix onmogelijk maken in plaats van hem af te dwingen.
   { as: 'controle-setvulling', zwijgt: true, wat: 'alle sets houden hun eigen vulling', doe: m => {
       metVulling(m, { varianten: 0, los: 0 }); } },
+
+  // --- onvolledige meting: exit 2, niet exit 0 ----------------------------
+  // `sla()` schrijft alleen een ~~-regel. Tot 2026-09-08 bepaalde alléén `fails` de
+  // exit-code, dus tien overgeslagen assen gaven exit 0 mét een slotregel die alle dertien
+  // bij naam opsomde. Geen van de 26 mutaties raakte dat pad: elke mutatie eist een FAIL en
+  // elke controle eist exit 0 — de skip-tak zat er precies tussenin.
+  { as: 'onvolledig', verwachtCode: 2, wat: 'haal het manifest weg (tien assen zonder invoer)',
+    doe: m => rmSync(join(m, 'figma/manifest.json')) },
+  { as: 'onvolledig-laagnamen', verwachtCode: 2, wat: 'haal figma/laagnamen.json weg',
+    doe: m => rmSync(join(m, 'figma/laagnamen.json')) },
 
   // --- controle-mutaties: velden die de guard NIET leest -------------------
   { as: 'controle-fileName', zwijgt: true, wat: 'hernoem het Figma-bestand', doe: m => {
@@ -206,9 +241,13 @@ for (const m of MUTATIES) {
     rmSync(map, { recursive: true, force: true }); fout++; continue;
   }
   const raakt = r.uit.includes(`[${m.as}]`) && r.uit.split('\n').some(l => l.startsWith('  FAIL') && l.includes(`[${m.as}]`));
-  const geslaagd = m.zwijgt ? r.code === 0 : (r.code === 1 && raakt);
-  console.log(`  ${geslaagd ? 'ok' : 'XX'} ${m.as.padEnd(20)} ${m.wat} → exit ${r.code}${m.zwijgt ? ' (hoort 0)' : ` (hoort 1 op [${m.as}])`}`);
-  if (!geslaagd && !m.zwijgt) {
+  const geslaagd = m.verwachtCode !== undefined ? r.code === m.verwachtCode
+                 : m.zwijgt ? r.code === 0
+                 : (r.code === 1 && raakt);
+  const hoort = m.verwachtCode !== undefined ? ` (hoort ${m.verwachtCode})`
+              : m.zwijgt ? ' (hoort 0)' : ` (hoort 1 op [${m.as}])`;
+  console.log(`  ${geslaagd ? 'ok' : 'XX'} ${m.as.padEnd(20)} ${m.wat} → exit ${r.code}${hoort}`);
+  if (!geslaagd && !m.zwijgt && m.verwachtCode === undefined) {
     const fails = r.uit.split('\n').filter(l => l.startsWith('  FAIL')).slice(0, 3);
     if (fails.length) console.log('       viel om op: ' + fails.join(' | ').trim());
     else console.log('       geen enkele FAIL — deze as kan het defect niet opwekken');

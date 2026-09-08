@@ -19,11 +19,33 @@
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { benoem } from './laagnamen.mjs';
+
+
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+/**
+ * `--hernoem` draait ALLEEN de naamgevingspas opnieuw, op de bestaande figma/build-spec.json.
+ *
+ * De kandidaten per node staan al in die spec, dus een naamiteratie hoeft de 118 varianten
+ * niet opnieuw in Chromium te renderen. Dat scheelt twee minuten per ronde en, belangrijker,
+ * het houdt de meting constant: je verandert de naamregel en niets anders.
+ */
+if (process.argv.includes('--hernoem')) {
+  const specPad = join(APP, 'figma/build-spec.json');
+  const spec = JSON.parse(readFileSync(specPad, 'utf8'));
+  let n = 0;
+  spec.naamStats = [];
+  for (const [comp, d] of Object.entries(spec.componenten)) { spec.naamStats.push(benoem(comp, d.varianten.map(v => v.boom))); n++; }
+  for (const [comp, d] of Object.entries(spec.schermen)) { spec.naamStats.push(benoem(comp, d.frames.map(f => f.boom))); n++; }
+  writeFileSync(specPad, JSON.stringify(spec, null, 1));
+  console.log(`hernoemd: ${n} componenten in figma/build-spec.json — draai nu figma-build-prune.mjs`);
+  process.exit(0);
+}
+
 const STATIC = join(APP, 'storybook-static');
 const assen = JSON.parse(readFileSync(join(APP, 'figma/story-axes.json'), 'utf8'));
 const payload = JSON.parse(readFileSync(join(APP, 'figma/tokens-payload.json'), 'utf8'));
@@ -536,7 +558,7 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     bind(r.boom, '', comp);
     varianten.push({ naam: c.naam, args: c.args, boom: r.boom, storyArgs: r.args });
   }
-  benoem(comp, varianten.map(v => v.boom));   // laagnamen: één beslissing per component
+  (spec.naamStats ??= []).push(benoem(comp, varianten.map(v => v.boom)));   // laagnamen: één beslissing per component
   const slots = markeerSlots(comp, varianten.map(v => ({ naam: v.naam, boom: v.boom, args: v.storyArgs })), d.assen, spec.fouten);
   spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, slots, varianten };
   process.stderr.write(`  ${comp}: ${varianten.length}/${combis.length}\n`);
@@ -554,7 +576,7 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
     bind(r.boom, '', comp);
     frames.push({ naam, storyId: e.id, boom: r.boom });
   }
-  benoem(comp, frames.map(f => f.boom));
+  (spec.naamStats ??= []).push(benoem(comp, frames.map(f => f.boom)));
   spec.schermen[comp] = { frames, afgeschrevenAssen: assen.componenten[comp].assen };
   process.stderr.write(`  ${comp} (scherm): ${frames.length}/${storyNamen.length}\n`);
 }

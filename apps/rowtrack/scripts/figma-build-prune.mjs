@@ -185,6 +185,12 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
     $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Dekking en variant-stabiliteit van de laagnamen, gemeten op de GESNOEIDE boom — dat is wat Figma krijgt.',
     nodes, perBron, echteNaamPct: +(100 * echt / nodes).toFixed(1),
     ambigu, gestabiliseerd, indexNamen, copyNamen, instabiel,
+    // Het signaal dat de producent NIET normaliseert: hoeveel posities `stabiliseer()` moest
+    // gladstrijken. `instabiel` is dáárna gemeten en dus per constructie leeg; dit getal is
+    // de enige onafhankelijke maat voor dezelfde eigenschap.
+    instabielePosities: (spec.naamStats ?? []).reduce((a, x) => a + (x.instabielePosities ?? 0), 0),
+    instabielPerComponent: (spec.naamStats ?? []).filter(x => x.instabielePosities)
+      .map(x => `${x.component}:${x.instabielePosities}`),
     namen: Object.fromEntries([...perNaam].sort((a, b) => b[1] - a[1])),
   }, null, 1));
   console.log(`laagnamen: ${(100 * echt / nodes).toFixed(1)}% uit de code (${echt}/${nodes}), ` +
