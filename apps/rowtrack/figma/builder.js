@@ -87,6 +87,7 @@ async function maak(n, naamPad) {
       t.fontName = stijl.fontName;
       t.characters = String(n.t.s);
       await t.setTextStyleIdAsync(stijl.id);
+      if (n.t.tc) t.textCase = n.t.tc;
     } else {
       await figma.loadFontAsync(font);
       t.fontName = font;
@@ -94,6 +95,7 @@ async function maak(n, naamPad) {
       t.fontSize = n.t.px;
       t.letterSpacing = { unit: 'PIXELS', value: n.t.ls };
       if (n.t.lh) t.lineHeight = { unit: 'PIXELS', value: n.t.lh };
+      if (n.t.tc) t.textCase = n.t.tc;
       meldingen.push(`${naamPad}: tekst zonder text style (${n.t.f} ${n.t.px}px)`);
     }
     const p = { type: 'SOLID', color: rgb(n.t.k), opacity: n.t.k.a };

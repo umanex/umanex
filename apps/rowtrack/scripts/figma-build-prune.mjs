@@ -70,6 +70,12 @@ function snoei(node, diepte, pad, comp) {
     };
     if (node.tekst.kleurVar) o.t.kVar = node.tekst.kleurVar;
     if (node.tekst.styleRef) o.t.style = node.tekst.styleRef;
+    // text-transform werkt visueel maar staat NIET in de DOM-tekst. Zonder deze regel
+    // toont Figma "500m" waar de browser "500M" rendert — gemeten 2026-09-07 op SplitsList,
+    // en het raakt 50 tekstnodes over 12 componenten. Figma's `textCase` is het native
+    // equivalent: het bewaart de brontekst en zet alleen de weergave om.
+    const TC = { uppercase: 'UPPER', lowercase: 'LOWER', capitalize: 'TITLE' };
+    if (TC[node.tekst.transform]) o.t.tc = TC[node.tekst.transform];
   }
   if (node.bevatSvg) o.svg = true;
   const kids = node.kinderen ?? [];

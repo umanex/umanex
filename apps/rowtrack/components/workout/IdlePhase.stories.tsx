@@ -90,6 +90,9 @@ const meta = {
     onStart: () => {},
     insets: geenInsets,
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-4191' },
+  },
 } satisfies Meta<typeof IdlePhase>;
 
 export default meta;

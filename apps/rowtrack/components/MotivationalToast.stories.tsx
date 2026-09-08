@@ -20,6 +20,9 @@ const meta = {
     message: t.workout.celebration.distance('2.000', 'm'),
     onDismiss: () => {},
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2006-4540' },
+  },
 } satisfies Meta<typeof MotivationalToast>;
 
 export default meta;

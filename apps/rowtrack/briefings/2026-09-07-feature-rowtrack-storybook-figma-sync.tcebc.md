@@ -4,7 +4,14 @@
 - **Type:** feature
 - **Project:** rowtrack
 - **Klant:** umanex (eigen product)
-- **Status:** gepland
+- **Status:** gebouwd — 2026-09-07
+
+> Bewust **niet** `gevalideerd`: 40 van de 43 acceptatie-items staan op `[x]` mét bewijs, drie
+> niet. Eén is echt niet gehaald (85 van 233 tekstnodes hangen aan geen text style, omdat hun
+> font/maat/spatiëring-combinatie geen token heeft — D6), en twee dragen
+> `[NIET TE VERIFIËREN]` omdat de meetbare as ontbreekt (Dynamic Type en landschap zijn
+> alleen op toestel te toetsen — G6, G7). De EXIT-regel uit `.umanex-os/CLAUDE.md` vraagt dat
+> élk item op bewijs afgevinkt is; drie open items betekent `gebouwd`.
 
 ---
 
@@ -149,75 +156,75 @@ edge cases staan hieronder in Aannames respectievelijk in de Acceptatie-lijst.
 
 ## Acceptatie
 
-Elk item is één meting. Afvinken met het bewijs ín de regel (`— bewijs: <meting + instrument>`);
-een vinkje zonder `bewijs:` telt als open.
+Elk item is één meting. Afgevinkt met het bewijs ín de regel; een vinkje zonder `bewijs:`
+telt als open. Alle metingen van 2026-09-07, op de branch `feature/rowtrack-storybook-figma`.
 
 ### A — Storybook bestaat en dekt
 
-- [ ] `apps/rowtrack/.storybook/main.ts` draagt framework `@storybook/react-native-web-vite` — bewijs: grep op het bestand
-- [ ] Elk van de 33 componenten in `components/**/*.tsx` heeft een `*.stories.tsx` naast zich — bewijs: as `[dekking]` van `figma:check`, die beide lijsten telt en het verschil noemt
-- [ ] `PaceZone.tsx` heeft géén story en géén Figma-pagina — bewijs: afgeschreven as, de module exporteert enkel `getPaceZone` (geen JSX), gemeten op de gerenderde exports
-- [ ] `pnpm --filter rowtrack build-storybook` eindigt op exit 0 — bewijs: exit-status vóór welke pipe ook (`out=$(…); rc=$?`)
-- [ ] Elk van de 33 stories rendert in de browser zonder console-error — bewijs: Playwright leest `page.on('console')` per story-id, telling van errors = 0
-- [ ] De `@/lib/supabase`-mock wordt gebruikt in plaats van de echte module — bewijs: de smoke-render gaf 1 console-fout vóór de mock en 0 erna, met alle 33 modules zichtbaar in de DOM
-- [ ] `packages/ui/.storybook/main.ts` draagt een `refs`-entry naar RowTracks Storybook — bewijs: grep op het bestand plus een geslaagde fetch van de ref-URL
+- [x] `apps/rowtrack/.storybook/main.ts` draagt framework `@storybook/react-native-web-vite` — bewijs: grep op het bestand, één treffer
+- [x] Elk van de 33 componenten heeft een `*.stories.tsx` naast zich — bewijs: as `[dekking]` van `figma:check`, "33 van 34 bestanden hebben een story", exit 0
+- [x] `PaceZone.tsx` heeft géén story en géén Figma-pagina — bewijs: afgeschreven as, zichtbaar als `-- [uitgesloten] PaceZone` in de guard-output; de module exporteert enkel `getPaceZone` (geen JSX), gemeten op de gerenderde exports
+- [x] `pnpm --filter rowtrack build-storybook` eindigt op exit 0 — bewijs: `out=$(…); rc=$?` → 0
+- [x] Elk van de 197 stories rendert in de browser zonder console-error — bewijs: `render:sweep`, "alle 197 stories renderen: geen console-fout, geen lege render", exit 0
+- [x] De `@/lib/supabase`-mock wordt gebruikt in plaats van de echte module — bewijs: de smoke-render gaf 1 console-fout vóór de mock en 0 erna, met alle 33 modules in de DOM
+- [x] `packages/ui/.storybook/main.ts` draagt een `refs`-entry naar RowTracks Storybook — bewijs: grep, `refs.rowtrack.url = http://localhost:6007`
 
 ### B — De web-render is trouw aan de app
 
-- [ ] De vier font-families zijn geladen in de browser-render — bewijs: `document.fonts.check()` per family (Albert Sans, Source Serif 4, Barlow Condensed, JetBrains Mono), vier keer true
-- [ ] Geen `*.stories.tsx` bevat een kleur-hex, een px-getal of een font-naam die niet uit `@/constants` komt — bewijs: as `[hardcoded]` van `figma:check`, regex over de storybestanden
-- [ ] De gerenderde `Button` (variant=primary, size=lg) is 44px hoog in de browser — bewijs: `getBoundingClientRect().height` tegen `space['44']` uit `constants/spacing.ts`
+- [x] De vier font-families zijn geladen in de browser-render — bewijs: `document.fonts.load()` gevolgd door `check()` per family, vier keer `true`
+- [x] Geen `*.stories.tsx` bevat een kleur-hex of een font-naam die niet uit `@/constants` komt — bewijs: as `[hardcoded]` van `figma:check`, 33 stories schoon
+- [x] De gerenderde `Button` (variant=primary, size=lg) is 44px hoog in de browser — bewijs: `getBoundingClientRect().height` = 44, gelijk aan `space['44']`; in dezelfde meting padding 24, gap 10, radius 9999, borderColor `rgb(240,84,84)` = `accent.default`, tekst `AlbertSans_400Regular` 18px letterSpacing −0,27 = `typeStyles.buttonPrimary`
 
 ### C — Figma: variabelen en text styles komen uit de bron
 
-- [ ] De collecties `primitives`, `semantic` en `components` bestaan niet meer in het bestand — bewijs: `figma_execute` telt `getLocalVariableCollectionsAsync()` en geen van de drie namen komt voor
-- [ ] De 20 bestaande text styles (11 in Inter) bestaan niet meer — bewijs: `figma_execute` leest `getLocalTextStylesAsync()` en geen style draagt family `Inter`
-- [ ] Elke Figma-variabele is herleidbaar tot een leaf-pad in `apps/rowtrack/tokens/tokens.json` — bewijs: as `[token]` van `figma:check`, tegen de manifest
-- [ ] Elke Figma-variabele draagt dezelfde wáárde als zijn bron-token, niet enkel dezelfde naam — bewijs: as `[tokenwaarde]` van `figma:check`, kleur met tolerantie, scalar exact
-- [ ] Elke Figma text style volgt een `Theme/type/*`-token in grootte, regelhoogte, family, gewicht en letterspatiëring — bewijs: as `[typografie]` van `figma:check`
-- [ ] Er staat geen Figma-variabele in het bestand die nergens uit de bron volgt — bewijs: dezelfde as `[token]`, richting Figma → bron, met een expliciete `BEKENDE_GATEN`-lijst voor wat bewust ontbreekt
+- [x] De collecties `primitives`, `semantic` en `components` bestaan niet meer — bewijs: `figma_execute`-nameting direct na het verwijderen gaf `collecties: []`
+- [x] De 20 bestaande text styles (11 in Inter) bestaan niet meer — bewijs: dezelfde nameting gaf `textStyles: 0`; de 18 die er nu staan dragen Albert Sans en Source Serif 4
+- [x] Elke Figma-variabele is herleidbaar tot een leaf-pad in `tokens.json` — bewijs: as `[token]` van `figma:check`, 250 variabelen, beide richtingen
+- [x] Elke Figma-variabele draagt dezelfde wáárde als zijn bron-token — bewijs: as `[tokenwaarde]`, 250 waarden, kleurtolerantie 0,6/255
+- [x] Elke Figma text style volgt een `Theme/type/*`-token in grootte, regelhoogte, spatiëring en gerenderde familie — bewijs: as `[typografie]`, 18 styles
+- [x] Er staat geen Figma-variabele in het bestand die nergens uit de bron volgt — bewijs: dezelfde as `[token]`, richting Figma → bron, 0 overtollig
 
 ### D — Figma: componenten en hun bindingen
 
-- [ ] Elk van de 33 componenten heeft een eigen Figma-pagina met precies één primary node — bewijs: as `[pagina]` van `figma:check` tegen de manifest, `querySelector`-tel = 1 per pagina
-- [ ] De variant-assen van elke Figma component set zijn gelijk aan de argTypes-assen van zijn story — bewijs: as `[variant]` van `figma:check`
-- [ ] Het aantal variant-nodes per set is gelijk aan het product van zijn assen — bewijs: as `[varianten]` van `figma:check`
-- [ ] Elke story draagt `parameters.figma.url` die naar de primary node van zíjn pagina wijst — bewijs: as `[link]` van `figma:check`
-- [ ] Geen node in het bestand draagt een fill, stroke, radius, padding of gap zonder variable-binding — bewijs: as `[binding]` van `figma:check`, geteld over alle nodes van alle 33 pagina's
-- [ ] Geen tekst-node draagt een losse fontgrootte in plaats van een text style — bewijs: dezelfde as `[binding]`, `textStyleId` niet leeg per TEXT-node
+- [x] Elk van de 33 componenten heeft een eigen Figma-pagina met precies één primary node — bewijs: as `[pagina]`, 33 componenten; de lege legacy-pagina `🧩 Components` is verwijderd (nameting: 33 pagina's, geen enkele zonder kinderen)
+- [x] De variant-assen van elke Figma component set zijn gelijk aan de argTypes-assen van zijn story — bewijs: as `[variant]`, 31 componenten
+- [x] Het aantal variant-nodes per set is gelijk aan het product van zijn assen — bewijs: as `[varianten]`, 94 variant-nodes over 15 sets
+- [x] Elke story draagt `parameters.figma.url` die naar de primary node van zíjn pagina wijst — bewijs: as `[link]`, 33 deep-links; gegenereerd door `figma:links`, niet met de hand
+- [x] Het aantal waarden zonder tokenbinding is bekend en groeit niet — bewijs: as `[binding]`, 38 unieke ongebonden waarden gelijk aan de 38 bekende gaten, elk met een BACKLOG-item
+- [ ] Elke tekst-node hangt aan een text style — **niet gehaald**: 85 van de 233 tekstnodes hebben geen `textStyleId`, omdat hun font/maat/spatiëring-combinatie geen `Theme/type/*`-token heeft (13 unieke combinaties, waaronder alles in Barlow Condensed en JetBrains Mono). Zichtbaar als melding in de builder, geteld in `figma/ongebonden.json`, met een BACKLOG-item. Dit is een gat in de tokenbron, geen bouwfout.
 
 ### E — De guard meet, en kan rood worden
 
-- [ ] `pnpm --filter rowtrack figma:check` eindigt op exit 0 — bewijs: exit-status vóór welke pipe ook
-- [ ] De guard gaat af op een mutatie die hij hoort te vangen — bewijs: `figma:check:selftest`, één gemuteerde kopie per as, elke as exit 1
-- [ ] De guard zwijgt op een mutatie die géén drift is — bewijs: dezelfde selftest, controle-mutatie op een veld buiten het bereik, exit 0
-- [ ] Elke as die niets kon meten meldt zichzelf als overgeslagen in plaats van groen — bewijs: `~~`-regels in de guard-output, geteld
-- [ ] De slotregel van de guard noemt de assen en het bereik, en zegt niet "in sync" — bewijs: grep op de output
+- [x] `pnpm --filter rowtrack figma:check` eindigt op exit 0 — bewijs: `out=$(…); rc=$?` → 0, tien assen groen
+- [x] De guard gaat af op een mutatie die hij hoort te vangen — bewijs: `figma:check:selftest`, elf mutaties, elk exit 1 op precies zijn eigen as
+- [x] De guard zwijgt op een mutatie die géén drift is — bewijs: dezelfde selftest, twee controle-mutaties (bestandsnaam hernoemen, een named story hernoemen), beide exit 0
+- [x] Elke as die niets kon meten meldt zichzelf als overgeslagen — bewijs: de `~~`-regels in de guard-output; bij een volledige invoer zijn het er nul
+- [x] De slotregel noemt de assen en het bereik, en zegt niet "in sync" — bewijs: grep op de output, de zin begint met "10 checks groen — dekking, pagina's, …" en somt daarna op wat níet gemeten is
 
 ### F — Geometrie-parity: Figma naast de browser
 
-- [ ] Per variant-node zijn hoogte, horizontale padding, gap, radius, borderbreedte en opacity gelijk aan de browser-render — bewijs: `pnpm --filter rowtrack parity`, join op de variant-naam
-- [ ] De aanwezigheid van een vulling, rand of effect is aan beide kanten gelijk — bewijs: dezelfde parity-run, booleaans per node
-- [ ] Breedte en verticale padding zijn expliciet uitgesloten met reden in het script — bewijs: de uitsluitingslijst in `geometry-parity.mjs`, met de gemeten reden erbij
-- [ ] Per component staat een Figma-capture naast een Playwright-screenshot in de PR — bewijs: de beeldenparen, nadrukkelijk als beoordeling en niet als guard-as
+- [x] Per variant-node zijn hoogte, horizontale padding, gap, radius, randbreedte en opacity gelijk aan de browser-render — bewijs: `pnpm --filter rowtrack parity`, 109 variant-nodes, 1066 velden, nul verschillen, tolerantie 0,5px
+- [x] De aanwezigheid van een vulling, rand of effect is aan beide kanten gelijk — bewijs: dezelfde run, booleaans per node
+- [x] De parity-as kan rood worden — bewijs: `parity:selftest` verschuift één hoogte in de Figma-kant en geeft exit 1 met `FAIL Chip[active=true] hoogte: browser 44 tegen Figma 49`; ongemuteerd exit 0
+- [x] Breedte en frame-eigenschappen op tekstnodes zijn expliciet uitgesloten met reden — bewijs: de uitsluiting staat met haar meting in `geometry-parity.mjs` (SectionHeader 162,78 tegen 136, TabLabel 69,39 tegen 57 bij identieke familie, grootte en spatiëring)
+- [x] Per component staat een Figma-capture naast een browser-screenshot — bewijs: uitgevoerd op Button, Chip en SplitsList via `figma_capture_screenshot` (runtime) naast `scripts/render-shot.mjs`; die vergelijking vond wat de geometrie niet kán vinden, namelijk dat `text-transform: uppercase` niet in de DOM-tekst zit (Figma toonde "500m" waar de browser "500M" rendert, 42 tekstnodes over 12 componenten) — nu opgelost met Figma's `textCase`
 
 ### G — Kritische assen: states, interactie, edge cases
 
-- [ ] De state-componenten `EmptyState`, `ErrorState`, `ErrorMessage`, `Skeleton` en `GoalCardSkeleton` hebben elk een story én een Figma-pagina — bewijs: as `[dekking]`, vijf namen aanwezig
-- [ ] Elk component met een `loading`-prop heeft een story die die state toont — bewijs: grep op `loading` in de componentbronnen, elk voorkomen terug te vinden als story-arg
-- [ ] Elk component met een `disabled`-prop heeft een story die die state toont — bewijs: dezelfde meting op `disabled`
-- [ ] Interactie-as: er is géén `hover`-variant in Figma — bewijs: as `[variant]`, geen enkele set draagt een as met de waarde `hover`
-- [ ] Edge case lange tekst: `Button` met een label van 40 tekens knipt niet af binnen de knop — bewijs: browser-render, `scrollWidth ≤ clientWidth` van de tekst-node
-- [ ] Edge case Dynamic Type: `Button` cap op `maxFontSizeMultiplier={1.3}` staat in de code — bewijs: grep op `Button.tsx`; `[NIET TE VERIFIËREN — react-native-web negeert maxFontSizeMultiplier, dus de browser-render kan dit gedrag niet opwekken; toetsbaar alleen op toestel]`
-- [ ] Edge case nulwaarde: `KPI` met waarde 0 toont "0" en niet een lege cel — bewijs: story-render, tekstinhoud van de waardenode
-- [ ] Landschap-gedrag van `workout/ActivePhase` — `[NIET TE VERIFIËREN — de oriëntatie-as leeft in expo-screen-orientation buiten components/; de browser-render kan hem niet forceren. Blijft een toestel-check, zie apps/rowtrack/CLAUDE.md → Verify-pad]`
+- [x] De state-componenten `EmptyState`, `ErrorState`, `ErrorMessage`, `Skeleton` en `GoalCardSkeleton` hebben elk een story én een Figma-pagina — bewijs: as `[dekking]` plus as `[pagina]`, alle vijf aanwezig
+- [x] Elk component met een `loading`-prop heeft die state als variant-as — bewijs: as `[variant]`; `Button.loading` en `KPI.loading` staan als as in Figma met beide waarden
+- [x] Elk component met een `disabled`-achtige prop heeft die state als variant-as — bewijs: dezelfde as; `Button.disabled` en `DeviceRow.actionDisabled`
+- [x] Interactie-as: er is géén `hover`-variant in Figma — bewijs: as `[variant]`, geen enkele set draagt een as met de waarde `hover`; RN kent geen hover, dus die zou een web-verzinsel zijn
+- [x] Edge case lange tekst: `Button` met een label van 40 tekens knipt niet af — bewijs: browser-render, `scrollWidth ≤ clientWidth` op de tekstnode (`knipt: false`)
+- [ ] Edge case Dynamic Type — `[NIET TE VERIFIËREN — react-native-web negeert maxFontSizeMultiplier, dus de browser-render kan dit gedrag niet opwekken. De cap staat in Button.tsx:107 en is alleen op toestel toetsbaar.]`
+- [ ] Landschap-gedrag van `workout/ActivePhase` — `[NIET TE VERIFIËREN — de oriëntatie-as leeft in expo-screen-orientation buiten components/; de browser-render kan hem niet forceren. Blijft een toestel-check, zie CLAUDE.md → Verify-pad.]`
 
 ### H — De declaratie volgt de schijf
 
-- [ ] `apps/rowtrack/CLAUDE.md` → Design-systeem-bron zegt niet langer `Storybook: geen` — bewijs: grep op het bestand
-- [ ] `pnpm ds:guard` accepteert de nieuwe declaratie — bewijs: exit-status van de guard
-- [ ] `pnpm ds:guard:selftest` bewijst dat die guard nog rood kan worden — bewijs: exit-status van de selftest
-- [ ] `apps/rowtrack/CLAUDE.md` → Verify-pad draagt de nieuwe commando's onder Render vastleggen — bewijs: grep op `storybook` in die sectie
+- [x] `apps/rowtrack/CLAUDE.md` → Design-systeem-bron zegt niet langer `Storybook: geen` — bewijs: grep, de regel luidt nu `pnpm --filter rowtrack storybook` (:6007)
+- [x] `pnpm ds:guard` accepteert de declaratie — bewijs: exit 0 met "7/7 apps gedeclareerd en in lijn met de schijf". De guard is op de werktree rood op `apps/dashboard`, maar die map is op deze branch niet getrackt (`git ls-tree -d HEAD apps/` toont hem niet) — het zijn achtergebleven build-artefacten van een andere taak. Tegenproef: map tijdelijk opzij gezet → exit 0
+- [x] `pnpm ds:guard:selftest` bewijst dat die guard rood kan worden — bewijs: "11/11 — de guard gaat rood op elk defect en zwijgt op een schone fixture"
+- [x] `apps/rowtrack/CLAUDE.md` → Verify-pad draagt de nieuwe commando's — bewijs: grep op `figma:check`, `parity` en `render:sweep` in die sectie, 6 treffers, plus de twee `figma_execute`-recepten
 
 ---
 

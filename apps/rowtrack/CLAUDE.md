@@ -107,17 +107,49 @@ wordt door deze keten nooit geschreven.
 | Componentpagina's | 31 COMPONENT_SETs met 110 variant-nodes |
 | Schermpagina's | 2 (`ActivePhase`, `IdlePhase`) met representatieve frames in plaats van een set |
 
-**Drie eigenaardigheden, elk gemeten en niet af te leiden:**
+**Zes eigenaardigheden, elk gemeten en niet af te leiden:**
 
 1. `Core/fontFamily/sourceSerif` staat in de bron als `"Source Serif Pro"`, maar dat is de
    *opzoeksleutel* in de FONTS-tabel; de app rendert **Source Serif 4**. De Figma-variabele
    draagt daarom de gerenderde familie, opgelost tegen `listAvailableFontsAsync()`. Zie
    `BACKLOG.md` voor de tokenfix.
-2. **Een gebonden `lineHeight` landt in Figma altijd als PIXELS** met de rauwe tokenwaarde.
-   `Core/lineHeight/normal` is 125 (procent), dus een binding zet 125px op tekst van 17px —
-   ook ná het expliciet zetten van `unit: 'PERCENT'`. `lineHeight` blijft daarom ongebonden.
+2. **Een gebonden `lineHeight` of `letterSpacing` landt in Figma altijd als PIXELS** met de
+   rauwe tokenwaarde — ook ná het expliciet zetten van `unit: 'PERCENT'`; de binding wint van
+   de unit. `Core/lineHeight/normal` is 125 (procent), dus een binding zette 125px op tekst van
+   17px. Bij `letterSpacing` was het erger én langer onzichtbaar: `Core/letterSpacing/wide` is
+   20, dus `type/labelSection` kreeg **20px tracking op 13px tekst** in plaats van 20% = 2,6px.
+   Alle drie de label-styles stonden zo 8 à 10 keer te ruim, en `TabLabel` werd daardoor 181px
+   breed in plaats van 69. Beide velden blijven daarom **ongebonden** en dragen de waarde die
+   de app rendert. De herkomst wordt door `figma:check` getoetst, niet door een binding.
+
+   *En let op hoe dit bijna gemist werd:* mijn eerste controle plakte een letterlijke `%`
+   achter de waarde (`s.letterSpacing.value + '%'`) in plaats van `s.letterSpacing.unit` te
+   lezen. Het rapport zag er goed uit en zei niets. Lees de **unit**, niet je eigen opmaak.
 3. `fontWeight` kan niet binden: `Core/fontWeight` mengt `"400"` en `"Italic"`, dus de
    variabelen zijn STRING terwijl Figma FLOAT eist. Het gewicht zit in `fontName.style`.
+4. **Een gradient-stop bindt wél, maar niet via de helper.**
+   `figma.variables.setBoundVariableForPaint` weigert een ColorStop — hij eist een Paint met
+   een `type`-discriminator. De serialisatievorm die Figma zelf gebruikt werkt:
+   `{ ...stop, boundVariables: { color: { type: 'VARIABLE_ALIAS', id: v.id } } }`. Getoetst op
+   drie assen: de binding staat erop, de alias-id matcht, een stop zónder alias blijft
+   ongebonden, en de teruggelezen kleur is die van de variabele in plaats van de meegegeven
+   waarde. 53 van de 62 stops binden; de 9 zonder zijn alpha-0-waarden zonder token.
+5. **`text-transform` staat niet in de DOM-tekst.** De browser rendert "500M" terwijl
+   `textContent` "500m" is. Zonder Figma's `textCase` toont het design system dus andere tekst
+   dan de app — 42 nodes over 12 componenten. Gevonden door een Figma-capture naast een
+   browser-screenshot te leggen; de geometrie-parity kán dit niet vinden.
+6. **`figma_execute` heeft een WACHT-limiet van 30 s, geen uitvoeringslimiet.** Bij
+   "Execution timed out after 30000ms" bouwt de plugin gewoon door. Stuur er dan niets
+   doorheen — de plugin heeft één seriële wachtrij en een controlevraag ertussen breekt de
+   lopende bouw af. Wachten en dezelfde code opnieuw sturen is de juiste zet.
+
+**Volgorde die niet omgekeerd mag.** Na élke Figma-bouw: **eerst het manifest verversen, dan
+pas `figma:links` en `figma:check`.** Een herbouw geeft elke node een nieuwe id. Gemeten
+2026-09-08: na een herbouw waren 29 van de 33 primary-ids veranderd, terwijl `figma:check`
+gewoon groen stond en alle 33 deep-links naar **dode nodes** wezen. De `[link]`-as legt de
+stories naast het manifest, en die waren samen verouderd — een groene check waar beide kanten
+dezelfde fout dragen. De guard kan dit per constructie niet zien (CI heeft geen Figma-toegang);
+de volgorde is de enige bescherming.
 
 ---
 

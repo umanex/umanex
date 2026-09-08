@@ -32,7 +32,7 @@ function draai(root) {
 }
 
 function kopie() {
-  const map = join(tmpdir(), `rowtrack-selftest-${Math.floor(process.hrtime.bigint() % 1000000n)}`);
+  const map = join(tmpdir(), `rowtrack-selftest-${Number(process.hrtime.bigint() % 1000000n)}`);
   if (existsSync(map)) rmSync(map, { recursive: true });
   mkdirSync(map, { recursive: true });
   for (const sub of ['figma', 'components', 'tokens', 'scripts']) {
@@ -80,10 +80,19 @@ const MUTATIES = [
   { as: 'hardcoded', wat: 'zet een hex-kleur in een story', doe: m => {
       const p = join(m, 'components/Chip.stories.tsx');
       writeFileSync(p, readFileSync(p, 'utf8').replace('export const Playground', "const KLEUR = '#ABCDEF';\nexport const Playground")); } },
+  // Let op het BESTAND: de guard leest figma/ongebonden.json, niet de 6 MB build-spec.json.
+  // De eerste versie van deze mutatie muteerde het verkeerde bestand en gaf exit 0 — de as
+  // leek daardoor "kan niet rood worden" terwijl hij prima werkt. Een tegenproef die het
+  // verkeerde object aanraakt meet zichzelf, niet de guard.
   { as: 'binding', wat: 'voeg een ongebonden waarde toe', doe: m => {
-      const x = lees(m, 'figma/build-spec.json');
-      x.ongebonden.push('Verzonnen >0: achtergrond = {"r":1,"g":2,"b":3,"a":1}');
-      schrijf(m, 'figma/build-spec.json', x); } },
+      const x = lees(m, 'figma/ongebonden.json');
+      x.uniek.push('achtergrond = {"r":1,"g":2,"b":3,"a":1}');
+      x.aantalUniek = x.uniek.length;
+      schrijf(m, 'figma/ongebonden.json', x); } },
+  { as: 'binding', wat: 'los een gat op (aantal daalt)', doe: m => {
+      const x = lees(m, 'figma/ongebonden.json');
+      x.uniek.pop(); x.aantalUniek = x.uniek.length;
+      schrijf(m, 'figma/ongebonden.json', x); } },
 
   // --- controle-mutaties: velden die de guard NIET leest -------------------
   { as: 'controle-fileName', zwijgt: true, wat: 'hernoem het Figma-bestand', doe: m => {

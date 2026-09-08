@@ -48,3 +48,4 @@ storybook-static/
 # 6 MB rauwe meting; de gesnoeide versie (build-spec.min.json) en de gaten-inventaris
 # (ongebonden.json) staan wél in git — zie scripts/figma-build-prune.mjs
 figma/build-spec.json
+figma/parity-beelden/

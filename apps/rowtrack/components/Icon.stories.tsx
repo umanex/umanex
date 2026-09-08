@@ -25,6 +25,9 @@ const meta = {
     size: space['24'],
     color: fg.primary,
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2006-4504' },
+  },
 } satisfies Meta<typeof Icon>;
 
 export default meta;

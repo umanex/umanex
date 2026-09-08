@@ -28,6 +28,9 @@ const meta = {
     progress: distanceWeek,
     onEdit: () => {},
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-3975' },
+  },
 } satisfies Meta<typeof GoalProgressCard>;
 
 export default meta;

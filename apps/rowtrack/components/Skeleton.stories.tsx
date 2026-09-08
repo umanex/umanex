@@ -28,6 +28,9 @@ const meta = {
   args: {
     children: <Text style={styles.value}>2.000 m</Text>,
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-4492' },
+  },
 } satisfies Meta<typeof Skeleton>;
 
 export default meta;

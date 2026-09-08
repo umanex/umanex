@@ -23,6 +23,9 @@ const meta = {
     subtitle: 'Koppel je ergometer en roei je eerste 2.000 m.',
     size: 'sm',
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-4070' },
+  },
 } satisfies Meta<typeof EmptyState>;
 
 export default meta;

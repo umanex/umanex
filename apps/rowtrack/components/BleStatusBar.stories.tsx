@@ -35,6 +35,9 @@ const meta = {
     onConnect: () => {},
     onDisconnect: () => {},
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-4456' },
+  },
 } satisfies Meta<typeof BleStatusBar>;
 
 export default meta;

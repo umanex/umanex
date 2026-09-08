@@ -44,6 +44,9 @@ const meta = {
     variant: 'filled',
     onChange: () => {},
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-3956' },
+  },
 } satisfies Meta<typeof Segmented>;
 
 export default meta;

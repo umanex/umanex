@@ -21,6 +21,9 @@ const meta = {
     style: { control: false },
   },
   args: {},
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2006-4508' },
+  },
 } satisfies Meta<typeof BottomFade>;
 
 export default meta;

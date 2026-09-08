@@ -41,6 +41,9 @@ const meta = {
     onChangeText: () => {},
     onBlur: () => {},
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System?node-id=2004-4039' },
+  },
 } satisfies Meta<typeof FormField>;
 
 export default meta;
