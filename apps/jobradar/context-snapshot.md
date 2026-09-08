@@ -37,17 +37,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+7d1a85e docs(jobradar): record the two decided critical items
+0e55e19 docs(jobradar): three briefings for CSV-sourced prospect follow-up
 798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
 259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
 9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
-653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
-1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
 ```
 
 ## Uncommitted wijzigingen
-  A  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
-  A  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
-  A  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
+  M  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -37,6 +37,10 @@ BEHAVIOUR:   - Import is idempotent: hetzelfde bestand twee keer laat de rijen o
                nooit twee kaarten
              - De 3 nummers zonder KBO-treffer blijven zichtbaar met wat de CSV zelf
                draagt (naam, stad) — stil weglaten is de faalklasse die deze app vermijdt
+             - Zo'n rij draagt géén postcode, en het regiofilter is een harde `WHERE` op
+               `ad.Zipcode` (`lib/kbo/universum.ts:102`). Ze vallen dus buiten elke
+               regioselectie. Ze verdwijnen niet stil: boven de lijst staat hoeveel er
+               buiten de huidige selectie vallen, zoals de bron-waarschuwingen dat al doen
              - Import raakt `prospect_status` niet aan
              - De financiële kolommen sorteren en filteren, maar voeden geen score
 
@@ -44,7 +48,20 @@ CONSTRAINTS: - Het CSV-bestand blijft buiten git: pad als argument, opslag in `.
              - Geen upload-route — deze app heeft geen auth
              - Bedragen afgerond in de UI (k€/M€), de ruwe waarde blijft in de DB
              - `@umanex/config/tailwind/preset` + `@umanex/ui`, geen lokale primitives
-             - SQLite-migratie: `SCHEMA_VERSION` 6 → 7
+             - Geen migratiemechanisme: `lib/db/ddl.ts` ís het schema, en
+               `lib/db/index.ts:26` draait `SCHEMA_DDL` (alles `IF NOT EXISTS`) bij de
+               eerste `getDb()`. `SCHEMA_VERSION` heeft nul lezers in de code — gemeten
+               2026-09-08, de enige twee vermeldingen stonden in deze briefings. De tabel
+               komt dus binnen via de DDL-string; een kolom die later bijkomt heeft een
+               eigen tak in `pasKolomMigratiesToe` nodig
+             - De import-CLI kan `getDb()` niet gebruiken: `lib/db/index.ts:1` is
+               `import 'server-only'`. Vorm volgt `scripts/kbo-sync.mjs` — eigen
+               `new Database()` op een app-verankerd pad, `JOBRADAR_DB_PATH` gehonoreerd
+             - Het segmented control bestaat nergens (gemeten: geen treffer in
+               `packages/ui` noch in deze app, mét positieve controle op `TabsTrigger`).
+               Hij wordt lokaal gebouwd in `apps/jobradar/components/`, niet in
+               `packages/ui` — daar eist `figma-sync-check.mjs` een Figma-pagina bij elke
+               nieuwe story
 ```
 
 ---
@@ -91,6 +108,8 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 - [ ] `prospect_status` is na een import ongewijzigd — bewijs: rijtelling plus `md5` van de gesorteerde inhoud, vóór en ná
 - [ ] De rij `DAENINCK, AUDENAERT en Co` komt heel binnen op nummer `0465416688` — bewijs: `SELECT name` op dat nummer (dit is de regel waarop een naïeve komma-split brak, gemeten 2026-09-08)
 - [ ] De 3 nummers zonder KBO-treffer (`0899434379`, `0468585818`, `0835734875`) staan in de lijst met naam en stad — bewijs: DOM-telling op die drie kaarten in de flow-harness
+- [ ] Met alleen WVL geselecteerd meldt de lijst hoeveel regioloze CSV-rijen buiten de selectie vallen — bewijs: de tekst van die melding in de DOM
+- [ ] `csv_prospects` ontstaat op een bestaande database zonder migratiestap — bewijs: `.tables` op een kopie van `jobradar.db` vóór en ná één `getDb()`
 - [ ] Een bedrijf dat in beide bronnen zit levert één kaart, niet twee — bewijs: DOM-telling van kaarten met dat ondernemingsnummer, hoort 1 te zijn
 - [ ] Typologie: het herkomst-filter is een segmented control en staat binnen `FilterBar` — bewijs: de gerenderde markup van dat element in de DOM
 - [ ] Het aantal tabbladen is ongewijzigd ten opzichte van vóór deze feature — bewijs: telling van de tabbladen in de DOM, vóór en ná
@@ -107,3 +126,5 @@ een `(1)`-suffix en overleeft de volgende download niet; `.data/` staat in `.git
 - 2026-09-08: TC-EBC aangemaakt. Scope gesplitst in drie briefings (bron · opvolging · kaart) omdat de assen los kunnen falen: de kaart hangt op geocoding, de opvolging op een migratie.
 - 2026-09-08: Rol van de CSV vastgelegd als eigen bron náást de KBO-prospects, niet als vervanging en niet als verrijking. Gevolg: overlap (178 van de 218) moet expliciet getoond worden.
 - 2026-09-08: Typologie beslist (Jeroen): segmented control in de bestaande `FilterBar`, geen apart CSV-tabblad. Daarmee zijn de vier kritische items van deze briefing beantwoord.
+- 2026-09-08: Twee constraints gecorrigeerd op de bron in plaats van op aanname. De `SCHEMA_VERSION 6 → 7`-migratiestap bestond niet: er is geen migratiemechanisme en de constante heeft nul lezers — de enige twee vermeldingen stonden in deze briefings zelf. En de import-CLI kan `getDb()` niet aanroepen (`server-only`).
+- 2026-09-08: Regiogedrag beslist. Een CSV-rij zonder KBO-adres heeft geen postcode en kan het regiofilter per constructie niet passeren. Gekozen: buiten de selectie laten vallen maar het aantal melden, boven stil weglaten (verbergt data) en boven altijd tonen (maakt het filter onwaar).
