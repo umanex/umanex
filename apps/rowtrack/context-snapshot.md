@@ -59,19 +59,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+ed214f1 refactor(rowtrack): one source for which story components are screens
 b275fd6 fix(rowtrack): de confetti-uitsluiting toetst de vorm, niet de storynaam
 08a0ddc fix(rowtrack): de walker ziet de modal-portalen naast de schermboom
 e854daa fix(rowtrack): storybook dev start weer, en rendert alle 197 stories
 e0d455e chore(rowtrack): manifest na de publicatie van de herbouwde library
-c99ccbc feat(rowtrack): herbouw met de gecorrigeerde laagnamen en slots
 ```
 
 ## Uncommitted wijzigingen
-  A  apps/rowtrack/briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/figma-links.mjs
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  A  apps/rowtrack/scripts/schermen.mjs
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/scripts/geometry-parity.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
