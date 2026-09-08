@@ -59,19 +59,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+cebd5da test(rowtrack): three levels of counter-proof for the naming ladder
 642b820 refactor(rowtrack): direct imports instead of the barrel inside components
 849f532 feat(rowtrack): the naming ladder uses the declared boundary, not a guess
 ffe034c feat(rowtrack): the walker reads the component boundary, and proves it landed
 1c8cbd5 refactor(rowtrack): testID on every component root, and KpiSingle renamed
-9d1016e feat(rowtrack): screens out of the library, and parity green on every node
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/package.json
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
-  A  apps/rowtrack/scripts/laagnamen-selftest.mjs
+  M  apps/rowtrack/components/BleStatusBar.stories.tsx
+  M  apps/rowtrack/components/BottomFade.stories.tsx
+  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/components/Button.stories.tsx
+  M  apps/rowtrack/components/Chip.stories.tsx
+  M  apps/rowtrack/components/DeviceRow.stories.tsx
+  M  apps/rowtrack/components/Dot.stories.tsx
+  M  apps/rowtrack/components/EmptyState.stories.tsx
+  M  apps/rowtrack/components/ErrorMessage.stories.tsx
+  M  apps/rowtrack/components/ErrorState.stories.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

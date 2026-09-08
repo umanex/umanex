@@ -33,6 +33,10 @@ try {
 
   const SPEC = Object.fromEntries(BATCH.map(n => [n, alle[n]]));
   SPEC.__stamp = STAMP;
+  // __force is de ENIGE uitweg langs de publicatiepoort, en hij logt zichzelf per pagina
+  // ("GEFORCEERD OVERSCHREVEN"). Zet hem alleen wanneer je gemeten hebt wat een herbouw kost —
+  // 2026-09-08: 793 instances in RowTrack - Design, waarvan 0 uit de library, dus nul ontkoppeling.
+  SPEC.__force = typeof FORCE !== 'undefined' && FORCE === true;
   const bron = await (await fetch(`http://localhost:${POORT}/builder.js`)).text();
   const F = Object.getPrototypeOf(async function () {}).constructor;
   const r = await (new F('SPEC', 'figma', bron))(SPEC, figma);
