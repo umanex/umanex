@@ -52,6 +52,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | Subtitle | `apps/rowtrack/components/Subtitle.tsx` | components | — | — | — |
 | TabLabel | `apps/rowtrack/components/TabLabel.tsx` | components | — | — | — |
 | WheelPicker | `apps/rowtrack/components/WheelPicker.tsx` | components | — | — | — |
+| ActiveHeader | `apps/rowtrack/components/workout/active/ActiveHeader.tsx` | active | — | — | — |
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
 | SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
@@ -62,17 +63,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+b437d03 refactor(rowtrack): cut 3 — HeroPanel
 ae2646c refactor(rowtrack): cut 2 — SubtitleProgress
 371870d feat(rowtrack): a gate for the cuts, and cut 1 — GoalPill
 c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
 05f33bb chore(rowtrack): Figma round A — rebuild the library on the new layer names
-cebd5da test(rowtrack): three levels of counter-proof for the naming ladder
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/components/workout/ActivePhase.tsx
-  A  apps/rowtrack/components/workout/active/HeroPanel.stories.tsx
-  A  apps/rowtrack/components/workout/active/HeroPanel.tsx
+  A  apps/rowtrack/components/workout/active/ActiveHeader.stories.tsx
+  A  apps/rowtrack/components/workout/active/ActiveHeader.tsx
   M  apps/rowtrack/figma/build-spec.min.json
   M  apps/rowtrack/figma/laagnamen.json
   M  apps/rowtrack/figma/ongebonden.json

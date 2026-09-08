@@ -445,6 +445,13 @@
    "uitgesloten": {},
    "variantNodes": 320
   },
+  "ActiveHeader": {
+   "storyId": "componenten-activeheader--playground",
+   "titel": "Componenten/ActiveHeader",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
   "GoalPill": {
    "storyId": "componenten-goalpill--playground",
    "titel": "Componenten/GoalPill",
@@ -469,5 +476,5 @@
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 598
+ "totaalVariantNodes": 599
 }

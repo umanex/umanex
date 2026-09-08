@@ -17,7 +17,7 @@ import type { WorkoutGoal } from '@/lib/workout-goals';
 // Directe imports, geen barrel — zie IdlePhase.tsx voor het waarom.
 import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
-import { GoalPill } from './active/GoalPill';
+import { ActiveHeader } from './active/ActiveHeader';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
@@ -223,25 +223,6 @@ export function ActivePhase({
     return { heroLabel, heroText, subLabel, subtitle, fillPct, fillKind };
   }
 
-  // --- Header-inhoud: DOEL-pill + compacte Stop-knop (gedeeld) ---
-  // De accent-tint zit op de DOEL-pill zelf (subtiele fill + border, Figma 290:2873);
-  // de band is bg.base. Gedeeld portrait + landscape.
-  function headerChildren(): ReactNode {
-    return (
-      <>
-        <GoalPill goal={goal} />
-        <Button
-          title={t.workout.active.stopButton}
-          variant="primary"
-          size="md"
-          icon="arrow-forward"
-          iconPosition="trailing"
-          onPress={onStop}
-        />
-      </>
-    );
-  }
-
   // --- Progress-fill: gradient (duration/distance) of solid success/warning (split/watts) ---
   function barFillInner(fillKind: FillKind, vertical: boolean): ReactNode {
     if (fillKind === 'gradient') {
@@ -382,19 +363,12 @@ export function ActivePhase({
     return (
       <View style={portraitStyles.root}>
         {/* Header: DOEL-pill links, compacte Stop-knop rechts */}
-        <View
-          style={[
-            activeStyles.header,
-            {
-              // Band-padding 20 (Figma 297:2227); paddingTop respecteert de notch.
-              paddingTop: Math.max(space['20'], insets.top),
-              paddingBottom: space['20'],
-              paddingHorizontal: padH,
-            },
-          ]}
-        >
-          {headerChildren()}
-        </View>
+        {/* Band-padding 20 (Figma 297:2227); paddingTop respecteert de notch. */}
+        <ActiveHeader
+          goal={goal}
+          onStop={onStop}
+          paddings={{ top: Math.max(space['20'], insets.top), bottom: space['20'], left: padH, right: padH }}
+        />
 
         {/* Hero-paneel (bg.elevated), vult de vrije ruimte, content gecentreerd */}
         <HeroPanel
@@ -474,20 +448,17 @@ export function ActivePhase({
               <>
                 {/* Links: header (pill + Stop) boven de KPI-lijst (Figma 290:2746) */}
                 <View style={[landscapeStyles.metricsCol, landColStyle]}>
-                  <View
-                    style={[
-                      activeStyles.header,
-                      {
-                        paddingTop: Math.max(space['20'], insets.top),
-                        paddingBottom: space['20'],
-                        paddingLeft: Math.max(space['20'], insets.left),
-                        // Binnenrand naar de progress-bar: 40 (design 290:2746) — geeft de bar ruimte.
-                        paddingRight: space['40'],
-                      },
-                    ]}
-                  >
-                    {headerChildren()}
-                  </View>
+                  {/* Binnenrand naar de progress-bar: 40 (design 290:2746) — geeft de bar ruimte. */}
+                  <ActiveHeader
+                    goal={goal}
+                    onStop={onStop}
+                    paddings={{
+                      top: Math.max(space['20'], insets.top),
+                      bottom: space['20'],
+                      left: Math.max(space['20'], insets.left),
+                      right: space['40'],
+                    }}
+                  />
                   <View
                     style={[
                       landscapeStyles.kpiList,
@@ -640,19 +611,6 @@ export function ActivePhase({
 }
 
 const activeStyles = StyleSheet.create({
-  // Header: DOEL-pill links, compacte Stop-knop rechts (top-uitgelijnd).
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: space['16'],
-    // Header-band met accent-tint + sterke onderrand (Figma 297:2227). De tint zit op de
-    // band zelf; de DOEL-pill is plat (geen fill/border). Gedeeld portrait + landscape.
-    // TODO: token accent.muted = 0.12; Figma-band = 0.10 (verschil verwaarloosbaar, geen 0.10-token).
-    backgroundColor: accent.muted,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: border.strong,
-  },
   // Progress-bar horizontaal (portrait): full-bleed 4px.
   barTrackH: {
     alignSelf: 'stretch',
