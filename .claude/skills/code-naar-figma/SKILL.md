@@ -44,6 +44,41 @@ regime als "geen" in het `## Verify-pad`.
 
 ---
 
+## Doel-poort — waarvóór dient het bestand?
+
+De bronnen-poort vraagt *waaruit* je bouwt. Deze vraagt *waarvoor het resultaat gebruikt gaat
+worden*, en dat antwoord verandert wat "af" betekent. Stel hem vóór de eerste write, en noem
+het antwoord in je rapport.
+
+| Doel | Wat het eist bovenop een getrouwe transcriptie | Harde check |
+|---|---|---|
+| **Bewijsstuk** — aantonen dat code en design overeenkomen | niets extra; parity is het doel | geometrie- en token-parity, met tegenproef |
+| **Werkbestand** — iemand stelt er schermen mee samen | leesbare laagnamen uit het code-vocabulaire · slots als `componentPropertyDefinitions`, niet als varianten · **stabiele node-identiteit over herbouwen heen** | `componentPropertyDefinitions` niet leeg · publicatiestatus niet `UNPUBLISHED` |
+| **Library** — andere bestanden consumeren het | alles van *werkbestand*, plus: één tokenbron (geen eigen kopie in het consumerende bestand) | variabelen-diff tussen bron- en doelbestand = 0 |
+
+**Vraag het expliciet als je het niet weet.** GEMETEN 2026-09-08 (RowTrack): ik koos stilzwijgend
+*bewijsstuk*, maakte dat volledig waar (613/613 tekstnodes, 1 066 geometrie-velden gelijk, tien
+assen groen mét tegenproef) en hoorde pas door een terloopse zin — *"het is gepubliceerd als
+library en gekoppeld in RowTrack - Design"* — dat de derde rij gold. Toen bleken drie dingen
+tegelijk stuk, en geen ervan is zichtbaar als je alleen de bron-vraag stelt: 15 component sets
+met **nul** `componentPropertyDefinitions` buiten varianten, alle 33 componenten op
+`UNPUBLISHED` omdat elke herbouw ze vervángt in plaats van bijwerkt, en een consumerend bestand
+met een eigen tokenkopie die al **13 variabelen** uiteenliep.
+
+**Herbouwen is geen bijwerken.** Zodra het doel *werkbestand* of *library* is, breekt
+`node.remove()` + opnieuw aanmaken elke instantie die er in een ander bestand op staat: nieuwe
+node-ids, dode deep-links, publicatiestatus terug naar nul. Werk dan bij op de bestaande node
+(`setProperties`, `resize`, tekst vervangen) en meet vooraf hoeveel ids je zou weggooien:
+
+```js
+// figma_execute — vóór een herbouw, wanneer het doel niet 'bewijsstuk' is
+await figma.loadAllPagesAsync();
+const sets = figma.root.findAll(n => n.type === 'COMPONENT_SET');
+return sets.map(s => ({ naam: s.name, id: s.id, status: s.documentationLinks?.length ?? 0 }));
+```
+
+---
+
 ## Drie principes — niet-onderhandelbaar
 
 Deze drie regels sturen elke stap hieronder. Bij twijfel onderweg vallen ze terug op deze principes.
@@ -56,36 +91,9 @@ Deze drie regels sturen elke stap hieronder. Bij twijfel onderweg vallen ze teru
 
 **3. Transcriptie, geen benadering.** Elke afmeting, spacing-stap en structuurkeuze komt **uit de component-code**, niet uit een eigen layoutoordeel. Principe 2 verbiedt de *rauwe* waarde; dit principe verbiedt de *verzonnen* waarde — een frame dat netjes aan `spacing/4` bindt is 100% token-conform én alsnog fout als de code `spacing/8` zegt. Gemeten op Columba verkeersanalyse (2026-08-26): sidebar op 240px waar `Sidebar.tsx` `w-[304px]` zegt · sidebar-padding gebonden aan `spacing/4` waar de code `spacing/8` bindt · rijen onderling `spacing/4` waar `PvLijst` de `<ul>` op `spacing/1` zet · zelfgetekende ellipsen van 8px als statusmerk waar de code `ColumbaIcon` van 20px (`spacing/5`) rendert · paneel-padding vrij gekozen waar `SidePanel` 32/24 hardcodeert. **Geen enkele gate ving dit**, en dat is structureel: stap 7 toetst of er een binding *is*, en stap 8 toetst de write tegen de **bedoeld**-set — maar "bedoeld" kwam uit mijn eigen keuze in plaats van uit de code, dus de diff was per constructie groen. Lees daarom de maten uit de bron **vóór** je bouwt (`grep -nE '(padding|gap|borderRadius|fontSize|width):' <bronbestanden>`, plus de Tailwind-klassen: `grep -n 'w-\[' …`), noteer ze per scherm, en gebruik díe lijst als de bedoeld-kant van stap 8. Wijk je bewust af, meld het — een stille benadering is een tweede bron van waarheid, precies zoals een variabele zonder token.
 
-**4. Een doorloop-budget hoort bij ontwerpinformatie, niet bij structuur.** Loop je een boom af
-met een grens — diepte, aantal broers, aantal nodes — dan bepaalt die grens *wat er in Figma
-belandt*. Besteed hem daarom aan lagen die iets zeggen, en laat de rest niet meetellen:
-
-- Een **doorvoer-wrapper** — precies één kind, geen eigen tekst, geen eigen verf (achtergrond,
-  verloop, rand, schaduw, radius, opacity) — draagt geen ontwerpinformatie en mag géén diepte
-  kosten. React Native levert er één per `<View>`, en een `<Modal>`-portal stapelt er drie tot
-  vier op elkaar.
-- **Decoratieve of gerandomiseerde kinderen** mogen het broer-budget niet opeten. Sorteer
-  betekenisvolle kinderen vooruit en houd hoogstens een paar decoratieve als representant.
-
-Gemeten op RowTrack (2026-09-08): met een vaste diepte van 6 gingen vijf overlay-componenten
-— BottomSheet, GoalSheet, HealthConsentScreen, MotivationalToast, DeviceSelectionModal — als
-**leeg frame** het Figma-bestand in. Nul tekstnodes; het budget was op vóór de sheet begon.
-MotivationalToast verloor zijn kaart bovendien aan een broer-grens van 8, want de eerste 60
-kinderen waren confettideeltjes. Na de correctie: 16 tot 24 nodes per component met hun echte
-tekst ("Doel bereikt!", "Bekijk samenvatting", de veldlabels).
-
-**Waarom dit zo lang onzichtbaar bleef, en wat je daartegen doet.** Geen enkele gate ving het.
-De structuur-assen waren groen — elke pagina had zijn component, elk variant-aantal klopte met
-het product van zijn assen, elke maat kwam overeen met de browser — want een leeg frame heeft
-een correcte maat. De parity-as vergeleek de wrapper, niet de inhoud. Het defect was pas te
-zien door er naar te kíjken. **Tel daarom na de export per component zijn tekstnodes**, en leg
-dat naast de bron: een component dat in de code tekst rendert en in Figma nul tekstnodes heeft,
-is leeg — hoe groen de rest ook staat. Een lijst van componenten die *terecht* geen tekst hebben
-(een fade, een dot, een skeleton) hoort daarbij, anders is de telling niet af te lezen.
-
 **Principes 1 en 2 hangen samen.** Spacing-tokens (`paddingTop`, `itemSpacing`, …) kunnen *alleen* binden op een auto-layout frame. Een frame zonder auto layout breekt spacing-token-binding stil: de waarde wordt dan een raw getal in plaats van een binding. Auto layout is daarom geen losse stijlkeuze maar een **voorwaarde** voor principe 2. Geen auto layout → geen optimale token-mapping.
 
-Een geslaagde export (zie stap 7 en 8) voldoet aan alle vier: 100% van de token-waarden gebonden, auto layout op alle composietframes, elke maat en structuur teruggelezen uit de code — én elke binding matcht het token dat de code bedoelde (de parity-gate, stap 8) — en elk component draagt de inhoud die de code rendert, geteld en niet aangenomen (principe 4).
+Een geslaagde export (zie stap 7 en 8) voldoet aan alle drie: 100% van de token-waarden gebonden, auto layout op alle composietframes, en elke maat en structuur teruggelezen uit de code — én elke binding matcht het token dat de code bedoelde (de parity-gate, stap 8).
 
 ---
 
@@ -391,13 +399,25 @@ te vinden en niet te verplaatsen zonder iets te breken.
 **7. Geen absolute positionering buiten de gevallen waar auto layout structureel niet kan.**
 En kan het niet, zet dan de reden in de laagnaam of de description.
 
-Toets het na de write in dezelfde `figma_execute` als stap 7b:
+Toets het na de write in dezelfde `figma_execute` als stap 7b. **De naam-as is een
+vocabulaire-toets, geen zwarte lijst** — geef `VOCAB` mee: de namen die de code kent (de
+export-naam, de rol-namen van de children, de variantwaarden uit de cva). Alles daarbuiten
+faalt.
 
 ```js
 const set = await figma.getNodeByIdAsync(NODE_ID);
 const kinderen = set.findAll(() => true);
+const buitenVocab = n => {
+  if (VOCAB.includes(n.name)) return false;                      // de code kent deze naam
+  return true;                                                    // al de rest is een gat
+};
 return {
-  naamloos: kinderen.filter(n => /^(Frame|Group|Rectangle|Vector) \d+$/.test(n.name)).map(n => n.name),
+  buitenVocab: [...new Set(kinderen.filter(buitenVocab).map(n => n.name))].slice(0, 20),
+  buitenVocabAantal: kinderen.filter(buitenVocab).length,
+  totaal: kinderen.length,
+  // De twee vormen die per constructie fout zijn, ook zonder VOCAB:
+  numeriek: kinderen.filter(n => /^\d+$/.test(n.name)).length,
+  naarInhoudVernoemd: kinderen.filter(n => n.type === "TEXT" && n.name === n.characters).length,
   groepen: kinderen.filter(n => n.type === "GROUP").length,
   zonderAutoLayout: kinderen.filter(n => n.type === "FRAME" && n.layoutMode === "NONE").map(n => n.name),
   tekstZonderStyle: kinderen.filter(n => n.type === "TEXT" && !n.textStyleId).map(n => n.name),
@@ -405,8 +425,19 @@ return {
 };
 ```
 
-Alle vier de lijsten horen leeg te zijn en `description` gevuld. Is er één niet, meld hem —
-dat is een gat in de leesbaarheid, geen detail.
+Alle lijsten en tellers horen op nul/leeg te staan en `description` gevuld. Is er één niet,
+meld hem — dat is een gat in de leesbaarheid, geen detail.
+
+**Waarom vocabulaire en niet een lijst met verboden namen.** GEMETEN 2026-09-08 (RowTrack): de
+vorige versie van deze toets filterde op `/^(Frame|Group|Rectangle|Vector) \d+$/` — Figma's
+eigen defaults. Van elf werkelijk voorkomende laagnamen uit de export (`0`, `1`, `2`, `tekst`,
+`Icon 16`, `Doel bereikt!`, `2000`, `m`, `Ja, ik geef toestemming`, `default`, `Frame 427`)
+ving die regex er **één**: `Frame 427`, de enige die een generator nooit produceert. De toets
+stond dus groen terwijl **82% van 1 288 frames** `0`, `1` of `2` heette en tekstnodes naar hun
+copy vernoemd waren — precies wat regel 1 verbiedt. De les is breder dan deze skill: *een toets
+die een positieve regel afdwingt met een negatieve lijst, meet de regel niet.* Een positieve
+regel ("elke naam komt uit het vocabulaire dat de code kent") heeft een positieve toets nodig;
+een zwarte lijst kan per constructie alleen de gevallen vinden die iemand vooraf bedacht.
 
 ---
 
