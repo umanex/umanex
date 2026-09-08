@@ -56,6 +56,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | ConnectionOverlay | `apps/rowtrack/components/workout/active/ConnectionOverlay.tsx` | active | — | — | — |
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
+| KpiRow | `apps/rowtrack/components/workout/active/KpiRow.tsx` | active | — | — | — |
 | ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
 | SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
@@ -65,16 +66,21 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+e9b4004 chore(rowtrack): remeasure the non-reproducible nodes after cut 6
 945ffa1 refactor(rowtrack): cut 6 — ConnectionOverlay
 784c2bd refactor(rowtrack): cut 5 — ProgressBar
 db48bdc refactor(rowtrack): cut 4 — ActiveHeader
 b437d03 refactor(rowtrack): cut 3 — HeroPanel
-ae2646c refactor(rowtrack): cut 2 — SubtitleProgress
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/rowtrack/components/workout/ActivePhase.tsx
+  A  apps/rowtrack/components/workout/active/KpiRow.stories.tsx
+  A  apps/rowtrack/components/workout/active/KpiRow.tsx
   M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/niet-reproduceerbaar.json
+  M  apps/rowtrack/figma/laagnamen.json
+  M  apps/rowtrack/figma/ongebonden.json
+  M  apps/rowtrack/figma/story-axes.json
 
 ## Bestanden met TODO/FIXME
   (geen)

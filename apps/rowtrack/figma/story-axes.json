@@ -483,6 +483,30 @@
    "uitgesloten": {},
    "variantNodes": 1
   },
+  "KpiRow": {
+   "storyId": "componenten-kpirow--playground",
+   "titel": "Componenten/KpiRow",
+   "assen": {
+    "fill": [
+     true,
+     false
+    ],
+    "divider": [
+     true,
+     false
+    ],
+    "disabled": [
+     true,
+     false
+    ],
+    "loading": [
+     true,
+     false
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 16
+  },
   "ProgressBar": {
    "storyId": "componenten-progressbar--playground",
    "titel": "Componenten/ProgressBar",
@@ -511,5 +535,5 @@
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 614
+ "totaalVariantNodes": 630
 }

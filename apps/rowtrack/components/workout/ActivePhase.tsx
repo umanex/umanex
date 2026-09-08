@@ -3,9 +3,7 @@ import {
   View,
   Text,
   Modal,
-  ActivityIndicator,
   Animated,
-  TouchableOpacity,
   useWindowDimensions,
   StyleSheet,
 } from 'react-native';
@@ -17,6 +15,7 @@ import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
 import { ActiveHeader } from './active/ActiveHeader';
 import { ConnectionOverlay } from './active/ConnectionOverlay';
+import { KpiRow } from './active/KpiRow';
 import { ProgressBar, type FillKind } from './active/ProgressBar';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
@@ -276,39 +275,26 @@ export function ActivePhase({
     return (
       <>
         {kpiOrder.map((key, i) => {
-          const rowStyle = [
-            activeStyles.kpiRow,
-            fill ? activeStyles.kpiRowFill : activeStyles.kpiRowFixed,
-            i < kpiOrder.length - 1 && activeStyles.kpiRowDivider,
-          ];
+          const divider = i < kpiOrder.length - 1;
           if (key === 'BPM') {
             // Alleen tikbaar zolang er géén band hangt. Tikken tijdens een verbinding
             // startte een scan die het eigen toestel niet kan vinden (iOS geeft een
             // verbonden peripheral nooit terug in scanresultaten), waarna de rij op
             // "Verbinden" bleef staan zonder weg terug.
             return (
-              <TouchableOpacity
+              <KpiRow
                 key="BPM"
-                style={rowStyle}
+                label={t.workout.active.kpiBpm}
+                value={kpiValue('BPM')}
+                fill={fill}
+                divider={divider}
+                loading={hrStatus === 'scanning'}
                 onPress={startHRScan}
                 disabled={hrStatus === 'connected' || hrStatus === 'scanning' || hrStatus === 'waiting'}
-                activeOpacity={0.8}
-              >
-                <Text style={activeStyles.kpiLabel}>{t.workout.active.kpiBpm}</Text>
-                {hrStatus === 'scanning' ? (
-                  <ActivityIndicator size="small" color={fg.secondary} />
-                ) : (
-                  <Text style={activeStyles.kpiValue}>{kpiValue('BPM')}</Text>
-                )}
-              </TouchableOpacity>
+              />
             );
           }
-          return (
-            <View key={key} style={rowStyle}>
-              <Text style={activeStyles.kpiLabel}>{kpiLabel(key)}</Text>
-              <Text style={activeStyles.kpiValue}>{kpiValue(key)}</Text>
-            </View>
-          );
+          return <KpiRow key={key} label={kpiLabel(key)} value={kpiValue(key)} fill={fill} divider={divider} />;
         })}
       </>
     );
@@ -550,38 +536,6 @@ export function ActivePhase({
     </View>
   );
 }
-
-const activeStyles = StyleSheet.create({
-  // KPI flat-rijen (gedeeld portrait/landscape).
-  kpiRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  kpiRowFixed: {
-    height: 56,
-  },
-  kpiRowFill: {
-    flex: 1,
-    minHeight: 44,
-  },
-  kpiRowDivider: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: border.default,
-  },
-  kpiLabel: {
-    fontFamily: fontFamily.albertSansLight,
-    fontSize: fontSize['22'],
-    letterSpacing: 1.1, // 5% van 22
-    color: fg.secondary,
-  },
-  kpiValue: {
-    fontFamily: fontFamily.albertSansMedium,
-    fontSize: fontSize['28'],
-    letterSpacing: -0.7, // -2.5% van 28
-    color: fg.primary,
-  },
-});
 
 const portraitStyles = StyleSheet.create({
   root: {
