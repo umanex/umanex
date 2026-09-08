@@ -59,21 +59,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+549eb47 feat(rowtrack): publicatie- en handwerkpoort vóór elke Figma-herbouw
 798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
 6c9338f fix(rowtrack): volledige inhoud in Figma — 613 van 613 tekstnodes
 259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
 9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
-653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/figma/builder.js
-  A  apps/rowtrack/figma/tokenlaag-inventaris.md
+   M apps/rowtrack/.storybook/main.ts
+   M apps/rowtrack/.storybook/preview.tsx
+  A  apps/rowtrack/figma/library-migratie.js
+  M  apps/rowtrack/figma/tokens-payload.json
   M  apps/rowtrack/package.json
-  A  apps/rowtrack/scripts/figma-poort-selftest.mjs
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
+   M apps/rowtrack/scripts/figma-build-spec.mjs
+  A  apps/rowtrack/scripts/figma-serve.mjs
+  M  apps/rowtrack/scripts/figma-tokens-payload.mjs
+  ?? apps/rowtrack/.storybook/rnw-style-keys.ts
+  ?? apps/rowtrack/.tmp-eval.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

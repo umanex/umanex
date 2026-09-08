@@ -441,27 +441,27 @@
     },
     {
      "naam": "fontWeight/light",
-     "type": "STRING",
+     "type": "FLOAT",
      "beschrijving": "",
-     "waarde": "300"
+     "waarde": 300
     },
     {
      "naam": "fontWeight/regular",
-     "type": "STRING",
+     "type": "FLOAT",
      "beschrijving": "",
-     "waarde": "400"
+     "waarde": 400
     },
     {
      "naam": "fontWeight/medium",
-     "type": "STRING",
+     "type": "FLOAT",
      "beschrijving": "",
-     "waarde": "500"
+     "waarde": 500
     },
     {
      "naam": "fontWeight/semibold",
-     "type": "STRING",
+     "type": "FLOAT",
      "beschrijving": "",
-     "waarde": "600"
+     "waarde": 600
     },
     {
      "naam": "fontWeight/italic",
