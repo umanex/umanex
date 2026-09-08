@@ -113,3 +113,28 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Eerste zet:** `for r in actions/setup-node actions/cache pnpm/action-setup; do gh api repos/$r/releases/latest --jq .tag_name; done` om te zien of er Node-24-majors zijn, en `gh run view $(gh run list -w ci.yml -L1 --json databaseId -q '.[0].databaseId')` om te lezen of de 'forced to run on Node.js 24'-annotatie nog verschijnt; dan de @v4-regels (ci.yml:19/25/34/135, tokens-sync.yml:49/55/64) bumpen in één `ci:`-commit.
 - **Check:** `grep -n 'actions/cache@\|actions/setup-node@\|pnpm/action-setup@' .github/workflows/ci.yml` → nog @v4 = de annotatie blijft komen.
 - **Status:** open
+
+## 2026-09-08 — De visuele beeldvergelijking bestaat wel voor rowtrack, nog niet voor packages/ui · [design-system]
+
+- **Wat:** De vraag uit HANDOFF 2026-08-25 ("moet het gat tussen structureel en visueel gedicht
+  worden?") is beantwoord: **ja**, en de methode is bewezen op RowTrack. Twee lagen, allebei
+  gebouwd: `geometry-parity.mjs` legt per variant-node de Figma-maten naast de browser-render
+  (109 nodes, 1066 velden, tolerantie 0,5px, met een tegenproef die op een verschoven hoogte
+  rood wordt), en daarnáást een handmatige beeldvergelijking — `figma_capture_screenshot`
+  (runtime) naast een Playwright-screenshot van dezelfde story. `packages/ui` heeft de eerste
+  laag sinds PR #388, maar de tweede niet.
+- **Waarom dit meer is dan netheid:** de beeldlaag vond op RowTrack iets dat de geometrie per
+  constructie niet kán vinden — `text-transform: uppercase` staat niet in de DOM-tekst, dus
+  Figma toonde "500m" waar de browser "500M" rendert, over 42 nodes in 12 componenten. Elke
+  eigenschap die het uiterlijk bepaalt maar niet in de gemeten geometrie zit, heeft dezelfde
+  vorm.
+- **Waarom niet nu:** deze sessie ging over RowTrack; `packages/ui` erbij nemen was scope-
+  uitbreiding op een PR die al 12 commits telt.
+- **Eerste zet:** `pnpm --filter @umanex/ui build-storybook`, dan per component een
+  Playwright-screenshot van de Playground naast een `figma_capture_screenshot` van de primary
+  node, en de verschillen met het oog beoordelen — nadrukkelijk geen pixel-guard (byte-exacte
+  PNG-hashes zijn in Chromium geen identiteitstoets). Begin bij een component met
+  `text-transform` of een icoon, want daar zit de kans.
+- **Check:** `ls packages/ui/figma/parity-beelden 2>/dev/null` — bestaat de map niet, dan is de
+  beeldronde daar nooit gedraaid.
+- **Status:** open

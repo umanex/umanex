@@ -722,3 +722,21 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   verificatie eenmalig.
 - **Check:** `git ls-files 'apps/rowtrack/lib/bestDistanceTime.test.ts' 'apps/rowtrack/lib/secureStorage.test.ts' 'apps/rowtrack/lib/formatters.test.ts'` → leeg = geen van de drie modules heeft een committed test.
 - **Status:** resolved — 2026-09-07: verplaatst naar `apps/rowtrack/BACKLOG.md` als *2026-09-07 — Geen testrunner in de repo · [test]*; het is werk dat blijft liggen, geen handoff. De beslissing waar de entry op wachtte is genomen: er is een testrunner zonder dependency (node:test met type-stripping, `npm run test` in package.json, en een CI-stap die faalt als er géén *.test.ts…
+
+## 2026-09-08 — Het bestand is een machinetranscriptie, geen library om uit te componeren · [aanname]
+- **Bevinding:** Ik heb het design-system-bestand geoptimaliseerd voor *bewijsbaarheid* — elke node herleidbaar tot de browser-render — en nooit uitgesproken dat dat een andere eis is dan *bruikbaarheid*. Gemeten: 82% van de 1288 frames draagt een machinenaam ("0" 608×, "1" 278×, "2" 78×), en geen enkele van de 15 component sets heeft slot-properties (boolean, instance-swap, text) — alleen varianten. Nu het bestand als library gepubliceerd is en er schermen uit samengesteld worden, telt die tweede eis pas echt: niemand componeert een scherm uit lagen die "0" heten.
+- **Check:** `figma_execute` op `QkRgMc7Quqtbow71DiYa1n`: tel de FRAME/GROUP-nodes waarvan de naam matcht op `/^(\d+|Frame|Group)$/` tegen het totaal. Boven ~20% is het bestand nog machinaal benoemd.
+- **Volgende zet:** Vóór er iets aan toegevoegd wordt: het bestand openen als designer en per component beoordelen of hij composeerbaar is. Kandidaten voor herstel: laagnamen uit de component-structuur afleiden in plaats van uit de index, en slots (icoon aan/uit, labeltekst) als component-property in plaats van als variant.
+- **Status:** open
+
+## 2026-09-08 — Vijf van de 33 componenten zijn met het oog bekeken · [onzekerheid]
+- **Bevinding:** De tellingen zijn volledig — 613/613 tekstnodes, 1066 geometrie-velden gelijk, tien guard-assen groen. Maar ik heb Button, Chip, SplitsList, HealthConsentScreen en WheelPicker daadwerkelijk bekéken; de andere 28 niet. Twee keer vandaag was iets zichtbaar fout terwijl elke telling klopte: tekst die buiten het frame liep, en knoplabels die over twee regels braken. Beide gevonden door te kijken, geen van beide door te meten.
+- **Check:** `ls apps/rowtrack/figma/parity-beelden/ 2>/dev/null | wc -l` — het aantal componenten waarvan een browser-screenshot bestaat; ver onder 33 betekent dat de beeldronde niet af is.
+- **Volgende zet:** De resterende 28 in één ronde langslopen met `figma_capture_screenshot` naast `scripts/render-shot.mjs`. Begin bij de componenten met de meeste meldingen uit de builder (ActivePhase 90, IdlePhase 154, WheelPicker 104) — daar is de kans op een zichtbaar verschil het grootst.
+- **Status:** open
+
+## 2026-09-08 — De twee schermpagina's worden overbodig zodra Screens v2 uit instances wordt opgebouwd · [next-step]
+- **Bevinding:** `ActivePhase` (5 frames, 105 teksten) en `IdlePhase` (4 frames, 188 teksten) staan als afgeplatte bomen in het design-system-bestand. Jeroen bouwt de schermen op de pagina *Screens v2* in `T1bGrvIzSNeLyh5CbarATZ`, uit de gepubliceerde library. Twee schermrepresentaties naast elkaar die niet aan elkaar gekoppeld zijn, is een tweede bron van waarheid — en de afgeplatte versie is de zwakste van de twee.
+- **Check:** `figma_execute` op `T1bGrvIzSNeLyh5CbarATZ`: staat er inhoud op de pagina *Screens v2*? Zo ja, dan hebben de twee schermpagina's in het design-system-bestand geen functie meer.
+- **Volgende zet:** Beslissen zodra Screens v2 staat: de twee pagina's uit het design-system-bestand halen (en de `SCHERMEN`-uitsluiting uit `figma-sync-check.mjs`), of ze expliciet als referentiebeeld benoemen. Nu weghalen is te vroeg — ze zijn het enige beeld van die schermen dat er is.
+- **Status:** open

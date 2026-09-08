@@ -59,24 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+6c9338f fix(rowtrack): volledige inhoud in Figma — 613 van 613 tekstnodes
 259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
 9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
 653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
 9d54aa0 fix(rowtrack): lege frames verholpen in Figma, 33 van 33 kloppen
-134273b fix(rowtrack): vijf componenten stonden als leeg frame in Figma
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Chip.stories.tsx
-  M  apps/rowtrack/components/DeviceRow.stories.tsx
-  M  apps/rowtrack/components/Dot.stories.tsx
-  M  apps/rowtrack/components/EmptyState.stories.tsx
-  M  apps/rowtrack/components/ErrorMessage.stories.tsx
-  M  apps/rowtrack/components/ErrorState.stories.tsx
+  M  apps/rowtrack/HANDOFF.md
 
 ## Bestanden met TODO/FIXME
   (geen)
