@@ -143,8 +143,20 @@ for (const { component, src: storySrc } of storyComponents) {
   if (!component) continue;
   const page = manifest.pages[component];
   if (!page) continue;
+  // Twee bestandsnaam-conventies leven naast elkaar in components/ui: PascalCase
+  // (`ThemeToggle.tsx`) en kebab-case (`dropdown-menu.tsx`, de shadcn-vorm waar het
+  // export-pad `./components/ui/dropdown-menu` aan hangt). Tot 2026-09-08 vergeleek
+  // deze regel alleen lowercased, wat per constructie slaagde zolang élk component
+  // één woord was (badge, button, card, …); het eerste tweewoordige component gaf
+  // `geen bronbestand voor DropdownMenu` terwijl het bestand er gewoon stond.
+  //
+  // Precies die twee vormen, niet "koppeltekens genegeerd": dat laatste zou ook
+  // `drop-down-menu.tsx` accepteren (gemeten — de guard bleef groen), en dan bewaakt
+  // deze as de bestandsnaam niet meer.
+  const kebab = n => n.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  const kandidaten = new Set([`${component.toLowerCase()}.tsx`, `${kebab(component)}.tsx`]);
   const bron = readdirSync(componentsDir).find(f =>
-    f.toLowerCase() === `${component.toLowerCase()}.tsx` && !f.includes('.stories.'));
+    kandidaten.has(f.toLowerCase()) && !f.includes('.stories.'));
   if (!bron) { fail('variant', `geen bronbestand voor ${component}`); continue; }
 
   const verwacht = { ...(cvaVariants(readFileSync(join(componentsDir, bron), 'utf8')) ?? {}) };

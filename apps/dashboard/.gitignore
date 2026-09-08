@@ -1,0 +1,3 @@
+# Draaiende processen: pid- en logbestanden van wat dit dashboard zelf startte.
+# Machine-lokaal per definitie — een pid uit een andere tree betekent hier niets.
+.runtime/

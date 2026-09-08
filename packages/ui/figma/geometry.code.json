@@ -1,6 +1,6 @@
 {
   "$comment": "Gemeten code-kant. Herschrijf met `pnpm --filter @umanex/ui geometry --write` na een BEDOELDE wijziging.",
-  "stories": 25,
+  "stories": 28,
   "gegenereerd": "2026-09-07",
   "gemeten": {
     "componenten-badge--playground": {
@@ -844,6 +844,120 @@
           "gap": "",
           "font": "14/14 500",
           "opacity": "0.7"
+        }
+      ]
+    },
+    "componenten-dropdownmenu--default": {
+      "aantal": 3,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 304,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex h-64 items-start justify-center pt-6",
+          "h": 256,
+          "padding": "24/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-dropdownmenu--met-selectie": {
+      "aantal": 3,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 304,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex h-64 items-start justify-center pt-6",
+          "h": 256,
+          "padding": "24/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
+        }
+      ]
+    },
+    "componenten-dropdownmenu--open": {
+      "aantal": 3,
+      "elementen": [
+        {
+          "tag": "div",
+          "klassen": "bg-background font-sans p-6 text-foreground",
+          "h": 304,
+          "padding": "24/24/24/24",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "div",
+          "klassen": "flex h-64 items-start justify-center pt-6",
+          "h": 256,
+          "padding": "24/0/0/0",
+          "radius": "0px/0px/0px/0px",
+          "border": 0,
+          "gap": "",
+          "font": "16/24 400",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "klassen": "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 bg-background border border-input disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-medium gap-2 h-10 hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center px-4 py-2 ring-offset-background rounded-md text-sm transition-colors whitespace-nowrap",
+          "h": 40,
+          "padding": "8/16/8/16",
+          "radius": "6px/6px/6px/6px",
+          "border": 1,
+          "gap": "8px",
+          "font": "14/20 500",
+          "opacity": "1"
         }
       ]
     },
