@@ -33,6 +33,25 @@ const fontVan = (variant) => {
 const rgb = o => ({ r: o.r / 255, g: o.g / 255, b: o.b / 255 });
 const BG = V.get('Theme:bg/base');
 const meldingen = [];
+/**
+ * `loadFontAsync` is de duurste stap van de bouw en wordt per tekstnode aangeroepen — bij 613
+ * tekstnodes over hooguit een handvol fonts is dat honderden keren hetzelfde font. Figma cachet
+ * intern wel, maar de await zelf kost een tick per node, en die tikken zijn precies wat een
+ * batch over de 30 s wachtlimiet duwt.
+ */
+const geladen = new Map();
+const laadFont = (f) => {
+  const sleutel = f.family + '|' + f.style;
+  if (!geladen.has(sleutel)) geladen.set(sleutel, figma.loadFontAsync(f));
+  return geladen.get(sleutel);
+};
+/**
+ * Tekstnodes die aan een component property hangen. `maak()` vult hem; de bouwlus leegt hem
+ * per component. Een slot is de reden dat de library BRUIKBAAR is en niet alleen juist: zonder
+ * property moet wie een instance plaatst de tekstlaag selecteren en overschrijven, en dat
+ * ontkoppelt de instance van zijn master.
+ */
+let slotVangst = [];
 const STAMP = SPEC.__stamp || '';   // de aanroeper zet de datum; de plugin-sandbox heeft geen betrouwbare klok nodig
 
 /**
@@ -95,13 +114,13 @@ async function maak(n, naamPad) {
     }
     const t = figma.createText();
     if (stijl) {
-      await figma.loadFontAsync(stijl.fontName);
+      await laadFont(stijl.fontName);
       t.fontName = stijl.fontName;
       t.characters = String(n.t.s);
       await t.setTextStyleIdAsync(stijl.id);
       if (n.t.tc) t.textCase = n.t.tc;
     } else {
-      await figma.loadFontAsync(font);
+      await laadFont(font);
       t.fontName = font;
       t.characters = String(n.t.s);
       t.fontSize = n.t.px;
@@ -138,6 +157,7 @@ async function maak(n, naamPad) {
     // zelf — precies wat regel 1 van het leesbaarheidscontract verbiedt. In de vorige ronde
     // heetten alle 613 tekstnodes daardoor naar hun eigen copy ("Doel bereikt!").
     t.name = n.naam || 'label';
+    if (n.slot) slotVangst.push({ slot: n.slot, node: t, standaard: String(n.t.s) });
     return t;
   }
 
@@ -314,6 +334,7 @@ for (const [comp, d] of Object.entries(SPEC)) {
   if (bezwaren) { geweigerd.push(...bezwaren); continue; }
   for (const kind of [...page.children]) kind.remove();
 
+  slotVangst = [];
   const isScherm = !!d.frames;
   const items = isScherm ? d.frames : d.varianten;
   const comps = [];
@@ -337,6 +358,26 @@ for (const [comp, d] of Object.entries(SPEC)) {
   } else if (isScherm) {
     hoofd.name = items[0].naam;
   }
+  // ---- Component properties (slots) ----------------------------------------------------
+  // De koppeling is gemeten, niet geraden: scripts/figma-build-spec.mjs zoekt de tekstnode
+  // waarvan de inhoud exact gelijk is aan de waarde van de prop in de story-args, en markeert
+  // hem alleen als hij PRECIES ÉÉN keer voorkomt. Dezelfde discipline als de tokenmatching.
+  const slotsGezet = {};
+  if (!isScherm && slotVangst.length) {
+    const perSlot = new Map();
+    for (const v of slotVangst) {
+      if (!perSlot.has(v.slot)) perSlot.set(v.slot, []);
+      perSlot.get(v.slot).push(v);
+    }
+    for (const [slot, lijst] of perSlot) {
+      try {
+        const propId = hoofd.addComponentProperty(slot, 'TEXT', lijst[0].standaard);
+        for (const v of lijst) v.node.componentPropertyReferences = { characters: propId };
+        slotsGezet[slot] = { propId, nodes: lijst.length };
+      } catch (e) { meldingen.push(`${comp}: component property "${slot}" mislukt — ${e.message}`); }
+    }
+  }
+
   hoofd.description = isScherm
     ? `→ apps/rowtrack/components/${comp === 'ActivePhase' || comp === 'IdlePhase' ? 'workout/' : ''}${comp}.tsx\nScherm: representatieve frames, geen component set. Assen bewust afgeschreven — statusenums zijn in beeld niet orthogonaal.`
     : `→ apps/rowtrack/components/${comp}.tsx\nGegenereerd uit de Storybook-render; niet met de hand bewerken.`;
@@ -355,6 +396,7 @@ for (const [comp, d] of Object.entries(SPEC)) {
 
   uit.push({ component: comp, type: hoofd.type, id: hoofd.id, nodes: comps.length,
              assen: hoofd.type === 'COMPONENT_SET' ? hoofd.variantGroupProperties : null,
-             publishStatus: await hoofd.getPublishStatusAsync(), hashes });
+             publishStatus: await hoofd.getPublishStatusAsync(), hashes,
+             slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
 return { gebouwd: uit, geweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };

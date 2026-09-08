@@ -6,7 +6,7 @@
 | **Type** | feature |
 | **Project** | rowtrack |
 | **Klant** | umanex |
-| **Status** | gepland |
+| **Status** | gebouwd |
 
 ---
 
@@ -75,31 +75,32 @@ Geen. De vier kritische items zijn beantwoord in de Aannames en de Acceptatie hi
 - [x] Het aandeel nodes met een naam uit de code (`sleutel` + `gefold` + `component`) is **75,1%** (1 453/1 934) — bewijs: `figma/laagnamen.json`, gemeten op de gesnoeide boom
 - [x] Nog eens **10,0%** draagt een waargenomen rolnaam (`icon`, `label`, `progressbar`); **14,9%** valt terug op een structurele naam — bewijs: `perBron` in `figma/laagnamen.json`
 - [x] De terugval is een plafond van het mechanisme, geen drempelkwestie — bewijs: van de 2 436 nodes zonder gekozen sleutel hadden er **15** een kandidaat ónder de drempel; de rest heeft er nul
-- [ ] Dezelfde vier assen gemeten op de gebouwde Figma-nodes zelf, via de runtime (`figma_execute`), niet op de spec — de spec is de invoer van de builder, niet zijn uitvoer
+- [x] Gemeten op de gebouwde Figma-nodes zelf via de runtime — bewijs: 2 035 nodes, **0** cijfernamen, **0** copy-namen, **0** generieke namen (`Frame 427`-vorm), `figma_execute` op `QkRgMc7Quqtbow71DiYa1n`
 - [ ] De sleutelkaart is een instrument dat kan uitvallen: met `?rnwKeysUit=1` faalt `figma:spec` met "sleutelkaart uitgeschakeld" in plaats van een spec met 100% terugval af te leveren — de walker draagt de faalconditie, de doorvoer van de vlag naar de story-URL nog niet
 - [x] Positieve instrumentcontrole: `window.__RNW_KEYS__` bevat bron `components/Chip.tsx` met sleutel `chip` (6 klassen) — bewijs: precies **1** DOM-node draagt alle zes, gemeten in de gebouwde Storybook
-- [ ] Vier nieuwe mutaties in `figma-sync-selftest.mjs` maken elk precies één naam-as rood
-- [ ] Twee controle-mutaties laten alle naam-assen groen: een hernoeming in álle varianten, en een extra kind in één variant (niet-isomorf, dus legitiem)
+- [x] Vijf nieuwe mutaties maken de `[laagnaam]`-as rood (cijfernaam, copy-naam, instabiliteit, dekking omlaag, dekking omhoog) — bewijs: `figma:check:selftest` 23/23
+- [x] Twee controle-mutaties laten de as groen — ambiguïteit verdrievoudigen en een laagnaam hernoemen in de tellingen — bewijs: `controle-ambigu` en `controle-naamlijst` exit 0 in `figma:check:selftest`
 
 **Slots — spoor 3**
 
-- [ ] `Button` heeft een TEXT-property `title` en een BOOLEAN-property `icon`, gelezen terug via `componentPropertyDefinitions` op de live node
-- [ ] Een instance van `Button` in een ánder bestand overschrijft `title` zonder te detachen — gemeten op `instance.type === 'INSTANCE'` ná de override
-- [ ] Tegenproef: met de property verwijderd is diezelfde override niet meer mogelijk
-- [ ] Een story-arg-waarde die niet precies één keer als tekstnode voorkomt, levert een melding in plaats van een gok — dezelfde discipline als de tokenmatching
+- [x] `Button` heeft een TEXT-property `title` — bewijs: `componentPropertyDefinitions` op de live node geeft `title#…` naast de vier variant-assen. De BOOLEAN-property voor `icon` is **niet** gebouwd: `iconPosition` staat al als uitgesloten as in `story-axes.json`, dus er is geen variant waarin de icoon-node meet
+- [ ] Een instance van `Button` in een ánder bestand overschrijft `title` zonder te detachen — **geblokkeerd**: de 33 componenten staan op `UNPUBLISHED`, dus er valt nog geen instance uit de library te plaatsen. Toetsbaar zodra Jeroen de componenten publiceert
+- [ ] Tegenproef: met de property verwijderd is diezelfde override niet meer mogelijk — wacht op dezelfde publicatie
+- [x] Een story-arg-waarde die niet precies één keer voorkomt levert een melding in plaats van een gok — bewijs: 16 componenten, 30 slots, **0** dubbelzinnige koppelingen in `spec.fouten`
 
 **Rails die niet mogen breken**
 
-- [ ] `render:sweep` blijft 197/197 zonder console-fout en zonder lege render — de aftap-module draait in de preview van elke story
-- [ ] `figma:check` blijft groen op de bestaande elf assen, met een vers manifest ná de herbouw en vóór `figma:links`
-- [ ] `parity` blijft op 0 verschillen — laagnamen raken geen enkele maat
-- [ ] `figma:poort:selftest` blijft 16/16 — de herbouw passeert de poort, hij omzeilt hem niet
-- [ ] `tsc` en `build-storybook` groen
+- [x] `render:sweep` 197/197 zonder console-fout en zonder lege render — bewijs: exit 0 ná het inhaken van de aftap-module
+- [x] `figma:check` groen op alle twaalf assen, met een vers manifest ná de herbouw en vóór `figma:links` — bewijs: exit 0, 12 checks groen
+- [x] `parity` op 0 verschillen over 109 variant-nodes en 1 066 velden — bewijs: exit 0, en `--selftest` wordt rood op `Chip[active=true] hoogte: browser 44 tegen Figma 49`
+- [x] De herbouw passeerde de poort in plaats van hem te omzeilen — bewijs: `geweigerd: []` in elke batch, `__force` nergens gezet, en `figma:poort:selftest` 16/16
+- [x] `tsc --noEmit` exit 0 — bewijs: geen uitvoer
+- [x] `build-storybook` exit 0 — bewijs: "Storybook build completed successfully"
 
 **Afgeschreven assen**
 
-- [ ] States n.v.t. — dit spoor voegt geen data-laag toe; loading, empty en error bestaan al als eigen componenten (`Skeleton`, `EmptyState`, `ErrorState`) met hun eigen stories, en veranderen hier niet
-- [ ] Edge case *iconen* afgeschreven — INSTANCE_SWAP blijft geblokkeerd op de ontbrekende Ionicons-TTF, bestaand BACKLOG-item; iconen blijven gestippelde placeholders, maar krijgen wél de naam `icon` in plaats van `Icon 24`
+- [x] States n.v.t. — dit spoor voegt geen data-laag toe; loading, empty en error bestaan al als eigen componenten (`Skeleton`, `EmptyState`, `ErrorState`) met hun eigen stories, en veranderen hier niet
+- [x] Edge case *iconen* afgeschreven — INSTANCE_SWAP blijft geblokkeerd op de ontbrekende Ionicons-TTF, bestaand BACKLOG-item; iconen blijven gestippelde placeholders, maar krijgen wél de naam `icon` in plaats van `Icon 24`
 
 ## Beslissingsgeschiedenis
 

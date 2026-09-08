@@ -190,6 +190,23 @@ De enige ontsnapping is `SPEC.__force = true`, en die hoort **zichtbaar in de aa
 — nooit stil gezet. Geforceerd overschrijven komt in `meldingen` terecht met de reden erbij.
 Tegenproef: `pnpm --filter rowtrack figma:poort:selftest`.
 
+**De 30 s van `figma_execute` is een WACHTlimiet, geen uitvoerlimiet — en dat verschil heeft
+twee scherpe kanten.** De plugin bouwt gewoon door nadat de tool-call is afgekapt; alleen de
+returnwaarde is weg. Daaruit volgen twee regels die deze sessie allebei geld hebben gekost:
+
+*Start nooit een tweede batch vóór de eerste klaar is.* Zonder marker weet je niet dát er nog
+een builder loopt, en een tweede aanroep leegt pagina's die de eerste nog aan het vullen is.
+Gemeten 2026-09-08: twee overlappende runs lieten `Chip` en `PrBadge` **leeg** achter en gaven
+`KpiSingle` **twee** componenten. Het beeld daarna is niet te onderscheiden van een half
+gelukte bouw.
+
+*`fetch` sterft mee met de tool-call, `setPluginData` niet.* Een POST naar de lokale server ná
+de wachtlimiet komt niet meer aan — de serverlog toont de GET's van spec en builder en daarna
+niets, terwijl het document wél gebouwd is. Zet je uitkomst dus in
+`figma.root.setPluginData(...)` en lees hem in een aparte, korte call terug.
+`figma/bouw-batch.js` doet allebei: hij zet `bouwbezig` bij de start, `bouwresultaat` bij het
+einde, en weigert te starten zolang `bouwbezig` gevuld is.
+
 **Volgorde die niet omgekeerd mag.** Na élke Figma-bouw: **eerst het manifest verversen, dan
 pas `figma:links` en `figma:check`.** Een herbouw geeft elke node een nieuwe id. Gemeten
 2026-09-08: na een herbouw waren 29 van de 33 primary-ids veranderd, terwijl `figma:check`

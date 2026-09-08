@@ -416,7 +416,42 @@ async function meet(storyId, args) {
   await page.waitForTimeout(120);
   const r = await page.evaluate(WALKER);
   if (r.boom) erfMaatVanOuder(r.boom, null);
+  // De args van deze story, uit Storybook's eigen preview-API. Die geven de WAARDE van elke
+  // prop ('Start training'), en daarmee is de slot-koppeling meetbaar in plaats van geraden:
+  // de tekstnode met exact die inhoud is de doelnode.
+  r.args = await page.evaluate(async (id) => {
+    try { const ctx = await window.__STORYBOOK_PREVIEW__?.loadStory?.({ storyId: id }); return ctx?.initialArgs ?? null; }
+    catch (e) { return null; }
+  }, storyId);
   return r;
+}
+
+/**
+ * Markeert per component welke tekstnode aan welke prop hangt — het slot.
+ *
+ * De regel is dezelfde als bij de tokenmatching: koppel alleen wat ONDUBBELZINNIG is. Komt de
+ * waarde van een prop niet precies één keer als tekstnode voor, dan is de koppeling
+ * dubbelzinnig en wordt ze gemeld in plaats van gegokt. Een variant-as doet niet mee — die
+ * wordt al door de variant-properties uitgedrukt.
+ */
+function markeerSlots(comp, items, assen, fouten) {
+  const asNamen = new Set(Object.keys(assen ?? {}));
+  const gevonden = new Set();
+  for (const it of items) {
+    const args = it.args ?? {};
+    for (const [prop, waarde] of Object.entries(args)) {
+      if (asNamen.has(prop) || typeof waarde !== 'string' || !waarde.trim()) continue;
+      const treffers = [];
+      (function loop(n) {
+        if (n.tekst && n.tekst.inhoud === waarde) treffers.push(n);
+        for (const k of n.kinderen ?? []) loop(k);
+      })(it.boom);
+      if (treffers.length === 1) { treffers[0].slot = prop; gevonden.add(prop); }
+      else if (treffers.length > 1) fouten.push(`${comp} [${it.naam}]: prop "${prop}" komt ${treffers.length}x voor als tekst — dubbelzinnig, geen slot`);
+      // 0 treffers is normaal: een variant kan de prop niet tonen (loading, of een icoon-only knop).
+    }
+  }
+  return [...gevonden];
 }
 
 /**
@@ -499,10 +534,11 @@ for (const [comp, d] of Object.entries(assen.componenten)) {
     const r = await meet(d.storyId, c.args);
     if (r.fout) { spec.fouten.push(`${comp} [${c.naam}]: ${r.fout}`); continue; }
     bind(r.boom, '', comp);
-    varianten.push({ naam: c.naam, args: c.args, boom: r.boom });
+    varianten.push({ naam: c.naam, args: c.args, boom: r.boom, storyArgs: r.args });
   }
   benoem(comp, varianten.map(v => v.boom));   // laagnamen: één beslissing per component
-  spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, varianten };
+  const slots = markeerSlots(comp, varianten.map(v => ({ naam: v.naam, boom: v.boom, args: v.storyArgs })), d.assen, spec.fouten);
+  spec.componenten[comp] = { storyId: d.storyId, assen: d.assen, slots, varianten };
   process.stderr.write(`  ${comp}: ${varianten.length}/${combis.length}\n`);
 }
 

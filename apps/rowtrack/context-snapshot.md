@@ -59,24 +59,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+5e2e43d feat(rowtrack): laagnamen uit de code in plaats van de broer-index
 2a877ee feat(rowtrack): RowTrack - Design draait op de gepubliceerde library
 c8ad872 fix(rowtrack): fontWeights krijgt zijn Figma-type uit de waarde, niet uit de tokengroep
 549eb47 feat(rowtrack): publicatie- en handwerkpoort vóór elke Figma-herbouw
 798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
-6c9338f fix(rowtrack): volledige inhoud in Figma — 613 van 613 tekstnodes
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.storybook/main.ts
-  M  apps/rowtrack/.storybook/preview.tsx
-  A  apps/rowtrack/.storybook/rnw-style-keys.ts
   M  apps/rowtrack/CLAUDE.md
-  A  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/builder.js
-  A  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/briefings/2026-09-08-feature-figma-library-leesbaar-bruikbaar.tcebc.md
+  M  apps/rowtrack/components/BleStatusBar.stories.tsx
+  M  apps/rowtrack/components/BottomFade.stories.tsx
+  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/components/Button.stories.tsx
+  M  apps/rowtrack/components/Chip.stories.tsx
+  M  apps/rowtrack/components/DeviceRow.stories.tsx
+  M  apps/rowtrack/components/Dot.stories.tsx
+  M  apps/rowtrack/components/EmptyState.stories.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

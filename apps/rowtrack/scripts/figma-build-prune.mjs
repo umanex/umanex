@@ -40,6 +40,7 @@ function snoei(node, diepte, pad, comp) {
   if (node.naamBron && node.naamBron !== 'sleutel') o.naamBron = node.naamBron;
   if (node.naamAmbigu) o.naamAmbigu = true;
   if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
+  if (node.slot) o.slot = node.slot;      // deze tekstnode hangt aan een component property
   if (node.richting && node.display?.includes('flex')) o.rij = node.richting.startsWith('row');
   if (node.gap) { o.gap = r2(node.gap); if (node.gapVar) o.gapVar = node.gapVar; }
   if (node.padding.some(p => p)) {
@@ -122,6 +123,7 @@ const uit = { componenten: {}, schermen: {}, uitgesloten: spec.uitgesloten, afka
 for (const [comp, d] of Object.entries(spec.componenten)) {
   uit.componenten[comp] = {
     assen: d.assen,
+    slots: d.slots ?? [],
     varianten: d.varianten.map(v => ({ naam: v.naam, boom: snoei(v.boom, 0, '', `${comp}[${v.naam}]`) })),
   };
 }

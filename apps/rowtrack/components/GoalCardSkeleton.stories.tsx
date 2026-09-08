@@ -27,7 +27,7 @@ const meta = {
     ),
   ],
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2013-7966' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2016-12255' },
   },
 } satisfies Meta<typeof GoalCardSkeleton>;
 
