@@ -123,7 +123,15 @@ export function ProspectCard({ prospect, heeftVacatures, vandaag, onStatusChange
               </span>
             )}
             {prospect.ebitda !== null && (
-              <span className="tabular-nums">EBITDA {bedrag(prospect.ebitda)}</span>
+              <span className="tabular-nums">
+                EBITDA {bedrag(prospect.ebitda)}
+                {/* Het minteken alleen draagt dit onderscheid niet: gemeten op de 218
+                    geïmporteerde rijen renderen elf verliesgevende bedrijven zonder dat
+                    teken byte-identiek aan een winstgevend bedrijf in dezelfde lijst
+                    (−2,5 mln tegenover 2,5 mln). Eén afgekapte kolom, één schermlezer die
+                    U+2212 overslaat, en het verschil is weg. */}
+                {prospect.ebitda < 0 && <span className="ml-1">(verlies)</span>}
+              </span>
             )}
             {/* Geen waarde tonen is hier informatie, geen gat: bij een negatieve EBITDA is de
                 multiple niet toepasbaar, dus staat er niets — en dat is precies wat we weten. */}

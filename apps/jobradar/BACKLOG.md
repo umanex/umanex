@@ -7,6 +7,43 @@ Format: `- [ ] {type}: {wat} — {waarom} ({bron})`
 
 ## Open
 
+- [ ] `infra`: **Eigen build-map voor de flow-harness.** Hij draait `next build` zonder
+      `NEXT_DIST_DIR`, dus hij bouwt in de gedeelde `.next` van deze app — en `next build`
+      maakt die map eerst leeg. Een dev-server op 3003 die eruit serveert geeft daarna een
+      witte pagina. Er staat nu een poortcheck op 3003 als rem, maar dat is een patch: de
+      wortelfix is `distDir: process.env.NEXT_DIST_DIR ?? '.next'` in `next.config.mjs`,
+      precies zoals `apps/cashflow/next.config.mjs` het doet. Wacht op akkoord omdat het een
+      configbestand raakt. (code-review PR #408, P2)
+- [ ] `ui`: **Segmented control naar `packages/ui`.** `components/HerkomstFilter.tsx` is een
+      lokale primitive in app-code, tegen de regel in `CLAUDE.md` → Design-systeem-bron. De
+      reden is gemeten en klopt — `packages/ui/scripts/figma-sync-check.mjs:136` faalt op een
+      nieuwe story zonder Figma-pagina — maar daarmee is het uitgesteld werk, geen
+      oplossing. Verplaatsen vraagt: component + story in `packages/ui`, een Figma-pagina in
+      het manifest, en de import in jobradar omzetten. De klassenreeks is nu overgetikt uit
+      `TabsList`/`TabsTrigger`, dus hij drift bij elke wijziging daar. (code-review PR #408, P3)
+- [ ] `fix`: **Een geleverd bedrijf dat stopgezet is of geen zeteladres heeft, verdwijnt
+      stil.** `bouwProspectSql` eist `Status='AC'` plus een `REGO`-adres, en
+      `bouwZonderKboSql` telt alleen wat hélemaal niet in `enterprise` staat. Een rij die de
+      spiegel wél kent maar op die twee afvalt, staat dus in geen enkele lijst en in geen
+      enkele telling — precies de faalklasse die de melding boven de lijst moet afdekken. De
+      huidige export bevat dit geval niet (215/215 actief, allemaal met zeteladres), een
+      volgende kan het wel. (code-review PR #408, P3)
+- [ ] `fix`: **`JOBRADAR_DB_PATH` wordt op twee manieren afgeleid.**
+      `scripts/prospects-import.mjs` doet `resolve(APP, env || '.data/jobradar.db')`,
+      `lib/db/index.ts:14` en `lib/kbo/spiegel.ts` doen `env ?? join(process.cwd(), …)`. Bij
+      een lege waarde (`JOBRADAR_DB_PATH=` in een `.env`) schrijft het script naar de echte
+      database terwijl de app een wegwerp-database in het geheugen opent. Eén helper voor
+      beide. (code-review PR #408, P3)
+- [ ] `fix`: **`ORDENING[filter.sortering]` vangt prototype-sleutels niet af.**
+      `sortering: 'constructor'` levert `ORDER BY function Object() { [native code] }`. Niet
+      bereikbaar vanaf HTTP (de route whitelist), maar de scenario-check claimt breder dan
+      hij meet — hij toetst één sample. `Object.hasOwn` plus een check per prototype-sleutel.
+      (code-review PR #408, P3)
+- [ ] `ui`: **`border border-border` op `bg-muted` levert in dark mode geen rand** —
+      `--border` en `--muted` zijn daar dezelfde HSL-triplet, contrast 1,000:1. Bestaand
+      patroon op vier plekken in `DashboardClient.tsx`. Raakt de rollaag, dus het is een
+      tokenvraag en geen app-fix. (code-review PR #408, P3)
+
 - [ ] `infra`: De KBO-spiegel is **3,6 GB** (`.data/kbo.db`, extract 466) en de schijf stond
       bij het aanmaken op 99% vol (15 GiB vrij). `activity` is met 34.498.093 rijen veruit de
       grootste tabel, en daarvan zijn er 17.384.045 van NACE-versie 2003 (2.233.543) en 2008

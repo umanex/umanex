@@ -38,22 +38,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+d6da091 feat(jobradar): origin filter, profitability sieve and sorting in the UI
 28a9a6c feat(jobradar): filter prospects by origin and by profitability
 3d22f9d feat(jobradar): import a delivered CSV of companies into csv_prospects
 cd62624 docs(jobradar): correct two briefing constraints against the source
 7d1a85e docs(jobradar): record the two decided critical items
-0e55e19 docs(jobradar): three briefings for CSV-sourced prospect follow-up
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/jobradar/BACKLOG.md
   M  apps/jobradar/app/api/prospects/route.ts
   M  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
   M  apps/jobradar/components/DashboardClient.tsx
-  A  apps/jobradar/components/HerkomstFilter.tsx
+  M  apps/jobradar/components/HerkomstFilter.tsx
   M  apps/jobradar/components/ProspectCard.tsx
-  M  apps/jobradar/lib/kbo/universum.ts
+  M  apps/jobradar/lib/kbo/spiegel.ts
   M  apps/jobradar/scripts/flow-harness.mjs
-  M  apps/jobradar/scripts/kbo-scenarios.ts
+  M  apps/jobradar/scripts/prospects-import.mjs
+  M  apps/jobradar/scripts/scenarios.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

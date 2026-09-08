@@ -46,6 +46,9 @@ const KOLOMMEN = {
   equityValue: 'equityValue',
 }
 
+/** Handvat voor het `finally`-pad: een ontsnapte fout mag de database niet open laten. */
+let open = null
+
 const ok = (s) => console.log(`  ${s}`)
 const fout = (s) => console.error(`✗ ${s}`)
 
@@ -81,19 +84,32 @@ async function main() {
     return 2
   }
 
-  const db = new Database(DB_PAD)
-  db.pragma('journal_mode = WAL')
-  db.exec(SCHEMA_DDL)
-  pasKolomMigratiesToe(db)
+  // Een dry-run hoort niets te veranderen, ook geen bestand aan te maken. De vorige versie
+  // opende read-write, zette WAL en draaide de DDL plus de kolom-migraties — en meldde
+  // daarna "niets geschreven". Juist een dry-run gebruik je om een verdacht bestand veilig
+  // te proberen, dus die melding moet waar zijn.
+  const db = (open = DROOG && existsSync(DB_PAD)
+    ? new Database(DB_PAD, { readonly: true })
+    : DROOG
+      ? null
+      : new Database(DB_PAD))
+  if (db && !DROOG) {
+    db.pragma('journal_mode = WAL')
+    db.exec(SCHEMA_DDL)
+    pasKolomMigratiesToe(db)
+  }
 
   const nu = new Date().toISOString()
   const naam = basename(pad)
 
+  const heeftTabel =
+    db !== null &&
+    db.prepare(`SELECT count(*) AS n FROM sqlite_master WHERE type='table' AND name='csv_prospects'`).get().n > 0
   const bestaand = new Set(
-    db.prepare('SELECT enterprise_number FROM csv_prospects').all().map((r) => r.enterprise_number)
+    heeftTabel ? db.prepare('SELECT enterprise_number FROM csv_prospects').all().map((r) => r.enterprise_number) : []
   )
 
-  const schrijf = db.prepare(`
+  const schrijf = DROOG ? null : db.prepare(`
     INSERT INTO csv_prospects (
       enterprise_number, name, nace_label, city, employee_count, ebitda,
       valuation_multiple, enterprise_value, equity_value, bestandsnaam, imported_at
@@ -129,7 +145,7 @@ async function main() {
       // vorm, dus een rij die hier doorglipt levert later een 400 op de statusdropdown
       // zonder dat de lijst iets verraadt.
       fout(`rij ${nr}: "${obj[KOLOMMEN.enterpriseNumber]}" is geen tiencijferig ondernemingsnummer`)
-      db.close()
+      db?.close()
       return 1
     }
 
@@ -149,9 +165,18 @@ async function main() {
       })
     } catch (e) {
       fout(`rij ${nr} (${nummer}): ${e.message}`)
-      db.close()
+      db?.close()
       return 1
     }
+  }
+
+  // De kopregel-controle zit ín de rij-lus, dus een bestand zonder datarijen passeert hem
+  // nooit — en meldde daardoor succes op een export die niets van de verwachte structuur
+  // had. Nul rijen is geen geldige import.
+  if (rijen.length === 0) {
+    fout(`${naam}: geen datarijen gevonden — is dit het juiste bestand?`)
+    db?.close()
+    return 1
   }
 
   const dubbel = rijen.length - new Set(rijen.map((r) => r.nummer)).size
@@ -159,7 +184,7 @@ async function main() {
     // Niet stil laten samenvallen: bij een dubbel nummer wint de laatste rij en verdwijnt
     // de eerste zonder spoor, terwijl de teller wél 218 blijft zeggen.
     fout(`${dubbel} dubbel(e) ondernemingsnummer(s) in het bestand — de bron is niet uniek`)
-    db.close()
+    db?.close()
     return 1
   }
 
@@ -168,7 +193,7 @@ async function main() {
   if (DROOG) {
     ok(`${naam}: ${rijen.length} rijen gelezen — ${nieuw} nieuw, ${rijen.length - nieuw} bestaand`)
     ok('--dry-run: niets geschreven')
-    db.close()
+    db?.close()
     return 0
   }
 
@@ -183,4 +208,19 @@ async function main() {
   return 0
 }
 
-process.exit(await main())
+/**
+ * `csvObjecten` gooit bij een rij met een ander aantal velden dan de kopregel — de meest
+ * waarschijnlijke echte fout bij een volgende export (kolom erbij of eraf). Die throw
+ * ontsnapte als unhandled rejection: rauwe stacktrace in plaats van de `✗`-melding, en de
+ * database bleef open. Hier gevangen, zodat élk foutpad dezelfde vorm heeft.
+ */
+let code
+try {
+  code = await main()
+} catch (e) {
+  fout(e instanceof Error ? e.message : String(e))
+  code = 1
+} finally {
+  try { open?.close() } catch {}
+}
+process.exit(code)

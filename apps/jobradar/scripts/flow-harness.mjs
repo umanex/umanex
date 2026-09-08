@@ -181,10 +181,27 @@ async function toetsenbord(page, maxStops = 80) {
   return { stops: volgorde.length, volgorde, problemen };
 }
 
+/** De dev-poort van deze app. Serveert die, dan deelt hij `.next` met onze build. */
+const DEV_PORT = 3003;
+
 async function main() {
   if (!(await portFree(PORT))) {
     console.error(`✗ Poort ${PORT} is bezet. Deze harness start zijn eigen server en mag`);
     console.error(`  nooit een draaiend proces overnemen. Stop dat proces of geef --port=<vrij>.`);
+    process.exit(2);
+  }
+
+  // PATCH, geen wortelfix. De echte oorzaak is dat deze harness in de gedeelde `.next`
+  // bouwt: `next build` maakt die map eerst leeg, dus een dev-server op 3003 die eruit
+  // serveert geeft daarna een witte pagina. De wortelfix is een eigen build-map, zoals
+  // `apps/cashflow/next.config.mjs` die heeft (`distDir: process.env.NEXT_DIST_DIR ??
+  // '.next'`) — dat raakt een configbestand en wacht op akkoord.
+  // TODO: vervang deze check door NEXT_DIST_DIR zodra next.config.mjs aangepast mag worden.
+  //       Staat als item in apps/jobradar/BACKLOG.md.
+  if (!(await portFree(DEV_PORT))) {
+    console.error(`✗ Er luistert iets op ${DEV_PORT} — vermoedelijk \`pnpm --filter jobradar dev\`.`);
+    console.error(`  Deze harness bouwt in dezelfde \`.next\`, en \`next build\` maakt die map eerst`);
+    console.error(`  leeg. Die dev-server zou daarna een witte pagina serveren. Stop hem eerst.`);
     process.exit(2);
   }
 
@@ -351,10 +368,24 @@ async function main() {
         // de herkomst is een segmented control uit knoppen — dus de select-interactie
         // eerder in deze run verhuist er niet stil naartoe.
         if (body?.staat?.soort !== 'ontbreekt') {
-          const groep = page.locator('[role="radiogroup"][aria-label="Herkomst van de prospect"]');
-          if (!(await groep.count())) {
-            fail('prospects: geen herkomst-filter gevonden');
+          // Ankeren op de ROL binnen het zichtbare paneel, niet op één attribuut: de groep
+          // werd van `aria-label` naar `aria-labelledby` verbouwd, en een selector op het
+          // oude attribuut vond hem toen niet meer. De rol is wat het ding ís; het label is
+          // een bewering erover. Tellen hoort erbij — één radiogroup, niet "minstens één".
+          const groep = page.locator('[role="tabpanel"]:visible [role="radiogroup"]');
+          const aantalGroepen = await groep.count();
+          if (aantalGroepen !== 1) {
+            fail(`prospects: ${aantalGroepen} radiogroup(s) in het paneel, verwacht 1`);
           } else {
+            // Een groep zonder toegankelijke naam is voor een schermlezer naamloos.
+            const naam = await groep.evaluate((el) => {
+              const via = el.getAttribute('aria-labelledby');
+              return via
+                ? (document.getElementById(via)?.textContent ?? '').trim()
+                : (el.getAttribute('aria-label') ?? '').trim();
+            });
+            if (naam) ok(`prospects: de herkomst-groep heet "${naam}"`);
+            else fail('prospects: de herkomst-groep heeft geen toegankelijke naam');
             const gekozen = await groep.locator('[role="radio"][aria-checked="true"]').innerText();
             if (gekozen.trim() === 'Beide') ok('prospects: herkomst staat standaard op "Beide"');
             else fail(`prospects: herkomst staat bij het laden op "${gekozen.trim()}", verwacht "Beide"`);

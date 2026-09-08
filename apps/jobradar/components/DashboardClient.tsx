@@ -73,6 +73,9 @@ export function DashboardClient({
   const [sortering, setSortering] = useState<Sortering>('oprichting')
   // CSV-rijen zonder KBO-tegenhanger. Ze kunnen niet in de lijst staan; ze worden gemeld.
   const [zonderKbo, setZonderKbo] = useState(0)
+  // Ongefilterd rijaantal in csv_prospects: onderscheidt "nog niets geïmporteerd" van
+  // "wel geïmporteerd, maar je filters laten niets over". Null zolang er niets opgehaald is.
+  const [csvTotaal, setCsvTotaal] = useState<number | null>(null)
   const vandaag = new Date().toISOString().slice(0, 10)
 
   // De ondernemingsnummers die al als lead bestaan. Hiermee kan een prospectkaart tonen dat
@@ -154,6 +157,7 @@ export function DashboardClient({
         setProspectTotaal(data.totaal)
         setProspectPaginas(data.paginas)
         setZonderKbo(data.zonderKbo ?? 0)
+        setCsvTotaal(data.csvTotaal ?? 0)
         setSpiegel(data.staat)
       } catch (e) {
         // Een afgebroken verzoek is geen fout: dat is een filter die sneller wisselde dan
@@ -365,9 +369,9 @@ export function DashboardClient({
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="prospect-sortering" className="text-sm text-muted-foreground">
+                <Label htmlFor="prospect-sortering" className="cursor-pointer text-sm">
                   Sorteer
-                </label>
+                </Label>
                 <select
                   id="prospect-sortering"
                   value={sortering}
@@ -386,6 +390,18 @@ export function DashboardClient({
                 </p>
               </div>
             </div>
+
+            {/* De filters hierboven veranderen de lijst zonder dat de focus verspringt, dus
+                zonder live region hoort een schermlezergebruiker alleen "aangevinkt" en
+                niet dat de lijst van 2.939 naar 171 ging. Zelfde motivering als de
+                aria-live bij de doorklik vanaf een lead. */}
+            <p aria-live="polite" className="sr-only">
+              {prospectBezig
+                ? 'Bezig met laden'
+                : `${prospectTotaal} prospect${prospectTotaal === 1 ? '' : 's'}` +
+                  (alleenWinstgevend ? ', alleen winstgevende bedrijven uit de aangeleverde lijst' : '') +
+                  (zonderKbo > 0 ? `, ${zonderKbo} buiten de KBO-spiegel` : '')}
+            </p>
 
             {/* Twee meldingen die een gevolg van de filters uitleggen in plaats van het stil
                 te laten gebeuren. Beide staan boven de lijst, niet in plaats ervan. */}
@@ -414,9 +430,11 @@ export function DashboardClient({
                 message={
                   spiegel?.soort === 'ontbreekt'
                     ? 'Zonder spiegel valt er niets te tonen — ook een geïmporteerde lijst niet, want die wordt aan de spiegel gekoppeld.'
-                    : herkomst === 'csv'
+                    : herkomst === 'csv' && csvTotaal === 0
                       ? 'Nog niets uit een aangeleverde lijst. Draai pnpm --filter jobradar prospects:import <pad.csv> om er een in te lezen.'
-                      : alleenWerkgevers
+                      : herkomst === 'csv'
+                        ? `De aangeleverde lijst telt ${csvTotaal} ${csvTotaal === 1 ? 'bedrijf' : 'bedrijven'}, maar geen enkele binnen je huidige filters — pas regio, zoekterm of de zeven aan.`
+                        : alleenWerkgevers
                       ? 'Geen prospects binnen je huidige filters. Zet "Alleen met personeel" uit om ook eenmanszaken te zien.'
                       : 'Geen prospects binnen je huidige filters — pas regio of zoekterm aan.'
                 }

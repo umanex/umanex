@@ -23,8 +23,21 @@ import { dirname, resolve as resolvePath } from 'node:path'
 // zodat een echte ontbrekende module nog steeds een echte fout geeft.
 const KANDIDATEN = ['.ts', '.tsx', '/index.ts', '/index.tsx']
 
+// `server-only` weigert per constructie te laden buiten een server-component-bundel, en
+// dat sloot élke module die hem importeert uit van de invarianten — `lib/kbo/spiegel.ts`
+// dus. Precies daar kwam de fout die dit bestand nu testbaar maakt: de tak die een
+// ontbrekende app-database moest opvangen schreef via een readonly verbinding en gooide
+// altijd, ongedekt omdat geen enkele suite die module kón importeren.
+//
+// De stub is leeg en raakt alleen scripts die déze loader gebruiken; de Next-build lost
+// `server-only` gewoon zelf op en ziet hier niets van.
+const SERVER_ONLY_STUB = 'data:text/javascript,export {}'
+
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    if (specifier === 'server-only') {
+      return { url: SERVER_ONLY_STUB, shortCircuit: true }
+    }
     if (specifier.startsWith('.') && !/\.[cm]?[jt]sx?$/.test(specifier)) {
       const ouder = context.parentURL ? dirname(fileURLToPath(context.parentURL)) : process.cwd()
       for (const ext of KANDIDATEN) {
