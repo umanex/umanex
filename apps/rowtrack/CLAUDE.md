@@ -207,6 +207,19 @@ niets, terwijl het document wél gebouwd is. Zet je uitkomst dus in
 `figma/bouw-batch.js` doet allebei: hij zet `bouwbezig` bij de start, `bouwresultaat` bij het
 einde, en weigert te starten zolang `bouwbezig` gevuld is.
 
+**De app-achtergrond hoort achter de component, niet erin.** De wrapper kreeg tot 2026-09-08
+`Theme/bg/base` als eigen vulling zodat alpha-kleuren tegen de app-achtergrond lezen in plaats
+van tegen Figma's grijze canvas. Voor een bewijsstuk klopt dat; voor een library niet, want die
+vulling reist mee naar élke instance. Gemeten: een Button-instance in `RowTrack - Design` gaf
+`instanceFills: 1` — een ondoorzichtig donker vlak om de knop. Dat de SET in het bronbestand een
+nette achtergrond heeft helpt daar niets: **alleen de vulling van de variant zélf reist mee**.
+
+Per geval: een variant in een set krijgt `fills = []` (de set is een frame en schildert
+erachter), een losse component krijgt `fills = []` plus een gebonden `achtergrond`-rechthoek
+erachter. `page.backgrounds` is géén optie — die accepteert geen variabele (*"in
+set_backgrounds: page backgrounds cannot be bound to variables"*, gemeten), dus dat zou de
+achtergrond een hardcoded hex maken. De `[instancevulling]`-as in `figma:check` bewaakt het.
+
 **Een library-component importeren duurt langer dan de wachtlimiet.** Gemeten 2026-09-08, drie
 keer op rij, ná een geslaagde publicatie: `figma.importComponentSetByKeyAsync(<key van Button>)`
 in `RowTrack - Design` liep elke keer over de 30 s, terwijl de variabelen van diezelfde library
@@ -235,8 +248,8 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 | Capability | Commando / status |
 |---|---|
 | **Componenten vastleggen** | `pnpm --filter rowtrack build-storybook` + `pnpm --filter rowtrack render:sweep` — rendert álle 197 stories in Chromium en telt console-fouten én lege renders. Dit is het enige render-pad dat zonder simulator werkt. Een geslaagde build zegt hier niets: gemeten 2026-09-07 gaf `storybook build` exit 0 terwijl 26 stories leeg renderden. |
-| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — twaalf assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster, herkomst van de laagnamen). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
-| **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus vijf controle-mutaties waarop hij hoort te zwijgen. Stand 2026-09-08: 23/23. |
+| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — dertien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster, herkomst van de laagnamen, instancevulling). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
+| **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus zes controle-mutaties waarop hij hoort te zwijgen. Stand 2026-09-08: 26/26. |
 | **Builder-poort tegenproef** | `pnpm --filter rowtrack figma:poort:selftest` — haalt `poort` en `bouwhash` letterlijk uit `figma/builder.js` en draait ze tegen stub-nodes: weigert op publicatie en op handwerk, zwijgt op positie en subpixel-ruis. De poort draait in de plugin en is dus niet vanaf de commandoregel aan te roepen; dit is de enige manier om hem groen én rood te zien. |
 | **Figma ↔ browser (maten)** | `pnpm --filter rowtrack parity` — legt per variant-node hoogte, breedte, horizontale padding, gap, radius, randbreedte en opacity naast elkaar. Vereist `figma/geometry.figma.json`; recept hieronder. |
 | **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. Weigert te schrijven zodra één component nul varianten oplevert (exit 2, spec ongewijzigd): een mislukte meting die tóch wegschrijft, vervangt een goede spec door een lege. |
@@ -329,6 +342,14 @@ for (const p of figma.root.children) {
       // builder gemaakt en vervangt een herbouw werk van onbekende herkomst.
       publishStatus: typeof hoofd.getPublishStatusAsync === "function" ? await hoofd.getPublishStatusAsync() : null,
       bouwhash: hoofd.getPluginData ? (hoofd.getPluginData("bouwhash") || null) : null,
+      // Slots. Een set zonder component properties buiten zijn variant-assen is een
+      // transcriptie, geen bruikbaar component.
+      componentProperties: hoofd.componentPropertyDefinitions ? Object.keys(hoofd.componentPropertyDefinitions) : null,
+      // Voeding voor de [instancevulling]-as. Een eigen vulling op een VARIANT of op een losse
+      // COMPONENT reist mee naar elke instance; op de SET niet.
+      eigenVulling: Array.isArray(hoofd.fills) ? hoofd.fills.length : 0,
+      variantenMetVulling: hoofd.type === "COMPONENT_SET"
+        ? hoofd.children.filter(v => Array.isArray(v.fills) && v.fills.length).length : null,
       variantProperties: hoofd.type === "COMPONENT_SET" ? hoofd.variantGroupProperties : null,
       varianten: hoofd.type === "COMPONENT_SET" ? hoofd.children.map(v => ({ name: v.name, id: v.id })) : null,
     } : null,

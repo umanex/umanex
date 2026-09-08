@@ -261,13 +261,60 @@ async function maak(n, naamPad) {
 }
 
 /** Wrapper op de app-achtergrond: alpha-kleuren lezen anders op Figma's witte canvas. */
+/**
+ * De app-achtergrond hoort ACHTER de component, niet erin.
+ *
+ * Tot 2026-09-08 kreeg elke variant-component hier `bg/base` als eigen vulling, zodat
+ * alpha-kleuren in dit bestand tegen de app-achtergrond lezen in plaats van tegen Figma's
+ * grijze canvas. Dat klopt voor een bewijsstuk en is fout voor een library: die vulling reist
+ * mee naar élke instance. Gemeten in `RowTrack - Design`: een Button-instance uit de library
+ * gaf `instanceFills: 1` — een ondoorzichtig donker vlak om de knop, ook al is de
+ * set-achtergrond in dít bestand netjes. De set-vulling komt niet mee met een variant.
+ *
+ * De achtergrond staat nu op de SET (die schildert achter zijn varianten en reist niet mee)
+ * of op een `achtergrond`-rechthoek achter een losse component. Zelfde beeld hier,
+ * transparante instance daar. Parity raakt dit niet: die meet het KIND van de wrapper.
+ */
 function wrapper(naam, w, h) {
   const c = figma.createComponent();
   c.name = naam;
   c.resize(Math.max(0.01, w), Math.max(0.01, h));
-  const p = { type: 'SOLID', color: { r: 0.0824, g: 0.0902, b: 0.1098 } };
-  c.fills = BG ? [figma.variables.setBoundVariableForPaint(p, 'color', BG)] : [p];
+  c.fills = [];
   return c;
+}
+
+/** Een gebonden paint met de app-achtergrond. */
+function bgPaint() {
+  const p = { type: 'SOLID', color: { r: 0.0824, g: 0.0902, b: 0.1098 } };
+  return BG ? figma.variables.setBoundVariableForPaint(p, 'color', BG) : p;
+}
+
+/**
+ * Een achtergrondvlak ACHTER een losse component, voor pagina's zonder component set.
+ *
+ * Een COMPONENT_SET is zelf een frame en schildert zijn vulling achter zijn varianten, dus
+ * daar volstaat de set. Een losse component heeft die ouder niet en zou op Figma's grijze
+ * canvas staan, waar alpha-kleuren verkeerd lezen.
+ *
+ * Waarom geen `page.backgrounds`: die accepteert geen variabele — *"in set_backgrounds: page
+ * backgrounds cannot be bound to variables"*, gemeten 2026-09-08. Dat zou de app-achtergrond
+ * een hardcoded hex maken, precies wat de tokenregel verbiedt. Een RECTANGLE bindt wél.
+ */
+function achtergrondVlak(page, doelen) {
+  const marge = 48;
+  const x0 = Math.min(...doelen.map(d => d.x)) - marge;
+  const y0 = Math.min(...doelen.map(d => d.y)) - marge;
+  const x1 = Math.max(...doelen.map(d => d.x + d.width)) + marge;
+  const y1 = Math.max(...doelen.map(d => d.y + d.height)) + marge;
+  const r = figma.createRectangle();
+  r.name = 'achtergrond';
+  r.x = x0; r.y = y0;
+  r.resize(Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+  r.fills = [bgPaint()];
+  r.locked = true;
+  page.appendChild(r);
+  page.insertChild(0, r);      // achter alles
+  return r;
 }
 
 /**
@@ -353,8 +400,9 @@ for (const [comp, d] of Object.entries(SPEC)) {
   if (!isScherm && Object.keys(d.assen ?? {}).length) {
     hoofd = figma.combineAsVariants(comps, page);
     hoofd.name = comp;
-    const p = { type: 'SOLID', color: { r: 0.0824, g: 0.0902, b: 0.1098 } };
-    hoofd.fills = BG ? [figma.variables.setBoundVariableForPaint(p, 'color', BG)] : [p];
+    // De SET houdt zijn gebonden vulling: die schildert achter de varianten in dit bestand
+    // en reist NIET mee naar een instance — alleen de vulling van de variant zelf doet dat.
+    hoofd.fills = [bgPaint()];
   } else if (isScherm) {
     hoofd.name = items[0].naam;
   }
@@ -381,6 +429,9 @@ for (const [comp, d] of Object.entries(SPEC)) {
   hoofd.description = isScherm
     ? `→ apps/rowtrack/components/${comp === 'ActivePhase' || comp === 'IdlePhase' ? 'workout/' : ''}${comp}.tsx\nScherm: representatieve frames, geen component set. Assen bewust afgeschreven — statusenums zijn in beeld niet orthogonaal.`
     : `→ apps/rowtrack/components/${comp}.tsx\nGegenereerd uit de Storybook-render; niet met de hand bewerken.`;
+  // Geen set op deze pagina? Dan is er geen ouder-frame dat de app-achtergrond schildert.
+  if (hoofd.type !== 'COMPONENT_SET') achtergrondVlak(page, page.children.filter(c => c.type === 'COMPONENT'));
+
   // Vingerafdruk vastleggen op elke pagina-kind, zodat de poort bij de volgende run
   // handwerk kan onderscheiden van "nog precies zoals ik hem achterliet".
   // Een lijst en geen map op naam: twee nodes op één pagina mogen dezelfde naam dragen
@@ -388,6 +439,7 @@ for (const [comp, d] of Object.entries(SPEC)) {
   // op naam laat er dan stil één vallen.
   const hashes = [];
   for (const kind of page.children) {
+    if (kind.name === 'achtergrond' && kind.type === 'RECTANGLE') continue;
     const h = bouwhash(kind);
     kind.setPluginData('bouwhash', h);
     kind.setPluginData('gebouwdOp', STAMP);

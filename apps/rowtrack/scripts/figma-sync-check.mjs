@@ -379,6 +379,34 @@ else {
   if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);
 }
 
+// ---- 11. Instancevulling: wat reist er mee naar een instance? ----------------
+// Een eigen vulling op een VARIANT of op een losse COMPONENT komt mee zodra iemand de
+// component in een ander bestand plaatst. Op een COMPONENT_SET komt hij NIET mee — die is een
+// frame dat achter zijn varianten schildert. Dat verschil is aan de laag niet te zien en
+// kostte deze library een ondoorzichtig donker vlak om elke geplaatste knop (gemeten
+// 2026-09-08: `instanceFills: 1` op een Button-instance in RowTrack - Design).
+if (!manifest) sla('instancevulling', 'geen manifest');
+else if (Object.values(manifest.pages).every(p => p.primary && p.primary.eigenVulling === undefined))
+  sla('instancevulling', 'manifest draagt geen vullingsvelden — ververs met het schema-3-recept');
+else {
+  const fout = [];
+  for (const [naam, p] of Object.entries(manifest.pages)) {
+    if (!p.primary) continue;
+    if (p.primary.type === 'COMPONENT_SET') {
+      if (p.primary.variantenMetVulling)
+        fout.push(`${naam}: ${p.primary.variantenMetVulling} variant(en) met een eigen vulling — die reist mee naar elke instance`);
+    } else if (p.primary.eigenVulling) {
+      fout.push(`${naam}: losse component met een eigen vulling — zet hem op een achtergrond-rechthoek erachter`);
+    }
+  }
+  if (fout.length) for (const f of fout) fail('instancevulling', f);
+  else {
+    const sets = Object.values(manifest.pages).filter(p => p.primary?.type === 'COMPONENT_SET');
+    ok('instancevulling', `${sets.length} sets en ${Object.values(manifest.pages).length - sets.length} losse componenten: `
+      + 'geen enkele variant of losse component draagt een eigen vulling, dus een instance komt transparant mee');
+  }
+}
+
 // ---- Rapport ----------------------------------------------------------------
 console.log('figma-sync-check — apps/rowtrack ↔ Figma "%s" (%s)\n',
   manifest?.fileName ?? '?', manifest?.fileKey ?? '?');
@@ -394,7 +422,8 @@ if (fails.length) {
 }
 console.log(`\n${checks.length} checks groen — dekking, pagina's, variant-assen, variant-nodes, tokennamen,`);
 console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden, het aantal ongebonden');
-console.log('waarden, het publicatievenster en de herkomst van de laagnamen.');
+console.log('waarden, het publicatievenster, de herkomst van de laagnamen en wat er met een');
+console.log('instance meereist.');
 console.log('Niet gemeten: of Figma er hetzelfde UITZIET als de browser (dat is `pnpm --filter rowtrack parity`),');
 console.log('wat de bouwspec afkapte (voorbij diepte 4 of 8 broers), en elke Figma-wijziging sinds '
   + (manifest?.gegenereerd ?? 'de laatste ververs') + '.');
