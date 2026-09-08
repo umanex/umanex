@@ -451,9 +451,16 @@
    "assen": {},
    "uitgesloten": {},
    "variantNodes": 1
+  },
+  "SubtitleProgress": {
+   "storyId": "componenten-subtitleprogress--playground",
+   "titel": "Componenten/SubtitleProgress",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
   }
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 596
+ "totaalVariantNodes": 597
 }

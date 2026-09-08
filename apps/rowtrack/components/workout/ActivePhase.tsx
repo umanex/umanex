@@ -18,6 +18,7 @@ import type { WorkoutGoal } from '@/lib/workout-goals';
 import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
 import { GoalPill } from './active/GoalPill';
+import { SubtitleProgress } from './active/SubtitleProgress';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
 import { formatTimer, formatTimerFull, formatSplit, formatDistanceDynamic, formatInt, formatDecimal, correctSpm } from '@/lib/formatters';
@@ -146,18 +147,6 @@ export function ActivePhase({
     let fillPct = 0;
     let fillKind: FillKind = 'none';
 
-    // Subtitle-rij voor duration/distance: verstreken waarde · divider · "{n}%" (floor).
-    // Twee gelijk-brede kolommen (flex:1) met de linkerwaarde rechts- en de rechter-
-    // waarde links-uitgelijnd, zodat de cijfers naar buiten groeien en de 2px-divider
-    // statisch gecentreerd blijft bij wisselende live-cijfers (Figma 391:2436).
-    const progressRow = (left: string, p: number) => (
-      <View style={activeStyles.subtitleRow}>
-        <Text style={[activeStyles.subtitleText, activeStyles.subtitleValueLeft]}>{left}</Text>
-        <View style={activeStyles.subtitleDivider} />
-        <Text style={[activeStyles.subtitleText, activeStyles.subtitleValueRight]}>{`${Math.floor(p * 100)}%`}</Text>
-      </View>
-    );
-
     switch (goalType) {
       case 'duration': {
         const target = goal!.target;
@@ -166,7 +155,7 @@ export function ActivePhase({
         heroLabel = t.workout.active.remainingTime;
         heroText = formatTimer(Math.max(0, target - seconds));
         subLabel = t.workout.active.covered;
-        subtitle = progressRow(formatTimer(seconds), fillPct);
+        subtitle = <SubtitleProgress left={formatTimer(seconds)} pct={fillPct} />;
         break;
       }
       case 'distance': {
@@ -176,7 +165,7 @@ export function ActivePhase({
         heroLabel = t.workout.active.remainingDistance;
         heroText = formatInt(Math.max(0, target - distanceMeters));
         subLabel = t.workout.active.covered;
-        subtitle = progressRow(`${formatInt(distanceMeters)} m`, fillPct);
+        subtitle = <SubtitleProgress left={`${formatInt(distanceMeters)} m`} pct={fillPct} />;
         break;
       }
       case 'split': {
@@ -714,28 +703,6 @@ const activeStyles = StyleSheet.create({
   subtitleSentence: {
     paddingHorizontal: space['20'],
     textAlign: 'center',
-  },
-  subtitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    gap: space['20'],
-  },
-  // Linkerwaarde rechts-uitgelijnd, rechterwaarde links-uitgelijnd; elk flex:1 (gelijke
-  // kolommen) zodat de divider ertussen statisch blijft bij wisselende cijfers.
-  subtitleValueLeft: {
-    flex: 1,
-    textAlign: 'right',
-  },
-  subtitleValueRight: {
-    flex: 1,
-    textAlign: 'left',
-  },
-  subtitleDivider: {
-    width: 2,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: fg.tertiary,
   },
   // Progress-bar horizontaal (portrait): full-bleed 4px.
   barTrackH: {
