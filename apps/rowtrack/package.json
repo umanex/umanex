@@ -19,7 +19,8 @@
     "figma:check:selftest": "node scripts/figma-sync-selftest.mjs",
     "parity": "node scripts/geometry-parity.mjs",
     "render:sweep": "node scripts/render-sweep.mjs",
-    "parity:selftest": "node scripts/geometry-parity.mjs --selftest"
+    "parity:selftest": "node scripts/geometry-parity.mjs --selftest",
+    "figma:poort:selftest": "node scripts/figma-poort-selftest.mjs"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",

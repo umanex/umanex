@@ -168,6 +168,28 @@ als bij een server die niet draait. Ik trok daar eerst de verkeerde conclusie ui
 gestopt was: twee onafhankelijke oorzaken, één symptoom. Toets dus altijd eerst met `curl` dat
 de server leeft én dat hij op een toegestane poort staat.
 
+**Waarvoor dit bestand dient, en wat dat kost.** `RowTrack -  Design System`
+(`QkRgMc7Quqtbow71DiYa1n`) is **gepubliceerd als library** en hangt als asset in
+`RowTrack - Design` (`T1bGrvIzSNeLyh5CbarATZ`), waar Jeroen op de pagina *Screens v2* schermen
+uit de componenten samenstelt. Dat maakt het bestand een **bron voor compositie**, niet enkel
+een bewijsstuk. Het verschil is niet cosmetisch: de builder leegt elke pagina en maakt de nodes
+opnieuw, en een nieuwe node heeft een nieuwe key — elke instance die iemand eruit plaatste raakt
+dan ontkoppeld. Gemeten 2026-09-08: na de vorige herbouw stonden alle 33 componenten op
+`UNPUBLISHED`, precies omdat ze vervangen waren.
+
+**Daarom staat er een poort vóór het legen.** `figma/builder.js` weigert een pagina te legen
+zodra een van beide waar is:
+
+- een kind is **gepubliceerd** (`getPublishStatusAsync() !== 'UNPUBLISHED'`);
+- een kind is **met de hand gewijzigd** — de builder legt na elke bouw een `bouwhash` in
+  `setPluginData`, en die wordt bij de volgende run hertoetst tegen de live node. De hash draagt
+  type, naam, afgeronde maat en tekstinhoud; positie en subpixel-ruis zitten er bewust niet in,
+  anders meldt élke herbouw handwerk en is de poort binnen een week uitgezet.
+
+De enige ontsnapping is `SPEC.__force = true`, en die hoort **zichtbaar in de aanroep** te staan
+— nooit stil gezet. Geforceerd overschrijven komt in `meldingen` terecht met de reden erbij.
+Tegenproef: `pnpm --filter rowtrack figma:poort:selftest`.
+
 **Volgorde die niet omgekeerd mag.** Na élke Figma-bouw: **eerst het manifest verversen, dan
 pas `figma:links` en `figma:check`.** Een herbouw geeft elke node een nieuwe id. Gemeten
 2026-09-08: na een herbouw waren 29 van de 33 primary-ids veranderd, terwijl `figma:check`
@@ -186,8 +208,9 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 | Capability | Commando / status |
 |---|---|
 | **Componenten vastleggen** | `pnpm --filter rowtrack build-storybook` + `pnpm --filter rowtrack render:sweep` — rendert álle 197 stories in Chromium en telt console-fouten én lege renders. Dit is het enige render-pad dat zonder simulator werkt. Een geslaagde build zegt hier niets: gemeten 2026-09-07 gaf `storybook build` exit 0 terwijl 26 stories leeg renderden. |
-| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — tien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
-| **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus twee controle-mutaties waarop hij hoort te zwijgen. |
+| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — elf assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
+| **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus drie controle-mutaties waarop hij hoort te zwijgen. |
+| **Builder-poort tegenproef** | `pnpm --filter rowtrack figma:poort:selftest` — haalt `poort` en `bouwhash` letterlijk uit `figma/builder.js` en draait ze tegen stub-nodes: weigert op publicatie en op handwerk, zwijgt op positie en subpixel-ruis. De poort draait in de plugin en is dus niet vanaf de commandoregel aan te roepen; dit is de enige manier om hem groen én rood te zien. |
 | **Figma ↔ browser (maten)** | `pnpm --filter rowtrack parity` — legt per variant-node hoogte, breedte, horizontale padding, gap, radius, randbreedte en opacity naast elkaar. Vereist `figma/geometry.figma.json`; recept hieronder. |
 | **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. |
 | **Render vastleggen** | `xcrun simctl io booted screenshot <pad>.png` — werkt. Nooit een UDID hardcoden, die verandert; `booted` is stabiel. Op het fysieke toestel: geen automatisch pad, screenshot met de hand. |
@@ -238,7 +261,7 @@ Lees een node die in deze sessie bewerkt is **altijd** via de runtime (`figma_ex
 verse edit per definitie stale.
 
 ```js
-// figma_execute — levert figma/manifest.json (schema 2)
+// figma_execute — levert figma/manifest.json (schema 3)
 if (figma.fileKey !== "QkRgMc7Quqtbow71DiYa1n") return { fout: "verkeerde file: " + figma.fileKey };
 await figma.loadAllPagesAsync();
 
@@ -273,6 +296,11 @@ for (const p of figma.root.children) {
     pageId: p.id,
     primary: hoofd ? {
       name: hoofd.name, id: hoofd.id, type: hoofd.type,
+      // publishStatus en bouwhash voeden de [publicatie]-as. `bouwhash` schrijft de builder
+      // zelf; staat hij er niet op een gepubliceerde node, dan is die node niet door de
+      // builder gemaakt en vervangt een herbouw werk van onbekende herkomst.
+      publishStatus: typeof hoofd.getPublishStatusAsync === "function" ? await hoofd.getPublishStatusAsync() : null,
+      bouwhash: hoofd.getPluginData ? (hoofd.getPluginData("bouwhash") || null) : null,
       variantProperties: hoofd.type === "COMPONENT_SET" ? hoofd.variantGroupProperties : null,
       varianten: hoofd.type === "COMPONENT_SET" ? hoofd.children.map(v => ({ name: v.name, id: v.id })) : null,
     } : null,
@@ -282,7 +310,7 @@ for (const p of figma.root.children) {
 
 return {
   $comment: "Neergeslagen Figma-staat. NIET met de hand bewerken — ververs via apps/rowtrack/CLAUDE.md.",
-  schemaVersie: 2, fileKey: figma.fileKey, fileName: figma.root.name,
+  schemaVersie: 3, fileKey: figma.fileKey, fileName: figma.root.name,
   gegenereerd: new Date().toISOString().slice(0, 10),
   collections,
   textStyles: (await figma.getLocalTextStylesAsync()).map(t => ({

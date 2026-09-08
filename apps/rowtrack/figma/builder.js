@@ -33,6 +33,7 @@ const fontVan = (variant) => {
 const rgb = o => ({ r: o.r / 255, g: o.g / 255, b: o.b / 255 });
 const BG = V.get('Theme:bg/base');
 const meldingen = [];
+const STAMP = SPEC.__stamp || '';   // de aanroeper zet de datum; de plugin-sandbox heeft geen betrouwbare klok nodig
 
 /**
  * CSS-hoek -> Figma gradientTransform.
@@ -244,10 +245,68 @@ function wrapper(naam, w, h) {
   return c;
 }
 
+/**
+ * Vingerafdruk van een gebouwde deelboom. Bewust grof: type, naam, afgeronde maat en de
+ * tekstinhoud. Dat is genoeg om HANDWERK te zien (iets hernoemd, verplaatst, hertypt,
+ * toegevoegd of weggehaald) zonder rood te worden op subpixel-ruis die Figma zelf
+ * introduceert bij een herbouw.
+ */
+function bouwhash(node) {
+  const delen = [];
+  const stapel = [node];
+  while (stapel.length) {
+    const n = stapel.pop();
+    delen.push(`${n.type}|${n.name}|${Math.round(n.width)}x${Math.round(n.height)}` +
+               (n.type === 'TEXT' ? '|' + n.characters : ''));
+    if ('children' in n) stapel.push(...n.children);
+  }
+  // FNV-1a; geen crypto nodig, en deterministisch in de plugin-sandbox.
+  let h = 0x811c9dc5;
+  const str = delen.sort().join('\n');
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36) + ':' + delen.length;
+}
+
+/**
+ * De poort die vóór het legen van een pagina draait. Twee redenen om te weigeren, allebei
+ * gemeten op 2026-09-08:
+ *
+ *  · GEPUBLICEERD. De builder verwijdert elke node en maakt hem opnieuw; een nieuwe node
+ *    heeft een nieuwe key en is niet gepubliceerd. Alle 33 componenten stonden daardoor op
+ *    UNPUBLISHED, en elke instance die iemand uit de library had geplaatst zou gebroken zijn.
+ *    Sinds het bestand als library dient, is overschrijven dus niet meer gratis.
+ *  · HANDWERK. `description` zei al "niet met de hand bewerken", maar dat is een verzoek,
+ *    geen mechanisme. De bouwhash uit de vorige run maakt er een meting van.
+ *
+ * `SPEC.__force === true` is de enige ontsnapping, en die hoort zichtbaar in de aanroep te
+ * staan — nooit stil gezet.
+ */
+async function poort(page, comp, force) {
+  const bezwaren = [];
+  for (const kind of page.children) {
+    if (typeof kind.getPublishStatusAsync === 'function') {
+      const status = await kind.getPublishStatusAsync();
+      if (status !== 'UNPUBLISHED') bezwaren.push(`${comp}/${kind.name}: ${status} — herbouwen breekt elke instance die eruit geplaatst is`);
+    }
+    const vorige = typeof kind.getPluginData === 'function' ? kind.getPluginData('bouwhash') : '';
+    if (vorige) {
+      const nu = bouwhash(kind);
+      if (nu !== vorige) bezwaren.push(`${comp}/${kind.name}: met de hand gewijzigd sinds de laatste bouw (${vorige} -> ${nu})`);
+    }
+  }
+  if (bezwaren.length && !force) return bezwaren;
+  if (bezwaren.length && force) for (const b of bezwaren) meldingen.push(`GEFORCEERD OVERSCHREVEN — ${b}`);
+  return null;
+}
+
 const uit = [];
+const geweigerd = [];
 for (const [comp, d] of Object.entries(SPEC)) {
+  if (comp.startsWith('__')) continue;   // __force en andere vlaggen zijn geen component
   let page = figma.root.children.find(p => p.name === comp);
   if (!page) { page = figma.createPage(); page.name = comp; }
+  const bezwaren = await poort(page, comp, SPEC.__force === true);
+  if (bezwaren) { geweigerd.push(...bezwaren); continue; }
   for (const kind of [...page.children]) kind.remove();
 
   const isScherm = !!d.frames;
@@ -276,7 +335,21 @@ for (const [comp, d] of Object.entries(SPEC)) {
   hoofd.description = isScherm
     ? `→ apps/rowtrack/components/${comp === 'ActivePhase' || comp === 'IdlePhase' ? 'workout/' : ''}${comp}.tsx\nScherm: representatieve frames, geen component set. Assen bewust afgeschreven — statusenums zijn in beeld niet orthogonaal.`
     : `→ apps/rowtrack/components/${comp}.tsx\nGegenereerd uit de Storybook-render; niet met de hand bewerken.`;
+  // Vingerafdruk vastleggen op elke pagina-kind, zodat de poort bij de volgende run
+  // handwerk kan onderscheiden van "nog precies zoals ik hem achterliet".
+  // Een lijst en geen map op naam: twee nodes op één pagina mogen dezelfde naam dragen
+  // (gemeten in RowTrack - Design: twee keer `TabItem` op de pagina Components), en een map
+  // op naam laat er dan stil één vallen.
+  const hashes = [];
+  for (const kind of page.children) {
+    const h = bouwhash(kind);
+    kind.setPluginData('bouwhash', h);
+    kind.setPluginData('gebouwdOp', STAMP);
+    hashes.push({ naam: kind.name, id: kind.id, hash: h });
+  }
+
   uit.push({ component: comp, type: hoofd.type, id: hoofd.id, nodes: comps.length,
-             assen: hoofd.type === 'COMPONENT_SET' ? hoofd.variantGroupProperties : null });
+             assen: hoofd.type === 'COMPONENT_SET' ? hoofd.variantGroupProperties : null,
+             publishStatus: await hoofd.getPublishStatusAsync(), hashes });
 }
-return { gebouwd: uit, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
+return { gebouwd: uit, geweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };

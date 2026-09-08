@@ -12,7 +12,7 @@
  *
  * Gebruik: node scripts/figma-sync-selftest.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, utimesSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -42,6 +42,27 @@ function kopie() {
 }
 const lees = (m, p) => JSON.parse(readFileSync(join(m, p), 'utf8'));
 const schrijf = (m, p, o) => writeFileSync(join(m, p), JSON.stringify(o, null, 1));
+
+/**
+ * Breng de manifest-kopie op schema 3 en zet er een publicatietoestand op.
+ * `specDagenNieuwer` verzet de mtime van de bouwspec vooruit — dat is wat de guard leest,
+ * en het is de enige manier om het "spec is jonger dan Figma"-venster op te wekken zonder
+ * te wachten tot morgen.
+ */
+function schema3(m, { publiceer = 0, bouwhash = true, specDagenNieuwer = 0 } = {}) {
+  const x = lees(m, 'figma/manifest.json');
+  x.schemaVersie = 3;
+  const paginas = Object.values(x.pages).filter(p => p.primary);
+  for (const p of paginas) { p.primary.publishStatus = 'UNPUBLISHED'; p.primary.bouwhash = 'abc123:12'; }
+  for (const p of paginas.slice(0, publiceer)) {
+    p.primary.publishStatus = 'PUBLISHED';
+    if (!bouwhash) delete p.primary.bouwhash;
+  }
+  schrijf(m, 'figma/manifest.json', x);
+  const spec = join(m, 'figma/build-spec.min.json');
+  const t = new Date(x.gegenereerd + 'T12:00:00Z').getTime() / 1000 + specDagenNieuwer * 86400;
+  utimesSync(spec, t, t);
+}
 
 /**
  * Elke mutatie: wat hij kapotmaakt, en welke as daarop hoort af te gaan.
@@ -93,6 +114,19 @@ const MUTATIES = [
       const x = lees(m, 'figma/ongebonden.json');
       x.uniek.pop(); x.aantalUniek = x.uniek.length;
       schrijf(m, 'figma/ongebonden.json', x); } },
+
+  // --- publicatie-as: het manifest op schema 3 zetten en dan pas breken ----
+  // De echte figma/manifest.json staat nog op schema 2, dus de as slaat over op de ware
+  // invoer. Een mutatie die op een overgeslagen as mikt kan per constructie niet rood
+  // worden; daarom brengt elke mutatie hier eerst de invoer in de toestand waarin de as
+  // iets te zeggen heeft. De derde is de tegenhanger: dezelfde schema-3-invoer, maar
+  // gezond — die hoort de guard groen te laten.
+  { as: 'publicatie', wat: 'publiceer een component zonder bouwhash', doe: m => {
+      schema3(m, { publiceer: 2, bouwhash: false }); } },
+  { as: 'publicatie', wat: 'maak de bouwspec jonger dan de Figma-momentopname', doe: m => {
+      schema3(m, { publiceer: 2, bouwhash: true, specDagenNieuwer: 3 }); } },
+  { as: 'controle-publicatie', zwijgt: true, wat: 'gepubliceerd, mét bouwhash, spec niet jonger', doe: m => {
+      schema3(m, { publiceer: 2, bouwhash: true }); } },
 
   // --- controle-mutaties: velden die de guard NIET leest -------------------
   { as: 'controle-fileName', zwijgt: true, wat: 'hernoem het Figma-bestand', doe: m => {

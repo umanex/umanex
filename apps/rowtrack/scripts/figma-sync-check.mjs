@@ -20,7 +20,7 @@
  * Daarom noemt de slotregel de assen en het bereik, en niet "in sync": die zin claimt meer
  * dan de assen dragen (umanex-apps HANDOFF 2026-08-25).
  */
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -308,6 +308,47 @@ else {
   if (gaten.decoratiefGenegeerd) uitgesloten.push(`${gaten.decoratiefGenegeerd} confetti-nodes — gerandomiseerd (size = 6 + random*8), geen stabiel artefact`);
 }
 
+// ---- 9. Publicatie: een herbouw mag geen gepubliceerde node vervangen --------
+// De builder leegt elke pagina en maakt de nodes opnieuw. Een nieuwe node heeft een nieuwe
+// key, dus elke instance die iemand uit de library plaatste raakt ontkoppeld. Zolang niets
+// gepubliceerd is, is dat gratis; daarna niet meer. Deze as meet dat venster.
+//
+// Wat hij NIET kan zien: een publicatie van ná de laatste manifest-ververs. Het manifest is
+// de enige lokale neerslag van Figma, en CI heeft geen Figma-toegang. De volgorde uit
+// apps/rowtrack/CLAUDE.md (eerst verversen, dan checken) is daar de enige bescherming.
+if (!manifest) sla('publicatie', 'geen manifest');
+else if ((manifest.schemaVersie ?? 1) < 3)
+  sla('publicatie', `manifest schema ${manifest.schemaVersie ?? 1} kent geen publishStatus — ververs via apps/rowtrack/CLAUDE.md`);
+else {
+  const met = Object.entries(manifest.pages).filter(([, p]) => p.primary);
+  const gepubliceerd = met.filter(([, p]) => p.primary.publishStatus && p.primary.publishStatus !== 'UNPUBLISHED');
+  const zonderHerkomst = gepubliceerd.filter(([, p]) => !p.primary.bouwhash);
+
+  // De bouwspec is wat een herbouw ZOU bouwen. Is die jonger dan de Figma-momentopname,
+  // dan staat er ander werk klaar dan wat er in Figma staat — precies het moment waarop
+  // een herbouw gepubliceerde nodes vervangt.
+  const specPad = join(APP, 'figma/build-spec.min.json');
+  const specDatum = existsSync(specPad) ? statSync(specPad).mtime.toISOString().slice(0, 10) : null;
+  const manifestDatum = manifest.gegenereerd ?? null;
+  const specNieuwer = specDatum && manifestDatum && specDatum > manifestDatum;
+
+  if (zonderHerkomst.length)
+    fail('publicatie', `${zonderHerkomst.length} gepubliceerde component(en) zonder bouwhash — herkomst onbekend, `
+      + `een herbouw vervangt werk dat de builder niet gemaakt heeft: ${zonderHerkomst.map(([n]) => n).join(', ')}`);
+  if (gepubliceerd.length && specNieuwer)
+    fail('publicatie', `${gepubliceerd.length} gepubliceerde component(en) en de bouwspec (${specDatum}) is jonger dan `
+      + `de Figma-momentopname (${manifestDatum}) — herbouwen ontkoppelt elke instance. Ververs eerst het manifest.`);
+  if (!zonderHerkomst.length && !(gepubliceerd.length && specNieuwer)) {
+    if (!gepubliceerd.length)
+      ok('publicatie', `0 van ${met.length} componenten gepubliceerd — een herbouw kost hier nog niets`);
+    else
+      ok('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash, `
+        + `bouwspec (${specDatum}) niet jonger dan de momentopname (${manifestDatum})`);
+  }
+  if (gepubliceerd.length)
+    uitgesloten.push('publicatie ná de laatste manifest-ververs is lokaal onzichtbaar — CI heeft geen Figma-toegang');
+}
+
 // ---- Rapport ----------------------------------------------------------------
 console.log('figma-sync-check — apps/rowtrack ↔ Figma "%s" (%s)\n',
   manifest?.fileName ?? '?', manifest?.fileKey ?? '?');
@@ -322,7 +363,8 @@ if (fails.length) {
   process.exit(1);
 }
 console.log(`\n${checks.length} checks groen — dekking, pagina's, variant-assen, variant-nodes, tokennamen,`);
-console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden en het aantal ongebonden waarden.');
+console.log('tokenwaarden, typografie-herkomst, deep-links, hardcoded waarden, het aantal ongebonden waarden');
+console.log('en het publicatievenster.');
 console.log('Niet gemeten: of Figma er hetzelfde UITZIET als de browser (dat is `pnpm --filter rowtrack parity`),');
 console.log('wat de bouwspec afkapte (voorbij diepte 4 of 8 broers), en elke Figma-wijziging sinds '
   + (manifest?.gegenereerd ?? 'de laatste ververs') + '.');
