@@ -59,19 +59,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+d0373df fix(rowtrack): de app-achtergrond hoort achter de component, niet erin
 1e5e31c docs(rowtrack): de poort geweigerd gemeten, en de instance-toets als gat benoemd
 59d38ee docs(rowtrack): bewijs bij de twee afgeschreven acceptatie-assen
 10cf9a2 feat(rowtrack): slots als component properties, en de herbouw met leesbare laagnamen
 5e2e43d feat(rowtrack): laagnamen uit de code in plaats van de broer-index
-2a877ee feat(rowtrack): RowTrack - Design draait op de gepubliceerde library
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
-  A  apps/rowtrack/figma/achtergrond-naar-pagina.js
-  M  apps/rowtrack/figma/builder.js
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)
