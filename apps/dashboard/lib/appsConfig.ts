@@ -81,10 +81,15 @@ export const APPS: AppConfig[] = [
     // Metro, niet een Next.js-poort. Storybook draait apart op 6007.
     port: 8081,
     localUrl: null,
+    // Twee Figma-bestanden, en het verschil is niet uit de namen af te lezen:
+    // "Design System" is de library waar de componenten in staan en waar Storybook
+    // tegenaan hangt (33 stories dragen er een deep-link naartoe); "Design" is waar
+    // de effectieve schermen gebouwd worden, met instances uit die library. Een kale
+    // "Figma"-link zou dus de helft van de tijd de verkeerde openen.
     links: [
       { label: 'Storybook', href: 'http://localhost:6007' },
-      // Bron: apps/rowtrack/figma-map.md
-      { label: 'Figma', href: 'https://www.figma.com/design/T1bGrvIzSNeLyh5CbarATZ/RowTrack' },
+      { label: 'Figma · library', href: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20%E2%80%94%20Design%20System' },
+      { label: 'Figma · schermen', href: 'https://www.figma.com/design/T1bGrvIzSNeLyh5CbarATZ/RowTrack---Design' },
     ],
     scripts: ['test', 'tokens:build', 'storybook', 'parity', 'figma:check'],
   },

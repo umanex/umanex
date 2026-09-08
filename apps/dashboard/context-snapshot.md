@@ -1,5 +1,5 @@
 # Context Snapshot — dashboard
-_Gegenereerd op 2026-09-07_
+_Gegenereerd op 2026-09-08_
 
 ## Project
 - **App:** dashboard
@@ -30,19 +30,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+17b174c feat(dashboard): let REPO_ROOT point the dashboard at another tree
 0e2a1d3 feat(dashboard): local dev dashboard for starting the monorepo apps
 ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
 46e5af8 feat(ui): geometrie-parity — Figma en browser per variant naast elkaar
-81e134a feat(ui): [varianten]-as — het aantal variant-nodes volgt uit de assen
-6668160 chore(ui): manifest naar schema 2 — 86 themawaarden en 68 variant-nodes
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/dashboard/components/RepoBar.tsx
-  M  apps/dashboard/lib/git.ts
-  M  apps/dashboard/lib/paths.ts
-  M  apps/dashboard/lib/types.ts
-   M packages/ui/figma/geometry.code.json
+  M  apps/dashboard/lib/appsConfig.ts
 
 ## Bestanden met TODO/FIXME
   (geen)
