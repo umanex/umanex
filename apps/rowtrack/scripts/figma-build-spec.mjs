@@ -337,6 +337,61 @@ const WALKER = () => {
     return true;
   }
 
+  /**
+   * Herkent DOM die react-native-web ZELF schrijft — aan de signatuur uit zijn eigen bron,
+   * niet aan maten of namen.
+   *
+   * WAAROM. 307 nodes in de spec dragen geen enkele StyleSheet-sleutel, en het grootste deel
+   * daarvan is DOM die de app nergens schrijft: de twee cirkels van een `<ActivityIndicator>`,
+   * de vijf hostlagen van een `<Modal>`, de twee wrappers van een `<ScrollView>`. Die kunnen
+   * per constructie nooit een code-naam krijgen, en tellen tot vandaag wél mee in de noemer
+   * van "hoeveel laagnamen komen uit de code" — een percentage dat daardoor structureel te
+   * laag staat en nooit op 100 kán komen.
+   *
+   * ERGER DAN ONEERLIJK TELLEN: ze WINNEN vandaag app-sleutels. Atomaire klassen zijn globaal
+   * gedeeld over elke `StyleSheet.create` in de preview-iframe, dus de spinner in Button won
+   * `base` en de modal-hostlagen wonnen `scrim` en `root` — namen uit bestanden die die nodes
+   * niet schrijven. Daarom vuurt deze herkenning in `laagnamen.mjs` VÓÓR de sleutelmatching.
+   *
+   * ELKE REGEL IS TEGEN DE GEÏNSTALLEERDE BRON GELEZEN (react-native-web 0.21.2):
+   *  · exports/ActivityIndicator/index.js:50-62 — View role=progressbar aria-valuemax=1,
+   *    met één View-kind (maat + rotatie-animatie) dat een <svg> met twee <circle> draagt.
+   *  · exports/Modal/index.js:86-93 — ModalPortal > ModalAnimation > ModalFocusTrap >
+   *    ModalContent. ModalFocusTrap.js:123-125 zet een FocusBracket vóór en ná de trap-View;
+   *    FocusBracket is `role: 'none'` + `tabIndex: 0` (regel 26-30), en createDOMProps:610
+   *    herschrijft `none` naar `presentation`. ModalContent.js:41-47 is de View met
+   *    `aria-modal: true` en dáárin één View met `styles.container`.
+   *    Let op: `modalContainer` is het KIND van de aria-modal-node, niet zijn ouder.
+   *  · exports/ScrollView/index.js:568-599 — de scroll-host draagt de app-`style`, met precies
+   *    één contentContainer-View die `contentContainerStyle` draagt. Allebei GEDEELD: RN kent
+   *    geen `overflow: auto`, dus de host is per constructie RNW, maar de stijl is van de app.
+   *
+   * Gemeten in de ongesnoeide spec van 2026-09-08 (7 844 nodes): 34x progressbar, 18x
+   * presentation (= 9 modals x 2 brackets), 9x dialog, 19x `overflow: hidden auto`.
+   */
+  function rnwRol(el, cs) {
+    const rol = el.getAttribute('role');
+    const ouder = el.parentElement;
+    const isSpinner = (n) => n && n.getAttribute('role') === 'progressbar' && n.hasAttribute('aria-valuemax');
+    const isBracket = (n) => n && n.getAttribute('role') === 'presentation' && n.getAttribute('tabindex') === '0' && n.children.length === 0;
+
+    if (isSpinner(el)) return { rol: 'spinner' };
+    if (isSpinner(ouder)) return { rol: 'spinnerBox' };
+    if (el.tagName.toLowerCase() === 'svg' && isSpinner(ouder?.parentElement)) return { rol: 'spinnerSvg' };
+    if (el.tagName.toLowerCase() === 'circle') return { rol: 'spinnerArc' };
+
+    if (isBracket(el)) return { rol: 'focusBracket' };
+    if (el.getAttribute('aria-modal') === 'true') return { rol: 'modalContent' };
+    if (ouder?.getAttribute('aria-modal') === 'true') return { rol: 'modalContainer' };
+    if (el.querySelector(':scope > [aria-modal="true"]')) return { rol: 'modalTrap' };
+    if ([...el.children].some(isBracket)) return { rol: 'modalAnimation' };
+
+    const rolt = (n) => n && /auto|scroll/.test(getComputedStyle(n).overflowY + ' ' + getComputedStyle(n).overflowX);
+    if (/auto|scroll/.test(cs.overflowY + ' ' + cs.overflowX)) return { rol: 'scrollView', gedeeld: true };
+    if (rolt(ouder) && ouder.children.length === 1) return { rol: 'scrollContent', gedeeld: true };
+    return null;
+  }
+
   function lees(el, diepte, ouderRect) {
     const cs = getComputedStyle(el);
     const r = el.getBoundingClientRect();
@@ -384,6 +439,8 @@ const WALKER = () => {
     const klassen = String(el.getAttribute('class') || '').split(/\s+/).filter(Boolean);
     const rk = new Set(klassen.filter(c => c.startsWith('r-')));
     o.rol = el.getAttribute('role') || null;
+    const rnw = rnwRol(el, cs);
+    if (rnw) { o.rnw = rnw.rol; if (rnw.gedeeld) o.rnwGedeeld = true; }
     o.kandidaten = [];
     for (const k of sleutelIndex) {
       const eigen = [];

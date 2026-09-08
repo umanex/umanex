@@ -59,23 +59,20 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
 b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
 ed214f1 refactor(rowtrack): one source for which story components are screens
 b275fd6 fix(rowtrack): de confetti-uitsluiting toetst de vorm, niet de storynaam
 08a0ddc fix(rowtrack): de walker ziet de modal-portalen naast de schermboom
-e854daa fix(rowtrack): storybook dev start weer, en rendert alle 197 stories
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.storybook/preview.tsx
-  A  apps/rowtrack/.storybook/toestel.ts
-  M  apps/rowtrack/components/workout/ActivePhase.stories.tsx
-  M  apps/rowtrack/components/workout/IdlePhase.stories.tsx
   M  apps/rowtrack/figma/build-spec.min.json
   M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/ongebonden.json
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
   M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/schermen.mjs
+  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/scripts/laagnamen.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

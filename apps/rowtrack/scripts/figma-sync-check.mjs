@@ -72,10 +72,13 @@ const NIET_VISUEEL = {
 const BEKENDE_GATEN = 46;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1929;   // 1906 + 23 uit de modal-overlays, die sinds 2026-09-08 gemeten worden
+const BEKENDE_VOORKOMENS = 1947;   // 1929 + 18 uit het ActivePhase-landscape-frame, dat sinds 2026-09-08 gemeten wordt
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
- *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen. */
-const LAAGNAAM_DEKKING = 75.4;
+ *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
+ *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
+ *  (spinner, modal-hostketen, scroll-wrappers) staan er niet meer in, want die kunnen per
+ *  constructie geen code-naam krijgen. Over álle nodes is hetzelfde getal 73,8%. */
+const LAAGNAAM_DEKKING = 83.8;
 /** Posities die `stabiliseer()` moest gladstrijken. `instabiel` is ná die pas gemeten en dus
  *  per constructie leeg — dit is de enige onafhankelijke maat voor dezelfde eigenschap. */
 const BEKENDE_INSTABIELE_POSITIES = 2;
@@ -463,17 +466,27 @@ else {
     f.push(`${ip} posities moesten gestabiliseerd worden, ${BEKENDE_INSTABIELE_POSITIES} bekend (${(laagnamen.instabielPerComponent ?? []).join(', ')}) — een nieuwe naamconflict-bron`);
   else if (ip < BEKENDE_INSTABIELE_POSITIES)
     f.push(`${ip} posities gestabiliseerd tegen ${BEKENDE_INSTABIELE_POSITIES} bekend — een conflict is opgelost; zet BEKENDE_INSTABIELE_POSITIES op ${ip}.`);
+  // De NOEMER moet de eerlijke zijn. Een laagnamen.json van vóór 2026-09-08 draagt geen
+  // `appNodes`, en dan zou `echteNaamPct` stil over de oude, te grote noemer gelezen worden —
+  // een ander getal met dezelfde naam. Dat is geen lagere dekking maar een ander instrument.
+  if (laagnamen.appNodes === undefined)
+    f.push('laagnamen.json draagt geen appNodes — het is een bestand van vóór de rnw-herkenning; draai `figma:spec`');
   const pct = laagnamen.echteNaamPct;
   if (pct < LAAGNAAM_DEKKING - 0.05)
     f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — er is dekking verdwenen`);
   else if (pct > LAAGNAAM_DEKKING + 0.05)
     f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — dekking gestegen; zet LAAGNAAM_DEKKING op ${pct}.`);
   if (f.length) for (const x of f) fail('laagnaam', x);
-  else ok('laagnaam', `${laagnamen.nodes} laagnamen: ${pct}% uit de code, `
-    + `${(100 * laagnamen.perBron.rol / laagnamen.nodes).toFixed(1)}% uit een waargenomen rol, `
-    + `${(100 * laagnamen.perBron.terugval / laagnamen.nodes).toFixed(1)}% structurele terugval — `
+  else ok('laagnaam', `${laagnamen.appNodes} app-laagnamen: ${pct}% uit de code, `
+    + `${(100 * laagnamen.perBron.rol / laagnamen.appNodes).toFixed(1)}% uit een waargenomen rol, `
+    + `${(100 * laagnamen.perBron.terugval / laagnamen.appNodes).toFixed(1)}% structurele terugval — `
     + `0 cijfernamen, 0 copy-namen, ${laagnamen.instabielePosities} gestabiliseerde positie(s) `
-    + `(${(laagnamen.instabielPerComponent ?? []).join(', ') || 'geen'})`);
+    + `(${(laagnamen.instabielPerComponent ?? []).join(', ') || 'geen'})`
+    // NIET geratelt: hoeveel RNW-DOM er staat verandert legitiem met elke Modal of ScrollView
+    // die erbij komt. Wél in de ok-regel, want het is de enige plek waar een stille verschuiving
+    // naar `rnw` (bv. een RNW-versie die `scroll` naar `auto` mapt) zichtbaar wordt.
+    + ` · ${laagnamen.rnwNodes} rnw-nodes buiten de noemer (${laagnamen.echteNaamPctRuw}% over álle nodes)`);
+  uitgesloten.push(`${laagnamen.rnwNodes} nodes zijn DOM die react-native-web zelf schrijft (spinner, modal-hostketen, scroll-wrappers) — herkend aan zijn eigen bron, buiten de noemer`);
   uitgesloten.push(`${laagnamen.perBron.terugval} nodes zonder StyleSheet-sleutel (inline of Reanimated gestyleerd) — die dragen een structurele naam, geen code-naam`);
   if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);
 }

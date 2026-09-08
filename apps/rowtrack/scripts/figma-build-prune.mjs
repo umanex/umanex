@@ -196,9 +196,19 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
     for (const [, g] of groepen) for (const x of g.slice(1)) if (x.n !== g[0].n) instabiel.push(`${comp}: variant ${g[0].i} tegen ${x.i}`);
   }
   const echt = perBron.sleutel + perBron.gefold + perBron.component;
+  // DE EERLIJKE NOEMER. Een node die `rnwRol()` benoemde is DOM die react-native-web zelf
+  // schrijft — de cirkels van een ActivityIndicator, de vijf hostlagen van een Modal. Die
+  // kan per constructie geen code-naam krijgen, dus hij hoorde nooit in de noemer van
+  // "hoeveel laagnamen komen uit de code". Tot 2026-09-08 stond hij er wél in, en het
+  // percentage had daardoor een plafond dat als tekortkoming las.
+  // We trekken `perBron.rnw` af en niet "elke node met een rnw-signatuur": een ScrollView-host
+  // is óók RNW-DOM, maar draagt de app-`style` en wint dus terecht een sleutel. Die telt mee.
+  const appNodes = nodes - perBron.rnw;
   writeFileSync(join(APP, 'figma/laagnamen.json'), JSON.stringify({
     $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Dekking en variant-stabiliteit van de laagnamen, gemeten op de GESNOEIDE boom — dat is wat Figma krijgt.',
-    nodes, perBron, echteNaamPct: +(100 * echt / nodes).toFixed(1),
+    nodes, appNodes, rnwNodes: perBron.rnw, perBron,
+    echteNaamPct: +(100 * echt / appNodes).toFixed(1),
+    echteNaamPctRuw: +(100 * echt / nodes).toFixed(1),
     ambigu, gestabiliseerd, indexNamen, copyNamen, instabiel,
     // Het signaal dat de producent NIET normaliseert: hoeveel posities `stabiliseer()` moest
     // gladstrijken. `instabiel` is dáárna gemeten en dus per constructie leeg; dit getal is
@@ -208,7 +218,7 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
       .map(x => `${x.component}:${x.instabielePosities}`),
     namen: Object.fromEntries([...perNaam].sort((a, b) => b[1] - a[1])),
   }, null, 1));
-  console.log(`laagnamen: ${(100 * echt / nodes).toFixed(1)}% uit de code (${echt}/${nodes}), ` +
+  console.log(`laagnamen: ${(100 * echt / appNodes).toFixed(1)}% uit de code (${echt}/${appNodes} app-nodes, ${perBron.rnw} rnw apart), ` +
               `${indexNamen} cijfernamen, ${copyNamen} copy-namen, ${instabiel.length} instabiel -> figma/laagnamen.json`);
 }
 
