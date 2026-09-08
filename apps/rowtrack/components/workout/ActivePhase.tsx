@@ -18,7 +18,7 @@ import type { WorkoutGoal } from '@/lib/workout-goals';
 import { Button } from '@/components/Button';
 import { KpiSingle } from '@/components/KpiSingle';
 import { GoalPill } from './active/GoalPill';
-import { SubtitleProgress } from './active/SubtitleProgress';
+import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
 import { formatTimer, formatTimerFull, formatSplit, formatDistanceDynamic, formatInt, formatDecimal, correctSpm } from '@/lib/formatters';
@@ -136,14 +136,14 @@ export function ActivePhase({
 
   // --- Hero-getal + subtitle + progress-fill per doeltype (gedeeld portrait/landscape) ---
   type FillKind = 'none' | 'gradient' | 'success' | 'warning';
-  function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: ReactNode; fillPct: number; fillKind: FillKind } {
+  function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: HeroSubtitle; fillPct: number; fillKind: FillKind } {
     const goalType = goal?.type ?? null;
     // Eyebrow-labels maken het hero-getal ondubbelzinnig: bij een doel telt de hero
     // AF (resterend), zonder label leest dat verkeerd (audit F3). Defaults = geen doel.
     let heroLabel: string | null = t.workout.active.totalTime;
     let heroText = formattedTimer;
     let subLabel: string | null = t.workout.active.totalDistance;
-    let subtitle: ReactNode = null;
+    let subtitle: HeroSubtitle = { kind: 'plain', text: '' };
     let fillPct = 0;
     let fillKind: FillKind = 'none';
 
@@ -155,7 +155,7 @@ export function ActivePhase({
         heroLabel = t.workout.active.remainingTime;
         heroText = formatTimer(Math.max(0, target - seconds));
         subLabel = t.workout.active.covered;
-        subtitle = <SubtitleProgress left={formatTimer(seconds)} pct={fillPct} />;
+        subtitle = { kind: 'progress', left: formatTimer(seconds), pct: fillPct };
         break;
       }
       case 'distance': {
@@ -165,7 +165,7 @@ export function ActivePhase({
         heroLabel = t.workout.active.remainingDistance;
         heroText = formatInt(Math.max(0, target - distanceMeters));
         subLabel = t.workout.active.covered;
-        subtitle = <SubtitleProgress left={`${formatInt(distanceMeters)} m`} pct={fillPct} />;
+        subtitle = { kind: 'progress', left: `${formatInt(distanceMeters)} m`, pct: fillPct };
         break;
       }
       case 'split': {
@@ -190,7 +190,7 @@ export function ActivePhase({
               ? t.workout.active.splitFaster(absDiff)
               : t.workout.active.splitSlower(absDiff);
         }
-        subtitle = <Text style={[activeStyles.subtitleText, activeStyles.subtitleSentence]}>{sub}</Text>;
+        subtitle = { kind: 'sentence', text: sub };
         break;
       }
       case 'watts': {
@@ -212,33 +212,15 @@ export function ActivePhase({
               ? t.workout.active.wattsMore(absDiff)
               : t.workout.active.wattsLess(absDiff);
         }
-        subtitle = <Text style={[activeStyles.subtitleText, activeStyles.subtitleSentence]}>{sub}</Text>;
+        subtitle = { kind: 'sentence', text: sub };
         break;
       }
       default:
         // Geen doel: hero = verstreken tijd, subtitle = verstreken afstand.
         heroText = formattedTimer;
-        subtitle = <Text style={activeStyles.subtitleText}>{`${formatInt(distanceMeters)} m`}</Text>;
+        subtitle = { kind: 'plain', text: `${formatInt(distanceMeters)} m` };
     }
     return { heroLabel, heroText, subLabel, subtitle, fillPct, fillKind };
-  }
-
-  // --- Hero-content: eyebrow-label + hero-getal, dan eyebrow-label + subtitle.
-  // Gedeeld portrait/landscape (Figma Main KPI: gap 40 tussen groepen, gap 8 binnen).
-  // Split/watts hebben geen subtitle-eyebrow (subLabel = null) → enkel coaching-tekst. ---
-  function renderHeroContent(gv: ReturnType<typeof computeGoalView>): ReactNode {
-    return (
-      <>
-        <View style={activeStyles.heroGroup}>
-          {gv.heroLabel != null && <Text style={activeStyles.heroLabel}>{gv.heroLabel}</Text>}
-          <Text style={activeStyles.heroText}>{gv.heroText}</Text>
-        </View>
-        <View style={activeStyles.heroGroup}>
-          {gv.subLabel != null && <Text style={activeStyles.heroLabel}>{gv.subLabel}</Text>}
-          {gv.subtitle}
-        </View>
-      </>
-    );
   }
 
   // --- Header-inhoud: DOEL-pill + compacte Stop-knop (gedeeld) ---
@@ -415,9 +397,13 @@ export function ActivePhase({
         </View>
 
         {/* Hero-paneel (bg.elevated), vult de vrije ruimte, content gecentreerd */}
-        <View style={[activeStyles.heroPanel, portraitStyles.heroPanel]}>
-          {renderHeroContent(gv)}
-        </View>
+        <HeroPanel
+          heroLabel={gv.heroLabel}
+          heroText={gv.heroText}
+          subLabel={gv.subLabel}
+          subtitle={gv.subtitle}
+          style={portraitStyles.heroPanel}
+        />
 
         {/* Progress-bar: full-bleed 4px tussen paneel en KPI-lijst */}
         {renderProgressBarH(gv.fillPct, gv.fillKind)}
@@ -519,9 +505,13 @@ export function ActivePhase({
                 {renderProgressBarV(gv.fillPct, gv.fillKind)}
 
                 {/* Rechts: hero-paneel (bg.elevated) */}
-                <View style={[activeStyles.heroPanel, landColStyle, { paddingLeft: space['40'], paddingRight: Math.max(space['20'], insets.right) }]}>
-                  {renderHeroContent(gv)}
-                </View>
+                <HeroPanel
+                  heroLabel={gv.heroLabel}
+                  heroText={gv.heroText}
+                  subLabel={gv.subLabel}
+                  subtitle={gv.subtitle}
+                  style={[landColStyle, { paddingLeft: space['40'], paddingRight: Math.max(space['20'], insets.right) }]}
+                />
               </>
             );
           })()}
@@ -662,47 +652,6 @@ const activeStyles = StyleSheet.create({
     backgroundColor: accent.muted,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: border.strong,
-  },
-  // Hero-paneel (bg.elevated); flex/stretch worden per oriëntatie toegevoegd.
-  heroPanel: {
-    backgroundColor: bg.elevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space['40'],
-  },
-  // Hero- en subtitle-groep: eyebrow-label boven zijn waarde (Figma Frame 130/132, gap 8).
-  heroGroup: {
-    alignSelf: 'stretch', // vult het hero-paneel → subtitle-rij kan gelijk-brede kolommen maken
-    alignItems: 'center',
-    gap: space['8'],
-  },
-  // Eyebrow-label boven hero-getal én subtitle: Albert Sans SemiBold 16, 20% tracking, UPPER.
-  heroLabel: {
-    fontFamily: fontFamily.albertSansSemiBold,
-    fontSize: fontSize['16'],
-    letterSpacing: 3.2, // 20% van 16
-    textTransform: 'uppercase',
-    color: fg.onAccent,
-  },
-  heroText: {
-    // Hero-cijfer via de heroNumeric-typeStyle (Albert Sans Bold 114, ls -5.13).
-    // Token herbestemd in Tokens Studio 2026-07-14 (was Source Serif 96).
-    ...typeStyles.heroNumeric,
-    color: fg.onAccent,
-  },
-  subtitleText: {
-    fontFamily: fontFamily.albertSansLight,
-    fontSize: fontSize['36'],
-    letterSpacing: -0.9, // -2.5% van 36
-    color: fg.primary,
-  },
-  // Coaching-zin (split/watt-doel) alléén. Niet op `heroPanel`: dat paneel draagt het
-  // 114px hero-getal, en een symmetrische inset van 40 knijpt "120:45" tot wrappen/krimpen.
-  // Ook niet op `subtitleText` zelf: die stijl draagt óók de twee kolommen van de
-  // progress-rij (duration/distance), waar padding de statische divider zou wegduwen.
-  subtitleSentence: {
-    paddingHorizontal: space['20'],
-    textAlign: 'center',
   },
   // Progress-bar horizontaal (portrait): full-bleed 4px.
   barTrackH: {

@@ -452,6 +452,13 @@
    "uitgesloten": {},
    "variantNodes": 1
   },
+  "HeroPanel": {
+   "storyId": "componenten-heropanel--playground",
+   "titel": "Componenten/HeroPanel",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
   "SubtitleProgress": {
    "storyId": "componenten-subtitleprogress--playground",
    "titel": "Componenten/SubtitleProgress",
@@ -462,5 +469,5 @@
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 597
+ "totaalVariantNodes": 598
 }
