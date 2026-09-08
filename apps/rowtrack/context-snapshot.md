@@ -59,11 +59,11 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+a8bd5d2 docs(rowtrack): elk R-item draagt bewijs, en de opmaak triggert de as-mix-hook niet meer
 f4824d9 fix(rowtrack): de resterende twintig bevindingen uit reviewronde 1
 e907003 fix(rowtrack): R01, R02, R07, R08, R14 uit reviewronde 1
 96eb889 docs(rowtrack): reviewronde 1 — 25 bevindingen op een groene acceptatielijst
 02acf5f chore(rowtrack): manifest na de herpublicatie
-c9388ea chore(rowtrack): manifest en geometrie na de achtergrondmigratie
 ```
 
 ## Uncommitted wijzigingen
