@@ -281,6 +281,14 @@ App-werk gebeurt in de hoofdtree, in `<repo>/apps/<app>`, op een feature branch.
 
 **Serveert een langlopend proces uit de hoofdtree** (cashflow: PM2 op `:3000`, cwd `apps/cashflow`), dan is die tree nu óók de tree waarin je feature branches uitcheckt — de oude zusmap hield die twee uit elkaar, dat moet nu expliciet. Geen `next build` en geen `pm2:rebuild` daar op een feature branch: het eerste breekt de draaiende server (witte pagina, gemeten 2026-08-07), het tweede deployt ongemergde code. Verifieer op een feature branch via de flow-harness op `:3100`, CI of een preview-deploy — niet via de PM2-app; herbouwen doe je op `main` na de merge (zie *De Beoordeel-stap schrijft* en *Een merge is pas af*).
 
+**Een server die jíj start, is even vast aan zijn branch geklonken.** De vorige regel gaat over een proces dat er al draait; dit gaat over het proces dat jij achterlaat. Draai je een dev-server uit een map die alleen op déze branch bestaat, dan is de hoofdtree precies de plek waar die map straks verdwijnt: bij de eerstvolgende `checkout` blijft de poort gewoon open en serveert het proces 500 op élk verzoek, met de fout in een achtergrondlog dat niemand leest. Gemeten 2026-09-07: `next dev` uit `apps/dashboard` op `:3010`, als slotregel van mijn samenvatting overgedragen; na de wissel naar een branch zonder `apps/dashboard/` gaf `curl` 500 met `ENOENT … scandir '…/apps/dashboard/app'` — en wie die URL aanklikt vermoedt kapot werk in plaats van een andere branch. Geef zo'n URL dus nooit als duurzaam mee: noem de branch waarop hij leeft, of stop het proces bij het afsluiten. Twijfel je of een luisteraar nog een thuis heeft:
+
+```bash
+PID=$(lsof -t -nP -iTCP:<poort> -sTCP:LISTEN | head -1)
+CWD=$(lsof -a -p "$PID" -d cwd -Fn | sed -n 's/^n//p')
+git ls-tree -r --name-only HEAD -- "$CWD" | head -1     # leeg = wees
+```
+
 **Werk nooit in andermans tree.** Zit er iemand anders — of een agent — in dezelfde map, blijf er dan af, ook voor "even een branch aanmaken". Een branch die je vanaf andermans HEAD aanmaakt, erft diens werk als vertrekpunt. Voor de hoofdtree van een repo betekent dit: is Jeroen er zelf in bezig, dan is dat een reden om te overleggen, niet om ernaast een eigen tree te beginnen.
 
 **Je eigen sub-agents tellen mee.** Draait er een agent die jíj gestart hebt in je eigen tree, dan is die tree niet meer alleen van jou: hij schrijft scratch-bestanden en haalt een formatter over een bestand dat jouw acceptatielijst ongemoeid verklaarde. Gemeten: zeven `.tmp-*.mjs` en een geherformatteerde `DataTable.tsx` reisden mee in één `git add -A`, en twee van de agents hadden de botsing zélf al in hun eindrapport gemeld — het signaal lag er vóór de commit, ongelezen. Stage per pad zolang er agents lopen, en lees hun rapporten vóór je commit, niet erna.

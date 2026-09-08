@@ -22,6 +22,8 @@
 # - ~/.claude/hooks/acceptatie-guard.sh + settings.json             (PreToolUse acceptatie-guard, user-level)
 # - ~/.claude/hooks/meting-guard.sh + settings.json                 (PreToolUse meting-guard, user-level)
 # - ~/.claude/hooks/nulmeting-guard.sh + settings.json              (PostToolUse nulmeting-guard, user-level)
+# - ~/.claude/hooks/identifier-bron-guard.sh + settings.json        (PreToolUse identifier-guard, user-level)
+# - ~/.claude/hooks/tegenspraak-guard.sh + settings.json            (PostToolUse tegenspraak-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -811,6 +813,71 @@ else
     else
       _tmp="$(mktemp)"
       if jq --arg cmd "$NUL_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Nulmeting-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
+      fi
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Identifier-bron-guard: PreToolUse op Write|Edit|NotebookEdit|Bash. Vuurt op een
+# ondoorzichtige sleutel in een URL die nergens in de repo staat. Bash zit er bewust bij:
+# de fout van 2026-09-07 landde via `cat > lib/appsConfig.ts <<EOF`, niet via Write.
+# ---------------------------------------------------------------------------
+echo "→ Installeer identifier-bron-guard (PreToolUse, user-level)..."
+IDB_SRC="$UMANEX_OS_PATH/templates/identifier-bron-guard.sh"
+IDB_CMD="$USER_HOOKS/identifier-bron-guard.sh"
+if [ ! -f "$IDB_SRC" ]; then
+  echo "  ⚠ templates/identifier-bron-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$IDB_SRC" "$IDB_CMD"
+  chmod +x "$IDB_CMD"
+  echo "  ✓ ~/.claude/hooks/identifier-bron-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$IDB_CMD" '.hooks.PreToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$IDB_CMD" '.hooks.PreToolUse += [{"matcher":"Write|Edit|NotebookEdit|Bash","hooks":[{"type":"command","command":$cmd,"timeout":25,"statusMessage":"Identifier-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PreToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
+      fi
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Tegenspraak-guard: PostToolUse op Bash. Vuurt wanneer een commando zijn tweede meting
+# als controle labelt en die controle een ander getal geeft dan de hoofdmeting.
+# ---------------------------------------------------------------------------
+echo "→ Installeer tegenspraak-guard (PostToolUse, user-level)..."
+TGS_SRC="$UMANEX_OS_PATH/templates/tegenspraak-guard.sh"
+TGS_CMD="$USER_HOOKS/tegenspraak-guard.sh"
+if [ ! -f "$TGS_SRC" ]; then
+  echo "  ⚠ templates/tegenspraak-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$TGS_SRC" "$TGS_CMD"
+  chmod +x "$TGS_CMD"
+  echo "  ✓ ~/.claude/hooks/tegenspraak-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$TGS_CMD" '.hooks.PostToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$TGS_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Tegenspraak-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
         echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
       else
