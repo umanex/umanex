@@ -678,7 +678,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   (3) casten midden in een rit uitzetten → binnen ~12 s valt BPM terug op "—" in plaats van te
   bevriezen (dít is het geval dat verzonnen hartslag in de opgeslagen rit voorkwam);
   (4) toestemming op "Weigeren" → autoconnect raakt de band niet aan.
-- **Check:** Vraag, geen commando: zijn de vier gevallen met het horloge op het toestel gereden? Nee zolang dit item geen toestel-blok met datum heeft. Dát de vier gevallen nog over de huidige bedrading gaan, toets je wél: `git log --oneline f8f9bc5.. -- apps/rowtrack/lib/ble/hrLink.ts apps/rowtrack/lib/ble/hr-service.ts` moet leeg zijn.
+- **Check (herbasislijnd 2026-09-08):** Vraag, geen commando: zijn de vier gevallen met het horloge op het toestel gereden? Nee zolang dit item geen toestel-blok met datum heeft. De tweede helft van de check is op 2026-09-08 gedraaid en gaf **niet leeg**: sinds `f8f9bc5` zijn er vier commits op deze twee bestanden (`43714ad`, `23432f0`, `0b21d93`, `928f7e7`), samen +408/-59 regels, waarvan het leeuwendeel in `hr-service.ts`. De vier scenario's hierboven beschrijven dus bedrading die intussen herschreven is — lees ze opnieuw vóór je ze rijdt, met name geval (3), want `928f7e7` raakt precies het meetbaar maken van het HR-pad en de disconnect-listener. Nieuwe basislijn: `git log --oneline 928f7e7.. -- apps/rowtrack/lib/ble/hrLink.ts apps/rowtrack/lib/ble/hr-service.ts` moet leeg zijn.
 - **Status:** open
 
 ## 2026-08-10 — Twee tokenkeuzes die code niet kan maken · [next-step]
@@ -739,4 +739,49 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** `ActivePhase` (5 frames, 105 teksten) en `IdlePhase` (4 frames, 188 teksten) staan als afgeplatte bomen in het design-system-bestand. Jeroen bouwt de schermen op de pagina *Screens v2* in `T1bGrvIzSNeLyh5CbarATZ`, uit de gepubliceerde library. Twee schermrepresentaties naast elkaar die niet aan elkaar gekoppeld zijn, is een tweede bron van waarheid — en de afgeplatte versie is de zwakste van de twee.
 - **Check:** `figma_execute` op `T1bGrvIzSNeLyh5CbarATZ`: staat er inhoud op de pagina *Screens v2*? Zo ja, dan hebben de twee schermpagina's in het design-system-bestand geen functie meer.
 - **Volgende zet:** Beslissen zodra Screens v2 staat: de twee pagina's uit het design-system-bestand halen (en de `SCHERMEN`-uitsluiting uit `figma-sync-check.mjs`), of ze expliciet als referentiebeeld benoemen. Nu weghalen is te vroeg — ze zijn het enige beeld van die schermen dat er is.
+- **Status:** open
+
+## 2026-09-08 — Drie van de vier Storybook-rails zijn met het zwakke instrument getoetst · [onzekerheid]
+- **Bevinding:** De tegenproef van `e854daa` draaide per rail een probe van zes stories. Diezelfde
+  sessie bewees dat een klein probe-stel liegt: de rail voor de reanimated-versiestub gaf 4/4 groen
+  waar `dev-sweep` 55 van 197 rood gaf. Die ene rail is daarna met de volle sweep overgedaan; de
+  rails voor de optimizer-exclude, de pnpm-bewuste babel-`exclude` en `disableSourceMaps` niet. Hun
+  rode uitkomst was ondubbelzinnig (server dood, 404, `WorkletsError`), dus een omkering is
+  onwaarschijnlijk — maar het is dezelfde soort verwachting die deze sessie twee keer fout bleek.
+- **Check:** `git log --oneline e854daa.. -- apps/rowtrack/.storybook/main.ts` — leeg = de vier
+  ingrepen staan nog exact zoals ze gemeten zijn, dus de vraag hoe ze gemeten zijn leeft nog.
+- **Volgende zet:** Bij de eerstvolgende aanraking van `.storybook/main.ts`: per ingreep één regel
+  weghalen en `node scripts/dev-sweep.mjs` draaien in plaats van een probe. Koude cache
+  (`rm -rf apps/rowtrack/node_modules/.cache/storybook` — let op de map, niet de repo-root) en
+  controleer dat de patch écht toepaste (`git diff --quiet` moet fálen), anders meet je de
+  ongewijzigde config; dat is precies wat er die dag misging.
+- **Status:** open
+
+## 2026-09-08 — parity en figma:spec zijn niet hermeten na de Storybook-configwijziging · [next-step]
+- **Bevinding:** `e854daa` laat babel nu wél over `react-native-reanimated` en
+  `react-native-worklets` lopen, en verandert wat de dependency-optimizer bundelt. Beide sweeps
+  (dev en build) staan op 197/197, dus álles rendert — maar dat is geen uitspraak over de
+  gemeten getallen. `figma:spec` en `parity` lezen dezelfde gebouwde Storybook en vergelijken
+  hoogtes, padding, gaps en radii; die zijn na de wijziging niet opnieuw gedraaid.
+- **Check:** `pnpm --filter rowtrack parity` — exit 0 = de geometrie is ongewijzigd en dit item is
+  resolved. Vereist `figma/geometry.figma.json`; ontbreekt die, dan is het item nog open en is het
+  verversen van de bouwspec de eerste stap.
+- **Volgende zet:** `pnpm --filter rowtrack build-storybook` (staat al), dan `parity`. Wijkt er
+  iets af: eerst nagaan of het verschil uit de babel-wijziging komt (vergelijk tegen `4bb9484`,
+  de commit vóór de fix) vóór je de Figma-kant aanpast.
+- **Status:** open
+
+## 2026-09-08 — Babel ín de optimizer draaien is nooit als keuze voorgelegd · [aanname]
+- **Bevinding:** Drie van de vier ingrepen in `.storybook/main.ts` (optimizer-exclude,
+  babel-`exclude`, `disableSourceMaps`) bestaan omdat de dependency-optimizer geen babel draait.
+  Er is één mechanisme dat dat rechtstreeks oplost: een rolldown-plugin in
+  `optimizeDeps.rolldownOptions.plugins` die `@babel/core` met `react-native-worklets/plugin`
+  over reanimated en worklets haalt. Dat vraagt `@babel/core` als devDependency van rowtrack —
+  een "eerst bevestigen"-actie — en die afweging is in de sessie zelf gemaakt en niet aan Jeroen
+  voorgelegd. De gekozen route werkt en is gemeten; ze is alleen breder dan nodig.
+- **Check:** `node -e "require.resolve('@babel/core',{paths:['apps/rowtrack']})"` — gooit een
+  fout = de dependency ontbreekt nog en de drie-ingrepen-route staat nog overeind.
+- **Volgende zet:** Alleen oppakken wanneer `.storybook/main.ts` tóch open moet (bijvoorbeeld bij
+  het BACKLOG-item over `vite-plugin-rnw@0.0.12`). Leg de keuze dan expliciet voor: één
+  babel-plugin in de optimizer tegenover drie losse compensaties, met de extra dependency als prijs.
 - **Status:** open
