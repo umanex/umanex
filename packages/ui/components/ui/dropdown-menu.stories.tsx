@@ -20,11 +20,7 @@ const meta: Meta<typeof DropdownMenuContent> = {
   component: DropdownMenuContent,
   parameters: {
     tokens: { source },
-    // TODO: node-id invullen zodra de DropdownMenu-pagina in de Component library
-    // bestaat. Tot dan wijst de link naar het bestand, niet naar de node, en meldt
-    // `figma:check` dat deze component nog geen Figma-pagina heeft. Dat is de
-    // bedoeling: het gat hoort telbaar te zijn, niet weggeschreven.
-    figma: { url: 'https://www.figma.com/design/ko2OuasYxyY2YRD69MYhWX/Component-library' },
+    figma: { url: 'https://www.figma.com/design/ko2OuasYxyY2YRD69MYhWX/Component-library?node-id=79-7' },
   },
   decorators: [
     (Story) => (
