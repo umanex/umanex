@@ -18,8 +18,6 @@ Positionering: **een designteam voor softwarebedrijven met meer producten dan de
 
 Vastgelegd in het bureau-plan *umanex 2027* (24 augustus 2026, artifact `0d79a364-bbcd-4880-8829-1d254d92bb78`), doorgerekend op de eigen cashflow-cijfers en op marktonderzoek. De uitwerking naar publieke copy staat in `apps/portfolio/briefings/2026-08-24-feature-bureau-positionering.tcebc.md`.
 
-**De plannen eronder staan in `strategie/` in umanex-os** — zes documenten van 24 tot 26 augustus 2026, met de kaart en de statussen in `strategie/README.md`. Die map reist bewust niet mee in de sync; wil je de afweging, de cijfers of de scenario's, dan lees je hem daar. **Eén ding is daar nog niet beslist:** het plan van 26 augustus (*Honderdtachtig dagen*) beschrijft uitdrukkelijk géén bureau met freelancers maar één persoon met een maandprijs, en trekt de bureau-lijn hierboven niet in — de twee staan naast elkaar tot de hefboom van 1,5× gemeten is (`BACKLOG.md`, 2026-08-30). De positionering hierboven blijft tot dan de geldende lijn; behandel ze niet als achterhaald, maar ook niet als de enige die op tafel ligt.
-
 **Historiek.** Tot 2026-08-24 luidde de positionering **"Design Team Of One"**, later "Design Team Of One + AI". Die is vervallen, niet verzacht: het model maakt freelancers structureel vanaf de eerste lopende opdracht, dus één-persoon-zijn beloven spreekt het model tegen. Kom je die term nog tegen in oudere audits, briefings of op de Framer-site — dat is historiek, geen huidige lijn.
 
 ### Soorten output
