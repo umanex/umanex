@@ -32,25 +32,37 @@ Vul beide zelf in op basis van de conversatie en laat de gebruiker corrigeren; v
 
 Bepaal de header-tekst: de naam van de skill (bv. `nieuw-component`) of het werkprincipe (bv. `TC-EBC werkprincipe`, `Git workflow`, `token-mapping`) dat faalde. Kort en herkenbaar — dit wordt de `##`-header van de entry.
 
-### Stap 3 — Routing-vraag (verplicht, altijd stellen)
+### Stap 3 — Bepaal de laag: doe een voorstel, vraag bevestiging
 
-Vraag: **"Hoort deze fout thuis op globaal, klant- of project-niveau?"**
+Er zijn **vier** lagen. Stel er zelf één voor mét de reden, en vraag bevestiging (één vraag, vier opties). Een kale vraag — *"globaal, klant, project of skill?"* — legt het denkwerk bij Jeroen terwijl jij de conversatie gelezen hebt en hij ze opnieuw moet reconstrueren; stilzwijgend kiezen mag evenmin, behalve niet-interactief (zie het contract onderaan).
 
-Op basis van het antwoord bepaal je het doelbestand en de laag-header:
+| Laag | Doelbestand | Laag-header | Waar de fix later hardt |
+|---|---|---|---|
+| **Skill** | `~/Documents/umanex-os/LEARNINGS.md` | `# Skill` | `.claude/skills/{naam}/SKILL.md` |
+| **Globaal** | `~/Documents/umanex-os/LEARNINGS.md` | `# Globaal` | `~/Documents/umanex-os/CLAUDE.md` |
+| **Klant** | `{repo-root}/LEARNINGS.md` | `# Klant — {naam}` | `{repo-root}/CLAUDE.md` |
+| **Project** | `apps/{app}/LEARNINGS.md` | `# Project — {app}` | `apps/{app}/CLAUDE.md` |
 
-| Niveau | Doelbestand | Laag-header in dat bestand |
-|--------|-------------|----------------------------|
-| Globaal | `~/Documents/umanex-os/LEARNINGS.md` | `# Globaal` |
-| Klant | `{repo-root}/LEARNINGS.md` | `# Klant — {naam}` |
-| Project | `apps/{app}/LEARNINGS.md` | `# Project — {app}` |
+**De toets: welke tekst is geladen op het moment dat de fout ontstaat?** Alleen die tekst kan een herhaling voorkomen, en ze verschilt per laag — een `SKILL.md` staat in context zodra die skill is aangeroepen en anders niet; een `CLAUDE.md` in elke sessie van zijn laag. Loop af, eerste treffer wint:
+
+1. **Skill** — de fout zit in een stap, poort of read-back die alléén binnen de procedure van één skill bestaat. Herkenning: stap 2 leverde een skill-naam als header, en de Fout is te herschrijven als *"stap N van `<skill>` deed X niet"*.
+2. **Klant / Project** — de fout hangt aan iets dat per klant of per app verschilt: een stack, tokenbron, conventie, afspraak of een pad dat elders niet bestaat. Project wint van klant zodra maar één app hem kan hebben.
+3. **Globaal** — de fout kan in élke sessie opduiken, ongeacht klant, app of skill; de discipline komt op midden in het werk zonder dat er een skill geladen is. Herkenning: je kunt de Fout formuleren zonder één skill, klant of app te noemen.
+
+**Skill vs. globaal is de scherpe, en de reden dat deze laag bestaat.** Gemeten op 2026-09-08 in `umanex-os/LEARNINGS.md`: van de 76 entries dragen er **34** een skill-naam in hun header, en **24** `Fix`-regels wijzen naar een pad in `.claude/skills/` — terwijl de tabel tot die dag alleen globaal/klant/project aanbood. Die fixes staan daardoor gelabeld als *"Route B"* (het is geen code) of *"Route A in de skill"* (het is geen CLAUDE.md): een bestemming die in de praktijk het vaakst gebruikt werd, stond nergens in de routing. De toets is niet *"gaat dit over een skill"* maar **"laadt die skill in de situatie waar de regel bijt?"** — dezelfde vraag die `learnings-verwerken` stelt bij een te volle CLAUDE.md-sectie. Treedt de fout óók op buiten de skill → globaal. Alleen erbinnen → skill.
+
+**Bij twijfel: globaal**, en zeg dat het twijfel is. De laag bij capture is een voorstel, geen slot: `learnings-verwerken` stap 2 toetst hem opnieuw vóór er iets hardt en verplaatst de entry als de route elders uitkomt. Een entry op de verkeerde laag verhuist; een entry die nooit vastgelegd is, is weg.
 
 **Path-resolutie** — capture gebeurt vaak in een klant-repo (andere cwd) dan umanex-os zelf:
 
+- **Skill** → altijd het absolute pad `~/Documents/umanex-os/LEARNINGS.md`, ongeacht cwd. Skills zijn umanex-os-bestanden die als **kopie** naar de klant-repo's reizen; een fix in zo'n kopie wordt bij de volgende sync overschreven — dezelfde val als de gesyncte `.umanex-os/CLAUDE.md`. Conditie: dit geldt zolang de skill in umanex-os bestaat. Gemeten 2026-09-08: umanex-apps, Columba en Luminus dragen exact dezelfde 13 skill-namen als `~/Documents/umanex-os/.claude/skills/`, dus een repo-eigen skill bestaat vandaag niet. Twijfel je → `ls ~/Documents/umanex-os/.claude/skills/`; staat hij daar níet, dan is het de klant-laag.
 - **Globaal** → altijd het absolute pad `~/Documents/umanex-os/LEARNINGS.md`, ongeacht de huidige werkdirectory.
 - **Klant** → de root van de actieve repo: `git rev-parse --show-toplevel`. De `{naam}` in de laag-header is de klantnaam (bv. de repo-/profile-naam: columba, luminus, umanex).
 - **Project** → `apps/{app}/LEARNINGS.md` binnen de actieve (monorepo-)klant-repo. Leid `{app}` af uit cwd als die binnen `apps/{app}/…` ligt; anders vraag kort welke app.
 
-**Edge case:** is de actieve repo umanex-os zélf, dan zijn klant en project niet zinvol — leg dan globaal vast.
+**De laag-header `# Skill` draagt geen naam**, anders dan klant en project: de entry-header uit stap 2 noemt de skill al, en noemt er vaak twee (`verify / cyclus-tot-validatie (…)`). Eén header houdt het bestand in één chronologische reeks in plaats van dertien secties van elk een paar entries.
+
+**Edge case:** is de actieve repo umanex-os zélf, dan zijn klant en project niet zinvol — dan blijven skill en globaal over.
 
 ### Stap 4 — Bepaal de datum
 
@@ -95,7 +107,7 @@ Toon de zojuist toegevoegde entry inline als codeblock, en vermeld het volledige
 Drie plekken roepen `vastleggen` aan zonder gebruiker in de lus: de gecontroleerde stop van `cyclus-tot-validatie` (drie iteraties zonder convergentie), de parity-gate van `code-naar-figma` stap 8 en de parity-check van `figma-naar-code` stap 6. Tot 2026-09-07 stond "niet-interactief" wel in de aanroepers, maar nergens hier — stap 3 zegt juist *"verplicht, altijd stellen"*. Dit is de vorm die geldt zodra de aanroeper de velden vooraf invult:
 
 - **Header, Input en Fout** komen van de aanroeper, letterlijk. Stap 1 en 2 vervallen; verzin er niets bij. Levert de aanroeper geen Header, dan is het de naam van de aanroepende skill plus de aanleiding (`cyclus-tot-validatie — geen convergentie na 3 iteraties`).
-- **Routing** wordt uit de cwd afgeleid in plaats van gevraagd: umanex-os zelf → globaal; een klant-repo (`git rev-parse --show-toplevel`) → klant-laag; een cwd binnen `apps/<app>/` → project-laag. Stap 3 stelt dus géén vraag.
+- **Routing** wordt afgeleid in plaats van gevraagd, en de aanroeper bepaalt welke van twee regels geldt. Legt een skill een fout van **zijn eigen procedure** vast — de parity-gate van `code-naar-figma` stap 8, de parity-check van `figma-naar-code` stap 6 — dan is de laag **Skill**, ongeacht cwd: de gefaalde poort staat in die `SKILL.md`. Gaat het om een fout van het **werk** in plaats van de skill — de gecontroleerde stop van `cyclus-tot-validatie` na drie iteraties zonder convergentie — dan beslist de cwd: umanex-os zelf → globaal; een klant-repo (`git rev-parse --show-toplevel`) → klant-laag; een cwd binnen `apps/<app>/` → project-laag. Stap 3 stelt in beide gevallen géén vraag.
 - **Stap 4 tot 7 blijven gelijk.** Ook de laatste: de nieuwe entry wordt inline getoond, mét pad. Niet-interactief betekent geen vragen, niet geen zichtbaarheid.
 - **Een aanroeper die een veld niet kan leveren, valt terug op de interactieve vorm** en zegt dat. Een entry met een verzonnen Input is erger dan geen entry: hij dient later als verificatie-test.
 

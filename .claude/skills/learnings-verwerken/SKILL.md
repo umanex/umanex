@@ -1,15 +1,15 @@
 ---
 name: learnings-verwerken
-description: Verifieert openstaande LEARNINGS-entries en hardt bewezen lessen structureel — promotie naar de juiste CLAUDE.md-laag (globaal/klant/project) of een code-guard — en werkt de status bij. Dit is de verwerk-helft van de eval-loop die `vastleggen` opent. Gebruik deze skill altijd wanneer de gebruiker een openstaande learning wil verifiëren, testen of promoveren, een les naar CLAUDE.md wil harden, de feedback-loop wil sluiten, of zegt "verwerk de learnings", "promoveer deze les", "test de openstaande learnings", "verifieer deze learning", "harden naar CLAUDE.md", "sluit de eval-loop".
+description: Verifieert openstaande LEARNINGS-entries en hardt bewezen lessen structureel — promotie naar de juiste laag (skill/globaal/klant/project) of een code-guard — en werkt de status bij. Dit is de verwerk-helft van de eval-loop die `vastleggen` opent. Gebruik deze skill altijd wanneer de gebruiker een openstaande learning wil verifiëren, testen of promoveren, een les naar CLAUDE.md wil harden, de feedback-loop wil sluiten, of zegt "verwerk de learnings", "promoveer deze les", "test de openstaande learnings", "verifieer deze learning", "harden naar CLAUDE.md", "sluit de eval-loop".
 ---
 
 ## Werkwijze
 
 Deze skill is de **verwerk-helft** van de eval/feedback-loop van umanex-os; `vastleggen` is de capture-helft. Waar `vastleggen` een fout met zijn letterlijke trigger-input vastlegt op status `open`, neemt deze skill die entry op, **verifieert** of de fout nog optreedt, **hardt** de bewezen les structureel, en werkt de status bij: `open` → `verified` → `promoted`, of `closed` wanneer er niets te harden valt. Per ronde speelt hij bovendien één oudere promotie als steekproef opnieuw af (stap 1b).
 
-Waarom dit nodig is: een entry op `open` in een `LEARNINGS.md` is **inert** — `LEARNINGS.md` wordt nergens in een sessie ingeladen (geen `@`-import, geen hook). Een learning voorkomt een fout pas wanneer de les óf als regel in een CLAUDE.md-laag staat (die elke sessie via `@`-import geladen wordt) óf in een code-guard zit. Deze skill verzorgt precies die overgang.
+Waarom dit nodig is: een entry op `open` in een `LEARNINGS.md` is **inert** — `LEARNINGS.md` wordt nergens in een sessie ingeladen (geen `@`-import, geen hook). Een learning voorkomt een fout pas wanneer de les ergens staat die geladen wordt op het moment dat de fout zou ontstaan: een regel in een CLAUDE.md-laag (elke sessie, via `@`-import), een stap in een `SKILL.md` (alleen wanneer die skill is aangeroepen — genoeg voor een fout die alleen binnen die procedure kan ontstaan, te weinig voor een klasse die daarbuiten ook toeslaat), of een code-guard. Deze skill verzorgt precies die overgang, en stap 2 kiest welke van de drie.
 
-De skill werkt op alle drie de lagen (globaal / klant / project) en reist daarom als repo-bestand mee: hij staat in `.claude/skills/` van umanex-os zelf én — via de sync-pipeline — van elke klant-repo, en triggert dus overal (sinds 2026-08-17; daarvóór user-level via `~/.claude/skills/`). De kop van de bron-`LEARNINGS.md` legt de statussen en het entry-format uit — dupliceer die uitleg hier niet.
+De skill werkt op alle vier de lagen (skill / globaal / klant / project) en reist daarom als repo-bestand mee: hij staat in `.claude/skills/` van umanex-os zelf én — via de sync-pipeline — van elke klant-repo, en triggert dus overal (sinds 2026-08-17; daarvóór user-level via `~/.claude/skills/`). De kop van de bron-`LEARNINGS.md` legt de statussen en het entry-format uit — dupliceer die uitleg hier niet.
 
 ### Stap 0 — Sanity check
 
@@ -19,15 +19,16 @@ De skill werkt op alle drie de lagen (globaal / klant / project) en reist daarom
 
 ### Stap 1 — Bepaal de bron-LEARNINGS en kies de entry(s)
 
-Path-resolutie spiegelt `vastleggen` — dezelfde drie lagen. Bepaal welke `LEARNINGS.md` in scope is:
+Path-resolutie spiegelt `vastleggen` — dezelfde vier lagen. Bepaal welke `LEARNINGS.md` in scope is:
 
-| Niveau | Bron-bestand |
+| Laag | Bron-bestand |
 |--------|--------------|
-| Globaal | `~/Documents/umanex-os/LEARNINGS.md` (altijd dit absolute pad) |
+| Skill | `~/Documents/umanex-os/LEARNINGS.md`, sectie `# Skill` (altijd dit absolute pad) |
+| Globaal | `~/Documents/umanex-os/LEARNINGS.md`, sectie `# Globaal` (altijd dit absolute pad) |
 | Klant | `git rev-parse --show-toplevel` → `{repo-root}/LEARNINGS.md` |
 | Project | `apps/{app}/LEARNINGS.md` binnen de actieve klant-repo |
 
-Edge case: is de actieve repo umanex-os zélf, dan is alleen globaal zinvol.
+Edge case: is de actieve repo umanex-os zélf, dan zijn alleen skill en globaal zinvol.
 
 Lees de bron en filter entries op status: `open` (te verifiëren) en `verified` (klaar om te promoveren). Toon de te-verwerken entries en vraag welke. Noemde de gebruiker al een specifieke learning → neem die. "Alle" mag, maar verwerk dan één voor één grondig — niet oppervlakkig batchen.
 
@@ -52,10 +53,12 @@ Bepaal per entry hóe de fout structureel voorkomen wordt. Dit stuurt zowel de v
 
 | Route | Wanneer | Fix landt in |
 |---|---|---|
-| **A — Instructie** | gedragsfout die met een regel te voorkomen is, en die regel **ontbreekt** (of staat te zwak) in de juiste CLAUDE.md-laag | CLAUDE.md-regel (= promotie) |
+| **A — Instructie** | gedragsfout die met een regel te voorkomen is, en die regel **ontbreekt** (of staat te zwak) in de laag die geladen is waar de fout ontstaat | CLAUDE.md-regel, of een stap in `.claude/skills/{naam}/SKILL.md` op de skill-laag (= promotie) |
 | **B — Code/tooling** | de fout is het best structureel onmogelijk te maken in een script/config/guard | code-guard (geen CLAUDE.md) |
 | **C — Regel genegeerd** | de regel **staat al** in CLAUDE.md maar werd niet nageleefd | versterking van de bestaande regel — niet dupliceren |
 | **D — Samenvoegen** | de regel ontbreekt, maar er staat wél een regel van **dezelfde klasse** | die bestaande regel uitbreiden met deze vorm — geen nieuwe rail |
+
+**Route A landt niet altijd in een CLAUDE.md.** Staat de entry onder `# Skill`, dan is het doel een stap in díe `SKILL.md` — dezelfde route, andere bestemming (stap 5). Dat onderscheid ontbrak tot 2026-09-08, en het spoor is meetbaar: **24** `Fix`-regels in `umanex-os/LEARNINGS.md` wijzen naar een pad in `.claude/skills/`, gelabeld als *"Route B"* terwijl er geen code aan te pas kwam, of als *"Route A in de skill"* — een bestemming die de tabel niet kende. Route B blijft wat hij was: script, config, hook of guard.
 
 Route C is de subtiele: promoveren zou de regel kopiëren die er al staat — zinloos. Hier scherp je de bestaande regel aan (prominenter, explicieter, of een harde checklist/rail), of erken je dat instructie alleen niet volstaat en stel je een hook of code-guard voor. Dupliceer nooit een regel die al bestaat.
 
@@ -104,7 +107,7 @@ Treedt de fout bij verify niet meer op → de fix bestaat al; sla deze stap over
 
 Treedt hij nog op → hard hem nu, volgens de route:
 
-- **Route A** — schrijf de regel in de juiste CLAUDE.md-laag (routing in stap 5), in de juiste **bestaande** sectie (een git-regel onder *Git workflow*, niet willekeurig onderaan).
+- **Route A** — schrijf de regel in de juiste laag (routing in stap 5), in de juiste **bestaande** sectie: een git-regel onder *Git workflow*, niet willekeurig onderaan. Op de **skill-laag** is dat een stap, poort of acceptatie-regel ín `.claude/skills/{naam}/SKILL.md`, op de plek in de procedure waar de fout ontstond — niet een losse waarschuwing onderaan de skill.
 
 **Splits altijd kern van bewijs — dit is waar de laag scheefgroeit.** Landt je regel in de **Beoordeel-discipline** (het blok onder *Plan / Bouw / Beoordeel*), dan gaat alleen de **kern-bewering** naar `CLAUDE.md` en hoort het **gemeten geval** in `.claude/skills/verify/SKILL.md`, als genummerde rail. Die skill draagt sinds zijn eerste versie de zin *"Deze staan als werkprincipe in CLAUDE.md; hier zijn ze operationeel"* — de scheiding bestond dus al, en niets bewaakte hem. GEMETEN op 2026-08-27: het blok stond op 15 199 chars met 17 gemeten gevallen inline tegen 4 in `verify`, terwijl de elf kern-beweringen samen 569 chars zijn — **5%**. Na de splitsing: blok 5 855, `CLAUDE.md` 55 749 → 46 404.
 
@@ -117,17 +120,22 @@ Twee dingen die inline blijven, ook al zijn ze lang: een **uitvoerbaar recept** 
 
 **Kritieke valkuil — de gesynced kopie.** Een **globale** regel hardt je ALTIJD in `~/Documents/umanex-os/CLAUDE.md`, NOOIT in een lokale `.umanex-os/CLAUDE.md` binnen een klant-repo — die is een gesyncte kopie en wordt bij de volgende sync overschreven. Klant- en projectregels gaan wél naar de echte repo-CLAUDE.md (`{repo-root}/CLAUDE.md`, `apps/{app}/CLAUDE.md`) — dat zijn geen kopieën.
 
+**Dezelfde val geldt voor de skill-laag.** `.claude/skills/` reist mee met de sync — `templates/refs-check.mjs` rekent het expliciet tot wat meereist, naast `CLAUDE.md` en `profiles/` — dus een skill-fix hardt ALTIJD in `~/Documents/umanex-os/.claude/skills/{naam}/SKILL.md`, nooit in de kopie binnen een klant-repo.
+
 CLAUDE.md is gedeelde, hoog-hefboom instructie (de globale laag propageert naar álle repos). Behandel een wijziging eraan als een "altijd eerst bevestigen"-actie: toon de voorgestelde regel-tekst en de exacte doellocatie, en vraag akkoord vóór je schrijft.
 
 ### Stap 5 — Routing van de promotie
 
-Spiegelt `vastleggen`, omgekeerd: van LEARNINGS-laag naar de corresponderende CLAUDE.md-laag. De laag blijkt uit de header (`# Globaal` / `# Klant — {naam}` / `# Project — {app}`) waaronder de entry staat.
+Spiegelt `vastleggen`, omgekeerd: van LEARNINGS-laag naar de corresponderende doellaag. De laag blijkt uit de header (`# Skill` / `# Globaal` / `# Klant — {naam}` / `# Project — {app}`) waaronder de entry staat.
 
-| Laag | LEARNINGS-bron | CLAUDE.md-doel |
+| Laag | LEARNINGS-bron | Doel van de harding |
 |---|---|---|
-| Globaal | `~/Documents/umanex-os/LEARNINGS.md` | `~/Documents/umanex-os/CLAUDE.md` |
+| Skill | `~/Documents/umanex-os/LEARNINGS.md`, sectie `# Skill` | `~/Documents/umanex-os/.claude/skills/{naam}/SKILL.md` |
+| Globaal | `~/Documents/umanex-os/LEARNINGS.md`, sectie `# Globaal` | `~/Documents/umanex-os/CLAUDE.md` |
 | Klant | `{repo-root}/LEARNINGS.md` | `{repo-root}/CLAUDE.md` |
 | Project | `apps/{app}/LEARNINGS.md` | `apps/{app}/CLAUDE.md` |
+
+**De header is het startpunt, niet het slot.** `vastleggen` kiest de laag bij capture, wanneer alleen het gedrag bekend is; hier weet je pas na stap 2 wáár de regel geladen moet zijn om te bijten. Wijst de route elders uit — een `# Globaal`-entry waarvan de fout alleen binnen één skill kan ontstaan, of omgekeerd een `# Skill`-entry waarvan de klasse óók buiten die skill optreedt — verplaats de entry dan naar de juiste laag-header vóór je hardt, en noem die verhuizing in stap 8. De toets is dezelfde als in `vastleggen` stap 3: **laadt die tekst in de situatie waar de regel bijt?**
 
 ### Stap 6 — Werk de entry bij
 
@@ -135,7 +143,7 @@ Gericht met de Edit-tool — nooit het bestand herschrijven (spiegelt `vastlegge
 
 - Verify gedaan, fout weg, nog niet gehard naar een regel/guard → `Status: verified`.
 - Verify gedaan en er valt **niets te harden** — de fout bleek een meetfout, de fix zit in het werk zelf (een rebind, een script, een gecorrigeerd bestand) of de klasse is vervallen → `Status: closed`, met de reden in de `Fix`-regel. Zonder deze uitgang blijft de entry eeuwig op `verified` en verschijnt hij elke sessiestart (Columba: vier parity-entries, 83 dagen). `closed` is een eindstatus: hij verschijnt niet meer in de hook en telt niet mee in `doctor.sh`.
-- Regel gehard naar CLAUDE.md (route A/C) of guard gebouwd/bevestigd (route B) → `Status: promoted`.
+- Regel gehard naar CLAUDE.md of naar een stap in `SKILL.md` (route A/C/D) of guard gebouwd/bevestigd (route B) → `Status: promoted`.
   - **Route B-drempel:** `promoted` mag alleen als de guard de volledige faalklasse van de learning dekt, niet enkel de letterlijke gecapturede input. Dekt hij de gecapturede conditie maar laat een adversariële check verwante gaten van dezelfde klasse open, hou dan `verified` en open een losse code-taak — promoveren zou impliceren dat het gat dicht is.
 
 Voeg de `Fix`-regel in vóór de `Status`-regel (zoals de bestaande `verified` entries), in dit format:
@@ -151,7 +159,7 @@ Commit de CLAUDE.md- en LEARNINGS-wijzigingen volgens de globale git-workflow �
 
 1. Feature branch: `docs/promote-{kort}` voor regel-harding, of `chore/...` / `fix/...` naargelang de wijziging.
 2. Commit (Conventional Commits, Engels).
-3. Betreft het de **globale laag** (`~/Documents/umanex-os/CLAUDE.md`), dan rolt de merge naar main de gehardende regel via de sync-pipeline uit naar álle klant-repos. Dat is de bedoeling — maar het is een merge naar main: geef de korte melding vooraf (globale CLAUDE.md, *Git workflow*).
+3. Betreft het de **globale laag** (`~/Documents/umanex-os/CLAUDE.md`) of de **skill-laag** (`~/Documents/umanex-os/.claude/skills/`), dan rolt de merge naar main de gehardende regel via de sync-pipeline uit naar álle klant-repos — beide reizen mee. Dat is de bedoeling — maar het is een merge naar main: geef de korte melding vooraf (globale CLAUDE.md, *Git workflow*).
 4. PR aanbieden of openen volgens conventie.
 
 ### Stap 8 — Toon het resultaat
