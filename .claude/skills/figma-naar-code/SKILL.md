@@ -123,45 +123,6 @@ figma_get_component_for_development_deep(
 )
 ```
 
-**`depth` is een gok tot je hem toetst.** De parameter zegt hoe diep je *vraagt*, niet of dat
-genoeg wás. Krijg je een boom terug die er intact uitziet maar waarin de tekst ontbreekt, dan
-is hij afgekapt — en die twee zien er identiek uit. Drie plekken waar je budget stilletjes
-opgaat aan lagen die niets zeggen:
-
-- **Doorvoer-lagen.** Groepen, naamloze `Frame 1234`-containers en auto-layout-wrappers met
-  één kind. Ze kosten diepte en dragen niets.
-- **Z-volgorde bij een broer-grens.** Lees je "de eerste N kinderen", dan krijg je in Figma de
-  ONDERSTE lagen: achtergrondvlakken en decoratie. De inhoud ligt bovenaan en valt eraf.
-- **De INSTANCE-grens.** Een scherm dat uit library-componenten is opgebouwd bestaat vrijwel
-  volledig uit INSTANCE-nodes. Stop je daar, dan lees je placeholders in plaats van inhoud.
-  Reken hierop zodra een klant een gepubliceerde library heeft en zijn schermen daaruit
-  samenstelt: RowTrack publiceerde het bestand *RowTrack - Design System*
-  (`QkRgMc7Quqtbow71DiYa1n`) als library en koppelde het als asset in *RowTrack - Design*
-  (`T1bGrvIzSNeLyh5CbarATZ`), waar de schermen op de pagina *Screens v2* komen. Tel de
-  INSTANCE-nodes vóór je een scherm terugleest — staat dat aantal hoog en je tekstteller laag,
-  dan las je de omhulsels en niet de inhoud.
-
-**Toets de volledigheid, tel niet op je gevoel.** De controle is goedkoop en exact: vraag via
-`figma_execute` hoeveel er werkelijk staat, en leg dat naast wat je binnenkreeg.
-
-```js
-// figma_execute — waarheid uit de runtime, naast je _deep-antwoord
-const n = await figma.getNodeByIdAsync("<node-id>");
-const alle = n.findAll(() => true);
-return {
-  nodes: alle.length,
-  tekstnodes: alle.filter(x => x.type === "TEXT").length,
-  instances: alle.filter(x => x.type === "INSTANCE").length,
-  teksten: alle.filter(x => x.type === "TEXT").map(x => x.characters).slice(0, 40),
-};
-```
-
-Wijkt dat af van je `_deep`-resultaat, dan is je read incompleet — verhoog `depth`, of daal
-expliciet af in de instances. **Nul tekstnodes op een scherm dat tekst hoort te hebben is
-altijd een leesfout, nooit een designfout.** Dezelfde faalvorm bijt in de andere richting
-(zie `code-naar-figma`, principe 4): daar gingen vijf componenten als leeg frame het bestand
-in en bleven alle structuurchecks groen, omdat een leeg frame een correcte maat heeft.
-
 **Plugin-versie-afhankelijkheid.** `figma_get_component_for_development_deep` is een plugin-methode. Faalt hij met "Unknown method: DEEP_GET_COMPONENT", dan komt de geladen Desktop Bridge-plugin niet overeen met de `figma-console-mcp`-serverversie — "in de tool-lijst staan" garandeert geen werkende methode. Fix: laad de gebundelde plugin (`~/.figma-console-mcp/plugin`), niet een oudere losse build.
 
 **Verf is het bewijs, niet de instelling ernaast.** Een Figma-node houdt zijn
