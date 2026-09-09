@@ -518,6 +518,17 @@ const WALKER = () => {
         kleur: rgba(cs.color),
         align: cs.textAlign,
         transform: cs.textTransform,
+        // DE BREEDTE VAN DE RUN, naast de breedte van de DOOS. `getBoundingClientRect` op
+        // het element geeft de doos, en die is bij een blok-tekst zo breed als zijn ouder —
+        // ongeacht hoeveel glyphs erin staan. Een Range over de inhoud geeft de regel(s)
+        // zelf. Het verschil is de enige meting die "hugt deze tekst" kan beantwoorden:
+        // `align-self: stretch` kan dat niet, want dat is de RNW-default van élk View-kind.
+        // Gemeten 2026-09-09: 124 van 625 tekstnodes in de schermen kregen daardoor FILL,
+        // en "1 sep 2026" (doos 159 = run 159) brak in Figma in twee regels over OVERZICHT.
+        inhoudBreedte: (() => {
+          const r = document.createRange(); r.selectNodeContents(el);
+          return Math.round(r.getBoundingClientRect().width * 100) / 100;
+        })(),
       };
     }
     // Welke StyleSheet-sleutels verklaren de klassen van deze node? De klassen zijn atomair

@@ -73,18 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+dc796cc feat(rowtrack): the builder's messages get a baseline of kinds, checked on both sides
 43e91cf Merge remote-tracking branch 'origin/main' into chore/sync-os-na-skillwijziging
 ac9db56 docs(rowtrack): write down the sweep flakiness the previous commit claimed to have written down
 f0b404c fix(rowtrack): the render sweep was flaky at its tail, and it failed the last stories
 99ee19d docs(rowtrack): het parity-item sluit nu op bewijs dat rood had kunnen worden
-01642b8 Merge remote-tracking branch 'origin/main' into feature/rowtrack-autolayout-beeld
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/figma/bouw-batch.js
-  M  apps/rowtrack/figma/builder.js
-  M  apps/rowtrack/scripts/figma-poort-selftest.mjs
+   M apps/rowtrack/BACKLOG.md
+   M apps/rowtrack/CLAUDE.md
+   M apps/rowtrack/HANDOFF.md
+   M apps/rowtrack/LEARNINGS.md
+   M apps/rowtrack/figma/beeld-verschillen.json
+   M apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
+   M apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
+   M apps/rowtrack/figma/beelden/HistoryScreen__Een-Record.figma.png
+   M apps/rowtrack/figma/beelden/HistoryScreen__Leeg.figma.png
+   M apps/rowtrack/figma/beelden/HistoryScreen__Playground.figma.png
 
 ## Bestanden met TODO/FIXME
   (geen)

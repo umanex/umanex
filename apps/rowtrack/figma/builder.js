@@ -27,12 +27,43 @@ const ES = new Map((await figma.getLocalEffectStylesAsync()).map(s => [s.name, s
  *
  * `SPEC.__bibliotheek` is `figma/library-keys.json`; de sleutels overleven een publicatie.
  */
+/**
+ * EEN IMPORT DIE HANGT IS EEN MELDING, GEEN BLOKKADE. Gemeten 2026-09-09 in RowTrack - Design:
+ * `importStyleByKeyAsync` voor `type/activeProgress` en `shadow/buttonOutline` kwam nooit
+ * terug — geen fout, geen timeout, terwijl de andere achttien styles in 2 tot 9 ms landden en
+ * de sleutels in de library exact klopten (CURRENT, zelfde key). Omdat de builder álle styles
+ * vooraf importeerde, blokkeerde die ene hangende import elke schermbouw, ook van frames die
+ * de style niet gebruiken. Dus: alleen importeren wat de spec noemt, elke import met een
+ * wachttijd, en een import die de wachttijd niet haalt wordt `niet te importeren` — de tekst
+ * valt dan terug op zijn losse fontwaarden (`tekst zonder text style`), zichtbaar in de
+ * meldingen, in plaats van een bouw die stil blijft staan.
+ */
+const meldingen = [];   // vóór de imports: een gefaalde import is de eerste melding die er kan zijn
+const WACHT_IMPORT_MS = 4000;
+const metWacht = (belofte, wat) => Promise.race([belofte,
+  new Promise((_, nee) => setTimeout(() => nee(new Error(`geen antwoord binnen ${WACHT_IMPORT_MS} ms`)), WACHT_IMPORT_MS))]);
 if (SPEC.__bibliotheek) {
   const B = SPEC.__bibliotheek;
-  for (const [naam, o] of Object.entries(B.textStyles ?? {}))
-    if (!TS.has(naam)) { try { TS.set(naam, await figma.importStyleByKeyAsync(o.key)); } catch (e) { meldingen.push(`text style ${naam} niet te importeren — ${e.message}`); } }
-  for (const [naam, o] of Object.entries(B.effectStyles ?? {}))
-    if (!ES.has(naam)) { try { ES.set(naam, await figma.importStyleByKeyAsync(o.key)); } catch (e) { meldingen.push(`effect style ${naam} niet te importeren — ${e.message}`); } }
+  const tekstStyles = new Set(), effectStyles = new Set();
+  (function zoek(x) {
+    if (!x || typeof x !== 'object') return;
+    if (Array.isArray(x)) return x.forEach(zoek);
+    if (x.t?.style) tekstStyles.add(x.t.style);
+    if (x.schaduwStyle) effectStyles.add(x.schaduwStyle);
+    for (const v of Object.values(x)) if (v && typeof v === 'object') zoek(v);
+  })(SPEC);
+  for (const naam of tekstStyles) {
+    const o = B.textStyles?.[naam];
+    if (TS.has(naam)) continue;
+    if (!o) { meldingen.push(`text style ${naam} niet te importeren — staat niet in de library-sleutels`); continue; }
+    try { TS.set(naam, await metWacht(figma.importStyleByKeyAsync(o.key))); } catch (e) { meldingen.push(`text style ${naam} niet te importeren — ${e.message}`); }
+  }
+  for (const naam of effectStyles) {
+    const o = B.effectStyles?.[naam];
+    if (ES.has(naam)) continue;
+    if (!o) { meldingen.push(`effect style ${naam} niet te importeren — staat niet in de library-sleutels`); continue; }
+    try { ES.set(naam, await metWacht(figma.importStyleByKeyAsync(o.key))); } catch (e) { meldingen.push(`effect style ${naam} niet te importeren — ${e.message}`); }
+  }
   // ALLEEN WAT DE SPEC NOEMT. Alle 250 variabelen importeren duurde langer dan de 30 s
   // wachtlimiet van `figma_execute` (gemeten); de spec noemt er een fractie van.
   const gevraagd = new Set();
@@ -68,7 +99,6 @@ const fontVan = (variant) => {
 };
 const rgb = o => ({ r: o.r / 255, g: o.g / 255, b: o.b / 255 });
 const BG = V.get('Theme:bg/base');
-const meldingen = [];
 /**
  * Soorten meldingen — de basislijn. Elke `meldingen.push` in dit bestand hoort op precies één
  * van deze regexen te matchen, en elke regex hoort minstens één push-plek te dekken. Beide
@@ -106,6 +136,7 @@ const MELDING_SOORTEN = [
   ['geforceerd-overschreven',      /^GEFORCEERD OVERSCHREVEN — /],
   ['instance-wijkt-af',            /: instance van .* wijkt af \(.*\) — subboom nagebouwd/],
   ['component-property-mislukt',   /: component property ".*" mislukt/],
+  ['tekst-uitlijning-geweigerd',   /: tekst-uitlijning .* geweigerd/],
 ];
 function soortVan(m) {
   const s = String(m);
@@ -348,9 +379,33 @@ function zetRek(f, kinderen, naamPad) {
   if (f.layoutMode === 'NONE') return;
   for (const { kind, k, pad } of kinderen) {
     if (k.abs) continue;
-    // De eigen kruis-as-uitlijning eerst: `layoutAlign` is de enige per-kind-uitlijning die
-    // Figma kent, en zonder haar landt een `align-self: flex-end` links.
-    if (k.zelf) { try { kind.layoutAlign = k.zelf; } catch (e) { meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — ${e.message}`); } }
+    // De eigen kruis-as-uitlijning eerst. `layoutAlign` accepteert MIN/CENTER/MAX zonder fout
+    // en NEGEERT ze — gemeten 2026-09-09 op LoginScreen: `forgot` kreeg MAX en las INHERIT
+    // terug, dus "Wachtwoord vergeten?" stond links. Alleen STRETCH en INHERIT doen nog iets
+    // (de rest is in de Plugin API afgeschreven). Lees dus terug, en vervang een genegeerde
+    // uitlijning door wat Figma wél kent: het kind vult de kruis-as van zijn ouder en lijnt
+    // zijn inhoud zelf uit — per as, want een kolom in een kolom heeft de kruis-as als
+    // eigen kruis-as, een rij in een kolom als eigen hoofdas.
+    if (k.zelf) {
+      let ok = false;
+      try { kind.layoutAlign = k.zelf; ok = kind.layoutAlign === k.zelf; } catch (e) { /* valt hieronder door */ }
+      if (!ok) {
+        const ouderRij = f.layoutMode === 'HORIZONTAL';
+        try {
+          kind[ouderRij ? 'layoutSizingVertical' : 'layoutSizingHorizontal'] = 'FILL';
+          if (kind.type === 'TEXT') {
+            if (!ouderRij) kind.textAlignHorizontal = { MIN: 'LEFT', CENTER: 'CENTER', MAX: 'RIGHT' }[k.zelf] ?? 'LEFT';
+            else kind.textAlignVertical = { MIN: 'TOP', CENTER: 'CENTER', MAX: 'BOTTOM' }[k.zelf] ?? 'TOP';
+          } else if (kind.layoutMode && kind.layoutMode !== 'NONE') {
+            // De kruis-as van de ouder (H onder een kolom, V onder een rij) is de hoofdas van
+            // het kind als het kind de ándere richting heeft; anders zijn kruis-as. Gemeten:
+            // een kolom in een kolom kreeg eerst `primaryAxisAlignItems` en zakte naar beneden.
+            const kruisAsIsEigenHoofdas = (kind.layoutMode === 'HORIZONTAL') !== ouderRij;
+            if (kruisAsIsEigenHoofdas) kind.primaryAxisAlignItems = k.zelf; else kind.counterAxisAlignItems = k.zelf;
+          } else meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — Figma negeert hem stil en het kind heeft geen auto layout om zelf uit te lijnen`);
+        } catch (e) { meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — ${e.message}`); }
+      }
+    }
     if (!k.rekt) continue;
     for (const [as, veld, maat, doel] of [
       ['H', 'layoutSizingHorizontal', 'width', k.w],
@@ -424,6 +479,13 @@ async function maak(n, naamPad, wortelComp) {
     t.fills = n.t.kVar && V.get(n.t.kVar)
       ? [figma.variables.setBoundVariableForPaint(p, 'color', V.get(n.t.kVar))] : [p];
     if (!n.t.kVar) meldingen.push(`${naamPad}: tekstkleur ongebonden`);
+    // DE UITLIJNING REIST MEE. Tot 2026-09-09 werd `textAlignHorizontal` nooit gezet: de
+    // walker mat `textAlign` wel, maar hij kwam de pruner niet door. Een blok-tekst die in
+    // de browser gecentreerd staat ("RowTrack", "Account aanmaken") landde daardoor links —
+    // 23 tekstnodes in de 24 schermframes, alleen door het beeld gevonden. `t.al` draagt nu
+    // alleen wat van LEFT afwijkt; LEFT is de default van beide engines.
+    try { t.textAlignHorizontal = n.t.al ?? 'LEFT'; }
+    catch (e) { meldingen.push(`${naamPad}: tekst-uitlijning ${n.t.al ?? 'LEFT'} geweigerd — ${e.message}`); }
     // De browser BREEKT tekst af op de beschikbare breedte; Figma rekt met
     // WIDTH_AND_HEIGHT tot één lange regel. Gemeten 2026-09-08 op HealthConsentScreen:
     // een alinea van 390px liep in Figma door tot ~1340px, ver buiten het frame.
@@ -436,8 +498,18 @@ async function maak(n, naamPad, wortelComp) {
     // Dus: alleen vastzetten waar de browser ZELF afbrak. Dat is af te lezen aan de
     // gemeten hoogte tegen één regelhoogte (de tokenwaarde als die er is, anders 1,35x de
     // fontgrootte — de natuurlijke regelhoogte van deze families).
+    //
+    // En één regel is NIET genoeg: `zetRek()` zette daarna alsnog FILL op elke tekst met
+    // `rekt: H`, en dat pint de breedte net zo goed — "1 sep 2026" hugde in de browser
+    // (doos = run = 159,03) en brak in Figma toch af, over de terug-link heen. Sinds
+    // 2026-09-09 beslist de pruner (`rektVoorTekst`) of een tekst een blok is (doos breder
+    // dan run) of hugt; alleen een blok houdt `H`, en een blok draagt `t.blok`.
+    //
+    // Een blok zónder FILL houdt óók zijn breedte: de labelkolom van StatsTable is 165
+    // breed met een run van ~40, en als hug werd dat "WATT208" — de waarde plakte tegen
+    // het label. Vaste breedte is daar de transcriptie; de uitlijning erin doet het werk.
     const enkeleRegel = n.t.lh ?? n.t.px * 1.35;
-    if (n.h > enkeleRegel * 1.5) {
+    if (n.h > enkeleRegel * 1.5 || n.t.blok) {
       t.textAutoResize = 'HEIGHT';
       t.resize(Math.max(1, n.w), Math.max(1, n.h));
     } else {
