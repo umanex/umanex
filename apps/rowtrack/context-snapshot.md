@@ -73,24 +73,18 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+224430f docs(rowtrack): the node ids survive a rebuild now, so the deep links do too
 df1e0fe feat(rowtrack): update components instead of replacing them, and complete the alignment family
 267bd8e feat(rowtrack): auto-layout is now the default, and an image axis to prove it
 2a96b4f docs: session reflection — triage ten stale handoff items, and correct a number I got wrong
 c99a7ad chore(rowtrack): remove two scripts nothing calls
-bd03cef ci: run the rowtrack guards, and make render-shot discoverable
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Chip.stories.tsx
-  M  apps/rowtrack/components/DeviceRow.stories.tsx
-  M  apps/rowtrack/components/Dot.stories.tsx
-  M  apps/rowtrack/components/EmptyState.stories.tsx
-  M  apps/rowtrack/components/ErrorMessage.stories.tsx
+  M  apps/rowtrack/.storybook/main.ts
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -384,8 +384,15 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   en het proces daarna afbreken. Draai hem met een koude dep-cache
   (`rm -rf apps/rowtrack/node_modules/.cache/storybook`) — let op de map, die staat onder de app
   en niet in de repo-root, en `rm -rf` op het verkeerde pad geeft exit 0 zonder iets te zeggen.
-- **Check:** `grep -c 'filter rowtrack figma:check' .github/workflows/ci.yml` — 0 = het gat
-  leeft nog.
+- **Check (bijgesteld 2026-09-09):** De oude check was `grep -c 'filter rowtrack figma:check'`
+  en die geeft sinds PR #420 **2** — volgens de letter dus "dicht", terwijl twee van de vijf
+  stappen ontbreken. Een check die niet kan onderscheiden. Tel daarom per stap:
+  ```bash
+  for s in figma:check figma:check:selftest parity render:sweep dev-sweep; do
+    printf '%-22s %s\n' "$s" "$(grep -c "$s" .github/workflows/ci.yml)"
+  done
+  ```
+  Stand 2026-09-09: `figma:check` 2, `render:sweep` 0, `dev-sweep` 0. Elke nul is een gat.
 - **Status:** open
 
 ## 2026-09-08 — Storybook-fixes voor vite 8 heroverwegen bij de volgende Storybook-bump · [infra]
