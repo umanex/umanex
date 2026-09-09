@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+f681424 feat(rowtrack): a render path for the seven routes that had no story
 7209f3d feat(rowtrack): every component with variant axes now declares which variant it is
 3dbc9d9 fix(rowtrack): the depth cap counted a different unit than it cut
 7571740 fix(rowtrack): the 42 screen differences are gone, fixed at the source
 ce2eba0 feat(rowtrack): the screens are exported to RowTrack - Design as library instances
-db77523 feat(rowtrack): the screens export mechanism, and the variant as a fact
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.storybook/main.ts
-  A  apps/rowtrack/.storybook/mocks/expo-router.tsx
-  M  apps/rowtrack/.storybook/mocks/supabase.ts
-  M  apps/rowtrack/.storybook/preview.tsx
-  A  apps/rowtrack/app/(auth)/forgot-password.stories.tsx
-  M  apps/rowtrack/app/(auth)/forgot-password.tsx
-  A  apps/rowtrack/app/(auth)/login.stories.tsx
-  M  apps/rowtrack/app/(auth)/login.tsx
-  A  apps/rowtrack/app/(auth)/register.stories.tsx
-  M  apps/rowtrack/app/(auth)/register.tsx
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/components/GoalSheet.stories.tsx
+  M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/geometry.figma.json
+  M  apps/rowtrack/figma/geometry.schermen.json
+  M  apps/rowtrack/figma/laagnamen.json
+  M  apps/rowtrack/figma/library-component-keys.json
+  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/figma/niet-reproduceerbaar.json
 
 ## Bestanden met TODO/FIXME
   (geen)
