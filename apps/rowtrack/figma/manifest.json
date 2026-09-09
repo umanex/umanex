@@ -1402,7 +1402,7 @@
         "id": "2036:20575",
         "type": "COMPONENT_SET",
         "publishStatus": "CHANGED",
-        "bouwhash": "1gqkyrl:11",
+        "bouwhash": "b0hd61:11",
         "componentProperties": [
           "value#2036:868",
           "unit#2036:871",
@@ -1818,7 +1818,7 @@
         "id": "2036:20821",
         "type": "COMPONENT",
         "publishStatus": "CHANGED",
-        "bouwhash": "1bqqgna:19",
+        "bouwhash": "1hom4rs:19",
         "componentProperties": [
           "message#2036:884"
         ],
@@ -1836,7 +1836,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2045:30201",
+          "id": "2046:30240",
           "type": "RECTANGLE"
         }
       ]
