@@ -9,7 +9,7 @@
  * Bewust géén databaseverbinding in dit bestand: het bouwt SQL en parameters, meer niet.
  * Daardoor kan de scenario-suite de selectie toetsen zonder een spiegel van 3,6 GB.
  */
-import { REGIONS, type RegionCode } from '../regions'
+import { ALL_REGIONS, REGIONS, type RegionCode } from '../regions'
 
 /**
  * NACE 2025, hoofdactiviteit. Keuze van Jeroen op 2026-08-29, gemeten op extract 466:
@@ -174,7 +174,7 @@ const naamSubquery = (type: string) =>
  */
 export function bouwProspectSql(
   filter: ProspectFilter,
-  opties: { tellen?: boolean } = {}
+  opties: { tellen?: boolean; nummers?: boolean } = {}
 ): { sql: string; params: unknown[] } {
   // Parameters zijn positioneel, en de SELECT-lijst staat vóór de WHERE in de string.
   // Twee aparte lijsten die pas aan het eind samenkomen, want anders hangt de volgorde af
@@ -245,6 +245,12 @@ export function bouwProspectSql(
     return { sql: `SELECT COUNT(*) AS n ${van}`, params }
   }
 
+  // Alleen de nummers, ongepagineerd. De kaart heeft geen kolommen nodig maar wél de
+  // volledige selectie: hij tekent alles wat een coordinaat heeft, niet een pagina van 60.
+  if (opties.nummers) {
+    return { sql: `SELECT e.EnterpriseNumber AS nummer ${van}`, params }
+  }
+
   // De codes verschijnen een tweede keer, nu in de SELECT-lijst.
   selectParams.push(...codes)
 
@@ -279,6 +285,59 @@ export function bouwProspectSql(
         ORDER BY ${ORDENING[filter.sortering] ?? ORDENING.oprichting}
         LIMIT ? OFFSET ?`,
     params: [...selectParams, ...params, ...paginaParams],
+  }
+}
+
+/**
+ * Wat de filterbalk instelt, los van sortering en paginering.
+ *
+ * Bestaat omdat lijst en kaart hetzelfde filter horen te tonen en dat op 2026-09-09 niet
+ * deden: `/api/kaart` las geen enkele parameter en `ProspectMap` stuurde er geen, dus de
+ * kaart bleef op 217 punten staan bij elke filterstand. Dat kwam er niet door een vergeten
+ * parameter maar doordat er twee plekken waren waar hij vergeten kon worden. Vandaar één
+ * bouwer en één lezer, hier, waar `ProspectFilter` ook staat.
+ */
+export type UiFilter = {
+  regions: RegionCode[]
+  zoek: string
+  alleenWerkgevers: boolean
+  herkomst: Herkomst
+  alleenWinstgevend: boolean
+}
+
+/** De filterstand als querystring — client-kant. */
+export function filterQuery(f: UiFilter): URLSearchParams {
+  const p = new URLSearchParams()
+  for (const r of f.regions) p.append('regio', r)
+  if (f.zoek.trim()) p.set('zoek', f.zoek.trim())
+  if (!f.alleenWerkgevers) p.set('werkgevers', '0')
+  if (f.herkomst !== 'beide') p.set('herkomst', f.herkomst)
+  if (f.alleenWinstgevend) p.set('winstgevend', '1')
+  return p
+}
+
+/**
+ * Diezelfde querystring terug naar een `ProspectFilter` — server-kant.
+ *
+ * `sortering` en `pagina` krijgen hun standaard; een route die ze wél kent zet ze erna.
+ * Zo hoeft een route die alleen filtert (de kaart) niet te weten dat ze bestaan.
+ */
+export function leesFilter(params: URLSearchParams): ProspectFilter {
+  const gevraagd = params.getAll('regio').filter((r): r is RegionCode =>
+    (ALL_REGIONS as readonly string[]).includes(r)
+  )
+  const herkomstRuw = params.get('herkomst')
+  return {
+    regions: gevraagd.length ? gevraagd : [...ALL_REGIONS],
+    zoek: params.get('zoek') ?? undefined,
+    // Standaard aan: zonder deze zeef is 80% van de lijst zonder personeel.
+    alleenWerkgevers: params.get('werkgevers') !== '0',
+    herkomst: herkomstRuw === 'kbo' || herkomstRuw === 'csv' ? herkomstRuw : 'beide',
+    // Standaard uit, anders verbergt de lijst stil de verlieslatende bedrijven — op het
+    // geleverde bestand 44 van de 218.
+    alleenWinstgevend: params.get('winstgevend') === '1',
+    sortering: 'oprichting',
+    pagina: 1,
   }
 }
 

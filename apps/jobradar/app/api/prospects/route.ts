@@ -3,9 +3,9 @@ import { inArray } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { haalProspects } from '@/lib/kbo/spiegel'
-import { ALL_REGIONS, type RegionCode } from '@/lib/regions'
+import { leesFilter } from '@/lib/kbo/universum'
 import type { ItemStatus } from '@/lib/db/schema'
-import type { Herkomst, Sortering } from '@/lib/kbo/universum'
+import type { Sortering } from '@/lib/kbo/universum'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,27 +35,16 @@ function paginaVan(ruw: string | null): number {
 export async function GET(request: Request) {
   const url = new URL(request.url)
 
-  const gevraagd = url.searchParams.getAll('regio').filter((r): r is RegionCode =>
-    (ALL_REGIONS as string[]).includes(r)
-  )
   const sorteringRuw = url.searchParams.get('sortering')
   const sortering: Sortering =
     sorteringRuw === 'omvang' || sorteringRuw === 'ebitda' || sorteringRuw === 'actie'
       ? sorteringRuw
       : 'oprichting'
-  const herkomstRuw = url.searchParams.get('herkomst')
-  const herkomst: Herkomst =
-    herkomstRuw === 'kbo' || herkomstRuw === 'csv' ? herkomstRuw : 'beide'
 
   const filter = {
-    regions: gevraagd.length ? gevraagd : ALL_REGIONS,
-    zoek: url.searchParams.get('zoek') ?? undefined,
-    // Standaard aan: zonder deze zeef is 80% van de lijst zonder personeel.
-    alleenWerkgevers: url.searchParams.get('werkgevers') !== '0',
-    herkomst,
-    // Standaard uit, anders verbergt de lijst stil de verlieslatende bedrijven — op het
-    // geleverde bestand 44 van de 218.
-    alleenWinstgevend: url.searchParams.get('winstgevend') === '1',
+    // Regio, zoekterm, bron en de twee zeven: dezelfde lezer als `/api/kaart`, zodat de
+    // twee routes niet elk hun eigen idee van de filterstand kunnen krijgen.
+    ...leesFilter(url.searchParams),
     sortering,
     // Als enige parameter ging deze ongefilterd door. `?pagina=1e20` levert een OFFSET
     // van 6e21, en dat is voor SQLite geen integer meer: `datatype mismatch` uit de

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@umanex/ui/components/ui/tabs'
 import { TooltipProvider } from '@umanex/ui/components/ui/tooltip'
@@ -19,7 +19,13 @@ import { Button } from '@umanex/ui/components/ui/button'
 import { Checkbox } from '@umanex/ui/components/ui/checkbox'
 import { Label } from '@umanex/ui/components/ui/label'
 import type { SpiegelStaat, KboVermoeden } from '@/lib/kbo/spiegel'
-import { VEROUDERD_NA_DAGEN, type Herkomst, type Sortering } from '@/lib/kbo/universum'
+import {
+  filterQuery,
+  VEROUDERD_NA_DAGEN,
+  type Herkomst,
+  type Sortering,
+  type UiFilter,
+} from '@/lib/kbo/universum'
 import type { Job, Company, ItemStatus } from '@/lib/db/schema'
 import { normaliseerBedrijf } from '@/lib/matching'
 import type { RegionCode } from '@/lib/regions'
@@ -141,17 +147,20 @@ export function DashboardClient({
     )
     .sort((a, b) => b.leadScore - a.leadScore)
 
+  // Eén filterstand voor de lijst én de kaart. Ze uit elkaar laten lopen is precies wat
+  // er op 2026-09-09 mis was: de kaart bleef op alle punten staan bij elke filterkeuze.
+  const kaartFilter: UiFilter = useMemo(
+    () => ({ regions, zoek, alleenWerkgevers, herkomst, alleenWinstgevend }),
+    [regions, zoek, alleenWerkgevers, herkomst, alleenWinstgevend]
+  )
+
   const haalProspects = useCallback(
     async (signal: AbortSignal) => {
       setProspectBezig(true)
       setProspectFout(null)
       try {
-        const p = new URLSearchParams()
-        for (const r of regions) p.append('regio', r)
-        if (zoek.trim()) p.set('zoek', zoek.trim())
-        if (!alleenWerkgevers) p.set('werkgevers', '0')
-        if (herkomst !== 'beide') p.set('herkomst', herkomst)
-        if (alleenWinstgevend) p.set('winstgevend', '1')
+        // Dezelfde bouwer als de kaart — zie `filterQuery` in `lib/kbo/universum.ts`.
+        const p = filterQuery(kaartFilter)
         if (sortering !== 'oprichting') p.set('sortering', sortering)
         p.set('pagina', String(prospectPagina))
         const res = await fetch(`/api/prospects?${p}`, { signal })
@@ -174,7 +183,7 @@ export function DashboardClient({
         setProspectBezig(false)
       }
     },
-    [regions, zoek, alleenWerkgevers, herkomst, alleenWinstgevend, sortering, prospectPagina]
+    [kaartFilter, sortering, prospectPagina]
   )
 
   useEffect(() => {
@@ -445,7 +454,7 @@ export function DashboardClient({
             )}
 
             {weergave === 'kaart' ? (
-              <ProspectMap />
+              <ProspectMap filter={kaartFilter} />
             ) : prospectFout ? (
               <p role="alert" className="mt-8 text-center text-sm text-destructive">
                 {prospectFout}

@@ -149,6 +149,25 @@ export function haalProspects(filter: ProspectFilter, vandaag: string): Prospect
   }
 }
 
+/**
+ * Elk ondernemingsnummer dat de huidige filterstand oplevert, ongepagineerd.
+ *
+ * Voor de kaart: die tekent de hele selectie, niet een pagina van 60. Dezelfde SQL-bouwer
+ * als de lijst, dus de twee kunnen niet uiteenlopen — precies wat er op 2026-09-09 mis
+ * was, toen `/api/kaart` helemaal geen filter kende.
+ *
+ * `null` betekent "geen spiegel": zonder `kbo.db` bestaat er geen selectie om tegen af te
+ * zetten, want de query vertrekt van `enterprise`. Dat is iets anders dan een lege
+ * selectie, en de kaart hoort dat verschil te tonen in plaats van 220 ongefilterde stippen.
+ */
+export function haalSelectie(filter: ProspectFilter): Set<string> | null {
+  const db = open()
+  if (!db) return null
+  const q = bouwProspectSql(filter, { nummers: true })
+  const rijen = db.prepare(q.sql).all(...q.params) as { nummer: string }[]
+  return new Set(rijen.map((r) => r.nummer))
+}
+
 export type KboVermoeden = {
   nummer: string
   kboNaam: string | null

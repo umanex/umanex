@@ -6,6 +6,7 @@ import { cn } from '@umanex/ui/lib/utils'
 import { focusRing } from '@umanex/ui/lib/focus'
 import { StatusDropdown } from './StatusDropdown'
 import { clusterPunten, projecteer, ringNaarPad, verhouding } from '@/lib/kaart'
+import { filterQuery, type UiFilter } from '@/lib/kbo/universum'
 import type { ItemStatus } from '@/lib/db/schema'
 
 const BREEDTE = 1000
@@ -45,19 +46,34 @@ const KLEUR: Record<ItemStatus, string> = {
  * verzoek naar buiten, dus de origin-guard van de flow-harness kan hier per constructie niets
  * afbreken.
  */
-export function ProspectMap() {
+type ProspectMapProps = {
+  /** Dezelfde filterstand als de lijst. De kaart is geen tweede selectie. */
+  filter: UiFilter
+}
+
+export function ProspectMap({ filter }: ProspectMapProps) {
   const [punten, setPunten] = useState<Punt[] | null>(null)
   const [grenzen, setGrenzen] = useState<Grenzen | null>(null)
-  const [tellers, setTellers] = useState({ leadsZonderAdres: 0, zonderCoordinaat: 0, buitenProvincies: 0 })
+  const [tellers, setTellers] = useState({
+    leadsZonderAdres: 0,
+    zonderCoordinaat: 0,
+    buitenProvincies: 0,
+    buitenFilter: 0,
+  })
+  const [zonderSpiegel, setZonderSpiegel] = useState(false)
   const [fout, setFout] = useState<string | null>(null)
   const [gekozen, setGekozen] = useState<string[] | null>(null)
+
+  // De querystring als string in de dependency-lijst: een object is elke render een nieuwe
+  // referentie, dus een effect dat op `filter` zelf hangt vuurt eindeloos.
+  const vraag = filterQuery(filter).toString()
 
   useEffect(() => {
     const ctrl = new AbortController()
     void (async () => {
       try {
         const [k, g] = await Promise.all([
-          fetch('/api/kaart', { signal: ctrl.signal }).then((r) => r.json()),
+          fetch(`/api/kaart?${vraag}`, { signal: ctrl.signal }).then((r) => r.json()),
           fetch('/geo/provincies.json', { signal: ctrl.signal }).then((r) => r.json()),
         ])
         if (!k?.ok) {
@@ -65,18 +81,23 @@ export function ProspectMap() {
           return
         }
         setPunten(k.punten)
+        setZonderSpiegel(k.spiegel === 'ontbreekt')
         setTellers({
           leadsZonderAdres: k.leadsZonderAdres,
           zonderCoordinaat: k.zonderCoordinaat,
           buitenProvincies: k.buitenProvincies ?? 0,
+          buitenFilter: k.buitenFilter ?? 0,
         })
         setGrenzen(g)
+        // Een selectie die kleiner wordt kan de aangeklikte stip wegnemen; het paneel ernaast
+        // zou dan een bedrijf tonen dat niet meer op de kaart staat.
+        setGekozen(null)
       } catch (e) {
         if ((e as Error).name !== 'AbortError') setFout('Geen antwoord van de server.')
       }
     })()
     return () => ctrl.abort()
-  }, [])
+  }, [vraag])
 
   const clusters = useMemo(() => {
     if (!punten) return []
@@ -102,11 +123,32 @@ export function ProspectMap() {
   }
 
   if (!punten.length) {
+    // Drie redenen om leeg te zijn, drie verschillende antwoorden. Ze op één hoop gooien
+    // maakt van "draai de sync", "draai de geocoder" en "je filter is te smal" hetzelfde ding.
     return (
       <div className="mt-3 rounded-md border border-border bg-muted p-4 text-sm text-muted-foreground">
-        Nog geen coördinaten. Draai{' '}
-        <code className="rounded bg-background px-1 py-0.5">pnpm --filter jobradar geocode</code> — dat
-        haalt ze eenmalig op en bewaart ze, dus het hoeft één keer.
+        {zonderSpiegel ? (
+          <>
+            Er staat nog geen KBO-spiegel op deze machine, en de kaart tekent wat de lijst
+            selecteert. Draai{' '}
+            <code className="rounded bg-background px-1 py-0.5">
+              pnpm --filter jobradar kbo:sync --full
+            </code>
+            .
+          </>
+        ) : tellers.buitenFilter > 0 ? (
+          <>
+            Geen enkel bedrijf met een coördinaat valt binnen je huidige filters —{' '}
+            {tellers.buitenFilter} {tellers.buitenFilter === 1 ? 'valt' : 'vallen'} erbuiten. Pas
+            regio, bron of de zeven aan.
+          </>
+        ) : (
+          <>
+            Nog geen coördinaten. Draai{' '}
+            <code className="rounded bg-background px-1 py-0.5">pnpm --filter jobradar geocode</code>{' '}
+            — dat haalt ze eenmalig op en bewaart ze, dus het hoeft één keer.
+          </>
+        )}
       </div>
     )
   }
@@ -124,6 +166,7 @@ export function ProspectMap() {
         {tellers.zonderCoordinaat > 0 && ` ${tellers.zonderCoordinaat} zonder coördinaat.`}
         {tellers.buitenProvincies > 0 &&
           ` ${tellers.buitenProvincies} liggen buiten de drie provincies — de zoekstraal van de vacaturebron loopt over de grens.`}
+        {tellers.buitenFilter > 0 && ` ${tellers.buitenFilter} vallen buiten je huidige filters.`}
       </p>
 
       <p aria-live="polite" className="sr-only">

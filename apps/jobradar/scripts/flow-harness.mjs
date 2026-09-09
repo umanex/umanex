@@ -563,6 +563,24 @@ async function main() {
             // Er is geen kaart-library en geen basemap, dus de kaart mag per constructie
             // geen enkel verzoek naar buiten doen. De origin-guard hierboven bewijst dat
             // voor de hele run; hier tellen we wat er getekend staat.
+            //
+            // Eerst de bron terugzetten op "Beide". De stappen hierboven laten hem op
+            // "Lijst" staan, en dan opent de kaart in een toestand zónder lead-vermoedens:
+            // de markervorm-checks hieronder zouden dan `0 leads → 0 ruiten` melden en
+            // vacuüm slagen, en de filter-tegenproef verderop zou al in zijn eindtoestand
+            // beginnen. Een check die niet meer rood kán worden is geen check.
+            {
+              const bronGroep = page.locator('[role="tabpanel"]:visible [role="radiogroup"]');
+              if (await bronGroep.count()) {
+                const beideAntwoord = page
+                  .waitForResponse((r) => r.url().includes('/api/prospects'), { timeout: 20_000 })
+                  .catch(() => null);
+                await bronGroep.locator('[role="radio"]', { hasText: 'Beide' }).click();
+                await beideAntwoord;
+                await page.waitForTimeout(400);
+              }
+            }
+
             const kaartKnop = page.locator('[role="tabpanel"]:visible button', { hasText: /^Kaartweergave$/ });
             if (!(await kaartKnop.count())) {
               fail('prospects: geen kaart/lijst-toggle gevonden');
@@ -646,6 +664,62 @@ async function main() {
                   const heeftFocus = await eersteMarker.evaluate((el) => el === document.activeElement);
                   if (heeftFocus) ok('kaart: een marker is focusbaar');
                   else fail('kaart: een marker kan geen focus krijgen');
+
+                  // ── Volgt de kaart het filter? ─────────────────────────────
+                  // Dit is de scherpste check van het hele kaart-blok, want het is de
+                  // enige die rood was toen alles eromheen groen stond: tot 2026-09-09
+                  // las `/api/kaart` geen enkele parameter en bleef de kaart op al zijn
+                  // punten staan bij elke filterkeuze, terwijl de tellingen hierboven
+                  // netjes klopten met een antwoord dat zélf het filter negeerde. Een
+                  // telling tegen het antwoord kan die klasse per constructie niet zien;
+                  // alleen een tweede filterstand kan dat.
+                  const bron = page.locator('[role="tabpanel"]:visible [role="radiogroup"]');
+                  if (!(await bron.count())) {
+                    fail('kaart: geen bronfilter zichtbaar in de kaartweergave');
+                  } else {
+                    const naFilter = page
+                      .waitForResponse(
+                        (r) => r.url().includes('/api/kaart') && r.url().includes('herkomst=csv'),
+                        { timeout: 20_000 }
+                      )
+                      .catch(() => null);
+                    await bron.locator('[role="radio"]', { hasText: 'Lijst' }).click();
+                    const fres = await naFilter;
+                    if (!fres) {
+                      fail('kaart: bron "Lijst" leverde geen /api/kaart-verzoek met herkomst=csv');
+                    } else {
+                      const fbody = await fres.json().catch(() => null);
+                      await page.waitForTimeout(800);
+                      const voor = kbody?.punten?.length ?? 0;
+                      const na = fbody?.punten?.length ?? 0;
+                      if (na > 0 && na < voor) ok(`kaart: bron "Lijst" versmalt ${voor} → ${na} punten`);
+                      else fail(`kaart: bron "Lijst" gaf ${na} punten bij ${voor} — het filter doet niets`);
+
+                      // Een lead is geen rij uit de aangeleverde lijst; onder "Lijst"
+                      // hoort er geen enkel vermoeden meer te staan.
+                      const nogLeads = (fbody?.punten ?? []).filter((p) => p.herkomst === 'lead').length;
+                      if (nogLeads === 0) ok('kaart: bron "Lijst" laat geen lead-vermoedens staan');
+                      else fail(`kaart: bron "Lijst" toont nog ${nogLeads} lead-vermoedens`);
+
+                      // Wat wegvalt door een keuze van de gebruiker, hoort geteld te
+                      // worden — anders is een smaller filter niet te onderscheiden van
+                      // een geocoder die niets vond.
+                      if ((fbody?.buitenFilter ?? 0) > 0) {
+                        const gemeld = await page
+                          .locator('[role="tabpanel"]:visible', { hasText: 'buiten je huidige filters' })
+                          .count();
+                        if (gemeld) ok(`kaart: de ${fbody.buitenFilter} punten buiten het filter worden gemeld`);
+                        else fail(`kaart: ${fbody.buitenFilter} punten vallen weg zonder telling`);
+                      }
+                    }
+                    // Terug naar "Beide", zodat de checks hierna dezelfde stand zien.
+                    const terug = page
+                      .waitForResponse((r) => r.url().includes('/api/kaart'), { timeout: 20_000 })
+                      .catch(() => null);
+                    await bron.locator('[role="radio"]', { hasText: 'Beide' }).click();
+                    await terug;
+                    await page.waitForTimeout(400);
+                  }
                 }
               }
 
