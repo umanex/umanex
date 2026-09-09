@@ -73,16 +73,18 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+43e91cf Merge remote-tracking branch 'origin/main' into chore/sync-os-na-skillwijziging
 ac9db56 docs(rowtrack): write down the sweep flakiness the previous commit claimed to have written down
 f0b404c fix(rowtrack): the render sweep was flaky at its tail, and it failed the last stories
+99ee19d docs(rowtrack): het parity-item sluit nu op bewijs dat rood had kunnen worden
 01642b8 Merge remote-tracking branch 'origin/main' into feature/rowtrack-autolayout-beeld
-224430f docs(rowtrack): the node ids survive a rebuild now, so the deep links do too
-df1e0fe feat(rowtrack): update components instead of replacing them, and complete the alignment family
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/context-snapshot.md
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/figma/bouw-batch.js
+  M  apps/rowtrack/figma/builder.js
+  M  apps/rowtrack/scripts/figma-poort-selftest.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
