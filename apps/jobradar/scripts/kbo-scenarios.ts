@@ -27,7 +27,10 @@ import {
 } from '../lib/kbo/koppeling'
 import {
   bouwProspectSql,
+  bouwZonderKboSql,
   leeftijdInJaren,
+  NACE_VERSIE,
+  type ProspectFilter,
   NACE_LABEL,
   PROSPECT_NACE,
   PAGINA_GROOTTE,
@@ -193,7 +196,14 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
 // parameters. Parameters zijn positioneel, en de SELECT-lijst staat vóór de WHERE — een
 // vergeten of dubbel meegegeven waarde schuift stil álles op, en de query blijft geldig.
 {
-  const basis = { regions: ['WVL', 'OVL', 'BRU'] as const, alleenWerkgevers: true, pagina: 1 }
+  const basis = {
+    regions: ['WVL', 'OVL', 'BRU'] as const,
+    alleenWerkgevers: true,
+    herkomst: 'beide' as const,
+    alleenWinstgevend: false,
+    sortering: 'oprichting' as const,
+    pagina: 1,
+  }
   const varianten = [
     { naam: 'volledig', f: { ...basis, regions: [...basis.regions] } },
     { naam: 'zonder werkgeverszeef', f: { ...basis, regions: [...basis.regions], alleenWerkgevers: false } },
@@ -201,6 +211,17 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
     { naam: 'één regio', f: { ...basis, regions: ['WVL' as const] } },
     { naam: 'geen regio', f: { ...basis, regions: [] } },
     { naam: 'pagina 5', f: { ...basis, regions: [...basis.regions], pagina: 5 } },
+    // De herkomst-as verdubbelt de matrix. Ze staat er voluit in en niet als steekproef:
+    // elke tak zet een ándere combinatie parameters klaar, en juist daar schuift een
+    // vergeten placeholder stil alles op.
+    { naam: 'herkomst kbo', f: { ...basis, regions: [...basis.regions], herkomst: 'kbo' as const } },
+    { naam: 'herkomst csv', f: { ...basis, regions: [...basis.regions], herkomst: 'csv' as const } },
+    { naam: 'herkomst csv + zoekterm', f: { ...basis, regions: [...basis.regions], herkomst: 'csv' as const, zoek: 'studio' } },
+    { naam: 'herkomst csv + winstgevend', f: { ...basis, regions: [...basis.regions], herkomst: 'csv' as const, alleenWinstgevend: true } },
+    { naam: 'winstgevend', f: { ...basis, regions: [...basis.regions], alleenWinstgevend: true } },
+    { naam: 'winstgevend + zoekterm + één regio', f: { ...basis, regions: ['WVL' as const], alleenWinstgevend: true, zoek: 'studio' } },
+    { naam: 'sortering omvang', f: { ...basis, regions: [...basis.regions], sortering: 'omvang' as const } },
+    { naam: 'sortering ebitda', f: { ...basis, regions: [...basis.regions], sortering: 'ebitda' as const } },
   ]
 
   for (const { naam, f } of varianten) {
@@ -243,6 +264,220 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
   const metRsz = bouwProspectSql({ ...basis, regions: ['WVL'], alleenWerkgevers: true })
   const zonderRsz = bouwProspectSql({ ...basis, regions: ['WVL'], alleenWerkgevers: false })
   check('de werkgeverszeef voegt een voorwaarde toe', metRsz.params.length === zonderRsz.params.length + 1)
+
+  // ── De herkomst-as ─────────────────────────────────────────────────────────
+  const kbo = bouwProspectSql({ ...basis, regions: ['WVL'], herkomst: 'kbo' })
+  const csv = bouwProspectSql({ ...basis, regions: ['WVL'], herkomst: 'csv' })
+  const beide = bouwProspectSql({ ...basis, regions: ['WVL'], herkomst: 'beide' })
+
+  check('herkomst kbo houdt de NACE-zeef', /a\.NaceCode IN/.test(kbo.sql))
+  check('herkomst csv laat de NACE-zeef in de WHERE vallen', !/AND EXISTS \(SELECT 1 FROM activity a\b/.test(csv.sql))
+  check(
+    'herkomst csv eist een CSV-tegenhanger',
+    /cp\.enterprise_number IS NOT NULL/.test(csv.sql)
+  )
+  check(
+    'herkomst beide is een OR, geen AND — de vereniging, niet de doorsnede',
+    /OR cp\.enterprise_number IS NOT NULL/.test(beide.sql)
+  )
+  check(
+    'herkomst csv geeft minder parameters mee dan kbo (de zes NACE-codes plus de versie)',
+    csv.params.length === kbo.params.length - (PROSPECT_NACE.length + 1),
+    `csv=${csv.params.length} kbo=${kbo.params.length}`
+  )
+  check('elke herkomst joint de CSV-tabel, ook de telling', [
+    bouwProspectSql({ ...basis, regions: ['WVL'], herkomst: 'kbo' }, { tellen: true }),
+    bouwProspectSql({ ...basis, regions: ['WVL'], herkomst: 'csv' }, { tellen: true }),
+    bouwProspectSql({ ...basis, regions: ['WVL'], herkomst: 'beide' }, { tellen: true }),
+  ].every((q) => /LEFT JOIN jr\.csv_prospects/.test(q.sql)))
+
+  // ── De winstgevendheidszeef, op een echte database ─────────────────────────
+  // Deze checks draaien de SQL uit en tellen rijen; ze lezen hem niet.
+  //
+  // De reden staat in de meting die eraan voorafging (2026-09-08): een string-check op
+  // `/cp\.ebitda > 0/` bleef groen toen de zeef werd verbouwd tot
+  // `(cp.ebitda > 0 OR cp.ebitda IS NULL)` — de gezochte tekst stond er nog steeds in.
+  // De check toetste de náám van de voorwaarde, niet wat ze doet.
+  {
+    const db = new Database(':memory:')
+    db.exec(`
+      CREATE TABLE enterprise ("EnterpriseNumber" TEXT PRIMARY KEY, "Status" TEXT, "StartDate" TEXT);
+      CREATE TABLE address ("EntityNumber" TEXT, "TypeOfAddress" TEXT, "Zipcode" TEXT, "MunicipalityNL" TEXT);
+      CREATE TABLE activity ("EntityNumber" TEXT, "ActivityGroup" TEXT, "NaceVersion" TEXT, "NaceCode" TEXT, "Classification" TEXT);
+      CREATE TABLE denomination ("EntityNumber" TEXT, "Language" TEXT, "TypeOfDenomination" TEXT, "Denomination" TEXT);
+      CREATE TABLE contact ("EntityNumber" TEXT, "EntityContact" TEXT, "ContactType" TEXT, "Value" TEXT);
+      ATTACH DATABASE ':memory:' AS jr;
+      CREATE TABLE jr.csv_prospects (
+        enterprise_number TEXT PRIMARY KEY, name TEXT, nace_label TEXT, city TEXT,
+        employee_count REAL, ebitda REAL, valuation_multiple REAL,
+        enterprise_value REAL, equity_value REAL, bestandsnaam TEXT, imported_at TEXT);
+    `)
+
+    // Vier bedrijven, elk met precies één eigenschap die ertoe doet.
+    const bedrijf = (nr: string, nace: string) => {
+      db.prepare(`INSERT INTO enterprise VALUES (?, 'AC', '2020-01-01')`).run(nr)
+      db.prepare(`INSERT INTO address VALUES (?, 'REGO', '8000', 'Brugge')`).run(nr)
+      db.prepare(`INSERT INTO activity VALUES (?, '006', ?, ?, 'MAIN')`).run(nr, NACE_VERSIE, nace)
+      db.prepare(`INSERT INTO denomination VALUES (?, '2', '001', ?)`).run(nr, 'Firma ' + nr)
+    }
+    const csv = (nr: string, ebitda: number | null) =>
+      db.prepare(`INSERT INTO jr.csv_prospects (enterprise_number, name, ebitda, bestandsnaam, imported_at)
+                  VALUES (?, ?, ?, 'x', 'x')`).run(nr, 'Firma ' + nr, ebitda)
+
+    bedrijf('1000000001', '62100')   // in de NACE-zeef, geen CSV
+    bedrijf('1000000002', '62100')   // in de zeef, CSV met winst
+    bedrijf('1000000003', '62100')   // in de zeef, CSV met verlies
+    bedrijf('1000000004', '10710')   // BUITEN de zeef (bakkerij), CSV met winst
+    csv('1000000002', 5000)
+    csv('1000000003', -5000)
+    csv('1000000004', 7000)
+
+    const tel = (f: Partial<ProspectFilter>) => {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], ...f }, { tellen: true })
+      return (db.prepare(q.sql).get(...(q.params as never[])) as { n: number }).n
+    }
+
+    check('herkomst kbo telt alleen wat in de NACE-zeef zit', tel({ herkomst: 'kbo' }) === 3, String(tel({ herkomst: 'kbo' })))
+    check('herkomst csv telt alle CSV-rijen, ook buiten de zeef', tel({ herkomst: 'csv' }) === 3, String(tel({ herkomst: 'csv' })))
+    check('herkomst beide is de vereniging, geen dubbeltelling', tel({ herkomst: 'beide' }) === 4, String(tel({ herkomst: 'beide' })))
+    check(
+      'de winstzeef verwijdert het verlieslatende bedrijf',
+      tel({ herkomst: 'csv', alleenWinstgevend: true }) === 2,
+      String(tel({ herkomst: 'csv', alleenWinstgevend: true }))
+    )
+    check(
+      'de winstzeef verwijdert óók de KBO-rijen zonder EBITDA — NULL is geen winst',
+      tel({ herkomst: 'beide', alleenWinstgevend: true }) === 2,
+      String(tel({ herkomst: 'beide', alleenWinstgevend: true }))
+    )
+
+    const winst = bouwProspectSql({ ...basis, regions: ['WVL'], alleenWinstgevend: true })
+    const geenWinst = bouwProspectSql({ ...basis, regions: ['WVL'], alleenWinstgevend: false })
+    check(
+      'de winstzeef voegt géén parameter toe — de drempel is een literal',
+      winst.params.length === geenWinst.params.length,
+      `${winst.params.length} vs ${geenWinst.params.length}`
+    )
+
+    db.close()
+  }
+
+  // ── De zoekterm zoekt nu in twee bronnen ───────────────────────────────────
+  const zoekBeide = bouwProspectSql({ ...basis, regions: ['WVL'], zoek: 'studio' })
+  check(
+    'een zoekterm zoekt in de KBO-benaming én in de CSV-naam',
+    (zoekBeide.params.filter((v) => v === '%studio%')).length === 2,
+    String(zoekBeide.params.filter((v) => v === '%studio%').length)
+  )
+
+  // ── De rijen buiten de spiegel ─────────────────────────────────────────────
+  for (const f of [
+    { ...basis, regions: [...basis.regions] },
+    { ...basis, regions: [...basis.regions], zoek: 'studio' },
+    { ...basis, regions: [...basis.regions], alleenWinstgevend: true },
+  ]) {
+    const q = bouwZonderKboSql(f)
+    const vraagtekens = (q.sql.match(/\?/g) ?? []).length
+    check(
+      `zonder-KBO-telling: ${vraagtekens} placeholders, ${q.params.length} parameters`,
+      vraagtekens === q.params.length,
+      `${vraagtekens} vs ${q.params.length}`
+    )
+  }
+  const buiten = bouwZonderKboSql({ ...basis, regions: [...basis.regions] })
+  check('de zonder-KBO-telling kent geen regiofilter', !/Zipcode/.test(buiten.sql))
+  {
+    // Bij herkomst `kbo` is de melding niet van toepassing: dan kijkt de gebruiker bewust
+    // niet naar de aangeleverde lijst.
+    const db = new Database(':memory:')
+    db.exec(`ATTACH DATABASE ':memory:' AS jr;
+      CREATE TABLE enterprise ("EnterpriseNumber" TEXT PRIMARY KEY);
+      CREATE TABLE jr.csv_prospects (enterprise_number TEXT PRIMARY KEY, name TEXT, ebitda REAL);
+      INSERT INTO jr.csv_prospects VALUES ('9999999999', 'Buiten de spiegel', 100);`)
+    const tel = (herkomst: 'kbo' | 'csv' | 'beide') => {
+      const q = bouwZonderKboSql({ ...basis, regions: [...basis.regions], herkomst })
+      return (db.prepare(q.sql).get(...(q.params as never[])) as { n: number }).n
+    }
+    check('herkomst csv telt de rij buiten de spiegel', tel('csv') === 1, String(tel('csv')))
+    check('herkomst beide telt hem ook', tel('beide') === 1, String(tel('beide')))
+    check('herkomst kbo telt hem niet — dan is de melding ruis', tel('kbo') === 0, String(tel('kbo')))
+    db.close()
+  }
+  check(
+    'de zonder-KBO-telling sluit alles uit wat wél in de spiegel staat',
+    /NOT EXISTS \(SELECT 1 FROM enterprise/.test(buiten.sql)
+  )
+
+  // ── De ordening ────────────────────────────────────────────────────────────
+  // Gedragschecks op de fixture-database: de volgorde die eruit komt, niet de string die
+  // erin staat. Dezelfde les als bij de winstzeef.
+  {
+    const db = new Database(':memory:')
+    db.exec(`
+      CREATE TABLE enterprise ("EnterpriseNumber" TEXT PRIMARY KEY, "Status" TEXT, "StartDate" TEXT);
+      CREATE TABLE address ("EntityNumber" TEXT, "TypeOfAddress" TEXT, "Zipcode" TEXT, "MunicipalityNL" TEXT);
+      CREATE TABLE activity ("EntityNumber" TEXT, "ActivityGroup" TEXT, "NaceVersion" TEXT, "NaceCode" TEXT, "Classification" TEXT);
+      CREATE TABLE denomination ("EntityNumber" TEXT, "Language" TEXT, "TypeOfDenomination" TEXT, "Denomination" TEXT);
+      CREATE TABLE contact ("EntityNumber" TEXT, "EntityContact" TEXT, "ContactType" TEXT, "Value" TEXT);
+      ATTACH DATABASE ':memory:' AS jr;
+      CREATE TABLE jr.csv_prospects (
+        enterprise_number TEXT PRIMARY KEY, name TEXT, nace_label TEXT, city TEXT,
+        employee_count REAL, ebitda REAL, valuation_multiple REAL,
+        enterprise_value REAL, equity_value REAL, bestandsnaam TEXT, imported_at TEXT);
+    `)
+    const zet = (nr: string, start: string, werknemers: number | null, ebitda: number | null) => {
+      db.prepare(`INSERT INTO enterprise VALUES (?, 'AC', ?)`).run(nr, start)
+      db.prepare(`INSERT INTO address VALUES (?, 'REGO', '8000', 'Brugge')`).run(nr)
+      db.prepare(`INSERT INTO activity VALUES (?, '006', ?, '62100', 'MAIN')`).run(nr, NACE_VERSIE)
+      if (werknemers !== null) {
+        db.prepare(`INSERT INTO jr.csv_prospects (enterprise_number, name, employee_count, ebitda, bestandsnaam, imported_at)
+                    VALUES (?, ?, ?, ?, 'x', 'x')`).run(nr, 'Firma ' + nr, werknemers, ebitda)
+      }
+    }
+    // Het jóngste bedrijf is het kléinste, zodat elke sortering een andere kop geeft.
+    zet('2000000001', '2024-01-01', 5, 100)      // jongst, klein, lage ebitda
+    zet('2000000002', '2010-01-01', 50, 900)     // oudst, grootst, hoogste ebitda
+    zet('2000000003', '2015-01-01', 20, 400)
+    zet('2000000004', '2012-01-01', null, null)  // alleen KBO, geen cijfers
+
+    const eerste = (sortering: 'oprichting' | 'omvang' | 'ebitda') => {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering })
+      const rijen = db.prepare(q.sql).all(...(q.params as never[])) as { nummer: string }[]
+      return rijen[0]?.nummer
+    }
+    check('sortering oprichting zet het jongste bedrijf bovenaan', eerste('oprichting') === '2000000001', String(eerste('oprichting')))
+    check('sortering omvang zet het grootste bovenaan', eerste('omvang') === '2000000002', String(eerste('omvang')))
+    check('sortering ebitda zet de hoogste bovenaan', eerste('ebitda') === '2000000002', String(eerste('ebitda')))
+
+    const laatste = (sortering: 'omvang' | 'ebitda') => {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering })
+      const rijen = db.prepare(q.sql).all(...(q.params as never[])) as { nummer: string }[]
+      return rijen[rijen.length - 1]?.nummer
+    }
+    check('een rij zonder cijfers zakt naar onderen bij omvang', laatste('omvang') === '2000000004', String(laatste('omvang')))
+    check('een rij zonder cijfers zakt naar onderen bij ebitda', laatste('ebitda') === '2000000004', String(laatste('ebitda')))
+
+    // Zonder vaste tiebreak mag SQLite gelijke waarden per query anders ordenen.
+    for (const s of ['oprichting', 'omvang', 'ebitda'] as const) {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering: s })
+      // Ankeren op de LÁÁTSTE `ORDER BY`: de naam-subquery draagt er zelf ook een, dus
+      // `split('ORDER BY')[1]` levert die van de denominatie in plaats van die van de
+      // lijst — en dan meet je een andere clausule dan je denkt (gemeten 2026-09-08).
+      const delen = q.sql.split('ORDER BY')
+      const clausule = (delen[delen.length - 1] ?? '').split('LIMIT')[0]!.trim()
+      check(
+        `sortering ${s} eindigt op een unieke tiebreak`,
+        clausule.endsWith('e.EnterpriseNumber'),
+        `laatste ORDER BY: "${clausule}"`
+      )
+    }
+
+    // Een onbekende waarde mag niet in de SQL belanden.
+    const onzin = bouwProspectSql({ ...basis, regions: ['WVL'], sortering: 'drop table' as never })
+    check('een onbekende sortering valt terug op oprichting', /e\.StartDate DESC/.test(onzin.sql) && !/drop table/i.test(onzin.sql))
+
+    db.close()
+  }
 
   for (const code of PROSPECT_NACE) {
     check(`NACE ${code} heeft een label voor de kaart`, typeof NACE_LABEL[code] === 'string')

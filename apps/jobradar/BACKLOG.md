@@ -7,6 +7,36 @@ Format: `- [ ] {type}: {wat} — {waarom} ({bron})`
 
 ## Open
 
+- [ ] `ui`: **Segmented control naar `packages/ui`.** `components/HerkomstFilter.tsx` is een
+      lokale primitive in app-code, tegen de regel in `CLAUDE.md` → Design-systeem-bron. De
+      reden is gemeten en klopt — `packages/ui/scripts/figma-sync-check.mjs:136` faalt op een
+      nieuwe story zonder Figma-pagina — maar daarmee is het uitgesteld werk, geen
+      oplossing. Verplaatsen vraagt: component + story in `packages/ui`, een Figma-pagina in
+      het manifest, en de import in jobradar omzetten. De klassenreeks is nu overgetikt uit
+      `TabsList`/`TabsTrigger`, dus hij drift bij elke wijziging daar. (code-review PR #408, P3)
+- [ ] `fix`: **Een geleverd bedrijf dat stopgezet is of geen zeteladres heeft, verdwijnt
+      stil.** `bouwProspectSql` eist `Status='AC'` plus een `REGO`-adres, en
+      `bouwZonderKboSql` telt alleen wat hélemaal niet in `enterprise` staat. Een rij die de
+      spiegel wél kent maar op die twee afvalt, staat dus in geen enkele lijst en in geen
+      enkele telling — precies de faalklasse die de melding boven de lijst moet afdekken. De
+      huidige export bevat dit geval niet (215/215 actief, allemaal met zeteladres), een
+      volgende kan het wel. (code-review PR #408, P3)
+- [ ] `fix`: **`JOBRADAR_DB_PATH` wordt op twee manieren afgeleid.**
+      `scripts/prospects-import.mjs` doet `resolve(APP, env || '.data/jobradar.db')`,
+      `lib/db/index.ts:14` en `lib/kbo/spiegel.ts` doen `env ?? join(process.cwd(), …)`. Bij
+      een lege waarde (`JOBRADAR_DB_PATH=` in een `.env`) schrijft het script naar de echte
+      database terwijl de app een wegwerp-database in het geheugen opent. Eén helper voor
+      beide. (code-review PR #408, P3)
+- [ ] `fix`: **`ORDENING[filter.sortering]` vangt prototype-sleutels niet af.**
+      `sortering: 'constructor'` levert `ORDER BY function Object() { [native code] }`. Niet
+      bereikbaar vanaf HTTP (de route whitelist), maar de scenario-check claimt breder dan
+      hij meet — hij toetst één sample. `Object.hasOwn` plus een check per prototype-sleutel.
+      (code-review PR #408, P3)
+- [ ] `ui`: **`border border-border` op `bg-muted` levert in dark mode geen rand** —
+      `--border` en `--muted` zijn daar dezelfde HSL-triplet, contrast 1,000:1. Bestaand
+      patroon op vier plekken in `DashboardClient.tsx`. Raakt de rollaag, dus het is een
+      tokenvraag en geen app-fix. (code-review PR #408, P3)
+
 - [ ] `infra`: De KBO-spiegel is **3,6 GB** (`.data/kbo.db`, extract 466) en de schijf stond
       bij het aanmaken op 99% vol (15 GiB vrij). `activity` is met 34.498.093 rijen veruit de
       grootste tabel, en daarvan zijn er 17.384.045 van NACE-versie 2003 (2.233.543) en 2008
@@ -48,6 +78,15 @@ afweging van nul.
   (ux-audit 2026-08-11, limiet)
 
 ## Gebouwd
+
+- `infra`: **Eigen build-map voor de flow-harness.** Hij bouwde in de gedeelde `.next`, en
+  `next build` maakt die map eerst leeg — een dev-server op 3003 die eruit serveert gaf
+  daarna een witte pagina. **Gebouwd 2026-09-09** (met akkoord van Jeroen, want het raakt
+  `next.config.mjs`): `distDir: process.env.NEXT_DIST_DIR ?? '.next'`, de harness zet die
+  variabele op `.next-harness` voor build én start. De tussentijdse poortcheck op 3003 is
+  eruit — die was een patch. Tegenproef zit ín de harness: hij leest de mtime van `.next`
+  vóór en ná de run en faalt wanneer die verschilt, plus hij stopt wanneer `.next-harness`
+  na de build niet bestaat. (code-review PR #408, P2)
 
 - `refactor`: `lib/sources/kbo.ts` en zijn fixtures waren dode code sinds het
   prospects-tabblad. **Verwijderd 2026-08-29** samen met `LEAD_SOURCES`, de `LeadSource`-

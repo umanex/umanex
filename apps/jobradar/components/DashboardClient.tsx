@@ -12,11 +12,12 @@ import { CoverageBar } from './CoverageBar'
 import { JobCard } from './JobCard'
 import { LeadCard } from './LeadCard'
 import { ProspectCard, type Prospect } from './ProspectCard'
+import { HerkomstFilter } from './HerkomstFilter'
 import { Button } from '@umanex/ui/components/ui/button'
 import { Checkbox } from '@umanex/ui/components/ui/checkbox'
 import { Label } from '@umanex/ui/components/ui/label'
 import type { SpiegelStaat, KboVermoeden } from '@/lib/kbo/spiegel'
-import { VEROUDERD_NA_DAGEN } from '@/lib/kbo/universum'
+import { VEROUDERD_NA_DAGEN, type Herkomst, type Sortering } from '@/lib/kbo/universum'
 import type { Job, Company, ItemStatus } from '@/lib/db/schema'
 import { normaliseerBedrijf } from '@/lib/matching'
 import type { RegionCode } from '@/lib/regions'
@@ -64,6 +65,17 @@ export function DashboardClient({
   const [spiegel, setSpiegel] = useState<SpiegelStaat | null>(null)
   // Standaard aan: zonder deze zeef heeft vier vijfde van de lijst geen personeel.
   const [alleenWerkgevers, setAlleenWerkgevers] = useState(true)
+  const [herkomst, setHerkomst] = useState<Herkomst>('beide')
+  // Standaard UIT. De zeef verbergt op het geleverde bestand 44 van de 218 CSV-rijen, en
+  // een lijst die bij het openen stil een vijfde van zichzelf wegneemt is precies de
+  // afkapping-zonder-melding die deze app elders vermijdt.
+  const [alleenWinstgevend, setAlleenWinstgevend] = useState(false)
+  const [sortering, setSortering] = useState<Sortering>('oprichting')
+  // CSV-rijen zonder KBO-tegenhanger. Ze kunnen niet in de lijst staan; ze worden gemeld.
+  const [zonderKbo, setZonderKbo] = useState(0)
+  // Ongefilterd rijaantal in csv_prospects: onderscheidt "nog niets geïmporteerd" van
+  // "wel geïmporteerd, maar je filters laten niets over". Null zolang er niets opgehaald is.
+  const [csvTotaal, setCsvTotaal] = useState<number | null>(null)
   const vandaag = new Date().toISOString().slice(0, 10)
 
   // De ondernemingsnummers die al als lead bestaan. Hiermee kan een prospectkaart tonen dat
@@ -131,6 +143,9 @@ export function DashboardClient({
         for (const r of regions) p.append('regio', r)
         if (zoek.trim()) p.set('zoek', zoek.trim())
         if (!alleenWerkgevers) p.set('werkgevers', '0')
+        if (herkomst !== 'beide') p.set('herkomst', herkomst)
+        if (alleenWinstgevend) p.set('winstgevend', '1')
+        if (sortering !== 'oprichting') p.set('sortering', sortering)
         p.set('pagina', String(prospectPagina))
         const res = await fetch(`/api/prospects?${p}`, { signal })
         const data = await res.json().catch(() => null)
@@ -141,6 +156,8 @@ export function DashboardClient({
         setProspects(data.prospects)
         setProspectTotaal(data.totaal)
         setProspectPaginas(data.paginas)
+        setZonderKbo(data.zonderKbo ?? 0)
+        setCsvTotaal(data.csvTotaal ?? 0)
         setSpiegel(data.staat)
       } catch (e) {
         // Een afgebroken verzoek is geen fout: dat is een filter die sneller wisselde dan
@@ -150,7 +167,7 @@ export function DashboardClient({
         setProspectBezig(false)
       }
     },
-    [regions, zoek, alleenWerkgevers, prospectPagina]
+    [regions, zoek, alleenWerkgevers, herkomst, alleenWinstgevend, sortering, prospectPagina]
   )
 
   useEffect(() => {
@@ -169,7 +186,7 @@ export function DashboardClient({
   // lijst die er nog maar drie heeft en lijkt het resultaat leeg.
   useEffect(() => {
     setProspectPagina(1)
-  }, [regions, zoek, alleenWerkgevers])
+  }, [regions, zoek, alleenWerkgevers, herkomst, alleenWinstgevend, sortering])
 
   const handleProspectStatusChange = (nummer: string, status: ItemStatus) => {
     setProspects((prev) => prev.map((p) => (p.nummer === nummer ? { ...p, status } : p)))
@@ -328,20 +345,81 @@ export function DashboardClient({
             )}
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5">
-                <Checkbox
-                  id="alleen-werkgevers"
-                  checked={alleenWerkgevers}
-                  onCheckedChange={(v) => setAlleenWerkgevers(v === true)}
-                />
-                <Label htmlFor="alleen-werkgevers" className="cursor-pointer text-sm">
-                  Alleen met personeel
-                </Label>
+              <div className="flex flex-wrap items-center gap-4">
+                <HerkomstFilter waarde={herkomst} onChange={setHerkomst} />
+                <div className="flex items-center gap-1.5">
+                  <Checkbox
+                    id="alleen-werkgevers"
+                    checked={alleenWerkgevers}
+                    onCheckedChange={(v) => setAlleenWerkgevers(v === true)}
+                  />
+                  <Label htmlFor="alleen-werkgevers" className="cursor-pointer text-sm">
+                    Alleen met personeel
+                  </Label>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Checkbox
+                    id="alleen-winstgevend"
+                    checked={alleenWinstgevend}
+                    onCheckedChange={(v) => setAlleenWinstgevend(v === true)}
+                  />
+                  <Label htmlFor="alleen-winstgevend" className="cursor-pointer text-sm">
+                    Alleen winstgevend
+                  </Label>
+                </div>
               </div>
-              <p className="text-sm tabular-nums text-muted-foreground">
-                {prospectBezig ? 'Bezig…' : `${prospectTotaal} prospect${prospectTotaal === 1 ? '' : 's'}`}
-              </p>
+              <div className="flex items-center gap-3">
+                <Label htmlFor="prospect-sortering" className="cursor-pointer text-sm">
+                  Sorteer
+                </Label>
+                <select
+                  id="prospect-sortering"
+                  value={sortering}
+                  onChange={(e) => setSortering(e.target.value as Sortering)}
+                  className={cn(
+                    'cursor-pointer rounded-md border bg-background px-2 py-1 text-sm text-foreground',
+                    focusRing
+                  )}
+                >
+                  <option value="oprichting">Nieuwste eerst</option>
+                  <option value="omvang">Grootste eerst</option>
+                  <option value="ebitda">Hoogste EBITDA eerst</option>
+                </select>
+                <p className="text-sm tabular-nums text-muted-foreground">
+                  {prospectBezig ? 'Bezig…' : `${prospectTotaal} prospect${prospectTotaal === 1 ? '' : 's'}`}
+                </p>
+              </div>
             </div>
+
+            {/* De filters hierboven veranderen de lijst zonder dat de focus verspringt, dus
+                zonder live region hoort een schermlezergebruiker alleen "aangevinkt" en
+                niet dat de lijst van 2.939 naar 171 ging. Zelfde motivering als de
+                aria-live bij de doorklik vanaf een lead. */}
+            <p aria-live="polite" className="sr-only">
+              {prospectBezig
+                ? 'Bezig met laden'
+                : `${prospectTotaal} prospect${prospectTotaal === 1 ? '' : 's'}` +
+                  (alleenWinstgevend ? ', alleen winstgevende bedrijven uit de aangeleverde lijst' : '') +
+                  (zonderKbo > 0 ? `, ${zonderKbo} buiten de KBO-spiegel` : '')}
+            </p>
+
+            {/* Twee meldingen die een gevolg van de filters uitleggen in plaats van het stil
+                te laten gebeuren. Beide staan boven de lijst, niet in plaats ervan. */}
+            {alleenWinstgevend && (
+              <p className="mt-3 rounded-md border border-border bg-muted p-3 text-sm text-muted-foreground">
+                Alleen winstgevend zeeft op EBITDA, en die staat alleen in de aangeleverde
+                lijst. Bedrijven die je enkel uit het KBO-universum kent vallen hier dus weg —
+                niet omdat ze verlies maken, maar omdat er geen cijfer over bekend is.
+              </p>
+            )}
+            {zonderKbo > 0 && (
+              <p className="mt-3 rounded-md border border-border bg-muted p-3 text-sm text-muted-foreground">
+                {zonderKbo} {zonderKbo === 1 ? 'bedrijf uit de lijst staat' : 'bedrijven uit de lijst staan'} niet
+                in de KBO-spiegel. {zonderKbo === 1 ? 'Het valt' : 'Ze vallen'} daardoor buiten deze selectie:
+                zonder KBO-adres {zonderKbo === 1 ? 'is er' : 'zijn er'} geen postcode en dus geen regio om op
+                te filteren.
+              </p>
+            )}
 
             {prospectFout ? (
               <p role="alert" className="mt-8 text-center text-sm text-destructive">
@@ -351,8 +429,12 @@ export function DashboardClient({
               <EmptyState
                 message={
                   spiegel?.soort === 'ontbreekt'
-                    ? 'Zonder spiegel valt er niets te tonen.'
-                    : alleenWerkgevers
+                    ? 'Zonder spiegel valt er niets te tonen — ook een geïmporteerde lijst niet, want die wordt aan de spiegel gekoppeld.'
+                    : herkomst === 'csv' && csvTotaal === 0
+                      ? 'Nog niets uit een aangeleverde lijst. Draai pnpm --filter jobradar prospects:import <pad.csv> om er een in te lezen.'
+                      : herkomst === 'csv'
+                        ? `De aangeleverde lijst telt ${csvTotaal} ${csvTotaal === 1 ? 'bedrijf' : 'bedrijven'}, maar geen enkele binnen je huidige filters — pas regio, zoekterm of de zeven aan.`
+                        : alleenWerkgevers
                       ? 'Geen prospects binnen je huidige filters. Zet "Alleen met personeel" uit om ook eenmanszaken te zien.'
                       : 'Geen prospects binnen je huidige filters — pas regio of zoekterm aan.'
                 }

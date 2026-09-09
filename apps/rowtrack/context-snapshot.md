@@ -66,24 +66,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
-e9b4004 chore(rowtrack): remeasure the non-reproducible nodes after cut 6
-945ffa1 refactor(rowtrack): cut 6 — ConnectionOverlay
-784c2bd refactor(rowtrack): cut 5 — ProgressBar
-db48bdc refactor(rowtrack): cut 4 — ActiveHeader
+9d1016e feat(rowtrack): screens out of the library, and parity green on every node
+fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
+4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
+b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
+ed214f1 refactor(rowtrack): one source for which story components are screens
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/workout/active/ActiveHeader.stories.tsx
-  M  apps/rowtrack/components/workout/active/ConnectionOverlay.stories.tsx
-  M  apps/rowtrack/components/workout/active/GoalPill.stories.tsx
-  M  apps/rowtrack/components/workout/active/HeroPanel.stories.tsx
-  M  apps/rowtrack/components/workout/active/KpiRow.stories.tsx
-  M  apps/rowtrack/components/workout/active/ProgressBar.stories.tsx
-  M  apps/rowtrack/components/workout/active/SubtitleProgress.stories.tsx
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/components/BleStatusBar.stories.tsx
+  M  apps/rowtrack/components/BleStatusBar.tsx
+  M  apps/rowtrack/components/BottomFade.stories.tsx
+  M  apps/rowtrack/components/BottomFade.tsx
+  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/components/BottomSheet.tsx
+  M  apps/rowtrack/components/Button.stories.tsx
+  M  apps/rowtrack/components/Button.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

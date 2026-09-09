@@ -35,7 +35,8 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { dirname, resolve } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -181,6 +182,12 @@ async function toetsenbord(page, maxStops = 80) {
   return { stops: volgorde.length, volgorde, problemen };
 }
 
+/**
+ * De build-map van de harness. Letterlijk, geen vlag: `next build` wíst zijn doelmap, dus
+ * vrije invoer is een wisser. `.next` blijft van de dev-server en van de productie-build.
+ */
+const DIST = '.next-harness';
+
 async function main() {
   if (!(await portFree(PORT))) {
     console.error(`✗ Poort ${PORT} is bezet. Deze harness start zijn eigen server en mag`);
@@ -188,12 +195,41 @@ async function main() {
     process.exit(2);
   }
 
-  console.log('→ Verse build');
-  await run('npx', ['next', 'build']);
+  // Eigen build-map. `.next` is van de dev-server op 3003 en van een eventuele
+  // productie-build; `next build` maakt zijn doelmap eerst leeg, dus daar bouwen betekent
+  // die server slopen. Een vaste naam en geen vrije invoer: de waarde wordt gewist.
+  const env = { ...process.env, NEXT_DIST_DIR: DIST };
 
-  console.log(`→ Server op ${BASE}`);
+  // De nulmeting hoort VÓÓR de handeling die ze moet betrappen. Gemeten 2026-09-09: een
+  // eerdere versie las hem er ná uit en bleef groen terwijl de build wél in `.next` was
+  // beland — een nulmeting na de handeling meet niets.
+  //
+  // En niet de mtime van de máp: die beweegt alleen bij toevoegen of verwijderen van een
+  // direct kind. `BUILD_ID` is de inhoud zelf en krijgt bij elke build een nieuwe waarde,
+  // dus dát is het anker.
+  const gedeeld = join(APP, '.next');
+  const buildId = (map) => {
+    try {
+      return readFileSync(join(map, 'BUILD_ID'), 'utf8').trim();
+    } catch {
+      return null;
+    }
+  };
+  const gedeeldVoor = buildId(gedeeld);
+
+  console.log(`→ Verse build in ${DIST}`);
+  await run('npx', ['next', 'build'], { env });
+
+  // "Bouwt in .next-harness" mag niet van de vlag komen: als `distDir` niet zou werken,
+  // schrijft de build gewoon in `.next` en zegt de log iets anders dan er gebeurde.
+  if (!existsSync(join(APP, DIST))) {
+    console.error(`✗ ${DIST} bestaat niet na de build — distDir werkt niet zoals verwacht.`);
+    process.exit(2);
+  }
+
+  console.log(`→ Server op ${BASE} (uit ${DIST})`);
   const server = spawn('npx', ['next', 'start', '--port', String(PORT)], {
-    cwd: APP, stdio: 'ignore', detached: false,
+    cwd: APP, stdio: 'ignore', detached: false, env,
   });
   const stop = () => { try { server.kill('SIGTERM'); } catch { /* al weg */ } };
   process.on('exit', stop);
@@ -344,6 +380,128 @@ async function main() {
         const tb = await toetsenbord(page);
         if (tb.problemen.length) for (const p of tb.problemen) fail(`prospects toetsenbord: ${p}`);
         else ok(`prospects toetsenbord: ${tb.stops} stops, elk met zichtbare focus`);
+
+        // ── De herkomst- en winstfilters ─────────────────────────────────────
+        // Deze twee zijn interne controls: ze veranderen een querystring naar de eigen
+        // origin, dus de origin-guard hierboven blijft geldig. Een `select` is het niet —
+        // de herkomst is een segmented control uit knoppen — dus de select-interactie
+        // eerder in deze run verhuist er niet stil naartoe.
+        if (body?.staat?.soort !== 'ontbreekt') {
+          // Ankeren op de ROL binnen het zichtbare paneel, niet op één attribuut: de groep
+          // werd van `aria-label` naar `aria-labelledby` verbouwd, en een selector op het
+          // oude attribuut vond hem toen niet meer. De rol is wat het ding ís; het label is
+          // een bewering erover. Tellen hoort erbij — één radiogroup, niet "minstens één".
+          const groep = page.locator('[role="tabpanel"]:visible [role="radiogroup"]');
+          const aantalGroepen = await groep.count();
+          if (aantalGroepen !== 1) {
+            fail(`prospects: ${aantalGroepen} radiogroup(s) in het paneel, verwacht 1`);
+          } else {
+            // Een groep zonder toegankelijke naam is voor een schermlezer naamloos.
+            const naam = await groep.evaluate((el) => {
+              const via = el.getAttribute('aria-labelledby');
+              return via
+                ? (document.getElementById(via)?.textContent ?? '').trim()
+                : (el.getAttribute('aria-label') ?? '').trim();
+            });
+            if (naam) ok(`prospects: de herkomst-groep heet "${naam}"`);
+            else fail('prospects: de herkomst-groep heeft geen toegankelijke naam');
+            const gekozen = await groep.locator('[role="radio"][aria-checked="true"]').innerText();
+            if (gekozen.trim() === 'Beide') ok('prospects: herkomst staat standaard op "Beide"');
+            else fail(`prospects: herkomst staat bij het laden op "${gekozen.trim()}", verwacht "Beide"`);
+
+            // Roving tabindex: één stop in de tabvolgorde, niet drie. Dat is wat een
+            // radiogroup onderscheidt van een rij losse knoppen, en het is meetbaar.
+            const inTab = await groep.locator('[role="radio"][tabindex="0"]').count();
+            const buitenTab = await groep.locator('[role="radio"][tabindex="-1"]').count();
+            if (inTab === 1 && buitenTab === 2) ok('prospects: herkomst is één tabstop (roving tabindex 1/2)');
+            else fail(`prospects: herkomst heeft ${inTab} tabstop(s) en ${buitenTab} buiten de volgorde, verwacht 1 en 2`);
+
+            // Pijltjesbediening: de interactie-as van de briefing. Focus de gekozen optie
+            // en stap één naar rechts; de selectie hoort mee te verspringen.
+            await groep.locator('[role="radio"][tabindex="0"]').focus();
+            await page.keyboard.press('ArrowRight');
+            await page.waitForTimeout(200);
+            const naPijl = (await groep.locator('[role="radio"][aria-checked="true"]').innerText()).trim();
+            if (naPijl !== gekozen.trim()) ok(`prospects: pijltje verplaatst de keuze "${gekozen.trim()}" → "${naPijl}"`);
+            else fail(`prospects: pijltje veranderde de keuze niet, blijft "${naPijl}"`);
+
+            const lijstAntwoord = page
+              .waitForResponse((r) => r.url().includes('/api/prospects') && r.url().includes('herkomst=csv'), { timeout: 20_000 })
+              .catch(() => null);
+            await groep.locator('[role="radio"]', { hasText: 'Lijst' }).click();
+            const lijstRes = await lijstAntwoord;
+            if (!lijstRes) {
+              fail('prospects: klik op "Lijst" leverde geen verzoek met herkomst=csv');
+            } else {
+              const lijstBody = await lijstRes.json().catch(() => null);
+              const totaalCsv = lijstBody?.totaal ?? -1;
+              if (totaalCsv > 0 && totaalCsv < (body?.totaal ?? Infinity)) {
+                ok(`prospects: herkomst "Lijst" versmalt ${body?.totaal} → ${totaalCsv}`);
+              } else {
+                fail(`prospects: herkomst "Lijst" gaf ${totaalCsv}, verwacht een kleiner getal dan ${body?.totaal}`);
+              }
+              // De rijen zonder KBO-tegenhanger horen gemeld te worden, niet verzwegen.
+              if ((lijstBody?.zonderKbo ?? 0) > 0) {
+                await page.waitForTimeout(400);
+                const melding = await page
+                  .locator('[role="tabpanel"]:visible', { hasText: 'niet in de KBO-spiegel' })
+                  .count();
+                if (melding) ok(`prospects: de ${lijstBody.zonderKbo} rijen buiten de spiegel worden gemeld`);
+                else fail(`prospects: ${lijstBody.zonderKbo} rijen vallen buiten de selectie zonder melding`);
+              }
+            }
+
+            // Sortering: de reden dat dit bestaat is dat de aangeleverde lijst anders
+            // onvindbaar is — de CSV-bedrijven landen op rang 221+ van 2939 wanneer er op
+            // oprichtingsdatum geordend wordt.
+            const sorteer = page.locator('#prospect-sortering');
+            if (!(await sorteer.count())) {
+              fail('prospects: geen sorteerkeuze gevonden');
+            } else {
+              const eersteVoor = await page.locator('[role="tabpanel"]:visible h3').first().innerText();
+              const sorteerAntwoord = page
+                .waitForResponse((r) => r.url().includes('/api/prospects') && r.url().includes('sortering=omvang'), { timeout: 20_000 })
+                .catch(() => null);
+              await sorteer.selectOption('omvang');
+              const sortRes = await sorteerAntwoord;
+              if (!sortRes) {
+                fail('prospects: sorteren op omvang leverde geen verzoek met sortering=omvang');
+              } else {
+                await page.waitForTimeout(600);
+                const eersteNa = await page.locator('[role="tabpanel"]:visible h3').first().innerText();
+                if (eersteNa !== eersteVoor) ok(`prospects: sorteren op omvang verandert de kop "${eersteVoor.trim()}" → "${eersteNa.trim()}"`);
+                else fail(`prospects: sorteren op omvang liet de kop op "${eersteVoor.trim()}" staan`);
+              }
+            }
+
+            // Winstzeef: hij hoort UIT te staan bij het laden, en aangezet hoort hij
+            // te melden dat de KBO-herkomst geen EBITDA draagt.
+            const winst = page.locator('#alleen-winstgevend');
+            if (!(await winst.count())) {
+              fail('prospects: geen winstgevendheidsfilter gevonden');
+            } else {
+              const aanBijStart = await winst.getAttribute('data-state');
+              if (aanBijStart === 'unchecked') ok('prospects: "Alleen winstgevend" staat bij het laden uit');
+              else fail(`prospects: "Alleen winstgevend" staat bij het laden op "${aanBijStart}", verwacht uit`);
+
+              const winstAntwoord = page
+                .waitForResponse((r) => r.url().includes('/api/prospects') && r.url().includes('winstgevend=1'), { timeout: 20_000 })
+                .catch(() => null);
+              await winst.click();
+              const winstRes = await winstAntwoord;
+              if (!winstRes) {
+                fail('prospects: winstfilter leverde geen verzoek met winstgevend=1');
+              } else {
+                await page.waitForTimeout(400);
+                const uitleg = await page
+                  .locator('[role="tabpanel"]:visible', { hasText: 'zeeft op EBITDA' })
+                  .count();
+                if (uitleg) ok('prospects: de winstzeef legt uit waarom de KBO-herkomst wegvalt');
+                else fail('prospects: winstzeef aan zonder uitleg over de wegvallende KBO-herkomst');
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -383,6 +541,15 @@ async function main() {
   if (consoleErrors.length) {
     for (const e of [...new Set(consoleErrors)].slice(0, 5)) fail(`console: ${e.slice(0, 160)}`);
   } else ok('console schoon');
+
+  const gedeeldNa = buildId(gedeeld);
+  if (gedeeldVoor !== gedeeldNa) {
+    fail(`de gedeelde .next is herbouwd (BUILD_ID ${gedeeldVoor} → ${gedeeldNa}) — een dev-server daarop zou nu kapot zijn`);
+  } else if (gedeeldVoor !== null) {
+    ok(`de gedeelde .next is ongemoeid gebleven (BUILD_ID ${gedeeldVoor})`);
+  } else {
+    notes.push('geen .next met BUILD_ID aanwezig — niets om te beschermen deze run');
+  }
 
   if (leaks.size) fail(`lek naar externe origin(s): ${[...leaks].join(', ')}`);
   else ok('geen enkel verzoek buiten de eigen origin');

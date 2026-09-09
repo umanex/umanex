@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const SCHEMA_VERSION = 6
 
@@ -76,6 +76,30 @@ export const prospectStatus = sqliteTable('prospect_status', {
   updatedAt: text('updated_at').notNull(),
 })
 
+/**
+ * Prospects uit een aangeleverde CSV — de derde herkomst.
+ *
+ * De sleutel is bewust dezelfde als die van `prospectStatus`: het ondernemingsnummer
+ * zonder punten. Daardoor werkt de statuslaag zonder één regel wijziging, en valt een
+ * bedrijf dat in beide bronnen zit vanzelf samen in plaats van te verdubbelen.
+ */
+export const csvProspects = sqliteTable('csv_prospects', {
+  /** Ondernemingsnummer zonder punten, genormaliseerd met `kboNummer` bij de import. */
+  enterpriseNumber: text('enterprise_number').primaryKey(),
+  name: text('name').notNull(),
+  naceLabel: text('nace_label'),
+  city: text('city'),
+  /** Decimaal: het geleverde bestand draagt 35.8 — een jaargemiddelde, geen hoofdtelling. */
+  employeeCount: real('employee_count'),
+  ebitda: real('ebitda'),
+  valuationMultiple: real('valuation_multiple'),
+  enterpriseValue: real('enterprise_value'),
+  equityValue: real('equity_value'),
+  /** Uit welk bestand deze rij komt, en wanneer hij voor het laatst is ingelezen. */
+  bestandsnaam: text('bestandsnaam').notNull(),
+  importedAt: text('imported_at').notNull(),
+})
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
@@ -100,3 +124,4 @@ export type Job = typeof jobs.$inferSelect
 export type Company = typeof companies.$inferSelect
 export type SyncRun = typeof syncRuns.$inferSelect
 export type ProspectStatus = typeof prospectStatus.$inferSelect
+export type CsvProspect = typeof csvProspects.$inferSelect

@@ -63,6 +63,30 @@ export const SCHEMA_DDL = `
     updated_at TEXT NOT NULL
   );
 
+  -- Prospects uit een aangeleverde CSV: de derde herkomst, naast de vacature-leads en
+  -- de KBO-spiegel. Dezelfde sleutel als prospect_status, zodat een status zonder mapping
+  -- op beide bronnen slaat. De negen kolommen zijn de CSV zoals ze is; afleiden gebeurt
+  -- bij het renderen, net als bij de KBO-koppeling — wat niet opgeslagen wordt, kan niet
+  -- verouderen. De bedragen staan als REAL en niet als INTEGER: employee_count draagt
+  -- decimalen (35.8 in het geleverde bestand) omdat het een gemiddelde over een jaar is.
+  CREATE TABLE IF NOT EXISTS csv_prospects (
+    enterprise_number TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    nace_label TEXT,
+    city TEXT,
+    employee_count REAL,
+    ebitda REAL,
+    valuation_multiple REAL,
+    enterprise_value REAL,
+    equity_value REAL,
+    bestandsnaam TEXT NOT NULL,
+    imported_at TEXT NOT NULL
+  );
+
+  -- Sorteren op omvang is de reden dat deze bron bestaat; zonder index betaalt elke
+  -- pagina een volledige scan over de tabel.
+  CREATE INDEX IF NOT EXISTS csv_prospects_employee_idx ON csv_prospects (employee_count);
+
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,

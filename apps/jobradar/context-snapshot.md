@@ -1,5 +1,5 @@
 # Context Snapshot — jobradar
-_Gegenereerd op 2026-09-08_
+_Gegenereerd op 2026-09-09_
 
 ## Project
 - **App:** jobradar
@@ -25,6 +25,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | CoverageBar | `apps/jobradar/components/CoverageBar.tsx` | components | — | — | — |
 | DashboardClient | `apps/jobradar/components/DashboardClient.tsx` | components | — | — | — |
 | FilterBar | `apps/jobradar/components/FilterBar.tsx` | components | — | — | — |
+| HerkomstFilter | `apps/jobradar/components/HerkomstFilter.tsx` | components | — | — | — |
 | JobCard | `apps/jobradar/components/JobCard.tsx` | components | — | — | — |
 | LeadCard | `apps/jobradar/components/LeadCard.tsx` | components | — | — | — |
 | ProspectCard | `apps/jobradar/components/ProspectCard.tsx` | components | — | — | — |
@@ -37,17 +38,14 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
-259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
-9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
-653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
-1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+346ae77 fix(jobradar): give the flow harness its own build directory
+6fc0110 fix(jobradar): repair the mirror connection and close the review findings
+d6da091 feat(jobradar): origin filter, profitability sieve and sorting in the UI
+28a9a6c feat(jobradar): filter prospects by origin and by profitability
+3d22f9d feat(jobradar): import a delivered CSV of companies into csv_prospects
 ```
 
 ## Uncommitted wijzigingen
-  A  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
-  A  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
-  A  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
   M  apps/jobradar/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
