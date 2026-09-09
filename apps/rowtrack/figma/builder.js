@@ -122,7 +122,7 @@ const paren = (str) => new Map(String(str).split(/[;,]\s*/).filter(Boolean)
   .map(p => { const i = p.indexOf('='); return [p.slice(0, i).trim(), p.slice(i + 1).trim()]; }));
 
 function kiesVariant(n, def, naamPad) {
-  if (!def.varianten) return { key: def.key, naam: null };
+  if (!def.varianten) return { key: def.key, naam: null, slotPaden: def.slotPaden ?? {} };
   if (!n.variant) {
     meldingen.push(`${naamPad}: ${n.component} heeft variant-assen maar geen data-variant — `
       + 'geen keuze mogelijk, subboom nagebouwd in plaats van geïnstantieerd');
@@ -131,7 +131,7 @@ function kiesVariant(n, def, naamPad) {
   const gemeten = paren(n.variant);
   const treffers = Object.entries(def.varianten)
     .filter(([naam]) => [...paren(naam)].every(([as, w]) => gemeten.get(as) === w));
-  if (treffers.length === 1) return { key: treffers[0][1], naam: treffers[0][0] };
+  if (treffers.length === 1) return { key: treffers[0][1].key, naam: treffers[0][0], slotPaden: treffers[0][1].slotPaden };
   meldingen.push(`${naamPad}: ${treffers.length} variant(en) van ${n.component} passen op `
     + `"${n.variant}" — geen keuze, subboom nagebouwd in plaats van geïnstantieerd`);
   return null;
@@ -151,15 +151,17 @@ async function maakInstance(n, naamPad) {
   const inst = main.createInstance();
   inst.name = n.component;
 
-  // Slots vullen uit wat de spec op deze plek MEET. De koppeling komt uit dezelfde markering
-  // die de library-bouw gebruikt: scripts/figma-build-spec.mjs zet `slot` op de tekstnode
-  // waarvan de inhoud exact gelijk is aan de waarde van de prop, en alleen als hij precies
-  // één keer voorkomt.
+  // Slots vullen uit wat de spec OP DEZE PLEK meet. Niet via de `slot`-markering: die komt uit
+  // de story-args van het component zelf en staat dus niet op een schermnode. Wel via het PAD
+  // waar die markering in de eigen variant zat — dezelfde code rendert dezelfde boomvorm met
+  // andere data (zie `slotPaden` in bouw-schermen.js).
   const waarden = {};
-  (function loop(x) {
-    if (x.slot && x.t) waarden[x.slot] = String(x.t.s);
-    for (const k of x.k ?? []) loop(k);
-  })(n);
+  for (const [slot, pad] of Object.entries(keuze.slotPaden ?? {})) {
+    let x = n;
+    for (const i of String(pad).split('>').filter(s2 => s2 !== '')) x = (x?.k ?? [])[Number(i)];
+    if (x?.t) waarden[slot] = String(x.t.s);
+    else meldingen.push(`${naamPad}: slot "${slot}" van ${n.component} niet op pad ${pad} — waarde niet gezet`);
+  }
   const props = inst.componentProperties ?? {};
   const zetten = {};
   for (const [slot, waarde] of Object.entries(waarden)) {

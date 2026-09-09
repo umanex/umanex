@@ -29,10 +29,52 @@ try {
   const kies = (d) => (typeof FRAMES === 'undefined' || !FRAMES.length)
     ? d : { ...d, frames: d.frames.filter(f => FRAMES.includes(f.naam)) };
 
+  /**
+   * WAAR ZIT ELK SLOT IN DE BOOM?
+   *
+   * De slot-markering (`slot` op een tekstnode) komt uit `markeerSlots`, en die draait op de
+   * STORY-args van het component zelf. Een schermnode heeft ze dus niet: daar zijn de args die
+   * van het scherm. Gemeten 2026-09-09: alle zes de KpiRow-instances in het eerste
+   * schermframe kwamen met hun library-default ("Split / 1:52") in beeld.
+   *
+   * Wat wél overdraagbaar is, is de PLAATS. Dezelfde code rendert dezelfde boomvorm, met
+   * andere data; het pad naar de slot-tekstnode geldt dus ook in het scherm. Per variant, want
+   * varianten kunnen van vorm verschillen (een spinner in plaats van een waarde).
+   */
+  const slotPaden = (boom, naam) => {
+    // Vanaf de COMPONENTWORTEL, niet vanaf de boomwortel: een story mag een decorator hebben
+    // (KpiRow zit in een `<View style={{width:382}}>`), en dan is de gemeten wortel die
+    // wrapper. De grens die het component zelf declareert wijst de juiste node aan — gemeten
+    // 2026-09-09: zonder deze afdaling stonden alle paden één niveau te hoog en werd geen
+    // enkel slot gezet.
+    let wortel = null;
+    (function zoek(n) { if (wortel) return; if (n.component === naam) { wortel = n; return; } (n.k ?? []).forEach(zoek); })(boom);
+    if (!wortel) return {};
+    const uit = {};
+    (function loop(n, pad) {
+      if (n.slot && n.t) uit[n.slot] = pad;
+      (n.k ?? []).forEach((k, i) => loop(k, pad === '' ? String(i) : pad + '>' + i));
+    })(wortel, '');
+    return uit;
+  };
+
   const instanties = {};
   for (const [naam, c] of Object.entries(keys.componenten)) {
     if (c.status === 'UNPUBLISHED') continue;   // niet importeerbaar; de builder meldt het
-    instanties[naam] = { key: c.key, varianten: c.varianten, slots: c.slots };
+    const eigen = min.componenten[naam];
+    const perVariant = {};
+    if (c.varianten && eigen) {
+      for (const [vNaam, vKey] of Object.entries(c.varianten)) {
+        const v = eigen.varianten.find(x => x.naam === vNaam);
+        perVariant[vNaam] = { key: vKey, slotPaden: v ? slotPaden(v.boom, naam) : {} };
+      }
+    }
+    instanties[naam] = {
+      key: c.key,
+      varianten: c.varianten ? perVariant : null,
+      slotPaden: c.varianten ? null : (eigen ? slotPaden(eigen.varianten[0].boom, naam) : {}),
+      slots: c.slots,
+    };
   }
 
   const SPEC = Object.fromEntries(SCHERMEN.map(n => [n, kies(min.schermen[n])]));
