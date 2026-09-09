@@ -3,7 +3,7 @@
  "schemaVersie": 3,
  "fileKey": "QkRgMc7Quqtbow71DiYa1n",
  "fileName": "RowTrack -  Design System",
- "gegenereerd": "2026-09-08",
+ "gegenereerd": "2026-09-09",
  "collections": {
   "Core": {
    "modes": [
@@ -2952,6 +2952,100 @@
     ]
    },
    "extra": []
+  },
+  "SummaryTitle": {
+   "pageId": "2027:15886",
+   "primary": {
+    "name": "default",
+    "id": "2027:15891",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "u9qhp1:5",
+    "componentProperties": [
+     "title#2027:520",
+     "dateLabel#2027:521"
+    ],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2027:15892",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "PrBanner": {
+   "pageId": "2027:15893",
+   "primary": {
+    "name": "default",
+    "id": "2027:15905",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1jt7k1o:12",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2027:15906",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "SummaryKpiBand": {
+   "pageId": "2027:15907",
+   "primary": {
+    "name": "default",
+    "id": "2027:15931",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1j59r7u:24",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2027:15932",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "StatsTable": {
+   "pageId": "2027:15933",
+   "primary": {
+    "name": "default",
+    "id": "2027:15964",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1y7zohi:31",
+    "componentProperties": [
+     "colAvg#2027:522",
+     "colPeak#2027:523"
+    ],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2027:15965",
+     "type": "RECTANGLE"
+    }
+   ]
   }
  }
 }

@@ -1,7 +1,7 @@
 {
  "$comment": "GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.",
- "aantalUniek": 47,
- "aantalVoorkomens": 1990,
+ "aantalUniek": 49,
+ "aantalVoorkomens": 1996,
  "decoratiefGenegeerd": 120,
  "uniek": [
   "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
@@ -22,10 +22,12 @@
   "tekstkleur = {\"r\":239,\"g\":68,\"b\":68,\"a\":1}",
   "tekstkleur = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
   "text style = -apple-system 12px ls=0",
+  "text style = -apple-system 14px ls=0",
   "text style = -apple-system 48px ls=0",
   "text style = -apple-system 9px ls=0",
   "text style = AlbertSans_300Light 22px ls=1.1",
   "text style = AlbertSans_300Light 36px ls=-0.9",
+  "text style = AlbertSans_400Regular 12px ls=0",
   "text style = AlbertSans_400Regular 14px ls=0",
   "text style = AlbertSans_400Regular 15px ls=0",
   "text style = AlbertSans_400Regular 16px ls=0",
@@ -198,8 +200,15 @@
    "text style = AlbertSans_300Light 22px ls=1.1",
    "text style = AlbertSans_500Medium 28px ls=-0.7"
   ],
+  "PrBanner": [
+   "text style = -apple-system 14px ls=0",
+   "text style = AlbertSans_400Regular 12px ls=0"
+  ],
   "SubtitleProgress": [
    "text style = AlbertSans_300Light 36px ls=-0.9"
+  ],
+  "SummaryKpiBand": [
+   "gap = 3"
   ],
   "ActivePhase": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.85}",

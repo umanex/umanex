@@ -1,24 +1,23 @@
 {
- "$comment": "GEGENEREERD door scripts/instabiele-nodes.mjs — twee walker-runs, node voor node op boompad. Deze nodes hebben per meetmoment een andere maat (roterende spinner, gerandomiseerde confetti) en kunnen dus door geen enkele statische vergelijking gemeten worden. NIET met de hand aanvullen: een echte afwijking hoort hier niet in te kunnen verdwijnen.",
+ "$comment": "GEGENEREERD door scripts/instabiele-nodes.mjs \u2014 twee walker-runs, node voor node op boompad. Deze nodes hebben per meetmoment een andere maat (roterende spinner, gerandomiseerde confetti) en kunnen dus door geen enkele statische vergelijking gemeten worden. NIET met de hand aanvullen: een echte afwijking hoort hier niet in te kunnen verdwijnen.",
  "gegenereerd": "2026-09-08",
  "bezocht": 2186,
  "gemeten": 157,
- "instabiel": 165,
+ "instabiel": 164,
  "perNaam": {
   "spinnerBox": 40,
   "spinnerSvg": 40,
   "spinnerArc": 80,
-  "item": 4,
-  "dateText": 1
+  "item": 4
  },
  "redenen": {
   "spinner": "react-native-web ActivityIndicator roteert (animationKeyframes 0->360deg, 0,75 s, oneindig); getBoundingClientRect geeft de as-gelijnde doos, dus de maat hangt af van het meetmoment. De hele subboom is gesloten, want de rotatie geldt voor elk kind.",
-  "item": "confetti in MotivationalToast — size = 6 + random * 8, dus per render een andere maat."
+  "item": "confetti in MotivationalToast \u2014 size = 6 + random * 8, dus per render een andere maat.",
+  "klok": "OPGEHEVEN 2026-09-09: ActivePhase krijgt `now` als prop en de story zet een vaste datum, dus de datumregel van de samenvatting is weer reproduceerbaar. De uitsluiting was padgebonden en verouderde bij elke boomwijziging \u2014 snede 8 gaf hem een grens, waardoor het pad verschoof en de uitsluiting stil niets meer dekte."
  },
  "paden": [
   "ActivePhase[Doel Bereikt]#overlay0>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:MotivationalToast>2:item",
   "ActivePhase[Doel Bereikt]#overlay0>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:MotivationalToast>3:item",
-  "ActivePhase[Samenvatting]#overlay0>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:screen>0:topSection>0:titleBlock>1:dateText",
   "BleStatusBar[bleStatus=connecting]>0:left>0:iconContainer>0:spinner>0:spinnerBox",
   "BleStatusBar[bleStatus=connecting]>0:left>0:iconContainer>0:spinner>0:spinnerBox>0:spinnerSvg",
   "BleStatusBar[bleStatus=connecting]>0:left>0:iconContainer>0:spinner>0:spinnerBox>0:spinnerSvg>0:spinnerArc",
@@ -181,5 +180,8 @@
   "KPI[highlighted=true, compact=true, fill=true, loading=true]>1:spinner>0:spinnerBox>0:spinnerSvg>1:spinnerArc",
   "MotivationalToast[default]>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:overlay>2:item",
   "MotivationalToast[default]>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:overlay>3:item"
+ ],
+ "klassen": [
+  "spinnerBox"
  ]
 }

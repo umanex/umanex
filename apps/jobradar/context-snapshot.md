@@ -38,15 +38,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-346ae77 fix(jobradar): give the flow harness its own build directory
-6fc0110 fix(jobradar): repair the mirror connection and close the review findings
-d6da091 feat(jobradar): origin filter, profitability sieve and sorting in the UI
-28a9a6c feat(jobradar): filter prospects by origin and by profitability
-3d22f9d feat(jobradar): import a delivered CSV of companies into csv_prospects
+c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
+7d1a85e docs(jobradar): record the two decided critical items
+0e55e19 docs(jobradar): three briefings for CSV-sourced prospect follow-up
+798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
+259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/jobradar/BACKLOG.md
+  M  apps/jobradar/app/api/prospects/route.ts
+  M  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
+  M  apps/jobradar/components/DashboardClient.tsx
+  A  apps/jobradar/components/HerkomstFilter.tsx
+  M  apps/jobradar/components/ProspectCard.tsx
   M  apps/jobradar/context-snapshot.md
+  M  apps/jobradar/lib/db/ddl.ts
+  M  apps/jobradar/lib/db/schema.ts
+  M  apps/jobradar/lib/kbo/spiegel.ts
 
 ## Bestanden met TODO/FIXME
   (geen)

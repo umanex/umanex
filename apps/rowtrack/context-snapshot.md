@@ -57,8 +57,12 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
 | KpiRow | `apps/rowtrack/components/workout/active/KpiRow.tsx` | active | — | — | — |
+| PrBanner | `apps/rowtrack/components/workout/active/PrBanner.tsx` | active | — | — | — |
 | ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
+| StatsTable | `apps/rowtrack/components/workout/active/StatsTable.tsx` | active | — | — | — |
 | SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
+| SummaryKpiBand | `apps/rowtrack/components/workout/active/SummaryKpiBand.tsx` | active | — | — | — |
+| SummaryTitle | `apps/rowtrack/components/workout/active/SummaryTitle.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
 | IdlePhase | `apps/rowtrack/components/workout/IdlePhase.tsx` | workout | — | — | — |
@@ -66,24 +70,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-9d1016e feat(rowtrack): screens out of the library, and parity green on every node
-fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
-4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
-b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
-ed214f1 refactor(rowtrack): one source for which story components are screens
+e81fb62 chore(rowtrack): Figma round C — the four summary components in the library
+681dfd6 refactor(rowtrack): cuts 10 and 11 — SummaryKpiBand and StatsTable, and the clock
+5f19171 refactor(rowtrack): cuts 8 and 9 — SummaryTitle and PrBanner
+45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
+58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BleStatusBar.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomFade.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
-  M  apps/rowtrack/components/BottomSheet.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
-  M  apps/rowtrack/components/Button.tsx
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)
