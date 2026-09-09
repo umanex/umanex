@@ -73,18 +73,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+349c990 feat(rowtrack): measure what Storybook cannot show, so the device question surfaces itself
 b35b66e docs(rowtrack): the shifted tab row is a margin the walker never reads, not a misplaced instance
 f6470ea docs(rowtrack): the publication handoff is resolved and the briefing's acceptance is closed
 6a79010 chore(rowtrack): manifest, screen geometry and images after the publication
 fd95441 fix(rowtrack): a time budget for the screen build, a warm-up for imports, and a leaf keeps its size
-56fb806 docs(rowtrack): the import hypothesis is withdrawn; peculiarities 9 and 10
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/package.json
-  A  apps/rowtrack/scripts/toestel-schuld.mjs
+  M  apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md
 
 ## Bestanden met TODO/FIXME
   (geen)
