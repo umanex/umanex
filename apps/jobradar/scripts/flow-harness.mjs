@@ -35,7 +35,8 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { dirname, resolve } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -181,8 +182,11 @@ async function toetsenbord(page, maxStops = 80) {
   return { stops: volgorde.length, volgorde, problemen };
 }
 
-/** De dev-poort van deze app. Serveert die, dan deelt hij `.next` met onze build. */
-const DEV_PORT = 3003;
+/**
+ * De build-map van de harness. Letterlijk, geen vlag: `next build` wíst zijn doelmap, dus
+ * vrije invoer is een wisser. `.next` blijft van de dev-server en van de productie-build.
+ */
+const DIST = '.next-harness';
 
 async function main() {
   if (!(await portFree(PORT))) {
@@ -191,26 +195,41 @@ async function main() {
     process.exit(2);
   }
 
-  // PATCH, geen wortelfix. De echte oorzaak is dat deze harness in de gedeelde `.next`
-  // bouwt: `next build` maakt die map eerst leeg, dus een dev-server op 3003 die eruit
-  // serveert geeft daarna een witte pagina. De wortelfix is een eigen build-map, zoals
-  // `apps/cashflow/next.config.mjs` die heeft (`distDir: process.env.NEXT_DIST_DIR ??
-  // '.next'`) — dat raakt een configbestand en wacht op akkoord.
-  // TODO: vervang deze check door NEXT_DIST_DIR zodra next.config.mjs aangepast mag worden.
-  //       Staat als item in apps/jobradar/BACKLOG.md.
-  if (!(await portFree(DEV_PORT))) {
-    console.error(`✗ Er luistert iets op ${DEV_PORT} — vermoedelijk \`pnpm --filter jobradar dev\`.`);
-    console.error(`  Deze harness bouwt in dezelfde \`.next\`, en \`next build\` maakt die map eerst`);
-    console.error(`  leeg. Die dev-server zou daarna een witte pagina serveren. Stop hem eerst.`);
+  // Eigen build-map. `.next` is van de dev-server op 3003 en van een eventuele
+  // productie-build; `next build` maakt zijn doelmap eerst leeg, dus daar bouwen betekent
+  // die server slopen. Een vaste naam en geen vrije invoer: de waarde wordt gewist.
+  const env = { ...process.env, NEXT_DIST_DIR: DIST };
+
+  // De nulmeting hoort VÓÓR de handeling die ze moet betrappen. Gemeten 2026-09-09: een
+  // eerdere versie las hem er ná uit en bleef groen terwijl de build wél in `.next` was
+  // beland — een nulmeting na de handeling meet niets.
+  //
+  // En niet de mtime van de máp: die beweegt alleen bij toevoegen of verwijderen van een
+  // direct kind. `BUILD_ID` is de inhoud zelf en krijgt bij elke build een nieuwe waarde,
+  // dus dát is het anker.
+  const gedeeld = join(APP, '.next');
+  const buildId = (map) => {
+    try {
+      return readFileSync(join(map, 'BUILD_ID'), 'utf8').trim();
+    } catch {
+      return null;
+    }
+  };
+  const gedeeldVoor = buildId(gedeeld);
+
+  console.log(`→ Verse build in ${DIST}`);
+  await run('npx', ['next', 'build'], { env });
+
+  // "Bouwt in .next-harness" mag niet van de vlag komen: als `distDir` niet zou werken,
+  // schrijft de build gewoon in `.next` en zegt de log iets anders dan er gebeurde.
+  if (!existsSync(join(APP, DIST))) {
+    console.error(`✗ ${DIST} bestaat niet na de build — distDir werkt niet zoals verwacht.`);
     process.exit(2);
   }
 
-  console.log('→ Verse build');
-  await run('npx', ['next', 'build']);
-
-  console.log(`→ Server op ${BASE}`);
+  console.log(`→ Server op ${BASE} (uit ${DIST})`);
   const server = spawn('npx', ['next', 'start', '--port', String(PORT)], {
-    cwd: APP, stdio: 'ignore', detached: false,
+    cwd: APP, stdio: 'ignore', detached: false, env,
   });
   const stop = () => { try { server.kill('SIGTERM'); } catch { /* al weg */ } };
   process.on('exit', stop);
@@ -522,6 +541,15 @@ async function main() {
   if (consoleErrors.length) {
     for (const e of [...new Set(consoleErrors)].slice(0, 5)) fail(`console: ${e.slice(0, 160)}`);
   } else ok('console schoon');
+
+  const gedeeldNa = buildId(gedeeld);
+  if (gedeeldVoor !== gedeeldNa) {
+    fail(`de gedeelde .next is herbouwd (BUILD_ID ${gedeeldVoor} → ${gedeeldNa}) — een dev-server daarop zou nu kapot zijn`);
+  } else if (gedeeldVoor !== null) {
+    ok(`de gedeelde .next is ongemoeid gebleven (BUILD_ID ${gedeeldVoor})`);
+  } else {
+    notes.push('geen .next met BUILD_ID aanwezig — niets om te beschermen deze run');
+  }
 
   if (leaks.size) fail(`lek naar externe origin(s): ${[...leaks].join(', ')}`);
   else ok('geen enkel verzoek buiten de eigen origin');

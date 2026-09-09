@@ -7,13 +7,6 @@ Format: `- [ ] {type}: {wat} — {waarom} ({bron})`
 
 ## Open
 
-- [ ] `infra`: **Eigen build-map voor de flow-harness.** Hij draait `next build` zonder
-      `NEXT_DIST_DIR`, dus hij bouwt in de gedeelde `.next` van deze app — en `next build`
-      maakt die map eerst leeg. Een dev-server op 3003 die eruit serveert geeft daarna een
-      witte pagina. Er staat nu een poortcheck op 3003 als rem, maar dat is een patch: de
-      wortelfix is `distDir: process.env.NEXT_DIST_DIR ?? '.next'` in `next.config.mjs`,
-      precies zoals `apps/cashflow/next.config.mjs` het doet. Wacht op akkoord omdat het een
-      configbestand raakt. (code-review PR #408, P2)
 - [ ] `ui`: **Segmented control naar `packages/ui`.** `components/HerkomstFilter.tsx` is een
       lokale primitive in app-code, tegen de regel in `CLAUDE.md` → Design-systeem-bron. De
       reden is gemeten en klopt — `packages/ui/scripts/figma-sync-check.mjs:136` faalt op een
@@ -85,6 +78,15 @@ afweging van nul.
   (ux-audit 2026-08-11, limiet)
 
 ## Gebouwd
+
+- `infra`: **Eigen build-map voor de flow-harness.** Hij bouwde in de gedeelde `.next`, en
+  `next build` maakt die map eerst leeg — een dev-server op 3003 die eruit serveert gaf
+  daarna een witte pagina. **Gebouwd 2026-09-09** (met akkoord van Jeroen, want het raakt
+  `next.config.mjs`): `distDir: process.env.NEXT_DIST_DIR ?? '.next'`, de harness zet die
+  variabele op `.next-harness` voor build én start. De tussentijdse poortcheck op 3003 is
+  eruit — die was een patch. Tegenproef zit ín de harness: hij leest de mtime van `.next`
+  vóór en ná de run en faalt wanneer die verschilt, plus hij stopt wanneer `.next-harness`
+  na de build niet bestaat. (code-review PR #408, P2)
 
 - `refactor`: `lib/sources/kbo.ts` en zijn fixtures waren dode code sinds het
   prospects-tabblad. **Verwijderd 2026-08-29** samen met `LEAD_SOURCES`, de `LeadSource`-
