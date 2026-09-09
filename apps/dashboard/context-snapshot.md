@@ -30,18 +30,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c8672e2 fix(dashboard): give next dev its own dist dir and port
+2c970c9 test(ui): add Sheet to the rendered-size baseline
+86a9885 Merge remote-tracking branch 'origin/main' into feature/jobradar-contactopvolging
 9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
-172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
-2fcec12 Merge pull request #390 from umanex/feature/rowtrack-storybook-figma
-2afe45c chore: sync umanex-os layer with global umanex-os
-259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
+1ac90ca chore(dashboard): run the dashboard under PM2 on a fixed port
 ```
 
 ## Uncommitted wijzigingen
   M  apps/dashboard/BACKLOG.md
-  M  apps/dashboard/CLAUDE.md
-  M  apps/dashboard/context-snapshot.md
-  M  apps/dashboard/package.json
+   M apps/dashboard/tsconfig.json
 
 ## Bestanden met TODO/FIXME
   (geen)
