@@ -29,6 +29,7 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | JobCard | `apps/jobradar/components/JobCard.tsx` | components | — | — | — |
 | LeadCard | `apps/jobradar/components/LeadCard.tsx` | components | — | — | — |
 | ProspectCard | `apps/jobradar/components/ProspectCard.tsx` | components | — | — | — |
+| ProspectMap | `apps/jobradar/components/ProspectMap.tsx` | components | — | — | — |
 | RegionFilter | `apps/jobradar/components/RegionFilter.tsx` | components | — | — | — |
 | ScoreBadge | `apps/jobradar/components/ScoreBadge.tsx` | components | — | — | — |
 | SearchSettingsForm | `apps/jobradar/components/SearchSettingsForm.tsx` | components | — | — | — |
@@ -38,22 +39,23 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+8129486 feat(jobradar): geocoding layer and province boundaries for the map
 72e469b feat(jobradar): data layer, rules and API for contact follow-up
 7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
 346ae77 fix(jobradar): give the flow harness its own build directory
 6fc0110 fix(jobradar): repair the mirror connection and close the review findings
-c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
 ```
 
 ## Uncommitted wijzigingen
+  A  apps/jobradar/app/api/kaart/route.ts
   M  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
-  M  apps/jobradar/lib/db/ddl.ts
-  M  apps/jobradar/lib/db/schema.ts
-  A  apps/jobradar/lib/kbo/adres.ts
-  M  apps/jobradar/package.json
-  A  apps/jobradar/public/geo/provincies.json
-  A  apps/jobradar/scripts/geocode.mjs
-  M  apps/jobradar/scripts/kbo-scenarios.ts
+  M  apps/jobradar/components/DashboardClient.tsx
+  A  apps/jobradar/components/ProspectMap.tsx
+  A  apps/jobradar/lib/kaart.ts
+  M  apps/jobradar/scripts/flow-harness.mjs
+  M  apps/jobradar/scripts/geocode.mjs
+  A  apps/jobradar/scripts/kaart-scenarios.ts
+  M  apps/jobradar/scripts/scenarios.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

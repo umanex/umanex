@@ -13,6 +13,7 @@ import { JobCard } from './JobCard'
 import { LeadCard } from './LeadCard'
 import { ProspectCard, type Prospect } from './ProspectCard'
 import { HerkomstFilter } from './HerkomstFilter'
+import { ProspectMap } from './ProspectMap'
 import { Button } from '@umanex/ui/components/ui/button'
 import { Checkbox } from '@umanex/ui/components/ui/checkbox'
 import { Label } from '@umanex/ui/components/ui/label'
@@ -71,6 +72,9 @@ export function DashboardClient({
   // afkapping-zonder-melding die deze app elders vermijdt.
   const [alleenWinstgevend, setAlleenWinstgevend] = useState(false)
   const [sortering, setSortering] = useState<Sortering>('oprichting')
+  // Kaart of lijst — dezelfde selectie, een andere weergave. Geen apart tabblad: dan zou het
+  // filter erboven er niet voor gelden.
+  const [weergave, setWeergave] = useState<'lijst' | 'kaart'>('lijst')
   // CSV-rijen zonder KBO-tegenhanger. Ze kunnen niet in de lijst staan; ze worden gemeld.
   const [zonderKbo, setZonderKbo] = useState(0)
   // Ongefilterd rijaantal in csv_prospects: onderscheidt "nog niets geïmporteerd" van
@@ -388,6 +392,21 @@ export function DashboardClient({
                 <p className="text-sm tabular-nums text-muted-foreground">
                   {prospectBezig ? 'Bezig…' : `${prospectTotaal} prospect${prospectTotaal === 1 ? '' : 's'}`}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setWeergave((w) => (w === 'lijst' ? 'kaart' : 'lijst'))}
+                  aria-pressed={weergave === 'kaart'}
+                  className={cn(
+                    'rounded-md border bg-background px-2 py-1 text-sm text-foreground',
+                    focusRing
+                  )}
+                >
+                  {/* Niet kaal "Kaart"/"Lijst": het herkomst-filter ernaast heeft al een
+                      segment "Lijst" (= de aangeleverde bron). Twee controls met hetzelfde
+                      woord en een andere betekenis in één paneel is voor een schermlezer
+                      niet te onderscheiden — Playwright weigerde er ook tussen te kiezen. */}
+                  {weergave === 'lijst' ? 'Kaartweergave' : 'Lijstweergave'}
+                </button>
               </div>
             </div>
 
@@ -421,7 +440,9 @@ export function DashboardClient({
               </p>
             )}
 
-            {prospectFout ? (
+            {weergave === 'kaart' ? (
+              <ProspectMap />
+            ) : prospectFout ? (
               <p role="alert" className="mt-8 text-center text-sm text-destructive">
                 {prospectFout}
               </p>
@@ -453,7 +474,7 @@ export function DashboardClient({
               </div>
             )}
 
-            {prospectPaginas > 1 && (
+            {weergave === 'lijst' && prospectPaginas > 1 && (
               <div className="mt-4 flex items-center justify-center gap-3">
                 <Button
                   variant="outline"

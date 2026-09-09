@@ -49,15 +49,35 @@ const AGENT = 'jobradar/1.0 (eenmalige geocoding van eigen prospectlijst; jeroen
 const ok = (s) => console.log(`  ${s}`)
 const fout = (s) => console.error(`✗ ${s}`)
 
-/** Zet een KBO-adres om in de gestructureerde velden die Nominatim verwacht. */
-function zoekVeldenVan(a) {
-  const straat = [a.HouseNumber, schoneStraat(a.StreetNL)].filter(Boolean).join(' ').trim()
-  return {
-    street: straat,
-    city: a.MunicipalityNL ?? '',
-    postalcode: a.Zipcode ?? '',
-    country: 'Belgium',
+/**
+ * De zoekvarianten voor één adres, in volgorde van waarschijnlijkheid.
+ *
+ * Waarom meer dan één: gemeten op de eerste volledige run (2026-09-09) faalden 13 van de 230
+ * adressen, en elf daarvan lagen in Brussel of droegen een gemeente-achtervoegsel. Brussel is
+ * tweetalig en OSM voert er overwegend de Franse namen — `Louizalaan 367, Elsene` bestaat
+ * daar als `Avenue Louise, Ixelles`. En gemeenten dragen dezelfde haakjes als straten:
+ * `Hamme (Vl.)`, `Machelen (Brab.)`, `Sint-Gillis (bij-Brussel)`.
+ *
+ * KBO draagt beide talen, dus de tweede poging kost niets extra behalve een seconde.
+ */
+function zoekVarianten(a) {
+  const varianten = []
+  const zet = (straat, gemeente) => {
+    const s = [a.HouseNumber, schoneStraat(straat)].filter(Boolean).join(' ').trim()
+    if (!s) return
+    varianten.push({
+      street: s,
+      city: schoneStraat(gemeente),
+      postalcode: a.Zipcode ?? '',
+      country: 'Belgium',
+    })
   }
+  zet(a.StreetNL, a.MunicipalityNL)
+  // Alleen wanneer hij écht anders is; anders is het een tweede identiek verzoek.
+  if (a.StreetFR !== a.StreetNL || a.MunicipalityFR !== a.MunicipalityNL) {
+    zet(a.StreetFR ?? a.StreetNL, a.MunicipalityFR ?? a.MunicipalityNL)
+  }
+  return varianten
 }
 
 /** Wat de bron werkelijk vond — een gemeente-treffer is geen huisnummer-treffer. */
@@ -136,7 +156,7 @@ async function main() {
 
   const kbo = new Database(KBO_DB, { readonly: true, fileMustExist: true })
   const adresVan = kbo.prepare(
-    `SELECT Zipcode, MunicipalityNL, StreetNL, HouseNumber FROM address
+    `SELECT Zipcode, MunicipalityNL, MunicipalityFR, StreetNL, StreetFR, HouseNumber FROM address
       WHERE EntityNumber = ? AND TypeOfAddress = 'REGO' LIMIT 1`
   )
   const schrijf = db.prepare(`
@@ -161,11 +181,18 @@ async function main() {
     }
 
     let uitkomst
-    try {
-      uitkomst = await vraagOp(zoekVeldenVan(adres))
-    } catch (e) {
-      uitkomst = { fout: e instanceof Error ? e.message : String(e) }
+    const varianten = zoekVarianten(adres)
+    for (const [v, velden] of varianten.entries()) {
+      try {
+        uitkomst = await vraagOp(velden)
+      } catch (e) {
+        uitkomst = { fout: e instanceof Error ? e.message : String(e) }
+      }
+      if (!uitkomst.fout) break
+      // Tempo aanhouden tussen varianten van hetzelfde adres, net als tussen adressen.
+      if (v + 1 < varianten.length) await new Promise((r) => setTimeout(r, TEMPO_MS))
     }
+    if (!uitkomst) uitkomst = { fout: 'geen bruikbaar adres' }
 
     if (uitkomst.fout) {
       schrijf.run({ nr, lat: null, lon: null, precisie: null, bron: BRON, nu, reden: uitkomst.fout })

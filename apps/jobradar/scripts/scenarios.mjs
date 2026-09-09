@@ -27,6 +27,7 @@ const SUITES = [
   { naam: 'kbo', bestand: 'scripts/kbo-scenarios.ts' },
   { naam: 'spiegel', bestand: 'scripts/spiegel-scenarios.ts' },
   { naam: 'contact', bestand: 'scripts/contact-scenarios.ts' },
+  { naam: 'kaart', bestand: 'scripts/kaart-scenarios.ts' },
 ]
 
 /** Draait één suite en geeft exitcode + uitvoer terug. Gooit niet: de uitkomst ís het antwoord. */

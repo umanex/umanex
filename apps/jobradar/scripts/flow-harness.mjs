@@ -474,6 +474,101 @@ async function main() {
               }
             }
 
+            // ── De kaart ──────────────────────────────────────────────────────
+            // Er is geen kaart-library en geen basemap, dus de kaart mag per constructie
+            // geen enkel verzoek naar buiten doen. De origin-guard hierboven bewijst dat
+            // voor de hele run; hier tellen we wat er getekend staat.
+            const kaartKnop = page.locator('[role="tabpanel"]:visible button', { hasText: /^Kaartweergave$/ });
+            if (!(await kaartKnop.count())) {
+              fail('prospects: geen kaart/lijst-toggle gevonden');
+            } else {
+              const kaartAntwoord = page
+                .waitForResponse((r) => r.url().includes('/api/kaart'), { timeout: 20_000 })
+                .catch(() => null);
+              await kaartKnop.click();
+              const kres = await kaartAntwoord;
+              if (!kres) {
+                fail('prospects: de kaart vroeg /api/kaart niet op');
+              } else {
+                const kbody = await kres.json().catch(() => null);
+                await page.waitForTimeout(800);
+
+                const svg = page.locator('[role="tabpanel"]:visible svg[role="img"]');
+                if ((await svg.count()) !== 1) {
+                  fail(`kaart: ${await svg.count()} svg's gevonden, verwacht 1`);
+                } else {
+                  ok(`kaart: ${kbody?.punten?.length ?? '?'} punten uit /api/kaart`);
+
+                  const vlakken = await svg.locator('path').count();
+                  if (vlakken === 3) ok('kaart: drie provincievlakken');
+                  else fail(`kaart: ${vlakken} vlakken, verwacht 3`);
+
+                  // Elke marker is een aanklikbare groep; clusters tellen als één.
+                  const markers = await svg.locator('[role="button"]').count();
+                  if (markers > 0 && markers <= (kbody?.punten?.length ?? 0)) {
+                    ok(`kaart: ${markers} markers voor ${kbody.punten.length} punten (clusters meegeteld als één)`);
+                  } else {
+                    fail(`kaart: ${markers} markers bij ${kbody?.punten?.length} punten`);
+                  }
+
+                  // Twee vormen: cirkel voor een bronadres, ruit (rect) voor een vermoeden.
+                  // Twee vormen én een derde geval: een cluster waarin een vermoeden zit.
+                  // Zonder die derde valt het onderscheid weg waar het het drukst is.
+                  const ruiten = await svg.locator('rect').count();
+                  const gestreept = await svg.locator('circle[stroke-dasharray]').count();
+                  const leads = (kbody?.punten ?? []).filter((p) => p.herkomst === 'lead').length;
+                  if (leads === 0 || ruiten + gestreept >= 1) {
+                    ok(`kaart: ${leads} lead-punten → ${ruiten} losse ruiten + ${gestreept} gestreepte clusters`);
+                  } else {
+                    fail(`kaart: ${leads} lead-punten maar geen enkele afwijkende markering`);
+                  }
+                  // De scherpste: elk lead-punt zit óf in een ruit óf in een gestreept
+                  // cluster. Anders staat een gok als feit op de kaart.
+                  const gedekt = await svg.evaluate((el) => {
+                    const ruit = el.querySelectorAll('rect').length;
+                    let inCluster = 0;
+                    for (const g of el.querySelectorAll('[role="button"]')) {
+                      const label = g.getAttribute('aria-label') ?? '';
+                      const m = label.match(/waarvan (\d+) op een KBO-vermoeden/);
+                      if (m) inCluster += Number(m[1]);
+                    }
+                    return ruit + inCluster;
+                  });
+                  if (leads === 0 || gedekt >= leads) ok(`kaart: alle ${leads} vermoedens zijn gemarkeerd (${gedekt} gedekt)`);
+                  else fail(`kaart: ${leads} vermoedens, maar slechts ${gedekt} gemarkeerd`);
+
+                  // De kaart zit achter twee klikken, dus hij staat in geen enkele
+                  // route-snapshot. Zonder deze regel is "de kaart klopt" een bewering
+                  // zonder beeld.
+                  if (SHOT) {
+                    const pad = join(SHOT, 'prospects-kaart.png');
+                    await page.locator('[role="tabpanel"]:visible').screenshot({ path: pad });
+                    ok(`render vastgelegd: ${pad}`);
+                  }
+
+                  // Wat er niet op staat, hoort erbij te staan.
+                  if ((kbody?.leadsZonderAdres ?? 0) > 0) {
+                    const melding = await page
+                      .locator('[role="tabpanel"]:visible', { hasText: 'geen adres' })
+                      .count();
+                    if (melding) ok(`kaart: de ${kbody.leadsZonderAdres} leads zonder adres worden gemeld`);
+                    else fail(`kaart: ${kbody.leadsZonderAdres} leads zonder adres, zonder melding`);
+                  }
+
+                  // Een marker moet met het toetsenbord te bereiken zijn.
+                  const eersteMarker = svg.locator('[role="button"]').first();
+                  await eersteMarker.focus();
+                  const heeftFocus = await eersteMarker.evaluate((el) => el === document.activeElement);
+                  if (heeftFocus) ok('kaart: een marker is focusbaar');
+                  else fail('kaart: een marker kan geen focus krijgen');
+                }
+              }
+
+              // Terug naar de lijst, zodat de checks hieronder hun paneel terugvinden.
+              await page.locator('[role="tabpanel"]:visible button', { hasText: /^Lijstweergave$/ }).click();
+              await page.waitForTimeout(400);
+            }
+
             // Winstzeef: hij hoort UIT te staan bij het laden, en aangezet hoort hij
             // te melden dat de KBO-herkomst geen EBITDA draagt.
             const winst = page.locator('#alleen-winstgevend');
