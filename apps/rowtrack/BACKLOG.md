@@ -422,8 +422,15 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Eerste zet:** Kies de ingang — een `__storyError`-prop achter een `__DEV__`-guard is het goedkoopst, een gedeelde `useAuthForm`-hook met de fout als return-waarde het netst. Daarna per scherm één named story (`MetFout`), `figma:spec`, en de frames bouwen in `Screens v2`.
 - **Status:** open
 
-## 2026-09-09 — 31 instances vallen terug op een nagebouwde subboom omdat de library-variant een ander aantal kinderen heeft · [feature]
-- **Wat:** De schermbouwer plaatst op elke gedeclareerde componentgrens een library-instance, en toetst daarna of die instance getrouw is. Waar niet, vervangt hij hem door de nagebouwde subboom — luid, met melding. Gemeten op 2026-09-09 over de 24 frames van `Screens v2`: **31 van de plaatsingen vielen zo terug**, in vijf gevallen, allemaal dezelfde klasse — het *aantal kinderen* van de library-variant verschilt van de gebruiksplek:
+## 2026-09-09 — Instances vallen terug op een nagebouwde subboom omdat de library-variant een ander aantal kinderen heeft · [feature]
+- **Wat:** De schermbouwer plaatst op elke gedeclareerde componentgrens een library-instance, en toetst daarna of die instance getrouw is. Waar niet, vervangt hij hem door de nagebouwde subboom — luid, met melding. Gemeten op 2026-09-09 over de 24 frames van `Screens v2` — en **drie instrumenten geven drie getallen die niet op elkaar te delen zijn**, dus ze staan alle drie:
+
+  - de builder telde **49 vervangingen** over de laatste volledige herbouw (0 voor de vier auth-schermen, 28 voor History+Detail, 21 voor Profile+Idle+Active). Dat is een telling op **elke diepte**: `figma/builder.js:629` geeft `1 + toetsInstances(…)` terug en daalt dus af in zijn eigen vervangingen;
+  - live op `Screens v2` staan **100 instances** over de 24 frames;
+  - de bouwspec declareert **135 buitenste grenzen** (grenzen die niet zelf in een andere grens liggen).
+
+  Een eerdere versie van dit item noemde **31**. Dat getal kwam uit een bouwronde vóór de variant-annotaties van `7209f3d` en is per ongeluk meegereisd naar een item dat ná de herbouw geschreven werd — precies de fout waar de audit van vandaag over ging. Wat in alle drie de tellingen hetzelfde blijft, is de **klasse**: het *aantal kinderen* van de library-variant verschilt van de gebruiksplek.
+
 
   | component | library-variant | gebruiksplek |
   |---|---|---|
@@ -435,7 +442,7 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 
   Dit is geen bug in de builder maar de grens van wat variant-gebaseerd instantiëren kan uitdrukken: een instance kan een tekst overschrijven, maar geen kind bijkrijgen. `parity` blijft er groen op — de nagebouwde subboom is getrouw — dus de kost is niet correctheid maar **dekking**: 31 plekken in Figma zijn een kopie in plaats van een instance, en lopen dus niet mee met een library-wijziging.
 - **Waarom niet nu:** de twee uitwegen zijn allebei een eigen afweging. Ofwel groeit de **library-variant** mee (een `KpiSingle` zonder unit, een `Segmented` per aantal opties — dat vermenigvuldigt de variant-nodes en maakt van een as een opsomming), ofwel krijgt de **builder** de bevoegdheid om kinderen aan een instance toe te voegen (dat kan de Figma-API niet voor een instance, alleen door hem los te koppelen — en dan is het geen instance meer). Beide keuzes raken het model, niet de code.
-- **Eerste zet:** Meet eerst of het loont: `grep -c "wijkt af" ` op de bouwmelding per scherm zegt waar de 31 zitten. Neem daarna één geval — `KpiSingle` is de goedkoopste, want `unit` is optioneel en een tweede variant `unit=false` lost vier van de 31 op — en kijk of de variant-explosie aanvaardbaar blijft vóór je de andere vier aanpakt.
+- **Eerste zet:** Meet eerst of het loont, en meet het in ÉÉN noemer — dat is wat vandaag misging. Draai één volledige herbouw en tel per scherm de `wijkt af`-meldingen; leg dat naast een live telling van instances per frame. Neem daarna één geval — `KpiSingle` is de goedkoopste, want `unit` is optioneel en een tweede variant `unit=false` lost vier van de 31 op — en kijk of de variant-explosie aanvaardbaar blijft vóór je de andere vier aanpakt.
 - **Status:** open
 
 ## 2026-09-09 — 52 waarden in de code hebben geen token, en geen enkele heeft een backlog-item · [tokens]
@@ -457,4 +464,28 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **En de guard is er per constructie blind voor.** Er is geen ratel: `scripts/figma-sync-check.mjs` rapporteert beide getallen alleen in `uitgesloten`. Erger, de tegenproef bevestigt de blindheid — `figma-sync-selftest.mjs` bevat `ok controle-ambigu — verdrievoudig het aantal ambigue nodes → exit 0 (hoort 0)`. De zelftest toont dus aan dat de as groen blijft bij precies de verandering die daarna echt plaatsvond.
 - **Waarom niet nu:** een ratel zetten op een getal waarvan de oorzaak niet is toegewezen, bevriest de regressie in plaats van hem op te lossen. Eerst moet vaststaan welk deel van 97 → 302 uit de zeven route-schermen komt (nieuwe code die sleutels deelt met bestaande componenten) en welk deel uit de diepere dieptekap (nodes die er altijd waren en nu pas meetellen).
 - **Eerste zet:** Twee attributie-runs met `node scripts/figma-build-spec.mjs --hernoem --root=<wegwerpmap>`: één op de spec zónder de zeven route-schermen (`scripts/schermen.mjs` tijdelijk inkorten), één met `--kap=8`. Het verschil van de twee `ambigu`-tellingen wijst de oorzaak aan. Pas dáárna beslissen: een ratel zoals `LAAGNAAM_DEKKING`, of de `o`-voorkeur in `rangschik()` scherper maken zodat een vreemde sleutel binnen een verklaarde grens nooit wint.
+- **Status:** open
+
+## 2026-09-09 — Eén toestel-ronde beantwoordt vijf vragen die maanden los blijven hangen · [test]
+- **Wat:** Vijf open vragen delen dezelfde blokkade — ze zijn alleen op een echt toestel (of simulator) te beantwoorden, en dus blijven ze staan zolang niemand de dev-client boot. Ze staan hier bij elkaar omdat je ze in één ronde afhandelt, elk met zijn eigen check:
+
+  | # | vraag | check |
+  |---|---|---|
+  | 1 | **HR-verbinding, vier gevallen met het horloge:** niet casten → kort oranje, nooit groen · wél casten → groen bij de eerste hartslag · casten midden in een rit uitzetten → BPM valt binnen ~12 s terug op `—` in plaats van te bevriezen (dít voorkwam verzonnen hartslag in opgeslagen ritten) · toestemming op Weigeren → autoconnect raakt de band niet aan | de vier gevallen gereden, met datum |
+  | 2 | **De roeier meldt 'verbonden' op onbewezen grond** — de HR-kant heeft een datadeadline, de roeierkant niet | `grep -rln DATA_TIMEOUT apps/rowtrack/lib/ble/` — alleen `hr-service.ts` = gat leeft |
+  | 3 | **Adverteert de Apollo XL FTMS in zijn advertisement-pakket?** Bepaalt of de kandidaat-filter op naam mag vertrouwen | `grep -c "is nog niet op het toestel" apps/rowtrack/lib/ble/rowerCandidate.ts` — 1 = onbeantwoord |
+  | 4 | **Subtitle-action vuurt niet op synthetische taps; het a11y-frame van ALLE staat scheef** | Maestro-miniflow: `launchApp` → `tapOn: "(?i).*wijzig.*"` → opent de GoalSheet? |
+  | 5 | **Niets is ooit op de simulator bekeken** — dev-active deep links (`?goal=distance`, `?goal=split`, `?summary=1`), duizendtal-punt, komma-decimaal, spatie vóór de eenheid; en de historiekschermen op echte data | met het oog, één ronde |
+
+  Rijdt mee in dezelfde ronde, maar houdt zijn eigen HANDOFF-entry omdat hij vers is: `dataSet` is alleen op web gemeten (31 call-sites over 18 bestanden sinds `7209f3d`) — grep de Metro-log op `dataSet` tijdens de doorloop.
+- **Waarom niet nu:** vijf HANDOFF-items van 2026-08-10 en 2026-08-11, alle ouder dan 30 dagen bij de triage van 2026-09-09 (`sessie-reflectie` stap 1). Hun checks zijn gedraaid en zeggen alle vijf dat het gat leeft; het is dus geen sessie-context maar werk dat blijft liggen. Ze bij elkaar zetten is de winst: los waren het vijf redenen om de dev-client te booten en werd hij nooit geboot.
+- **Eerste zet:** `pnpm dev:rowtrack`, dan `expo run:ios --device` (na een native wijziging; anders volstaat de bestaande dev-client — controleer de datum van de bundle, zie het Verify-pad). Begin bij 1 en 2, want die delen de BLE-log; 5 kan zonder hardware op de simulator en is dus de goedkoopste om als eerste af te vinken.
+- **Verwant:** `apps/rowtrack/BACKLOG.md` 2026-09-07 *HR- en roeier-dienst delen één BleManager-singleton* (open) vraagt dezelfde opstelling — horloge én Apollo XL aan.
+- **Status:** open
+
+## 2026-09-09 — Twee tokenkeuzes die code niet kan maken · [tokens]
+- **Wat:** Twee waarden zonder rol. (1) Witte 18px-knoptekst op `accent.default` meet **3,44:1** en faalt daarmee AA voor kleine tekst; geen bestaande rol lost dat op — het is knoptekst zwaarder/donkerder óf het accent verdiepen. (2) Er is geen skeleton-/placeholder-rol: `components/Skeleton.tsx` leent `bg.raised` en `radii.xs`, allebei bestaand, dus geen verzonnen hex, maar wel rollen die iets anders betekenen dan waarvoor ze hier dienen.
+- **Waarom niet nu:** HANDOFF-item van 2026-08-10, ouder dan 30 dagen bij de triage van 2026-09-09 (`sessie-reflectie` stap 1). Triage-bewijs: `grep -ic skeleton apps/rowtrack/tokens/tokens.json` → **0**, dus geen van beide keuzes is gemaakt. Het is bovendien geen code-werk: `tokens/tokens.json` is het Tokens Studio sync-target en een handmatige edit wordt bij de eerstvolgende push overschreven. Dit is dus een beslissing van Jeroen in de plugin.
+- **Eerste zet:** Beide via Tokens Studio, in **beide** mode-sets (de build faalt op asymmetrie). Daarna `Skeleton.tsx` op de nieuwe rol zetten — één plek. Er staan al twee andere token-items open (`accent.selected` 0.20 en een `bg.raised`-alpha), dus dit kan in één push mee.
+- **Check:** `grep -ic skeleton apps/rowtrack/tokens/tokens.json` — 0 = de skeleton-rol ontbreekt nog; staat `buttonTokens.primary` daarnaast nog op wit op `#F05454`, dan is ook de knoptekst-keuze niet gemaakt.
 - **Status:** open

@@ -150,3 +150,17 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Check:** `ls packages/ui/figma/parity-beelden 2>/dev/null` — bestaat de map niet, dan is de
   beeldronde daar nooit gedraaid.
 - **Status:** open
+
+## 2026-09-09 — De laag-discipline-guard ziet kale hex in CSS niet · [debt]
+- **Wat:** `packages/tokens/scripts/guard.mjs` dwingt af dat app-code en `packages/ui` alleen de rollaag aanraken — geen primitives, geen rauwe paletklassen, geen hardcoded hex. Die regels kijken naar TS/TSX. Een kale hex in een `.css`- of `.svg`-bestand passeert ongezien, en dat is precies de plek waar hij het langst blijft staan omdat niemand er een utility verwacht.
+- **Waarom niet nu:** HANDOFF-item van 2026-08-10, ouder dan 30 dagen bij de triage van 2026-09-09 (`sessie-reflectie` stap 1). Triage-bewijs: `grep -c "id: '" packages/tokens/scripts/guard.mjs` → **7**, de status quo — er is geen regel bijgekomen. Het is werk dat blijft liggen, geen sessie-context.
+- **Eerste zet:** Een achtste regel in `guard.mjs` met dezelfde vorm als de bestaande zes: glob op `**/*.{css,svg}` in `apps/` en `packages/`, patroon `#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})(?![0-9A-Fa-f])` plus `rgba?()`/`hsla?()`. Let op de uitzonderingen die er echt zijn: een `<svg>`-icoon met `currentColor` is goed, een favicon of een e-mailtemplate valt buiten de rollaag. Tegenproef in dezelfde stijl als `guard:selftest`: zet één kale hex in een wegwerp-CSS en eis dat de guard omvalt, haal hem weg en eis groen.
+- **Check:** `grep -c "id: '" packages/tokens/scripts/guard.mjs` — 7 = status quo, de kale-hex-regel is er nog niet; 8+ = er is een regel bij, toets dan of die kale hex in CSS/SVG dekt.
+- **Status:** open
+
+## 2026-09-09 — hexToHslTriplet staat in twee pakketten · [debt]
+- **Wat:** Dezelfde hex→HSL-conversie leeft in twee packages, elk met hun eigen build. Twee kopieën is nog geen probleem; een derde consument maakt een gedeeld pakket goedkoper dan opnieuw kopiëren, en dan is dit het moment om het te doen in plaats van de derde kopie te maken.
+- **Waarom niet nu:** HANDOFF-item van 2026-08-10, ouder dan 30 dagen bij de triage van 2026-09-09 (`sessie-reflectie` stap 1). Triage-bewijs: `grep -rln hexToHslTriplet packages/ apps/ | wc -l` → **4** (twee kopieën plus hun twee builds), exact de status quo. De afweging is dus ongewijzigd en er is vandaag niets dat dwingt.
+- **Eerste zet:** Wacht op de derde consument — dat is het signaal, niet de kalender. Komt hij: de functie naar het laagste gedeelde pakket dat beide al importeren, met een `node:test` op de randgevallen (3-cijferige hex, hoofdletters, alpha).
+- **Check:** `grep -rln hexToHslTriplet packages/ apps/ | wc -l` — 4 = status quo (twee kopieën + hun twee builds); 5+ = er is een derde consument en het gedeelde pakket wordt goedkoper dan een derde kopie.
+- **Status:** open
