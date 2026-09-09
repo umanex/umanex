@@ -1401,7 +1401,7 @@
         "name": "Chip",
         "id": "2036:20575",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1yt0clz:11",
         "componentProperties": [
           "value#2036:868",
@@ -1451,7 +1451,7 @@
         "name": "default",
         "id": "2036:20598",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "zfsaxs:23",
         "componentProperties": [
           "title#2036:874"
@@ -1596,7 +1596,7 @@
         "name": "default",
         "id": "2036:20767",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1pdmpb2:2",
         "componentProperties": [
           "title#2036:875"
@@ -1626,7 +1626,7 @@
         "name": "default",
         "id": "2036:20771",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1ozpnph:3",
         "componentProperties": [
           "label#2036:876"
@@ -1679,7 +1679,7 @@
         "name": "TabLabel",
         "id": "2036:20782",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1mcke8a:5",
         "componentProperties": [
           "label#2036:877",
@@ -1724,7 +1724,7 @@
         "name": "default",
         "id": "2036:20788",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1tdtfwl:6",
         "componentProperties": [
           "value#2036:880",
@@ -1764,7 +1764,7 @@
         "name": "default",
         "id": "2036:20793",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "pgu0w8:4",
         "componentProperties": [
           "message#2036:883"
@@ -1817,7 +1817,7 @@
         "name": "default",
         "id": "2036:20821",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "t0kmoc:19",
         "componentProperties": [
           "message#2036:884"
@@ -1887,7 +1887,7 @@
         "name": "EmptyState",
         "id": "2036:20900",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1sat3cd:11",
         "componentProperties": [
           "title#2036:885",
@@ -1937,7 +1937,7 @@
         "name": "PrBadge",
         "id": "2036:20909",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "yxzq0v:9",
         "componentProperties": [
           "label#2036:891",
@@ -1982,7 +1982,7 @@
         "name": "FormField",
         "id": "2036:20922",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "18b7gt:13",
         "componentProperties": [
           "label#2036:894",
@@ -2067,7 +2067,7 @@
         "name": "ErrorState",
         "id": "2036:20976",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "tf9vvg:15",
         "componentProperties": [
           "title#2036:897",
@@ -2322,7 +2322,7 @@
         "name": "BleStatusBar",
         "id": "2036:21485",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "d755zn:85",
         "componentProperties": [
           "deviceName#2036:906",
@@ -2397,7 +2397,7 @@
         "name": "DeviceRow",
         "id": "2036:21574",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1v51njp:89",
         "componentProperties": [
           "label#2036:915",
@@ -2548,7 +2548,7 @@
         "name": "KPI",
         "id": "2036:21737",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1tjc1j:97",
         "componentProperties": [
           "label#2036:933",
@@ -2687,7 +2687,7 @@
         "name": "Button",
         "id": "2036:21898",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "17athyw:161",
         "componentProperties": [
           "title#2036:967",
@@ -2910,7 +2910,7 @@
         "name": "default",
         "id": "2036:21912",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1ghkmo2:6",
         "componentProperties": [
           "left#2036:1000"
@@ -2940,7 +2940,7 @@
         "name": "default",
         "id": "2036:21925",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "kjw5jf:12",
         "componentProperties": [
           "heroLabel#2036:1001",
@@ -3080,7 +3080,7 @@
         "name": "KpiRow",
         "id": "2036:22083",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1sdmfnt:113",
         "componentProperties": [
           "label#2036:1004",
@@ -3284,7 +3284,7 @@
         "name": "default",
         "id": "2036:22171",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "kk2us8:5",
         "componentProperties": [
           "title#2036:1038",
@@ -3365,7 +3365,7 @@
         "name": "default",
         "id": "2036:22241",
         "type": "COMPONENT",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "efh7qu:31",
         "componentProperties": [
           "colAvg#2036:1040",
@@ -3400,7 +3400,7 @@
         "name": "DeviceSection",
         "id": "2036:23247",
         "type": "COMPONENT_SET",
-        "publishStatus": "CHANGED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1wnjkan:1005",
         "componentProperties": [
           "hrDeviceName#2036:1042",

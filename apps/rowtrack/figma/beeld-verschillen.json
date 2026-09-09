@@ -9,7 +9,7 @@
    "story": "componenten-workoutdetailscreen--zonder-hartslag",
    "W": 430,
    "H": 932,
-   "zicht": 33.31,
+   "zicht": 33.32,
    "grof": 6.97,
    "heet": 419,
    "blokken": 1034,
@@ -28,9 +28,9 @@
    "story": "componenten-historyscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 11.42,
+   "zicht": 11.43,
    "grof": 6.62,
-   "heet": 183,
+   "heet": 181,
    "blokken": 1034,
    "plaatsen": [
     "0,20",
@@ -47,7 +47,7 @@
    "story": "componenten-workoutdetailscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 32.3,
+   "zicht": 32.31,
    "grof": 6.31,
    "heet": 401,
    "blokken": 1034,
@@ -66,17 +66,17 @@
    "story": "componenten-activephase--doel-bereikt",
    "W": 430,
    "H": 932,
-   "zicht": 9.09,
-   "grof": 5.72,
-   "heet": 113,
+   "zicht": 9.19,
+   "grof": 5.88,
+   "heet": 115,
    "blokken": 1034,
    "plaatsen": [
-    "200,20",
-    "400,20",
+    "200,0",
+    "240,0",
+    "120,20",
+    "140,20",
     "100,40",
-    "120,40",
-    "240,160",
-    "60,180"
+    "120,40"
    ],
    "iconenGemaskeerd": 2
   },
@@ -85,7 +85,7 @@
    "story": "componenten-forgotpasswordscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 5.31,
+   "zicht": 5.49,
    "grof": 4.75,
    "heet": 102,
    "blokken": 1034,
@@ -104,9 +104,9 @@
    "story": "componenten-historyscreen--een-record",
    "W": 430,
    "H": 932,
-   "zicht": 8.96,
+   "zicht": 8.97,
    "grof": 4.67,
-   "heet": 144,
+   "heet": 143,
    "blokken": 1034,
    "plaatsen": [
     "0,20",
@@ -123,7 +123,7 @@
    "story": "componenten-registerscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 5.72,
+   "zicht": 5.35,
    "grof": 4.53,
    "heet": 104,
    "blokken": 1034,
@@ -157,50 +157,12 @@
    "iconenGemaskeerd": 1
   },
   {
-   "bestand": "ActivePhase__Landscape.figma.png",
-   "story": "componenten-activephase--landscape",
-   "W": 932,
-   "H": 430,
-   "zicht": 4.84,
-   "grof": 3.36,
-   "heet": 57,
-   "blokken": 1034,
-   "plaatsen": [
-    "100,40",
-    "120,40",
-    "140,40",
-    "340,40",
-    "620,80",
-    "640,80"
-   ],
-   "iconenGemaskeerd": 1
-  },
-  {
-   "bestand": "ActivePhase__Playground.figma.png",
-   "story": "componenten-activephase--playground",
-   "W": 430,
-   "H": 932,
-   "zicht": 4.53,
-   "grof": 3.04,
-   "heet": 51,
-   "blokken": 1034,
-   "plaatsen": [
-    "100,40",
-    "120,40",
-    "140,40",
-    "320,40",
-    "120,200",
-    "140,200"
-   ],
-   "iconenGemaskeerd": 1
-  },
-  {
    "bestand": "LoginScreen__Playground.figma.png",
    "story": "componenten-loginscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 4.67,
-   "grof": 3.01,
+   "zicht": 4.59,
+   "grof": 3,
    "heet": 48,
    "blokken": 1034,
    "plaatsen": [
@@ -214,21 +176,21 @@
    "iconenGemaskeerd": 1
   },
   {
-   "bestand": "ActivePhase__Zonder-Hartslagband.figma.png",
-   "story": "componenten-activephase--zonder-hartslagband",
-   "W": 430,
-   "H": 932,
-   "zicht": 4.44,
+   "bestand": "ActivePhase__Landscape.figma.png",
+   "story": "componenten-activephase--landscape",
+   "W": 932,
+   "H": 430,
+   "zicht": 4.45,
    "grof": 2.96,
-   "heet": 50,
+   "heet": 52,
    "blokken": 1034,
    "plaatsen": [
     "100,40",
     "120,40",
     "140,40",
-    "320,40",
-    "120,200",
-    "140,200"
+    "340,40",
+    "620,80",
+    "640,80"
    ],
    "iconenGemaskeerd": 1
   },
@@ -237,9 +199,9 @@
    "story": "componenten-activephase--doel-afstand",
    "W": 430,
    "H": 932,
-   "zicht": 4.4,
-   "grof": 2.91,
-   "heet": 52,
+   "zicht": 4.35,
+   "grof": 2.86,
+   "heet": 49,
    "blokken": 1034,
    "plaatsen": [
     "100,40",
@@ -252,17 +214,55 @@
    "iconenGemaskeerd": 1
   },
   {
+   "bestand": "ActivePhase__Playground.figma.png",
+   "story": "componenten-activephase--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.32,
+   "grof": 2.82,
+   "heet": 46,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "140,40",
+    "320,40",
+    "120,200",
+    "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "ActivePhase__Zonder-Hartslagband.figma.png",
+   "story": "componenten-activephase--zonder-hartslagband",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.22,
+   "grof": 2.74,
+   "heet": 45,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "140,40",
+    "320,40",
+    "120,200",
+    "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
    "bestand": "IdlePhase__Playground.figma.png",
    "story": "componenten-idlephase--playground",
    "W": 430,
    "H": 932,
-   "zicht": 4.54,
-   "grof": 2.32,
+   "zicht": 4.52,
+   "grof": 2.28,
    "heet": 39,
    "blokken": 1034,
    "plaatsen": [
     "40,80",
-    "140,120",
+    "100,120",
     "180,120",
     "60,180",
     "100,180",
@@ -275,13 +275,13 @@
    "story": "componenten-idlephase--doel-afstand",
    "W": 430,
    "H": 932,
-   "zicht": 4.45,
-   "grof": 2.27,
+   "zicht": 4.43,
+   "grof": 2.23,
    "heet": 38,
    "blokken": 1034,
    "plaatsen": [
     "40,80",
-    "140,120",
+    "100,120",
     "180,120",
     "60,180",
     "100,180",
@@ -295,7 +295,7 @@
    "W": 430,
    "H": 932,
    "zicht": 4.42,
-   "grof": 2.24,
+   "grof": 2.22,
    "heet": 40,
    "blokken": 1034,
    "plaatsen": [
@@ -309,30 +309,11 @@
    "iconenGemaskeerd": 9
   },
   {
-   "bestand": "ActivePhase__Samenvatting.figma.png",
-   "story": "componenten-activephase--samenvatting",
-   "W": 430,
-   "H": 932,
-   "zicht": 3,
-   "grof": 2,
-   "heet": 31,
-   "blokken": 1034,
-   "plaatsen": [
-    "20,40",
-    "40,40",
-    "100,40",
-    "120,40",
-    "140,40",
-    "160,40"
-   ],
-   "iconenGemaskeerd": 2
-  },
-  {
    "bestand": "IdlePhase__Toestel-Keuze.figma.png",
    "story": "componenten-idlephase--toestel-keuze",
    "W": 430,
    "H": 932,
-   "zicht": 3.92,
+   "zicht": 3.91,
    "grof": 1.89,
    "heet": 58,
    "blokken": 1034,
@@ -402,6 +383,25 @@
     "220,240"
    ],
    "iconenGemaskeerd": 5
+  },
+  {
+   "bestand": "ActivePhase__Samenvatting.figma.png",
+   "story": "componenten-activephase--samenvatting",
+   "W": 430,
+   "H": 932,
+   "zicht": 2.69,
+   "grof": 1.66,
+   "heet": 25,
+   "blokken": 1034,
+   "plaatsen": [
+    "20,40",
+    "40,40",
+    "100,40",
+    "120,40",
+    "140,40",
+    "160,40"
+   ],
+   "iconenGemaskeerd": 2
   },
   {
    "bestand": "WorkoutDetailScreen__Niet-Gevonden.figma.png",

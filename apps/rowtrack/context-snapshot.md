@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+fd95441 fix(rowtrack): a time budget for the screen build, a warm-up for imports, and a leaf keeps its size
 56fb806 docs(rowtrack): the import hypothesis is withdrawn; peculiarities 9 and 10
 8cd3842 chore(rowtrack): manifest with property references after the property repair
 763315e fix(rowtrack): reuse a component property instead of re-adding it, and a guard axis for orphans
 5d11313 docs(rowtrack): classify the 24 image differences by cause, and the Figma-decides flow
-308a44c chore(rowtrack): spec, manifest, geometry and images after the text fix
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
    M apps/rowtrack/HANDOFF.md
    M apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
-   M apps/rowtrack/figma/beeld-verschillen.json
-   M apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
+  M  apps/rowtrack/figma/beeld-verschillen.json
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
+  M  apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
 
 ## Bestanden met TODO/FIXME
   (geen)
