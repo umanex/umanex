@@ -54,7 +54,7 @@ export function GoalProgressCard({ progress, onEdit }: GoalProgressCardProps) {
   const fillWidth = `${Math.min(pct, 100)}%` as const;
 
   return (
-    <View style={styles.card}>
+    <View testID="GoalProgressCard" style={styles.card}>
       <Subtitle
         label={periodLabel(goal.period)}
         action={onEdit ? { label: t.goals.editAction, onPress: onEdit } : undefined}

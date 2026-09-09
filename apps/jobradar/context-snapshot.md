@@ -38,18 +38,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+346ae77 fix(jobradar): give the flow harness its own build directory
 6fc0110 fix(jobradar): repair the mirror connection and close the review findings
 d6da091 feat(jobradar): origin filter, profitability sieve and sorting in the UI
 28a9a6c feat(jobradar): filter prospects by origin and by profitability
 3d22f9d feat(jobradar): import a delivered CSV of companies into csv_prospects
-cd62624 docs(jobradar): correct two briefing constraints against the source
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/BACKLOG.md
-  M  apps/jobradar/next.config.mjs
-  M  apps/jobradar/scripts/flow-harness.mjs
-  M  apps/jobradar/tsconfig.json
+  M  apps/jobradar/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -17,7 +17,9 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
+// --root=<map>: zie figma-build-spec.mjs. De producent-tegenproef draait beide passen op een kopie.
+const rootFlag = process.argv.find(a => a.startsWith('--root='));
+const APP = rootFlag ? rootFlag.slice('--root='.length) : join(dirname(fileURLToPath(import.meta.url)), '..');
 const spec = JSON.parse(readFileSync(join(APP, 'figma/build-spec.json'), 'utf8'));
 
 const MAX_BROERS = 8;
@@ -38,6 +40,9 @@ function snoei(node, diepte, pad, comp) {
   // van de norm — een sleutelnaam is de norm en hoeft niet in elk knooppunt herhaald.
   o.naam = node.naam ?? 'wrapper';
   if (node.naamBron && node.naamBron !== 'sleutel') o.naamBron = node.naamBron;
+  // De gedeclareerde componentgrens reist mee: de schermen-export heeft hem nodig om te
+  // beslissen of een node een INSTANCE van een library-component wordt of een gewoon frame.
+  if (node.component) o.component = node.component;
   if (node.naamAmbigu) o.naamAmbigu = true;
   if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
   if (node.slot) o.slot = node.slot;      // deze tekstnode hangt aan een component property
@@ -119,7 +124,17 @@ function snoei(node, diepte, pad, comp) {
   return o;
 }
 
-const uit = { componenten: {}, schermen: {}, uitgesloten: spec.uitgesloten, afkappingen };
+const uit = {
+  // walkerVersie + gezien + grenzen zijn KLEIN en moeten mee: `figma/build-spec.json` is
+  // gitignored (39 MB), dus de guard in CI ziet alleen dit bestand. Zonder deze velden kan hij
+  // "de testID staat in de code" niet leggen naast "de testID bereikte de DOM" — en dat zijn
+  // twee verschillende beweringen die één instrument nooit samen meet.
+  walkerVersie: spec.walkerVersie,
+  gezien: spec.gezien,
+  grenzen: spec.grenzen,
+  weggelatenComponenten: spec.weggelatenComponenten,
+  componenten: {}, schermen: {}, uitgesloten: spec.uitgesloten, afkappingen,
+};
 for (const [comp, d] of Object.entries(spec.componenten)) {
   uit.componenten[comp] = {
     assen: d.assen,
@@ -168,7 +183,7 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
 // dit bestand ná de snoei, met dezelfde vorm als ongebonden.json.
 {
   const plat = (n, u = []) => { u.push(n); for (const k of n.kinderen ?? n.k ?? []) plat(k, u); return u; };
-  const perBron = { sleutel: 0, gefold: 0, component: 0, rol: 0, terugval: 0 };
+  const perBron = { sleutel: 0, gefold: 0, component: 0, testid: 0, laag: 0, heuristiek: 0, rnw: 0, rol: 0, terugval: 0 };
   const perNaam = new Map();
   let nodes = 0, ambigu = 0, gestabiliseerd = 0, indexNamen = 0, copyNamen = 0;
   const instabiel = [];
@@ -195,7 +210,7 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
     bomen.forEach((b, i) => { const v = vorm(b); if (!groepen.has(v)) groepen.set(v, []); groepen.get(v).push({ i, n: namenVan(b).join('>') }); });
     for (const [, g] of groepen) for (const x of g.slice(1)) if (x.n !== g[0].n) instabiel.push(`${comp}: variant ${g[0].i} tegen ${x.i}`);
   }
-  const echt = perBron.sleutel + perBron.gefold + perBron.component;
+  const echt = perBron.sleutel + perBron.gefold + perBron.component + perBron.testid + perBron.laag + perBron.heuristiek;
   // DE EERLIJKE NOEMER. Een node die `rnwRol()` benoemde is DOM die react-native-web zelf
   // schrijft — de cirkels van een ActivityIndicator, de vijf hostlagen van een Modal. Die
   // kan per constructie geen code-naam krijgen, dus hij hoorde nooit in de noemer van
@@ -207,6 +222,11 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
   writeFileSync(join(APP, 'figma/laagnamen.json'), JSON.stringify({
     $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Dekking en variant-stabiliteit van de laagnamen, gemeten op de GESNOEIDE boom — dat is wat Figma krijgt.',
     nodes, appNodes, rnwNodes: perBron.rnw, perBron,
+    // Het STERFCRITERIUM van de heuristische componentgrens: elke keer dat hij vuurt is een
+    // node waar de code de grens niet declareert. Ratelt naar 0; op 0 mag de tak weg.
+    componentZonderTestID: perBron.heuristiek,
+    heuristiekPerComponent: (spec.naamStats ?? []).filter(x => x.heuristiek)
+      .map(x => `${x.component}:${x.heuristiek}`),
     echteNaamPct: +(100 * echt / appNodes).toFixed(1),
     echteNaamPctRuw: +(100 * echt / nodes).toFixed(1),
     ambigu, gestabiliseerd, indexNamen, copyNamen, instabiel,

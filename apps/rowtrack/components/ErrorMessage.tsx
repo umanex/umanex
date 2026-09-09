@@ -11,7 +11,7 @@ export const ErrorMessage = memo(function ErrorMessage({ message }: ErrorMessage
   if (!message) return null;
 
   return (
-    <View style={styles.banner} accessibilityRole="alert">
+    <View testID="ErrorMessage" style={styles.banner} accessibilityRole="alert">
       <Ionicons name="alert-circle" size={18} color={accent.default} />
       <Text style={styles.text}>{message}</Text>
     </View>

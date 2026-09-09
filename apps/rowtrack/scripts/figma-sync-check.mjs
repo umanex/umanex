@@ -45,6 +45,9 @@ const assenSpec = lees('figma/story-axes.json');
 const payload   = lees('figma/tokens-payload.json');
 const gaten     = lees('figma/ongebonden.json');
 const laagnamen = lees('figma/laagnamen.json', false);
+// De gesnoeide bouwspec. `figma/build-spec.json` is gitignored (39 MB), dus dit is het enige
+// spec-bestand dat CI ziet — en daarmee de enige plek waar de gemeten componentgrens staat.
+const minSpec   = lees('figma/build-spec.min.json', false);
 const tokens    = lees('tokens/tokens.json');
 
 /**
@@ -69,16 +72,44 @@ const NIET_VISUEEL = {
  * nieuw gat zichtbaar terwijl de bekende gaten de as niet elke run rood maken.
  * Elk gat heeft een item in apps/rowtrack/BACKLOG.md.
  */
-const BEKENDE_GATEN = 46;
+// 46 -> 47 op 2026-09-09: `text style = ionicons 40px` uit de foutstaat van ConnectionOverlay.
+// Geen nieuw gat in de code maar een nieuw MEETBAAR gat — het waarschuwingsicoon zat in
+// ActivePhase achter `bleStatus !== 'connected'`, en alle schermframes staan op `connected`.
+// Snede 6 gaf de overlay een eigen story mét foutvariant, en pas daar rendert dat icoon.
+const BEKENDE_GATEN = 47;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1947;   // 1929 + 18 uit het ActivePhase-landscape-frame, dat sinds 2026-09-08 gemeten wordt
+const BEKENDE_VOORKOMENS = 1990;   // 1947 + 43: de zeven uitgesneden componenten hebben elk een eigen story, dus dezelfde ongebonden waarden worden nu ook BUITEN het scherm gemeten
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
  *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
  *  (spinner, modal-hostketen, scroll-wrappers) staan er niet meer in, want die kunnen per
- *  constructie geen code-naam krijgen. Over álle nodes is hetzelfde getal 73,8%. */
-const LAAGNAAM_DEKKING = 83.8;
+ *  constructie geen code-naam krijgen.
+ *
+ *  83,8 -> 83,4 bij het vervangen van de barrel-import door directe imports, en dat is WINST
+ *  ondanks het lagere getal. Gemeten: precies acht nodes verschoven, alle acht in IdlePhase.
+ *  Ze heetten `fade` (uit BottomFade.tsx) en `errorText` (uit ErrorMessage.tsx) — twee
+ *  componenten die IdlePhase niet rendert; die sleutels stonden alleen in de preview-iframe
+ *  omdat `@/components` alles her-exporteert. Nu vallen ze terug op `overlay` (structureel,
+ *  telt niet als code-naam) en winnen acht andere nodes `actionText` uit DeviceRow.tsx, dat
+ *  IdlePhase wél rendert. Ambigue nodes daalden in dezelfde stap van 206 naar 111.
+ *
+ *  83,4 -> 84,4 na de zeven sneden van ingreep 2: elke uitgesneden component draagt zijn eigen
+ *  StyleSheet, dus zijn nodes winnen nu een sleutel uit hun eigen bestand in plaats van terug te
+ *  vallen. `activeStyles` bestaat niet meer. */
+const LAAGNAAM_DEKKING = 84.4;
+/**
+ * Hoe vaak de HEURISTISCHE componentgrens nog vuurt. Sinds de testID-ronde van 2026-09-08 staat
+ * de grens als feit in de DOM, dus elke treffer hier is een node waar de code hem niet
+ * declareert. Ratel: dalen is winst, stijgen is een regressie.
+ *
+ * Hij staat op 1 en niet op 0, en die ene is gemeten en correct: `GoalSheet` rendert een
+ * `BottomSheet` als zijn eigen wortel en geeft daar `testID="GoalSheet"` aan door. Die node
+ * draagt dus de naam van het OMSLUITENDE component, en de zelf-nesting-poort in de ladder slaat
+ * hem daarom over — waarna de heuristiek hem terecht `BottomSheet` noemt. Zakt dit naar 0, dan
+ * mag de heuristische tak weg (samen met `bronnenInSubboom` en `naamBronId`).
+ */
+const BEKENDE_HEURISTIEK = 1;
 /** Posities die `stabiliseer()` moest gladstrijken. `instabiel` is ná die pas gemeten en dus
  *  per constructie leeg — dit is de enige onafhankelijke maat voor dezelfde eigenschap. */
 const BEKENDE_INSTABIELE_POSITIES = 2;
@@ -471,6 +502,44 @@ else {
   // een ander getal met dezelfde naam. Dat is geen lagere dekking maar een ander instrument.
   if (laagnamen.appNodes === undefined)
     f.push('laagnamen.json draagt geen appNodes — het is een bestand van vóór de rnw-herkenning; draai `figma:spec`');
+
+  // ── De componentgrens: twee helften, en ze meten niet hetzelfde ────────────────────────
+  // "`testID` staat in het bestand" en "`testID` bereikte de DOM" zijn twee beweringen. Een
+  // derde-partij component dat de prop weggooit (LinearGradient, Ionicons) laat de eerste
+  // slagen en de tweede falen, en dat verschil is met één instrument niet te zien.
+  const gezien = new Set(minSpec?.gezien?.testid ?? []);
+  if (minSpec && minSpec.walkerVersie !== 2)
+    f.push(`build-spec.min.json draagt walkerVersie ${minSpec.walkerVersie ?? 1} — van vóór de `
+      + 'componentgrens; zonder die velden leest deze as "geen enkel component heeft een testID". Draai `figma:spec`');
+  else if (minSpec) {
+    const zonderCode = [], zonderDom = [];
+    for (const f2 of componentBestanden) {
+      const naam = f2.rel.replace(/\.tsx$/, '').split('/').pop();
+      if (GEEN_COMPONENT[naam]) continue;
+      const bron = readFileSync(f2.pad, 'utf8');
+      if (!new RegExp(`testID\\s*=\\s*['"\`]${naam}['"\`]`).test(bron)) zonderCode.push(naam);
+      if (!gezien.has(naam)) zonderDom.push(naam);
+    }
+    if (zonderCode.length) f.push(`${zonderCode.length} component(en) zonder testID="<bestandsnaam>" in de code: ${zonderCode.join(', ')}`);
+    if (zonderDom.length) f.push(`${zonderDom.length} component(en) waarvan de testID de DOM niet haalde: ${zonderDom.join(', ')} `
+      + '— de prop staat in de code maar bereikt geen element (een derde-partij component kan hem weggooien)');
+    // De VORM. PascalCase in `data-testid`, camelCase in `data-laag`: een verwisseling maakt de
+    // naam plausibel en de herkomst onnavolgbaar.
+    const testidFout = [...gezien].filter(x => !/^[A-Z][A-Za-z0-9]*$/.test(x));
+    const laagFout = (minSpec.gezien?.laag ?? []).filter(x => !/^[a-z][A-Za-z0-9]*$/.test(x));
+    if (testidFout.length) f.push(`testID moet PascalCase zijn (bestandsnaam), fout: ${testidFout.join(', ')}`);
+    if (laagFout.length) f.push(`data-laag moet camelCase zijn (StyleSheet-sleutel), fout: ${laagFout.join(', ')}`);
+    if (minSpec.weggelatenComponenten) f.push(`${minSpec.weggelatenComponenten} componentgrens(en) weggegooid door de `
+      + 'dieptekap van de walker — die verdwijnen stil uit de naamgeving');
+  }
+
+  const hr = laagnamen.componentZonderTestID;
+  if (hr === undefined) f.push('laagnamen.json draagt geen componentZonderTestID — draai `figma:spec`');
+  else if (hr > BEKENDE_HEURISTIEK)
+    f.push(`${hr} node(s) krijgen hun componentnaam nog van de HEURISTIEK, ${BEKENDE_HEURISTIEK} bekend `
+      + `(${(laagnamen.heuristiekPerComponent ?? []).join(', ')}) — declareer de grens met testID`);
+  else if (hr < BEKENDE_HEURISTIEK)
+    f.push(`${hr} heuristische grens(en) tegen ${BEKENDE_HEURISTIEK} bekend — winst; zet BEKENDE_HEURISTIEK op ${hr}.`);
   const pct = laagnamen.echteNaamPct;
   if (pct < LAAGNAAM_DEKKING - 0.05)
     f.push(`${pct}% van de laagnamen komt uit de code, tegen ${LAAGNAAM_DEKKING}% bekend — er is dekking verdwenen`);
@@ -485,7 +554,8 @@ else {
     // NIET geratelt: hoeveel RNW-DOM er staat verandert legitiem met elke Modal of ScrollView
     // die erbij komt. Wél in de ok-regel, want het is de enige plek waar een stille verschuiving
     // naar `rnw` (bv. een RNW-versie die `scroll` naar `auto` mapt) zichtbaar wordt.
-    + ` · ${laagnamen.rnwNodes} rnw-nodes buiten de noemer (${laagnamen.echteNaamPctRuw}% over álle nodes)`);
+    + ` · ${laagnamen.rnwNodes} rnw-nodes buiten de noemer (${laagnamen.echteNaamPctRuw}% over álle nodes)`
+    + ` · ${laagnamen.perBron.testid} nodes uit een gedeclareerde testID-grens, ${laagnamen.componentZonderTestID} nog uit de heuristiek`);
   uitgesloten.push(`${laagnamen.rnwNodes} nodes zijn DOM die react-native-web zelf schrijft (spinner, modal-hostketen, scroll-wrappers) — herkend aan zijn eigen bron, buiten de noemer`);
   uitgesloten.push(`${laagnamen.perBron.terugval} nodes zonder StyleSheet-sleutel (inline of Reanimated gestyleerd) — die dragen een structurele naam, geen code-naam`);
   if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);

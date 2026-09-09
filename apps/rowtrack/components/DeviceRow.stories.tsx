@@ -33,7 +33,7 @@ const meta = {
     actionDisabled: false,
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-12742' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-14660' },
   },
 } satisfies Meta<typeof DeviceRow>;
 

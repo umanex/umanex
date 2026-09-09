@@ -1,5 +1,5 @@
 # Context Snapshot — rowtrack
-_Gegenereerd op 2026-09-08_
+_Gegenereerd op 2026-09-09_
 
 ## Project
 - **App:** rowtrack
@@ -40,8 +40,8 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | HealthConsentScreen | `apps/rowtrack/components/HealthConsentScreen.tsx` | components | — | — | — |
 | HrStatusBar | `apps/rowtrack/components/HrStatusBar.tsx` | components | — | — | — |
 | Icon | `apps/rowtrack/components/Icon.tsx` | components | — | — | — |
-| KPI_single | `apps/rowtrack/components/KPI_single.tsx` | components | — | — | — |
 | KPI | `apps/rowtrack/components/KPI.tsx` | components | — | — | — |
+| KpiSingle | `apps/rowtrack/components/KpiSingle.tsx` | components | — | — | — |
 | MotivationalToast | `apps/rowtrack/components/MotivationalToast.tsx` | components | — | — | — |
 | PaceZone | `apps/rowtrack/components/PaceZone.tsx` | components | — | — | — |
 | PrBadge | `apps/rowtrack/components/PrBadge.tsx` | components | — | — | — |
@@ -52,6 +52,13 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | Subtitle | `apps/rowtrack/components/Subtitle.tsx` | components | — | — | — |
 | TabLabel | `apps/rowtrack/components/TabLabel.tsx` | components | — | — | — |
 | WheelPicker | `apps/rowtrack/components/WheelPicker.tsx` | components | — | — | — |
+| ActiveHeader | `apps/rowtrack/components/workout/active/ActiveHeader.tsx` | active | — | — | — |
+| ConnectionOverlay | `apps/rowtrack/components/workout/active/ConnectionOverlay.tsx` | active | — | — | — |
+| GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
+| HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
+| KpiRow | `apps/rowtrack/components/workout/active/KpiRow.tsx` | active | — | — | — |
+| ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
+| SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
 | IdlePhase | `apps/rowtrack/components/workout/IdlePhase.tsx` | workout | — | — | — |
@@ -59,23 +66,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9d1016e feat(rowtrack): screens out of the library, and parity green on every node
 fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
 4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
 b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
 ed214f1 refactor(rowtrack): one source for which story components are screens
-b275fd6 fix(rowtrack): de confetti-uitsluiting toetst de vorm, niet de storynaam
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/manifest.json
-  A  apps/rowtrack/figma/niet-reproduceerbaar.json
-  M  apps/rowtrack/package.json
-  M  apps/rowtrack/scripts/geometry-parity.mjs
-  A  apps/rowtrack/scripts/instabiele-nodes.mjs
-  A  apps/rowtrack/scripts/spec-boom.mjs
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/components/BleStatusBar.stories.tsx
+  M  apps/rowtrack/components/BleStatusBar.tsx
+  M  apps/rowtrack/components/BottomFade.stories.tsx
+  M  apps/rowtrack/components/BottomFade.tsx
+  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/components/BottomSheet.tsx
+  M  apps/rowtrack/components/Button.stories.tsx
+  M  apps/rowtrack/components/Button.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

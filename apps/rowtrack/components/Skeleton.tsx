@@ -24,6 +24,7 @@ export type SkeletonProps = {
 export function Skeleton({ children, style }: SkeletonProps) {
   return (
     <View
+      testID="Skeleton"
       style={[styles.block, style]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"

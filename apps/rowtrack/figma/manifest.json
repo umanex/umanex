@@ -1399,13 +1399,13 @@
    "pageId": "2001:275",
    "primary": {
     "name": "Chip",
-    "id": "2020:12347",
+    "id": "2025:14442",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1yt0clz:11",
     "componentProperties": [
-     "value#2020:227",
-     "unit#2020:230",
+     "value#2025:359",
+     "unit#2025:362",
      "active"
     ],
     "eigenVulling": 1,
@@ -1421,11 +1421,11 @@
     "varianten": [
      {
       "name": "active=true",
-      "id": "2020:12341"
+      "id": "2025:14436"
      },
      {
       "name": "active=false",
-      "id": "2020:12346"
+      "id": "2025:14441"
      }
     ]
    },
@@ -1435,12 +1435,12 @@
    "pageId": "2001:287",
    "primary": {
     "name": "default",
-    "id": "2020:12513",
+    "id": "2026:14860",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "11k6hol:23",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1a7nc1v:23",
     "componentProperties": [
-     "title#2020:255"
+     "title#2026:414"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1450,7 +1450,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12514",
+     "id": "2026:14861",
      "type": "RECTANGLE"
     }
    ]
@@ -1459,10 +1459,10 @@
    "pageId": "2001:290",
    "primary": {
     "name": "default",
-    "id": "2020:13080",
+    "id": "2026:14936",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "nr1euc:75",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1hh1s84:75",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1472,7 +1472,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:13081",
+     "id": "2026:14937",
      "type": "RECTANGLE"
     }
    ]
@@ -1481,10 +1481,10 @@
    "pageId": "2001:293",
    "primary": {
     "name": "default",
-    "id": "2020:12841",
+    "id": "2026:14969",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "jfsxxc:32",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1nubv61:32",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1494,7 +1494,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12842",
+     "id": "2026:14970",
      "type": "RECTANGLE"
     }
    ]
@@ -1503,9 +1503,9 @@
    "pageId": "2001:296",
    "primary": {
     "name": "default",
-    "id": "2020:12292",
+    "id": "2025:14430",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "24w3jg:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1516,7 +1516,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12293",
+     "id": "2025:14431",
      "type": "RECTANGLE"
     }
    ]
@@ -1525,9 +1525,9 @@
    "pageId": "2001:299",
    "primary": {
     "name": "default",
-    "id": "2020:12295",
+    "id": "2025:14444",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "u5mmge:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1538,7 +1538,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12296",
+     "id": "2025:14445",
      "type": "RECTANGLE"
     }
    ]
@@ -1547,9 +1547,9 @@
    "pageId": "2001:302",
    "primary": {
     "name": "default",
-    "id": "2020:12298",
+    "id": "2025:14447",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "13d2wiu:2",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1560,7 +1560,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12299",
+     "id": "2025:14448",
      "type": "RECTANGLE"
     }
    ]
@@ -1569,12 +1569,12 @@
    "pageId": "2001:305",
    "primary": {
     "name": "default",
-    "id": "2020:12301",
+    "id": "2025:14450",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1pdmpb2:2",
     "componentProperties": [
-     "title#2020:218"
+     "title#2025:365"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1584,7 +1584,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12302",
+     "id": "2025:14451",
      "type": "RECTANGLE"
     }
    ]
@@ -1593,12 +1593,12 @@
    "pageId": "2001:308",
    "primary": {
     "name": "default",
-    "id": "2020:12305",
+    "id": "2025:14459",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1ozpnph:3",
     "componentProperties": [
-     "label#2020:219"
+     "label#2025:366"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1608,7 +1608,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12306",
+     "id": "2025:14460",
      "type": "RECTANGLE"
     }
    ]
@@ -1617,9 +1617,9 @@
    "pageId": "2001:312",
    "primary": {
     "name": "default",
-    "id": "2020:12310",
+    "id": "2025:14455",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "lrydiv:4",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1630,7 +1630,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12311",
+     "id": "2025:14456",
      "type": "RECTANGLE"
     }
    ]
@@ -1639,12 +1639,12 @@
    "pageId": "2001:317",
    "primary": {
     "name": "TabLabel",
-    "id": "2020:12316",
+    "id": "2025:14465",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1mcke8a:5",
     "componentProperties": [
-     "label#2020:220",
+     "label#2025:367",
      "focused"
     ],
     "eigenVulling": 1,
@@ -1660,11 +1660,11 @@
     "varianten": [
      {
       "name": "focused=true",
-      "id": "2020:12313"
+      "id": "2025:14462"
      },
      {
       "name": "focused=false",
-      "id": "2020:12315"
+      "id": "2025:14464"
      }
     ]
    },
@@ -1674,14 +1674,14 @@
    "pageId": "2001:323",
    "primary": {
     "name": "default",
-    "id": "2020:12335",
+    "id": "2025:14523",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1tdtfwl:6",
     "componentProperties": [
-     "value#2020:224",
-     "unit#2020:225",
-     "label#2020:226"
+     "value#2025:389",
+     "unit#2025:390",
+     "label#2025:391"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1691,7 +1691,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12336",
+     "id": "2025:14524",
      "type": "RECTANGLE"
     }
    ]
@@ -1700,12 +1700,12 @@
    "pageId": "2001:330",
    "primary": {
     "name": "default",
-    "id": "2020:12320",
+    "id": "2025:14480",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "pgu0w8:4",
     "componentProperties": [
-     "message#2020:223"
+     "message#2025:376"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1715,7 +1715,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12321",
+     "id": "2025:14481",
      "type": "RECTANGLE"
     }
    ]
@@ -1724,9 +1724,9 @@
    "pageId": "2001:335",
    "primary": {
     "name": "default",
-    "id": "2020:12328",
+    "id": "2025:14516",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1sfhnhn:7",
     "componentProperties": [],
     "eigenVulling": 0,
@@ -1737,7 +1737,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12329",
+     "id": "2025:14517",
      "type": "RECTANGLE"
     }
    ]
@@ -1746,12 +1746,12 @@
    "pageId": "2001:343",
    "primary": {
     "name": "default",
-    "id": "2020:12414",
+    "id": "2026:14836",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "1tgjm60:19",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "f08zce:19",
     "componentProperties": [
-     "message#2020:254"
+     "message#2026:413"
     ],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1761,7 +1761,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12415",
+     "id": "2026:14837",
      "type": "RECTANGLE"
     }
    ]
@@ -1770,10 +1770,10 @@
    "pageId": "2001:352",
    "primary": {
     "name": "DeviceSelectionModal",
-    "id": "2020:12809",
+    "id": "2026:15037",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "xvv88m:67",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1xo2650:67",
     "componentProperties": [
      "kind"
     ],
@@ -1790,11 +1790,11 @@
     "varianten": [
      {
       "name": "kind=rower",
-      "id": "2020:12775"
+      "id": "2026:15003"
      },
      {
       "name": "kind=hr",
-      "id": "2020:12808"
+      "id": "2026:15036"
      }
     ]
    },
@@ -1804,13 +1804,13 @@
    "pageId": "2001:370",
    "primary": {
     "name": "EmptyState",
-    "id": "2020:12358",
+    "id": "2025:14476",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1sat3cd:11",
     "componentProperties": [
-     "title#2020:233",
-     "subtitle#2020:236",
+     "title#2025:370",
+     "subtitle#2025:373",
      "size"
     ],
     "eigenVulling": 1,
@@ -1826,11 +1826,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2020:12352"
+      "id": "2025:14470"
      },
      {
       "name": "size=lg",
-      "id": "2020:12357"
+      "id": "2025:14475"
      }
     ]
    },
@@ -1840,12 +1840,12 @@
    "pageId": "2001:382",
    "primary": {
     "name": "PrBadge",
-    "id": "2020:12380",
+    "id": "2025:14533",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "yxzq0v:9",
     "componentProperties": [
-     "label#2020:242",
+     "label#2025:392",
      "size"
     ],
     "eigenVulling": 1,
@@ -1861,11 +1861,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2020:12375"
+      "id": "2025:14528"
      },
      {
       "name": "size=md",
-      "id": "2020:12379"
+      "id": "2025:14532"
      }
     ]
    },
@@ -1875,12 +1875,12 @@
    "pageId": "2001:403",
    "primary": {
     "name": "FormField",
-    "id": "2020:12371",
+    "id": "2025:14509",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "15kb2j2:13",
     "componentProperties": [
-     "label#2020:239",
+     "label#2025:386",
      "secureTextEntry"
     ],
     "eigenVulling": 1,
@@ -1896,11 +1896,11 @@
     "varianten": [
      {
       "name": "secureTextEntry=true",
-      "id": "2020:12365"
+      "id": "2025:14503"
      },
      {
       "name": "secureTextEntry=false",
-      "id": "2020:12370"
+      "id": "2025:14508"
      }
     ]
    },
@@ -1910,10 +1910,10 @@
    "pageId": "2001:417",
    "primary": {
     "name": "default",
-    "id": "2020:12452",
+    "id": "2025:14570",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "17ujk1f:19",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1lq1jkj:19",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1923,7 +1923,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12453",
+     "id": "2025:14571",
      "type": "RECTANGLE"
     }
    ]
@@ -1932,14 +1932,14 @@
    "pageId": "2001:437",
    "primary": {
     "name": "ErrorState",
-    "id": "2020:12395",
+    "id": "2025:14496",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "tf9vvg:15",
     "componentProperties": [
-     "title#2020:245",
-     "subtitle#2020:248",
-     "retryLabel#2020:251",
+     "title#2025:377",
+     "subtitle#2025:380",
+     "retryLabel#2025:383",
      "size"
     ],
     "eigenVulling": 1,
@@ -1955,11 +1955,11 @@
     "varianten": [
      {
       "name": "size=sm",
-      "id": "2020:12387"
+      "id": "2025:14488"
      },
      {
       "name": "size=lg",
-      "id": "2020:12394"
+      "id": "2025:14495"
      }
     ]
    },
@@ -1969,10 +1969,10 @@
    "pageId": "2001:453",
    "primary": {
     "name": "default",
-    "id": "2020:12432",
+    "id": "2025:14550",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "11u9u8f:17",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "b7v96y:17",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -1982,7 +1982,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12433",
+     "id": "2025:14551",
      "type": "RECTANGLE"
     }
    ]
@@ -1991,10 +1991,10 @@
    "pageId": "2001:471",
    "primary": {
     "name": "default",
-    "id": "2020:12489",
+    "id": "2026:14679",
     "type": "COMPONENT",
-    "publishStatus": "CURRENT",
-    "bouwhash": "1heb0eb:19",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1uelpur:19",
     "componentProperties": [],
     "eigenVulling": 0,
     "variantenMetVulling": null,
@@ -2004,7 +2004,7 @@
    "extra": [
     {
      "name": "achtergrond",
-     "id": "2020:12490",
+     "id": "2026:14680",
      "type": "RECTANGLE"
     }
    ]
@@ -2013,9 +2013,9 @@
    "pageId": "2001:491",
    "primary": {
     "name": "Segmented",
-    "id": "2020:12470",
+    "id": "2026:14817",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "3est61:17",
     "componentProperties": [
      "variant"
@@ -2033,11 +2033,11 @@
     "varianten": [
      {
       "name": "variant=filled",
-      "id": "2020:12461"
+      "id": "2026:14808"
      },
      {
       "name": "variant=band",
-      "id": "2020:12469"
+      "id": "2026:14816"
      }
     ]
    },
@@ -2047,10 +2047,10 @@
    "pageId": "2001:509",
    "primary": {
     "name": "HrStatusBar",
-    "id": "2020:12653",
+    "id": "2026:14800",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "1dndkrp:54",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "so4v69:54",
     "componentProperties": [
      "hrStatus"
     ],
@@ -2070,23 +2070,23 @@
     "varianten": [
      {
       "name": "hrStatus=idle",
-      "id": "2020:12608"
+      "id": "2026:14755"
      },
      {
       "name": "hrStatus=scanning",
-      "id": "2020:12621"
+      "id": "2026:14768"
      },
      {
       "name": "hrStatus=waiting",
-      "id": "2020:12634"
+      "id": "2026:14781"
      },
      {
       "name": "hrStatus=connected",
-      "id": "2020:12643"
+      "id": "2026:14790"
      },
      {
       "name": "hrStatus=error",
-      "id": "2020:12652"
+      "id": "2026:14799"
      }
     ]
    },
@@ -2096,10 +2096,10 @@
    "pageId": "2001:558",
    "primary": {
     "name": "WheelPicker",
-    "id": "2020:13557",
+    "id": "2026:15610",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "13mf59n:315",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1vmyz0l:315",
     "componentProperties": [
      "showPill",
      "surface"
@@ -2123,19 +2123,19 @@
     "varianten": [
      {
       "name": "showPill=true, surface=base",
-      "id": "2020:13321"
+      "id": "2026:15374"
      },
      {
       "name": "showPill=true, surface=raised",
-      "id": "2020:13400"
+      "id": "2026:15453"
      },
      {
       "name": "showPill=false, surface=base",
-      "id": "2020:13478"
+      "id": "2026:15531"
      },
      {
       "name": "showPill=false, surface=raised",
-      "id": "2020:13556"
+      "id": "2026:15609"
      }
     ]
    },
@@ -2145,12 +2145,12 @@
    "pageId": "2001:743",
    "primary": {
     "name": "BleStatusBar",
-    "id": "2020:12599",
+    "id": "2025:14428",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "1q78p31:85",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "ws378b:85",
     "componentProperties": [
-     "deviceName#2020:256",
+     "deviceName#2025:350",
      "bleStatus"
     ],
     "eigenVulling": 1,
@@ -2172,35 +2172,35 @@
     "varianten": [
      {
       "name": "bleStatus=idle",
-      "id": "2020:12523"
+      "id": "2025:14352"
      },
      {
       "name": "bleStatus=scanning",
-      "id": "2020:12536"
+      "id": "2025:14365"
      },
      {
       "name": "bleStatus=connecting",
-      "id": "2020:12549"
+      "id": "2025:14378"
      },
      {
       "name": "bleStatus=discovering",
-      "id": "2020:12562"
+      "id": "2025:14391"
      },
      {
       "name": "bleStatus=connected",
-      "id": "2020:12571"
+      "id": "2025:14400"
      },
      {
       "name": "bleStatus=disconnecting",
-      "id": "2020:12580"
+      "id": "2025:14409"
      },
      {
       "name": "bleStatus=reconnecting",
-      "id": "2020:12589"
+      "id": "2025:14418"
      },
      {
       "name": "bleStatus=error",
-      "id": "2020:12598"
+      "id": "2025:14427"
      }
     ]
    },
@@ -2210,13 +2210,13 @@
    "pageId": "2001:820",
    "primary": {
     "name": "DeviceRow",
-    "id": "2020:12742",
+    "id": "2026:14660",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "yb72qd:89",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1kerjgt:89",
     "componentProperties": [
-     "label#2020:265",
-     "action#2020:274",
+     "label#2026:395",
+     "action#2026:404",
      "icon",
      "loading",
      "actionDisabled"
@@ -2246,35 +2246,35 @@
     "varianten": [
      {
       "name": "icon=dot, loading=true, actionDisabled=true",
-      "id": "2020:12666"
+      "id": "2026:14584"
      },
      {
       "name": "icon=dot, loading=true, actionDisabled=false",
-      "id": "2020:12679"
+      "id": "2026:14597"
      },
      {
       "name": "icon=dot, loading=false, actionDisabled=true",
-      "id": "2020:12688"
+      "id": "2026:14606"
      },
      {
       "name": "icon=dot, loading=false, actionDisabled=false",
-      "id": "2020:12697"
+      "id": "2026:14615"
      },
      {
       "name": "icon=heart, loading=true, actionDisabled=true",
-      "id": "2020:12710"
+      "id": "2026:14628"
      },
      {
       "name": "icon=heart, loading=true, actionDisabled=false",
-      "id": "2020:12723"
+      "id": "2026:14641"
      },
      {
       "name": "icon=heart, loading=false, actionDisabled=true",
-      "id": "2020:12732"
+      "id": "2026:14650"
      },
      {
       "name": "icon=heart, loading=false, actionDisabled=false",
-      "id": "2020:12741"
+      "id": "2026:14659"
      }
     ]
    },
@@ -2284,9 +2284,9 @@
    "pageId": "2001:898",
    "primary": {
     "name": "GoalSegments",
-    "id": "2020:13005",
+    "id": "2026:14746",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
+    "publishStatus": "UNPUBLISHED",
     "bouwhash": "1jjl620:66",
     "componentProperties": [
      "selected"
@@ -2307,23 +2307,23 @@
     "varianten": [
      {
       "name": "selected=none",
-      "id": "2020:12952"
+      "id": "2026:14693"
      },
      {
       "name": "selected=duration",
-      "id": "2020:12965"
+      "id": "2026:14706"
      },
      {
       "name": "selected=distance",
-      "id": "2020:12978"
+      "id": "2026:14719"
      },
      {
       "name": "selected=split",
-      "id": "2020:12991"
+      "id": "2026:14732"
      },
      {
       "name": "selected=watts",
-      "id": "2020:13004"
+      "id": "2026:14745"
      }
     ]
    },
@@ -2333,13 +2333,13 @@
    "pageId": "2001:970",
    "primary": {
     "name": "KPI",
-    "id": "2020:12939",
+    "id": "2026:15134",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "juoqh5:97",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "4c9bqf:97",
     "componentProperties": [
-     "label#2020:283",
-     "value#2020:300",
+     "label#2026:415",
+     "value#2026:432",
      "highlighted",
      "compact",
      "fill",
@@ -2376,67 +2376,67 @@
     "varianten": [
      {
       "name": "highlighted=true, compact=true, fill=true, loading=true",
-      "id": "2020:12850"
+      "id": "2026:15045"
      },
      {
       "name": "highlighted=true, compact=true, fill=true, loading=false",
-      "id": "2020:12854"
+      "id": "2026:15049"
      },
      {
       "name": "highlighted=true, compact=true, fill=false, loading=true",
-      "id": "2020:12862"
+      "id": "2026:15057"
      },
      {
       "name": "highlighted=true, compact=true, fill=false, loading=false",
-      "id": "2020:12866"
+      "id": "2026:15061"
      },
      {
       "name": "highlighted=true, compact=false, fill=true, loading=true",
-      "id": "2020:12874"
+      "id": "2026:15069"
      },
      {
       "name": "highlighted=true, compact=false, fill=true, loading=false",
-      "id": "2020:12878"
+      "id": "2026:15073"
      },
      {
       "name": "highlighted=true, compact=false, fill=false, loading=true",
-      "id": "2020:12886"
+      "id": "2026:15081"
      },
      {
       "name": "highlighted=true, compact=false, fill=false, loading=false",
-      "id": "2020:12890"
+      "id": "2026:15085"
      },
      {
       "name": "highlighted=false, compact=true, fill=true, loading=true",
-      "id": "2020:12898"
+      "id": "2026:15093"
      },
      {
       "name": "highlighted=false, compact=true, fill=true, loading=false",
-      "id": "2020:12902"
+      "id": "2026:15097"
      },
      {
       "name": "highlighted=false, compact=true, fill=false, loading=true",
-      "id": "2020:12910"
+      "id": "2026:15105"
      },
      {
       "name": "highlighted=false, compact=true, fill=false, loading=false",
-      "id": "2020:12914"
+      "id": "2026:15109"
      },
      {
       "name": "highlighted=false, compact=false, fill=true, loading=true",
-      "id": "2020:12922"
+      "id": "2026:15117"
      },
      {
       "name": "highlighted=false, compact=false, fill=true, loading=false",
-      "id": "2020:12926"
+      "id": "2026:15121"
      },
      {
       "name": "highlighted=false, compact=false, fill=false, loading=true",
-      "id": "2020:12934"
+      "id": "2026:15129"
      },
      {
       "name": "highlighted=false, compact=false, fill=false, loading=false",
-      "id": "2020:12938"
+      "id": "2026:15133"
      }
     ]
    },
@@ -2446,12 +2446,12 @@
    "pageId": "2001:1068",
    "primary": {
     "name": "Button",
-    "id": "2020:13242",
+    "id": "2026:15295",
     "type": "COMPONENT_SET",
-    "publishStatus": "CURRENT",
-    "bouwhash": "uxwa0m:161",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "23jbgw:161",
     "componentProperties": [
-     "title#2020:317",
+     "title#2026:449",
      "variant",
      "size",
      "loading",
@@ -2490,131 +2490,464 @@
     "varianten": [
      {
       "name": "variant=primary, size=md, loading=true, disabled=true",
-      "id": "2020:13088"
+      "id": "2026:15141"
      },
      {
       "name": "variant=primary, size=md, loading=true, disabled=false",
-      "id": "2020:13095"
+      "id": "2026:15148"
      },
      {
       "name": "variant=primary, size=md, loading=false, disabled=true",
-      "id": "2020:13098"
+      "id": "2026:15151"
      },
      {
       "name": "variant=primary, size=md, loading=false, disabled=false",
-      "id": "2020:13101"
+      "id": "2026:15154"
      },
      {
       "name": "variant=primary, size=lg, loading=true, disabled=true",
-      "id": "2020:13108"
+      "id": "2026:15161"
      },
      {
       "name": "variant=primary, size=lg, loading=true, disabled=false",
-      "id": "2020:13115"
+      "id": "2026:15168"
      },
      {
       "name": "variant=primary, size=lg, loading=false, disabled=true",
-      "id": "2020:13118"
+      "id": "2026:15171"
      },
      {
       "name": "variant=primary, size=lg, loading=false, disabled=false",
-      "id": "2020:13121"
+      "id": "2026:15174"
      },
      {
       "name": "variant=destructive, size=md, loading=true, disabled=true",
-      "id": "2020:13128"
+      "id": "2026:15181"
      },
      {
       "name": "variant=destructive, size=md, loading=true, disabled=false",
-      "id": "2020:13135"
+      "id": "2026:15188"
      },
      {
       "name": "variant=destructive, size=md, loading=false, disabled=true",
-      "id": "2020:13138"
+      "id": "2026:15191"
      },
      {
       "name": "variant=destructive, size=md, loading=false, disabled=false",
-      "id": "2020:13141"
+      "id": "2026:15194"
      },
      {
       "name": "variant=destructive, size=lg, loading=true, disabled=true",
-      "id": "2020:13148"
+      "id": "2026:15201"
      },
      {
       "name": "variant=destructive, size=lg, loading=true, disabled=false",
-      "id": "2020:13155"
+      "id": "2026:15208"
      },
      {
       "name": "variant=destructive, size=lg, loading=false, disabled=true",
-      "id": "2020:13158"
+      "id": "2026:15211"
      },
      {
       "name": "variant=destructive, size=lg, loading=false, disabled=false",
-      "id": "2020:13161"
+      "id": "2026:15214"
      },
      {
       "name": "variant=ghost, size=md, loading=true, disabled=true",
-      "id": "2020:13168"
+      "id": "2026:15221"
      },
      {
       "name": "variant=ghost, size=md, loading=true, disabled=false",
-      "id": "2020:13175"
+      "id": "2026:15228"
      },
      {
       "name": "variant=ghost, size=md, loading=false, disabled=true",
-      "id": "2020:13178"
+      "id": "2026:15231"
      },
      {
       "name": "variant=ghost, size=md, loading=false, disabled=false",
-      "id": "2020:13181"
+      "id": "2026:15234"
      },
      {
       "name": "variant=ghost, size=lg, loading=true, disabled=true",
-      "id": "2020:13188"
+      "id": "2026:15241"
      },
      {
       "name": "variant=ghost, size=lg, loading=true, disabled=false",
-      "id": "2020:13195"
+      "id": "2026:15248"
      },
      {
       "name": "variant=ghost, size=lg, loading=false, disabled=true",
-      "id": "2020:13198"
+      "id": "2026:15251"
      },
      {
       "name": "variant=ghost, size=lg, loading=false, disabled=false",
-      "id": "2020:13201"
+      "id": "2026:15254"
      },
      {
       "name": "variant=outline, size=md, loading=true, disabled=true",
-      "id": "2020:13208"
+      "id": "2026:15261"
      },
      {
       "name": "variant=outline, size=md, loading=true, disabled=false",
-      "id": "2020:13215"
+      "id": "2026:15268"
      },
      {
       "name": "variant=outline, size=md, loading=false, disabled=true",
-      "id": "2020:13218"
+      "id": "2026:15271"
      },
      {
       "name": "variant=outline, size=md, loading=false, disabled=false",
-      "id": "2020:13221"
+      "id": "2026:15274"
      },
      {
       "name": "variant=outline, size=lg, loading=true, disabled=true",
-      "id": "2020:13228"
+      "id": "2026:15281"
      },
      {
       "name": "variant=outline, size=lg, loading=true, disabled=false",
-      "id": "2020:13235"
+      "id": "2026:15288"
      },
      {
       "name": "variant=outline, size=lg, loading=false, disabled=true",
-      "id": "2020:13238"
+      "id": "2026:15291"
      },
      {
       "name": "variant=outline, size=lg, loading=false, disabled=false",
-      "id": "2020:13241"
+      "id": "2026:15294"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "GoalPill": {
+   "pageId": "2026:15611",
+   "primary": {
+    "name": "default",
+    "id": "2026:15618",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1g2s7y9:7",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15619",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "SubtitleProgress": {
+   "pageId": "2026:15620",
+   "primary": {
+    "name": "default",
+    "id": "2026:15626",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1g2h3d2:6",
+    "componentProperties": [
+     "left#2026:482"
+    ],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15627",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "HeroPanel": {
+   "pageId": "2026:15628",
+   "primary": {
+    "name": "default",
+    "id": "2026:15640",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "jasb47:12",
+    "componentProperties": [
+     "heroLabel#2026:483",
+     "heroText#2026:484",
+     "subLabel#2026:485"
+    ],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15641",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "ActiveHeader": {
+   "pageId": "2026:15642",
+   "primary": {
+    "name": "default",
+    "id": "2026:15654",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "9rbw81:12",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2026:15655",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "ProgressBar": {
+   "pageId": "2026:15656",
+   "primary": {
+    "name": "ProgressBar",
+    "id": "2026:15687",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "w3d562:31",
+    "componentProperties": [
+     "fillKind",
+     "richting"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "fillKind": {
+      "values": [
+       "none",
+       "gradient",
+       "success",
+       "warning"
+      ]
+     },
+     "richting": {
+      "values": [
+       "h",
+       "v"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "fillKind=none, richting=h",
+      "id": "2026:15659"
+     },
+     {
+      "name": "fillKind=none, richting=v",
+      "id": "2026:15662"
+     },
+     {
+      "name": "fillKind=gradient, richting=h",
+      "id": "2026:15666"
+     },
+     {
+      "name": "fillKind=gradient, richting=v",
+      "id": "2026:15670"
+     },
+     {
+      "name": "fillKind=success, richting=h",
+      "id": "2026:15674"
+     },
+     {
+      "name": "fillKind=success, richting=v",
+      "id": "2026:15678"
+     },
+     {
+      "name": "fillKind=warning, richting=h",
+      "id": "2026:15682"
+     },
+     {
+      "name": "fillKind=warning, richting=v",
+      "id": "2026:15686"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "KpiRow": {
+   "pageId": "2026:15688",
+   "primary": {
+    "name": "KpiRow",
+    "id": "2026:15801",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "6v97ul:113",
+    "componentProperties": [
+     "label#2026:486",
+     "value#2026:503",
+     "fill",
+     "divider",
+     "disabled",
+     "loading"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "fill": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "divider": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "disabled": {
+      "values": [
+       "true",
+       "false"
+      ]
+     },
+     "loading": {
+      "values": [
+       "true",
+       "false"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "fill=true, divider=true, disabled=true, loading=true",
+      "id": "2026:15697"
+     },
+     {
+      "name": "fill=true, divider=true, disabled=true, loading=false",
+      "id": "2026:15702"
+     },
+     {
+      "name": "fill=true, divider=true, disabled=false, loading=true",
+      "id": "2026:15711"
+     },
+     {
+      "name": "fill=true, divider=true, disabled=false, loading=false",
+      "id": "2026:15716"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=true, loading=true",
+      "id": "2026:15725"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=true, loading=false",
+      "id": "2026:15730"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=false, loading=true",
+      "id": "2026:15739"
+     },
+     {
+      "name": "fill=true, divider=false, disabled=false, loading=false",
+      "id": "2026:15744"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=true, loading=true",
+      "id": "2026:15753"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=true, loading=false",
+      "id": "2026:15758"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=false, loading=true",
+      "id": "2026:15767"
+     },
+     {
+      "name": "fill=false, divider=true, disabled=false, loading=false",
+      "id": "2026:15772"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=true, loading=true",
+      "id": "2026:15781"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=true, loading=false",
+      "id": "2026:15786"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=false, loading=true",
+      "id": "2026:15795"
+     },
+     {
+      "name": "fill=false, divider=false, disabled=false, loading=false",
+      "id": "2026:15800"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "ConnectionOverlay": {
+   "pageId": "2026:15802",
+   "primary": {
+    "name": "ConnectionOverlay",
+    "id": "2026:15885",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "rkcj90:83",
+    "componentProperties": [
+     "bleStatus"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "bleStatus": {
+      "values": [
+       "idle",
+       "scanning",
+       "connecting",
+       "discovering",
+       "disconnecting",
+       "reconnecting",
+       "error"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "bleStatus=idle",
+      "id": "2026:15814"
+     },
+     {
+      "name": "bleStatus=scanning",
+      "id": "2026:15826"
+     },
+     {
+      "name": "bleStatus=connecting",
+      "id": "2026:15838"
+     },
+     {
+      "name": "bleStatus=discovering",
+      "id": "2026:15850"
+     },
+     {
+      "name": "bleStatus=disconnecting",
+      "id": "2026:15862"
+     },
+     {
+      "name": "bleStatus=reconnecting",
+      "id": "2026:15874"
+     },
+     {
+      "name": "bleStatus=error",
+      "id": "2026:15884"
      }
     ]
    },

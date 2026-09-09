@@ -51,13 +51,25 @@ const [a, b] = runs;
 const paden = new Set();
 let bezocht = 0;
 
-/** Dezelfde velden die parity vergelijkt — een uitsluiting mag niet breder zijn dan de meting. */
+/**
+ * Alle velden die de STRENGSTE consument vergelijkt (`spec-diff.mjs`), niet alleen die van
+ * `parity`. Een node die tussen twee runs van ónveranderde code op wélk veld dan ook verschilt,
+ * kan door geen enkele statische vergelijking gemeten worden — dat geldt net zo goed voor
+ * tekstinhoud als voor een maat.
+ *
+ * Gemeten 2026-09-08: met alleen de geometrie-velden bleef `ActivePhase[Samenvatting] > dateText`
+ * buiten de lijst, terwijl die de KLOK toont (`new Date()` in `summaryDateLabel`). De twee runs
+ * liggen minuten uit elkaar, dus de brede vergelijking vangt hem vanzelf — geen handmatige
+ * uitzondering nodig. Snede 8 maakt hem overbodig: `SummaryTitle` krijgt `dateLabel` als prop,
+ * en dan zet de story een vaste waarde.
+ */
 function loop(x, y, pad) {
   if (!x || !y) return;
   bezocht++;
-  const anders = ['h', 'gap', 'opacity', 'border'].some((v) => (x[v] ?? null) !== (y[v] ?? null))
+  const anders = ['w', 'h', 'gap', 'opacity', 'border', 'rij', 'justify', 'align', 'positie'].some((v) => (x[v] ?? null) !== (y[v] ?? null))
     || (x.radius ?? [0])[0] !== (y.radius ?? [0])[0]
-    || (x.padding ?? [0, 0, 0, 0]).join() !== (y.padding ?? [0, 0, 0, 0]).join();
+    || (x.padding ?? [0, 0, 0, 0]).join() !== (y.padding ?? [0, 0, 0, 0]).join()
+    || (x.t?.s ?? null) !== (y.t?.s ?? null);
   if (anders) paden.add(pad);
   // DEZELFDE kindregel als parity: zonder de opgevouwen achtergrondkinderen. Anders lopen de
   // indices uiteen en sluit deze lijst paden uit die in de vergelijking niet bestaan

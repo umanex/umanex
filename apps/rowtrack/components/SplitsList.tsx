@@ -27,7 +27,7 @@ export const SplitsList = memo(function SplitsList({ splits }: SplitsListProps) 
   if (splits.length === 0) return null;
 
   return (
-    <View style={styles.container}>
+    <View testID="SplitsList" style={styles.container}>
       <Text style={styles.header}>{t.workout.splitsListHeader}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {splits.map((s, i) => (

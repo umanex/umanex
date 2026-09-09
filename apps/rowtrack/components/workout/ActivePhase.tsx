@@ -3,18 +3,21 @@ import {
   View,
   Text,
   Modal,
-  ActivityIndicator,
   Animated,
-  TouchableOpacity,
   useWindowDimensions,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { EdgeInsets } from 'react-native-safe-area-context';
 import type { ConnectionStatus, HRStatus } from '@/lib/ble/types';
 import type { WorkoutGoal } from '@/lib/workout-goals';
-import { Button, KpiSingle } from '@/components';
+// Directe imports, geen barrel — zie IdlePhase.tsx voor het waarom.
+import { Button } from '@/components/Button';
+import { KpiSingle } from '@/components/KpiSingle';
+import { ActiveHeader } from './active/ActiveHeader';
+import { ConnectionOverlay } from './active/ConnectionOverlay';
+import { KpiRow } from './active/KpiRow';
+import { ProgressBar, type FillKind } from './active/ProgressBar';
+import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
 import type { PaceZoneLevel, SplitEntry } from '@/components/workout';
 import { formatTimer, formatTimerFull, formatSplit, formatDistanceDynamic, formatInt, formatDecimal, correctSpm } from '@/lib/formatters';
@@ -22,7 +25,7 @@ import { useSpmHalved } from '@/lib/hooks/useSpmHalved';
 import type { PrEntry } from '@/lib/personalRecords';
 import { prMetricLabel, formatPrValue, formatPrPrevious, prEntrySpoken } from '@/lib/prDisplay';
 import { t } from '@/i18n';
-import { bg, fg, accent, achievement, body, border, progressBar, buttonTokens, fontFamily, space, radii, componentRadius, fontSize, typeStyles, layout } from '@/constants';
+import { bg, fg, accent, achievement, body, border, fontFamily, space, radii, componentRadius, fontSize, typeStyles, layout } from '@/constants';
 import type { WorkoutMetricsState } from '@/lib/hooks/useWorkoutMetrics';
 import { styles } from './workout.styles';
 
@@ -130,58 +133,17 @@ export function ActivePhase({
     return t.workout.summary.todayAt(`${h}:${m}`);
   }, [phase]);
 
-  // --- DOEL-pill waarde (nieuw compact/lowercase design) ---
-  // Alle doeltypes volgen {waarde} {eenheid} met spatie: "Geen" / "20 min" /
-  // "10 km" / "2:20 split" / "180 W". Split neemt de frame-copy over; watts houdt
-  // bewust de spatie (Figma toont "180W", 2026-07-14 gelijkgetrokken op het patroon).
-  // Doel-pill: waarde en eenheid gesplitst — waarde bold, eenheid ernaast in italic
-  // (Figma header 290:2873, bv. "180" + "W"). "Geen" heeft geen eenheid.
-  function goalPillParts(): { value: string; unit: string | null } {
-    if (!goal) return { value: t.workout.active.goalNone, unit: null };
-    switch (goal.type) {
-      case 'duration': {
-        const m = Math.floor(goal.target / 60);
-        const s = goal.target % 60;
-        return { value: s === 0 ? `${m}` : `${m}:${String(s).padStart(2, '0')}`, unit: 'min' };
-      }
-      case 'distance': {
-        if (goal.target >= 1000) {
-          const km = goal.target / 1000;
-          return { value: Number.isInteger(km) ? formatInt(km) : formatDecimal(km, 1), unit: 'km' };
-        }
-        return { value: formatInt(goal.target), unit: 'm' };
-      }
-      case 'split':
-        return { value: formatSplit(goal.target, true), unit: t.workout.active.goalUnitSplit };
-      case 'watts':
-        return { value: `${goal.target}`, unit: 'W' };
-    }
-  }
-
   // --- Hero-getal + subtitle + progress-fill per doeltype (gedeeld portrait/landscape) ---
-  type FillKind = 'none' | 'gradient' | 'success' | 'warning';
-  function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: ReactNode; fillPct: number; fillKind: FillKind } {
+  function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: HeroSubtitle; fillPct: number; fillKind: FillKind } {
     const goalType = goal?.type ?? null;
     // Eyebrow-labels maken het hero-getal ondubbelzinnig: bij een doel telt de hero
     // AF (resterend), zonder label leest dat verkeerd (audit F3). Defaults = geen doel.
     let heroLabel: string | null = t.workout.active.totalTime;
     let heroText = formattedTimer;
     let subLabel: string | null = t.workout.active.totalDistance;
-    let subtitle: ReactNode = null;
+    let subtitle: HeroSubtitle = { kind: 'plain', text: '' };
     let fillPct = 0;
     let fillKind: FillKind = 'none';
-
-    // Subtitle-rij voor duration/distance: verstreken waarde · divider · "{n}%" (floor).
-    // Twee gelijk-brede kolommen (flex:1) met de linkerwaarde rechts- en de rechter-
-    // waarde links-uitgelijnd, zodat de cijfers naar buiten groeien en de 2px-divider
-    // statisch gecentreerd blijft bij wisselende live-cijfers (Figma 391:2436).
-    const progressRow = (left: string, p: number) => (
-      <View style={activeStyles.subtitleRow}>
-        <Text style={[activeStyles.subtitleText, activeStyles.subtitleValueLeft]}>{left}</Text>
-        <View style={activeStyles.subtitleDivider} />
-        <Text style={[activeStyles.subtitleText, activeStyles.subtitleValueRight]}>{`${Math.floor(p * 100)}%`}</Text>
-      </View>
-    );
 
     switch (goalType) {
       case 'duration': {
@@ -191,7 +153,7 @@ export function ActivePhase({
         heroLabel = t.workout.active.remainingTime;
         heroText = formatTimer(Math.max(0, target - seconds));
         subLabel = t.workout.active.covered;
-        subtitle = progressRow(formatTimer(seconds), fillPct);
+        subtitle = { kind: 'progress', left: formatTimer(seconds), pct: fillPct };
         break;
       }
       case 'distance': {
@@ -201,7 +163,7 @@ export function ActivePhase({
         heroLabel = t.workout.active.remainingDistance;
         heroText = formatInt(Math.max(0, target - distanceMeters));
         subLabel = t.workout.active.covered;
-        subtitle = progressRow(`${formatInt(distanceMeters)} m`, fillPct);
+        subtitle = { kind: 'progress', left: `${formatInt(distanceMeters)} m`, pct: fillPct };
         break;
       }
       case 'split': {
@@ -226,7 +188,7 @@ export function ActivePhase({
               ? t.workout.active.splitFaster(absDiff)
               : t.workout.active.splitSlower(absDiff);
         }
-        subtitle = <Text style={[activeStyles.subtitleText, activeStyles.subtitleSentence]}>{sub}</Text>;
+        subtitle = { kind: 'sentence', text: sub };
         break;
       }
       case 'watts': {
@@ -248,104 +210,15 @@ export function ActivePhase({
               ? t.workout.active.wattsMore(absDiff)
               : t.workout.active.wattsLess(absDiff);
         }
-        subtitle = <Text style={[activeStyles.subtitleText, activeStyles.subtitleSentence]}>{sub}</Text>;
+        subtitle = { kind: 'sentence', text: sub };
         break;
       }
       default:
         // Geen doel: hero = verstreken tijd, subtitle = verstreken afstand.
         heroText = formattedTimer;
-        subtitle = <Text style={activeStyles.subtitleText}>{`${formatInt(distanceMeters)} m`}</Text>;
+        subtitle = { kind: 'plain', text: `${formatInt(distanceMeters)} m` };
     }
     return { heroLabel, heroText, subLabel, subtitle, fillPct, fillKind };
-  }
-
-  // --- Hero-content: eyebrow-label + hero-getal, dan eyebrow-label + subtitle.
-  // Gedeeld portrait/landscape (Figma Main KPI: gap 40 tussen groepen, gap 8 binnen).
-  // Split/watts hebben geen subtitle-eyebrow (subLabel = null) → enkel coaching-tekst. ---
-  function renderHeroContent(gv: ReturnType<typeof computeGoalView>): ReactNode {
-    return (
-      <>
-        <View style={activeStyles.heroGroup}>
-          {gv.heroLabel != null && <Text style={activeStyles.heroLabel}>{gv.heroLabel}</Text>}
-          <Text style={activeStyles.heroText}>{gv.heroText}</Text>
-        </View>
-        <View style={activeStyles.heroGroup}>
-          {gv.subLabel != null && <Text style={activeStyles.heroLabel}>{gv.subLabel}</Text>}
-          {gv.subtitle}
-        </View>
-      </>
-    );
-  }
-
-  // --- Header-inhoud: DOEL-pill + compacte Stop-knop (gedeeld) ---
-  // De accent-tint zit op de DOEL-pill zelf (subtiele fill + border, Figma 290:2873);
-  // de band is bg.base. Gedeeld portrait + landscape.
-  function headerChildren(): ReactNode {
-    const goalParts = goalPillParts();
-    return (
-      <>
-        <View style={activeStyles.doelPill}>
-          <Text style={activeStyles.doelPillLabel}>{t.workout.active.goalPillLabel}</Text>
-          <View style={activeStyles.doelPillDivider} />
-          <View style={activeStyles.doelPillValueRow}>
-            <Text style={activeStyles.doelPillValue}>{goalParts.value}</Text>
-            {goalParts.unit != null && (
-              <Text style={activeStyles.doelPillUnit}>{goalParts.unit}</Text>
-            )}
-          </View>
-        </View>
-        <Button
-          title={t.workout.active.stopButton}
-          variant="primary"
-          size="md"
-          icon="arrow-forward"
-          iconPosition="trailing"
-          onPress={onStop}
-        />
-      </>
-    );
-  }
-
-  // --- Progress-fill: gradient (duration/distance) of solid success/warning (split/watts) ---
-  function barFillInner(fillKind: FillKind, vertical: boolean): ReactNode {
-    if (fillKind === 'gradient') {
-      return (
-        <LinearGradient
-          colors={[buttonTokens.primary.gradientFrom, buttonTokens.primary.gradientTo]}
-          start={vertical ? { x: 0, y: 1 } : { x: 0, y: 0 }}
-          end={vertical ? { x: 0, y: 0 } : { x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
-        />
-      );
-    }
-    const color = fillKind === 'success' ? progressBar.successFill : progressBar.warningFill;
-    return <View style={[StyleSheet.absoluteFill, { backgroundColor: color }]} />;
-  }
-
-  // --- Progress-bar horizontaal (portrait): full-bleed 4px tussen hero-paneel en KPI-lijst ---
-  function renderProgressBarH(fillPct: number, fillKind: FillKind): ReactNode {
-    return (
-      <View style={activeStyles.barTrackH}>
-        {fillKind !== 'none' && fillPct > 0 && (
-          <View style={[activeStyles.barFillH, { width: `${Math.min(fillPct * 100, 100)}%` }]}>
-            {barFillInner(fillKind, false)}
-          </View>
-        )}
-      </View>
-    );
-  }
-
-  // --- Progress-bar verticaal (landscape): 4px op de kolomscheiding, vult onder→boven ---
-  function renderProgressBarV(fillPct: number, fillKind: FillKind): ReactNode {
-    return (
-      <View style={landscapeStyles.barTrackV}>
-        {fillKind !== 'none' && fillPct > 0 && (
-          <View style={[landscapeStyles.barFillV, { height: `${Math.min(fillPct * 100, 100)}%` }]}>
-            {barFillInner(fillKind, true)}
-          </View>
-        )}
-      </View>
-    );
   }
 
   // --- KPI-lijst: flatte rijen met hairline-divider (gedeeld; fill=true → landscape) ---
@@ -402,39 +275,26 @@ export function ActivePhase({
     return (
       <>
         {kpiOrder.map((key, i) => {
-          const rowStyle = [
-            activeStyles.kpiRow,
-            fill ? activeStyles.kpiRowFill : activeStyles.kpiRowFixed,
-            i < kpiOrder.length - 1 && activeStyles.kpiRowDivider,
-          ];
+          const divider = i < kpiOrder.length - 1;
           if (key === 'BPM') {
             // Alleen tikbaar zolang er géén band hangt. Tikken tijdens een verbinding
             // startte een scan die het eigen toestel niet kan vinden (iOS geeft een
             // verbonden peripheral nooit terug in scanresultaten), waarna de rij op
             // "Verbinden" bleef staan zonder weg terug.
             return (
-              <TouchableOpacity
+              <KpiRow
                 key="BPM"
-                style={rowStyle}
+                label={t.workout.active.kpiBpm}
+                value={kpiValue('BPM')}
+                fill={fill}
+                divider={divider}
+                loading={hrStatus === 'scanning'}
                 onPress={startHRScan}
                 disabled={hrStatus === 'connected' || hrStatus === 'scanning' || hrStatus === 'waiting'}
-                activeOpacity={0.8}
-              >
-                <Text style={activeStyles.kpiLabel}>{t.workout.active.kpiBpm}</Text>
-                {hrStatus === 'scanning' ? (
-                  <ActivityIndicator size="small" color={fg.secondary} />
-                ) : (
-                  <Text style={activeStyles.kpiValue}>{kpiValue('BPM')}</Text>
-                )}
-              </TouchableOpacity>
+              />
             );
           }
-          return (
-            <View key={key} style={rowStyle}>
-              <Text style={activeStyles.kpiLabel}>{kpiLabel(key)}</Text>
-              <Text style={activeStyles.kpiValue}>{kpiValue(key)}</Text>
-            </View>
-          );
+          return <KpiRow key={key} label={kpiLabel(key)} value={kpiValue(key)} fill={fill} divider={divider} />;
         })}
       </>
     );
@@ -446,27 +306,24 @@ export function ActivePhase({
     return (
       <View style={portraitStyles.root}>
         {/* Header: DOEL-pill links, compacte Stop-knop rechts */}
-        <View
-          style={[
-            activeStyles.header,
-            {
-              // Band-padding 20 (Figma 297:2227); paddingTop respecteert de notch.
-              paddingTop: Math.max(space['20'], insets.top),
-              paddingBottom: space['20'],
-              paddingHorizontal: padH,
-            },
-          ]}
-        >
-          {headerChildren()}
-        </View>
+        {/* Band-padding 20 (Figma 297:2227); paddingTop respecteert de notch. */}
+        <ActiveHeader
+          goal={goal}
+          onStop={onStop}
+          paddings={{ top: Math.max(space['20'], insets.top), bottom: space['20'], left: padH, right: padH }}
+        />
 
         {/* Hero-paneel (bg.elevated), vult de vrije ruimte, content gecentreerd */}
-        <View style={[activeStyles.heroPanel, portraitStyles.heroPanel]}>
-          {renderHeroContent(gv)}
-        </View>
+        <HeroPanel
+          heroLabel={gv.heroLabel}
+          heroText={gv.heroText}
+          subLabel={gv.subLabel}
+          subtitle={gv.subtitle}
+          style={portraitStyles.heroPanel}
+        />
 
         {/* Progress-bar: full-bleed 4px tussen paneel en KPI-lijst */}
-        {renderProgressBarH(gv.fillPct, gv.fillKind)}
+        <ProgressBar fillPct={gv.fillPct} fillKind={gv.fillKind} richting="h" />
 
         {/* KPI-lijst: flatte rijen */}
         <View
@@ -489,33 +346,17 @@ export function ActivePhase({
   const padH = Math.max(layout.screenHorizontal, insets.left, insets.right);
 
   return (
-    <View style={[styles.container, { paddingHorizontal: 0 }]}>
+    <View testID="ActivePhase" style={[styles.container, { paddingHorizontal: 0 }]}>
       {/* Connection status overlay */}
       {isConnecting && (
-        <View style={[styles.connectionOverlay, { paddingHorizontal: padH }]}>
-          {bleStatus !== 'error' ? (
-            <>
-              <ActivityIndicator color={accent.default} size="large" />
-              <Text style={styles.connectionText}>
-                {(bleStatus === 'idle' || bleStatus === 'scanning') && t.workout.connection.searching}
-                {bleStatus === 'connecting' && t.workout.connection.connecting}
-                {bleStatus === 'discovering' && t.workout.connection.discovering}
-                {bleStatus === 'reconnecting' && t.workout.connection.reconnecting}
-                {bleStatus === 'disconnecting' && t.workout.connection.disconnecting}
-              </Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="warning-outline" size={40} color={fg.secondary} />
-              <Text style={styles.connectionText}>{bleError}</Text>
-              <Button title={t.common.retry} onPress={startScan} size="md" variant="ghost" />
-            </>
-          )}
-          {/* Uitgang tijdens reconnect/error: de overlay verbergt de header-Stop en de
-              tabbar is al verborgen — zonder deze knop zit de roeier vast (audit P0-F2). */}
-          <Text style={styles.connectionElapsed}>{t.workout.connection.elapsed(formattedTimer)}</Text>
-          <Button title={t.workout.connection.stopButton} onPress={onStop} size="md" />
-        </View>
+        <ConnectionOverlay
+          bleStatus={bleStatus as Exclude<ConnectionStatus, 'connected'>}
+          bleError={bleError}
+          onRetry={startScan}
+          onStop={onStop}
+          elapsed={formattedTimer}
+          paddingHorizontal={padH}
+        />
       )}
 
       {!isConnecting && isLandscape ? (
@@ -534,20 +375,17 @@ export function ActivePhase({
               <>
                 {/* Links: header (pill + Stop) boven de KPI-lijst (Figma 290:2746) */}
                 <View style={[landscapeStyles.metricsCol, landColStyle]}>
-                  <View
-                    style={[
-                      activeStyles.header,
-                      {
-                        paddingTop: Math.max(space['20'], insets.top),
-                        paddingBottom: space['20'],
-                        paddingLeft: Math.max(space['20'], insets.left),
-                        // Binnenrand naar de progress-bar: 40 (design 290:2746) — geeft de bar ruimte.
-                        paddingRight: space['40'],
-                      },
-                    ]}
-                  >
-                    {headerChildren()}
-                  </View>
+                  {/* Binnenrand naar de progress-bar: 40 (design 290:2746) — geeft de bar ruimte. */}
+                  <ActiveHeader
+                    goal={goal}
+                    onStop={onStop}
+                    paddings={{
+                      top: Math.max(space['20'], insets.top),
+                      bottom: space['20'],
+                      left: Math.max(space['20'], insets.left),
+                      right: space['40'],
+                    }}
+                  />
                   <View
                     style={[
                       landscapeStyles.kpiList,
@@ -562,12 +400,16 @@ export function ActivePhase({
                 </View>
 
                 {/* Verticale progress-bar op de kolomscheiding */}
-                {renderProgressBarV(gv.fillPct, gv.fillKind)}
+                <ProgressBar fillPct={gv.fillPct} fillKind={gv.fillKind} richting="v" />
 
                 {/* Rechts: hero-paneel (bg.elevated) */}
-                <View style={[activeStyles.heroPanel, landColStyle, { paddingLeft: space['40'], paddingRight: Math.max(space['20'], insets.right) }]}>
-                  {renderHeroContent(gv)}
-                </View>
+                <HeroPanel
+                  heroLabel={gv.heroLabel}
+                  heroText={gv.heroText}
+                  subLabel={gv.subLabel}
+                  subtitle={gv.subtitle}
+                  style={[landColStyle, { paddingLeft: space['40'], paddingRight: Math.max(space['20'], insets.right) }]}
+                />
               </>
             );
           })()}
@@ -695,161 +537,6 @@ export function ActivePhase({
   );
 }
 
-const activeStyles = StyleSheet.create({
-  // Header: DOEL-pill links, compacte Stop-knop rechts (top-uitgelijnd).
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: space['16'],
-    // Header-band met accent-tint + sterke onderrand (Figma 297:2227). De tint zit op de
-    // band zelf; de DOEL-pill is plat (geen fill/border). Gedeeld portrait + landscape.
-    // TODO: token accent.muted = 0.12; Figma-band = 0.10 (verschil verwaarloosbaar, geen 0.10-token).
-    backgroundColor: accent.muted,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: border.strong,
-  },
-  // DOEL: plat inline (label · divider · waarde) — geen fill/border meer, de tint zit op
-  // de band (Figma 297:2227). Hoogte 48 (lijnt met de Stop-knop), px 0, gap 16.
-  doelPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 48,
-    gap: space['16'],
-  },
-  doelPillLabel: {
-    fontFamily: fontFamily.albertSansSemiBold,
-    fontSize: fontSize['14'],
-    letterSpacing: 2.8, // 20% van 14
-    color: fg.onAccent,
-  },
-  doelPillDivider: {
-    width: 1,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: fg.secondary,
-  },
-  // Waarde + eenheid beide bold, strak naast elkaar (gap 2) — "180W" (Figma 297:2227).
-  doelPillValueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  doelPillValue: {
-    fontFamily: fontFamily.albertSansBold,
-    fontSize: fontSize['18'],
-    letterSpacing: -0.45, // -2.5% van 18
-    color: accent.default,
-  },
-  doelPillUnit: {
-    fontFamily: fontFamily.albertSansBold,
-    fontSize: fontSize['16'],
-    color: accent.default,
-  },
-  // Hero-paneel (bg.elevated); flex/stretch worden per oriëntatie toegevoegd.
-  heroPanel: {
-    backgroundColor: bg.elevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space['40'],
-  },
-  // Hero- en subtitle-groep: eyebrow-label boven zijn waarde (Figma Frame 130/132, gap 8).
-  heroGroup: {
-    alignSelf: 'stretch', // vult het hero-paneel → subtitle-rij kan gelijk-brede kolommen maken
-    alignItems: 'center',
-    gap: space['8'],
-  },
-  // Eyebrow-label boven hero-getal én subtitle: Albert Sans SemiBold 16, 20% tracking, UPPER.
-  heroLabel: {
-    fontFamily: fontFamily.albertSansSemiBold,
-    fontSize: fontSize['16'],
-    letterSpacing: 3.2, // 20% van 16
-    textTransform: 'uppercase',
-    color: fg.onAccent,
-  },
-  heroText: {
-    // Hero-cijfer via de heroNumeric-typeStyle (Albert Sans Bold 114, ls -5.13).
-    // Token herbestemd in Tokens Studio 2026-07-14 (was Source Serif 96).
-    ...typeStyles.heroNumeric,
-    color: fg.onAccent,
-  },
-  subtitleText: {
-    fontFamily: fontFamily.albertSansLight,
-    fontSize: fontSize['36'],
-    letterSpacing: -0.9, // -2.5% van 36
-    color: fg.primary,
-  },
-  // Coaching-zin (split/watt-doel) alléén. Niet op `heroPanel`: dat paneel draagt het
-  // 114px hero-getal, en een symmetrische inset van 40 knijpt "120:45" tot wrappen/krimpen.
-  // Ook niet op `subtitleText` zelf: die stijl draagt óók de twee kolommen van de
-  // progress-rij (duration/distance), waar padding de statische divider zou wegduwen.
-  subtitleSentence: {
-    paddingHorizontal: space['20'],
-    textAlign: 'center',
-  },
-  subtitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    gap: space['20'],
-  },
-  // Linkerwaarde rechts-uitgelijnd, rechterwaarde links-uitgelijnd; elk flex:1 (gelijke
-  // kolommen) zodat de divider ertussen statisch blijft bij wisselende cijfers.
-  subtitleValueLeft: {
-    flex: 1,
-    textAlign: 'right',
-  },
-  subtitleValueRight: {
-    flex: 1,
-    textAlign: 'left',
-  },
-  subtitleDivider: {
-    width: 2,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: fg.tertiary,
-  },
-  // Progress-bar horizontaal (portrait): full-bleed 4px.
-  barTrackH: {
-    alignSelf: 'stretch',
-    height: 4,
-    backgroundColor: progressBar.trackColor,
-    overflow: 'hidden',
-  },
-  barFillH: {
-    height: 4,
-  },
-  // KPI flat-rijen (gedeeld portrait/landscape).
-  kpiRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  kpiRowFixed: {
-    height: 56,
-  },
-  kpiRowFill: {
-    flex: 1,
-    minHeight: 44,
-  },
-  kpiRowDivider: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: border.default,
-  },
-  kpiLabel: {
-    fontFamily: fontFamily.albertSansLight,
-    fontSize: fontSize['22'],
-    letterSpacing: 1.1, // 5% van 22
-    color: fg.secondary,
-  },
-  kpiValue: {
-    fontFamily: fontFamily.albertSansMedium,
-    fontSize: fontSize['28'],
-    letterSpacing: -0.7, // -2.5% van 28
-    color: fg.primary,
-  },
-});
-
 const portraitStyles = StyleSheet.create({
   root: {
     flex: 1,
@@ -886,17 +573,6 @@ const landscapeStyles = StyleSheet.create({
     // Dynamic Island/notch zit in landscape aan de zijkant, de home-indicator onderaan.
     // paddingRight grenst aan de progress-bar (midden) → 40 (design 290:2746), geeft de bar ruimte.
     paddingRight: space['40'],
-  },
-  // Verticale progress-bar op de kolomscheiding; fill onderaan verankerd (onder→boven).
-  barTrackV: {
-    width: 4,
-    alignSelf: 'stretch',
-    backgroundColor: progressBar.trackColor,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  barFillV: {
-    width: 4,
   },
 });
 

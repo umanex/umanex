@@ -22,7 +22,10 @@
     "parity:selftest": "node scripts/geometry-parity.mjs --selftest",
     "figma:poort:selftest": "node scripts/figma-poort-selftest.mjs",
     "figma:serve": "node scripts/figma-serve.mjs",
-    "instabiele-nodes": "node scripts/instabiele-nodes.mjs"
+    "instabiele-nodes": "node scripts/instabiele-nodes.mjs",
+    "laagnamen:selftest": "node scripts/laagnamen-selftest.mjs",
+    "spec-diff": "node scripts/spec-diff.mjs",
+    "spec-diff:selftest": "node scripts/spec-diff.mjs --selftest"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",

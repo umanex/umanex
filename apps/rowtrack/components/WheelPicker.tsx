@@ -173,7 +173,7 @@ export function WheelPicker({
   }, [initialized, scrollRef, scrollY, selectedIndex]);
 
   return (
-    <View style={[styles.container, { height: pickerH }]}>
+    <View testID="WheelPicker" style={[styles.container, { height: pickerH }]}>
       {showPill ? (
         <View style={[styles.pill, { top: pillTop, backgroundColor: fadeColors.pill }]} pointerEvents="none" />
       ) : null}

@@ -79,7 +79,7 @@ Lengte/Gewicht = single-column `WheelPicker`; Geboortedatum = 3-koloms date-whee
 | `components/Segment.tsx` | `` | Atoms / Segment |
 | `components/Subtitle.tsx` | `https://www.figma.com/design/T1bGrvIzSNeLyh5CbarATZ/RowTrack?node-id=55-13730&t=NfyKsxb0ybecTdzm-4` | Subtitle |
 | `components/TabItem.tsx` | `https://www.figma.com/design/T1bGrvIzSNeLyh5CbarATZ/RowTrack?node-id=21-400&t=NfyKsxb0ybecTdzm-4` | TabItem |
-| `components/KPI_single.tsx` | `https://www.figma.com/design/T1bGrvIzSNeLyh5CbarATZ/RowTrack?node-id=89-3445&t=k6rKeRyqVNPmF9Pn-4` | KPI_single |
+| `components/KpiSingle.tsx` | `https://www.figma.com/design/T1bGrvIzSNeLyh5CbarATZ/RowTrack?node-id=89-3445&t=k6rKeRyqVNPmF9Pn-4` | KPI_single |
 
 
 
