@@ -70,6 +70,58 @@ const rgb = o => ({ r: o.r / 255, g: o.g / 255, b: o.b / 255 });
 const BG = V.get('Theme:bg/base');
 const meldingen = [];
 /**
+ * Soorten meldingen — de basislijn. Elke `meldingen.push` in dit bestand hoort op precies één
+ * van deze regexen te matchen, en elke regex hoort minstens één push-plek te dekken. Beide
+ * kanten toetst `scripts/figma-poort-selftest.mjs` statisch op deze brontekst: een nieuwe
+ * sóórt melding kan dus niet stil in de staart van `meldingen.slice()` verdwijnen, en een
+ * soort zonder plek veroudert niet stil. Waarom: gemeten 2026-09-08 — de return gaf
+ * `aantalMeldingen` plus `slice(0, 12)`, zonder basislijn, dus een nieuwe soort was per
+ * constructie onzichtbaar (de fout-vorm van "de builder meldt, en niemand telt").
+ * Volgorde telt: de eerste treffer wint. Geen `[`/`]` in de regexen — de selftest knipt
+ * de lijst op de sluitende `];`.
+ */
+const MELDING_SOORTEN = [
+  ['style-niet-te-importeren',     /^(text|effect) style .* niet te importeren/],
+  ['variabele-onbekend',           /^variabele .* staat niet in de library-sleutels/],
+  ['variabele-niet-te-importeren', /^variabele .* niet te importeren/],
+  ['gradientstop-ongebonden',      /: gradientstop ongebonden/],
+  ['variant-geen-keuze',           /heeft variant-assen maar geen data-variant|variant\(en\) van .* passen op/],
+  ['component-portaleert',         /portaleert zijn inhoud/],
+  ['component-niet-te-importeren', /niet te importeren \(.*\) — subboom nagebouwd/],
+  ['slot-niet-gezet',              /: slot ".*" (van .* niet op pad|bestaat niet op)/],
+  ['slots-niet-te-zetten',         /: slots van .* niet te zetten/],
+  ['layout-niet-te-zetten',        /: gemeten layout niet op .* te zetten/],
+  ['layoutalign-geweigerd',        /: layoutAlign=.* geweigerd/],
+  ['fill-geweigerd',               /=FILL geweigerd|wrapper-FILL geweigerd/],
+  ['fill-stil-genegeerd',          /=FILL stil genegeerd|wrapper-FILL stil genegeerd/],
+  ['font-teruggevallen',           /: familie ".*" niet in Figma — teruggevallen op/],
+  ['icoon-placeholder',            /: icoon .*px als placeholder/],
+  ['tekst-zonder-text-style',      /: tekst zonder text style/],
+  ['tekstkleur-ongebonden',        /: tekstkleur ongebonden$/],
+  ['flex-mapping-onbekend',        /kent deze mapping niet$/],
+  ['flex-niet-gemapt',             /wordt niet gemapt/],
+  ['achtergrond-ongebonden',       /: achtergrond ongebonden$/],
+  ['gradient-niet-ontleed',        /: gradient niet ontleed/],
+  ['randkleur-ongebonden',         /: randkleur ongebonden$/],
+  ['geforceerd-overschreven',      /^GEFORCEERD OVERSCHREVEN — /],
+  ['instance-wijkt-af',            /: instance van .* wijkt af \(.*\) — subboom nagebouwd/],
+  ['component-property-mislukt',   /: component property ".*" mislukt/],
+];
+function soortVan(m) {
+  const s = String(m);
+  for (const [soort, re] of MELDING_SOORTEN) if (re.test(s)) return soort;
+  return 'onbekend';
+}
+/** Telling per soort, plus de meldingen die geen soort hebben — díe zijn de nieuwe klasse. */
+function telPerSoort(lijst) {
+  const perSoort = {}; const onbekend = [];
+  for (const m of lijst) {
+    const s = soortVan(m); perSoort[s] = (perSoort[s] ?? 0) + 1;
+    if (s === 'onbekend') onbekend.push(String(m));
+  }
+  return { perSoort, onbekend: onbekend.slice(0, 8) };
+}
+/**
  * `loadFontAsync` is de duurste stap van de bouw en wordt per tekstnode aangeroepen — bij 613
  * tekstnodes over hooguit een handvol fonts is dat honderden keren hetzelfde font. Figma cachet
  * intern wel, maar de await zelf kost een tick per node, en die tikken zijn precies wat een
@@ -991,4 +1043,4 @@ for (const [comp, d] of Object.entries(SPEC)) {
              hashes,
              slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
-return { gebouwd: uit, geweigerd, vervangen, hergebruikt, rekGezet, rekTeruggedraaid, rekGeweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
+return { gebouwd: uit, geweigerd, vervangen, hergebruikt, rekGezet, rekTeruggedraaid, rekGeweigerd, aantalMeldingen: meldingen.length, ...telPerSoort(meldingen), meldingen: meldingen.slice(0, 12) };

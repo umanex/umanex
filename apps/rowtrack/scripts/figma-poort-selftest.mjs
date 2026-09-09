@@ -159,6 +159,59 @@ eis('bouwhash draagt het knooppunt-aantal', bouwhash(boom()).split(':')[1] === '
     JSON.stringify(r));
 }
 
+// --- 5. de meldingen-basislijn: elke push-plek een soort, elke soort een plek ------------
+//
+// Statisch op de brontekst: elke `meldingen.push(`…`)` wordt met `${…}` → 'X' tot een voorbeeld
+// gemaakt en door `soortVan` gehaald. Kant A: geen voorbeeld mag 'onbekend' zijn (een nieuwe
+// soort melding zonder regel). Kant B: elke soort in MELDING_SOORTEN dekt minstens één plek
+// (een regel zonder plek is verouderd). Runtime: `telPerSoort` telt en isoleert 'onbekend'.
+{
+  const lijst = BRON.slice(BRON.indexOf('const MELDING_SOORTEN = ['));
+  const eind = lijst.indexOf('\n];');
+  if (eind < 0) throw new Error('MELDING_SOORTEN: geen sluitende `];` op eigen regel in figma/builder.js');
+  const bron2 = `${lijst.slice(0, eind + 3)}\n${pak('soortVan')}\n${pak('telPerSoort')}\nreturn { MELDING_SOORTEN, soortVan, telPerSoort };`;
+  const { MELDING_SOORTEN, soortVan, telPerSoort } = new Function(bron2)();
+
+  /** Alle push-argumenten uit de bron, haakjes gebalanceerd, strings gerespecteerd. */
+  function pushPlekken(bron) {
+    const uit = []; let i = 0;
+    for (;;) {
+      const j = bron.indexOf('meldingen.push(', i); if (j < 0) break;
+      let k = j + 'meldingen.push('.length, d = 1, q = null;
+      while (d && k < bron.length) {
+        const c = bron[k];
+        if (q) { if (c === '\\') k++; else if (c === q) q = null; }
+        else if (c === '`' || c === '"' || c === "'") q = c;
+        else if (c === '(') d++;
+        else if (c === ')') d--;
+        k++;
+      }
+      uit.push({ regel: bron.slice(0, j).split('\n').length, arg: bron.slice(j + 'meldingen.push('.length, k - 1) });
+      i = k;
+    }
+    return uit;
+  }
+  const voorbeeld = (arg) => new Function(`return (${arg.replace(/\$\{[^}]*\}/g, 'X')});`)();
+  const plekken = pushPlekken(BRON).map((p) => ({ ...p, tekst: voorbeeld(p.arg), soort: null }));
+  for (const p of plekken) p.soort = soortVan(p.tekst);
+  // Positieve controle op het instrument: er zijn plekken, en de extractie levert tekst op.
+  eis('push-plekken gevonden in de bron (positieve controle)', plekken.length >= 20, `${plekken.length}`);
+  const zonderSoort = plekken.filter((p) => p.soort === 'onbekend');
+  eis(`kant A: elke push-plek heeft een soort (${plekken.length} plekken)`, zonderSoort.length === 0,
+    zonderSoort.map((p) => `regel ${p.regel}: ${p.tekst.slice(0, 70)}`).join('\n        '));
+  const zonderPlek = MELDING_SOORTEN.map(([s]) => s).filter((s) => !plekken.some((p) => p.soort === s));
+  eis(`kant B: elke soort dekt een plek (${MELDING_SOORTEN.length} soorten)`, zonderPlek.length === 0, zonderPlek.join(', '));
+  // Runtime: telling en isolatie van het onbekende.
+  const t = telPerSoort(['Chip>row: tekstkleur ongebonden', 'Chip>row: tekstkleur ongebonden', 'iets wat nog niet bestaat']);
+  eis('telPerSoort telt per soort', t.perSoort['tekstkleur-ongebonden'] === 2 && t.perSoort.onbekend === 1, JSON.stringify(t.perSoort));
+  eis('telPerSoort isoleert het onbekende', t.onbekend.length === 1 && /nog niet bestaat/.test(t.onbekend[0]), JSON.stringify(t.onbekend));
+  // Tegenproeven — de toets moet rood kúnnen worden op precies het defect dat hij bewaakt.
+  eis('tegenproef A: een verzonnen melding valt door kant A', soortVan('X: iets wat geen enkele regel kent') === 'onbekend');
+  const nep = [...MELDING_SOORTEN, ['verouderde-soort', /zal nooit matchen 9f1c/]];
+  const nepZonderPlek = nep.map(([s]) => s).filter((s) => !plekken.some((p) => p.soort === s));
+  eis('tegenproef B: een soort zonder plek valt door kant B', nepZonderPlek.length === 1 && nepZonderPlek[0] === 'verouderde-soort', nepZonderPlek.join(', '));
+}
+
 // --- verslag ------------------------------------------------------------------------------
 const stuk = gevallen.filter((g) => !g.ok);
 for (const g of gevallen) console.log(`${g.ok ? '  ok' : 'FOUT'}  ${g.naam}${g.ok ? '' : `\n        ${g.detail}`}`);

@@ -43,6 +43,9 @@ try {
   uitkomst = {
     batch: BATCH, fout: null,
     geweigerd: r.geweigerd, aantalMeldingen: r.aantalMeldingen, meldingen: (r.meldingen ?? []).slice(0, 8),
+    // Per soort geteld, en de meldingen zónder soort apart: een nieuwe klasse melding is
+    // anders onzichtbaar achter `slice(0, 8)` (basislijn: MELDING_SOORTEN in builder.js).
+    perSoort: r.perSoort ?? null, onbekend: r.onbekend ?? [],
     // De sizing-telling hoort in de uitkomst: `rekTeruggedraaid` is de enige plek waar
     // zichtbaar wordt dat een FILL de gemeten maat NIET reproduceerde. Zonder dit getal is
     // 'auto-layout aan' een bewering in plaats van een meting.
