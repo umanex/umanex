@@ -784,7 +784,16 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Volgende zet:** Alleen oppakken wanneer `.storybook/main.ts` tóch open moet (bijvoorbeeld bij
   het BACKLOG-item over `vite-plugin-rnw@0.0.12`). Leg de keuze dan expliciet voor: één
   babel-plugin in de optimizer tegenover drie losse compensaties, met de extra dependency als prijs.
-- **Status:** open
+- **Status:** resolved — 2026-09-09. Voorgelegd, en Jeroen koos de dependency. `@babel/core@^7.29.0`
+  staat nu als devDependency van rowtrack (pinnen op `^7` was nodig: een kale `pnpm add` haalde 8.0.1
+  en dupliceerde daarmee `react-native-worklets` onder een tweede peer-resolutie). De plugin
+  `rowtrack-worklets-in-optimizer` draait babel over reanimated en worklets binnen de optimizer, en
+  vervangt **vier** dingen in plaats van de drie die dit item noemde: de `optimizeDeps.exclude`, de
+  pnpm-bewuste babel-`exclude`, `disableSourceMaps` in de app-pipeline, én de reanimated-versiestub
+  met zijn Node-check — die laatste bestond alleen omdat worklets extern gemarkeerd was. `main.ts`
+  ging van 306 naar 245 regels. Gemeten met de dev-sweep op koude cache: 251/257, en de basislijn
+  (`origin/main`-config, wissel bevestigd vóór de meting) geeft exact dezelfde 251/257 met dezelfde
+  zes uitvallers. Build-pad 257/257, `tsc` exit 0.
 
 ## 2026-09-09 — `dataSet` is alleen op web gemeten, niet op het toestel · [onzekerheid]
 - **Bevinding:** Ingreep 3b zet `dataSet={{ laag: … }}` op vier Reanimated-nodes in `WheelPicker` en `GoalSegments`. Dat het aankomt is gelezen in de geïnstalleerde bron (react-native-web 0.21.2 `createDOMProps/index.js:756-766` schrijft `data-laag`; react-native-reanimated 4.1.7 `PropsFilter.js` geeft onbekende props ongewijzigd door) en gemeten op web: 4 unieke `data-laag`-waarden bereiken de DOM, 172 nodes dragen er een naam van. Op **native** reist de prop mee naar de view manager, en iOS/Android negeren een onbekende prop normaal stil — maar dat is hier niet gemeten. Er is geen dev-client-run achter deze wijziging. `types/react-native-dataset.d.ts` draagt de reden.
