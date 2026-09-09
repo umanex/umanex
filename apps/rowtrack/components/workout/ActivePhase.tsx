@@ -12,11 +12,12 @@ import type { ConnectionStatus, HRStatus } from '@/lib/ble/types';
 import type { WorkoutGoal } from '@/lib/workout-goals';
 // Directe imports, geen barrel — zie IdlePhase.tsx voor het waarom.
 import { Button } from '@/components/Button';
-import { KpiSingle } from '@/components/KpiSingle';
 import { ActiveHeader } from './active/ActiveHeader';
 import { ConnectionOverlay } from './active/ConnectionOverlay';
 import { KpiRow } from './active/KpiRow';
 import { PrBanner } from './active/PrBanner';
+import { StatsTable } from './active/StatsTable';
+import { SummaryKpiBand } from './active/SummaryKpiBand';
 import { SummaryTitle } from './active/SummaryTitle';
 import { ProgressBar, type FillKind } from './active/ProgressBar';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
@@ -27,7 +28,7 @@ import { useSpmHalved } from '@/lib/hooks/useSpmHalved';
 import type { PrEntry } from '@/lib/personalRecords';
 import { prMetricLabel, formatPrValue, formatPrPrevious, prEntrySpoken } from '@/lib/prDisplay';
 import { t } from '@/i18n';
-import { bg, fg, accent, achievement, body, border, fontFamily, space, radii, componentRadius, fontSize, typeStyles, layout } from '@/constants';
+import { bg, space, layout } from '@/constants';
 import type { WorkoutMetricsState } from '@/lib/hooks/useWorkoutMetrics';
 import { styles } from './workout.styles';
 
@@ -59,6 +60,13 @@ type ActivePhaseProps = {
   summaryMaxSpm: number | null;
   summaryMaxHr: number | null;
   summaryTotalStrokes: number | null;
+  /**
+   * De klok voor de datumregel van de samenvatting. Injecteerbaar, en dat is geen luxe: zolang
+   * dit `new Date()` was, verschilde die tekstnode tussen twee metingen en moest hij in
+   * `figma/niet-reproduceerbaar.json` staan — een uitsluiting die bovendien verouderde zodra
+   * de boom erboven veranderde. Met een vaste waarde in de story is hij weer meetbaar.
+   */
+  now?: Date;
   onStop: () => void;
   onContinue: () => void;
   onGoalContinue: () => void;
@@ -98,6 +106,7 @@ export function ActivePhase({
   hrBpm,
   startHRScan,
   insets,
+  now,
 }: ActivePhaseProps) {
   const { seconds, distanceMeters, calories } = metricsState;
   // Live weergave: gesmoothe huidige metingen (EMA), niet de sessie-gemiddelden.
@@ -129,11 +138,11 @@ export function ActivePhase({
 
   const summaryDateLabel = useMemo(() => {
     if (phase !== 'summary') return '';
-    const now = new Date();
-    const h = String(now.getHours());
-    const m = String(now.getMinutes()).padStart(2, '0');
+    const d = now ?? new Date();
+    const h = String(d.getHours());
+    const m = String(d.getMinutes()).padStart(2, '0');
     return t.workout.summary.todayAt(`${h}:${m}`);
-  }, [phase]);
+  }, [phase, now]);
 
   // --- Hero-getal + subtitle + progress-fill per doeltype (gedeeld portrait/landscape) ---
   function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: HeroSubtitle; fillPct: number; fillKind: FillKind } {
@@ -435,61 +444,26 @@ export function ActivePhase({
           </View>
 
           {/* KPI-metrics — volle-breedte bg.raised band */}
-          <View style={summaryStyles.kpiBand}>
-            <View style={summaryStyles.kpiRow}>
-              <KpiSingle
-                value={formattedDistance.value}
-                unit={formattedDistance.unit}
-                label={t.workout.summary.kpiDistance}
-                style={summaryStyles.kpiCell}
-              />
-              <KpiSingle
-                value={formatTimerFull(seconds)}
-                label={t.workout.summary.kpiDuration}
-                style={summaryStyles.kpiCell}
-              />
-            </View>
-            <View style={summaryStyles.kpiBandDivider} />
-            <View style={summaryStyles.kpiRow}>
-              <KpiSingle
-                value={`${formatInt(calories)}${hasProfileWeight ? '' : '*'}`}
-                unit="kcal"
-                label={t.workout.summary.kpiEnergy}
-                style={summaryStyles.kpiCell}
-              />
-              <KpiSingle
-                value={summaryTotalStrokes != null ? formatInt(correctSpm(summaryTotalStrokes, spmHalved)) : '—'}
-                label={t.workout.summary.kpiStrokes}
-                style={summaryStyles.kpiCell}
-              />
-            </View>
-          </View>
+          <SummaryKpiBand
+            kpis={[
+              { value: formattedDistance.value, unit: formattedDistance.unit, label: t.workout.summary.kpiDistance },
+              { value: formatTimerFull(seconds), label: t.workout.summary.kpiDuration },
+              { value: `${formatInt(calories)}${hasProfileWeight ? '' : '*'}`, unit: 'kcal', label: t.workout.summary.kpiEnergy },
+              { value: summaryTotalStrokes != null ? formatInt(correctSpm(summaryTotalStrokes, spmHalved)) : '—', label: t.workout.summary.kpiStrokes },
+            ]}
+          />
 
           {/* Stats-sectie */}
-          <View style={summaryStyles.statsSection}>
-            <View style={summaryStyles.statsHeader}>
-              <View style={summaryStyles.statsLabelCol} />
-              <Text style={summaryStyles.statsColLabel}>{t.detail.colAvg}</Text>
-              <Text style={summaryStyles.statsColLabel}>{t.detail.colPeak}</Text>
-            </View>
-            <View style={summaryStyles.statsTable}>
-              {[
-                { label: t.workout.summary.statSplit, gem: formatSplit(avgSplit), piek: summaryBestSplit != null ? formatSplit(summaryBestSplit) : '—' },
-                { label: t.workout.summary.statWatt, gem: `${avgWatts}`, piek: summaryMaxWatts != null ? `${summaryMaxWatts}` : '—' },
-                { label: t.workout.summary.statSpm, gem: `${correctSpm(avgSpm, spmHalved)}`, piek: summaryMaxSpm != null ? `${correctSpm(summaryMaxSpm, spmHalved)}` : '—' },
-                { label: t.workout.summary.statBpm, gem: summaryAvgHr != null ? `${summaryAvgHr}` : '—', piek: summaryMaxHr != null ? `${summaryMaxHr}` : '—' },
-              ].map((row, i, arr) => (
-                <View key={row.label}>
-                  <View style={summaryStyles.statsRow}>
-                    <Text style={summaryStyles.statsRowLabel}>{row.label}</Text>
-                    <Text style={summaryStyles.statsRowValue}>{row.gem}</Text>
-                    <Text style={summaryStyles.statsRowValue}>{row.piek}</Text>
-                  </View>
-                  {i < arr.length - 1 && <View style={summaryStyles.statsRowDivider} />}
-                </View>
-              ))}
-            </View>
-          </View>
+          <StatsTable
+            colAvg={t.detail.colAvg}
+            colPeak={t.detail.colPeak}
+            rows={[
+              { label: t.workout.summary.statSplit, gem: formatSplit(avgSplit), piek: summaryBestSplit != null ? formatSplit(summaryBestSplit) : '—' },
+              { label: t.workout.summary.statWatt, gem: `${avgWatts}`, piek: summaryMaxWatts != null ? `${summaryMaxWatts}` : '—' },
+              { label: t.workout.summary.statSpm, gem: `${correctSpm(avgSpm, spmHalved)}`, piek: summaryMaxSpm != null ? `${correctSpm(summaryMaxSpm, spmHalved)}` : '—' },
+              { label: t.workout.summary.statBpm, gem: summaryAvgHr != null ? `${summaryAvgHr}` : '—', piek: summaryMaxHr != null ? `${summaryMaxHr}` : '—' },
+            ]}
+          />
 
           {/* Knoppen — onderaan */}
           <View style={[summaryStyles.buttonsArea, { paddingBottom: Math.max(space['28'], insets.bottom) }]}>
@@ -553,68 +527,6 @@ const summaryStyles = StyleSheet.create({
   topSection: {
     paddingBottom: space['28'],
     gap: space['20'],
-  },
-  // KPI-metrics — volle-breedte bg.raised band (KPI Row-frame)
-  kpiBand: {
-    backgroundColor: bg.raised,
-    paddingHorizontal: space['20'],
-  },
-  kpiRow: {
-    flexDirection: 'row',
-    paddingVertical: space['20'],
-    gap: space['20'],
-  },
-  kpiCell: {
-    flex: 1,
-  },
-  kpiBandDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: border.strong,
-  },
-  // Stats-sectie (Frame 42 + 49)
-  statsSection: {
-    paddingHorizontal: space['20'],
-    paddingVertical: space['28'],
-    gap: space['8'],
-  },
-  statsHeader: {
-    flexDirection: 'row',
-    paddingHorizontal: space['16'],
-  },
-  statsLabelCol: {
-    width: 165,
-  },
-  statsColLabel: {
-    flex: 1,
-    ...typeStyles.labelGoalPrefix,
-    color: fg.tertiary,
-  },
-  statsTable: {
-    backgroundColor: bg.raised,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    borderColor: border.default,
-    overflow: 'hidden',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: space['16'],
-    paddingVertical: space['16'],
-  },
-  statsRowLabel: {
-    width: 165,
-    ...typeStyles.labelGoalPrefix,
-    color: fg.secondary,
-  },
-  statsRowValue: {
-    flex: 1,
-    ...typeStyles.kpiValue,
-    color: fg.primary,
-  },
-  statsRowDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: border.default,
   },
   // Knoppen — onderaan (Frame 41)
   buttonsArea: {

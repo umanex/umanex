@@ -1,7 +1,7 @@
 {
  "$comment": "GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.",
  "aantalUniek": 49,
- "aantalVoorkomens": 1992,
+ "aantalVoorkomens": 1996,
  "decoratiefGenegeerd": 120,
  "uniek": [
   "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
@@ -206,6 +206,9 @@
   ],
   "SubtitleProgress": [
    "text style = AlbertSans_300Light 36px ls=-0.9"
+  ],
+  "SummaryKpiBand": [
+   "gap = 3"
   ],
   "ActivePhase": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.85}",

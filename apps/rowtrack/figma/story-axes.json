@@ -532,9 +532,23 @@
    "uitgesloten": {},
    "variantNodes": 8
   },
+  "StatsTable": {
+   "storyId": "componenten-statstable--playground",
+   "titel": "Componenten/StatsTable",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
   "SubtitleProgress": {
    "storyId": "componenten-subtitleprogress--playground",
    "titel": "Componenten/SubtitleProgress",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "SummaryKpiBand": {
+   "storyId": "componenten-summarykpiband--playground",
+   "titel": "Componenten/SummaryKpiBand",
    "assen": {},
    "uitgesloten": {},
    "variantNodes": 1
@@ -549,5 +563,5 @@
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 632
+ "totaalVariantNodes": 634
 }
