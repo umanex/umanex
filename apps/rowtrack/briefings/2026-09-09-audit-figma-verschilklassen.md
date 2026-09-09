@@ -74,6 +74,15 @@ per schakel. Daarom is de eerste stap toewijzen, niet fixen.
 | I | **Text-style-keuze negeert tracking.** Enige kandidaat op familie+grootte wint; "RESTERENDE TIJD" (3,2 px) krijgt `segmentActive` (−0,24 px). | `figma-build-spec.mjs` `styleRef` | niemand — de typografie-as toetst de style, niet de meting | 24 van 324 tekstnodes met style |
 | H | Iconen zonder font → placeholder. Bekend (BACKLOG 2026-09-07); de beeld-as maskeert ze. | — | — | 275 glyphs |
 | K | Renderer-ruis (hinting). Vloer 0,02 %, gemeten op ResetPasswordScreen. Geen defect. | — | — | — |
+| L | **Marges worden niet gemeten en bestaan in Figma niet.** De walker leest geen `margin`; Figma's auto-layout kent geen per-kind marge. Een `margin-top: 28` op de tab-rij van WorkoutDetail verdwijnt dus, en alles eronder schuift 28 px omhoog. Deze klasse is ná de eerste ronde gevonden: het item heette eerst "de Segmented-instance zit 30 px te hoog" en zocht de fout in de override-laag van `maakInstance` — een oogschatting op het drieluik. De instance is correct; de ruimte eromheen niet. | walker `lees()` meet geen `margin`; builder heeft geen doel om hem op te zetten | niemand — `parity` vergelijkt hoogtes, niet de posities van stromende kinderen, en die hoogtes kloppen allemaal | 57 van 13 237 nodes over 38 stories, twaalf unieke waarden; `[28,0,0,0]` op 14 `Segmented`-nodes. Zonder Figma zichtbaar: 84 + 54 + 682 + 84 = 904 tegen een frame van 932 |
+
+**Klasse L is de reden dat een klassentabel nooit af is.** Hij ontbrak in de eerste ronde omdat het
+symptoom (een verschoven tab-rij) al een naam had in klasse C en D — de instance toonde óók de
+verkeerde tekst, dus het lag voor de hand dat het één ding was. Pas een meting van de DOM-positie
+naast de spec-positie scheidde de twee: de tekst komt van de library (C), de verschuiving van een
+marge die nergens gemeten wordt (L). De les voor de volgende ronde staat in de methode hierboven en
+is nu duurder betaald: **een klasse die je aan een symptoom herkent, moet je aan een getal
+toewijzen vóór je hem in een bestaande klasse schuift.**
 
 Twee dingen die pas tijdens het bouwen bovenkwamen en die geen klasse van het beeld zijn maar
 van de keten zelf, allebei in `CLAUDE.md` als eigenaardigheid 9 en in de skill:
@@ -99,6 +108,7 @@ van de keten zelf, allebei in `CLAUDE.md` als eigenaardigheid 9 en in de skill:
 | Frame | A | B | C | D | E | F | G | J | I | H | grof vóór → ná |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | WorkoutDetail / Playground | **✓** | | ✓ tabs | | | | | ✓ | | ✓ | 6,62 → 6,31 |
+| *idem, klasse L* | | | | | | | | | | | de tab-rij en alles eronder 28 px hoger |
 | WorkoutDetail / Zonder Hartslag | **✓** | | | ✓ tabs | | | | ✓ | | ✓ | 7,27 → 6,97 |
 | WorkoutDetail / Niet Gevonden | | | | | | | | | | ✓ | 0,34 → 0,36 |
 | History / Playground | | | ✓ rij 2–5 | ✓ rij 1, tabs, KPI | | | | ✓ | | ✓ | 6,79 → 6,62 |

@@ -73,16 +73,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+f6470ea docs(rowtrack): the publication handoff is resolved and the briefing's acceptance is closed
 6a79010 chore(rowtrack): manifest, screen geometry and images after the publication
 fd95441 fix(rowtrack): a time budget for the screen build, a warm-up for imports, and a leaf keeps its size
 56fb806 docs(rowtrack): the import hypothesis is withdrawn; peculiarities 9 and 10
 8cd3842 chore(rowtrack): manifest with property references after the property repair
-763315e fix(rowtrack): reuse a component property instead of re-adding it, and a guard axis for orphans
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/BACKLOG.md
   M  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
+  M  apps/rowtrack/scripts/walker-blindvlekken.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

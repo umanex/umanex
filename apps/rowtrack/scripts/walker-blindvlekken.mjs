@@ -23,10 +23,16 @@
  *                  builder maakt er een frame met een los label van, zonder inline-stroom
  *   center/right — tekst met `textAlign` center of right; sinds 2026-09-09 reist dit mee
  *                  (`t.al`), het getal hier is de referentie waar de spec tegen te tellen is
+ *   marge        — een niet-nul CSS-marge; Figma's auto-layout kent geen per-kind marge, dus
+ *                  die ruimte verdwijnt en alles eronder schuift op. Gemeten op
+ *                  WorkoutDetail/Playground: `margin-top: 28` op de tab-rij, waardoor de rij
+ *                  in Figma op y=84 staat en in de browser op y=112. Zonder Figma erbij te
+ *                  halen: 84+54+682+84 = 904 tegen een frame van 932
  *
  * Positieve controle (2026-09-09, 42 schermstories): rand 110 · placeholder 4 · gescrold 11 ·
- * overloop 15 · inline 3 · center/right 32. LoginScreen/Playground alleen: placeholder 1,
- * inline 1, center/right 4.
+ * overloop 15 · inline 3 · center/right 32 · marge 40. Over alle 257 stories: marge 57 van
+ * 13 237 nodes, verspreid over 38 stories, twaalf unieke waarden. LoginScreen/Playground
+ * alleen: placeholder 1, inline 1, center/right 4.
  *
  *   node scripts/walker-blindvlekken.mjs             # totalen + voorbeelden
  *   node scripts/walker-blindvlekken.mjs --verbose   # plus een regel per story
@@ -65,7 +71,7 @@ await new Promise(r => server.listen(0, r));
 const poort = server.address().port;
 const browser = await chromium.launch();
 const page = await browser.newPage();
-const SLEUTELS = ['rand', 'placeholder', 'gescrold', 'overloop', 'inline', 'centerRight'];
+const SLEUTELS = ['rand', 'placeholder', 'gescrold', 'overloop', 'inline', 'centerRight', 'marge'];
 const tot = Object.fromEntries(SLEUTELS.map(k => [k, 0]));
 const voorbeelden = [];
 let geteld = 0, leeg = 0;
@@ -80,7 +86,7 @@ for (const s of stories) {
     const root = document.getElementById('storybook-root');
     if (!root || !root.children.length) return null;
     const px = v => parseFloat(v) || 0;
-    const uit = { rand: 0, placeholder: 0, gescrold: 0, overloop: 0, inline: 0, centerRight: 0, vb: [] };
+    const uit = { rand: 0, placeholder: 0, gescrold: 0, overloop: 0, inline: 0, centerRight: 0, marge: 0, vb: [] };
     for (const el of root.querySelectorAll('*')) {
       const cs = getComputedStyle(el);
       const b = [px(cs.borderTopWidth), px(cs.borderRightWidth), px(cs.borderBottomWidth), px(cs.borderLeftWidth)];
@@ -91,6 +97,8 @@ for (const s of stories) {
       const eigen = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
       if (eigen && [...el.children].some(k => k.textContent.trim())) { uit.inline++; uit.vb.push(`inline "${el.textContent.trim().slice(0, 36)}"`); }
       if (eigen && /^(center|right|end)$/.test(cs.textAlign)) uit.centerRight++;
+      const m = [px(cs.marginTop), px(cs.marginRight), px(cs.marginBottom), px(cs.marginLeft)];
+      if (m.some((x) => x !== 0)) { uit.marge++; if (uit.vb.length < 3) uit.vb.push(`marge ${JSON.stringify(m)}${el.getAttribute('data-testid') ? ' testid=' + el.getAttribute('data-testid') : ''}`); }
     }
     return uit;
   });
@@ -99,7 +107,7 @@ for (const s of stories) {
   geteld++;
   for (const k of SLEUTELS) tot[k] += r[k];
   for (const v of r.vb) if (voorbeelden.length < 8) voorbeelden.push(`${naam}: ${v}`);
-  if (VERBOSE) console.log(`  ${naam}: rand=${r.rand} placeholder=${r.placeholder} gescrold=${r.gescrold} overloop=${r.overloop} inline=${r.inline} center/right=${r.centerRight}`);
+  if (VERBOSE) console.log(`  ${naam}: rand=${r.rand} placeholder=${r.placeholder} gescrold=${r.gescrold} overloop=${r.overloop} inline=${r.inline} center/right=${r.centerRight} marge=${r.marge}`);
 }
 await browser.close(); server.close();
 
