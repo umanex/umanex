@@ -1,5 +1,5 @@
 # Context Snapshot — cashflow
-_Gegenereerd op 2026-09-07_
+_Gegenereerd op 2026-09-09_
 
 ## Project
 - **App:** cashflow
@@ -49,17 +49,22 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-fb1e38b feat: design-systeem-bron per app, met guard en tegenproef
-d72e86c feat(cashflow): drop the monthly amount from a half-elapsed month's footer
-4bead1f docs(cashflow): record the buffer position as validated on the running app
-0293a46 docs(cashflow): last acceptance line carries its own evidence marker
-c7791bf docs(cashflow): put the evidence marker on the acceptance line itself
+259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
+9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
+653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
+1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
+ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/cashflow/CLAUDE.md
-  M  apps/cashflow/components/cashflow/RepeatMonthModal.tsx
-  M  apps/cashflow/components/cashflow/ReservationPaymentModal.tsx
+  M  apps/cashflow/BACKLOG.md
+  M  apps/cashflow/context-snapshot.md
+  M  packages/ui/CLAUDE.md
+  A  packages/ui/components/ui/sheet.stories.tsx
+  A  packages/ui/components/ui/sheet.tsx
+  M  packages/ui/figma/geometry.code.json
+  M  packages/ui/figma/manifest.json
+  M  packages/ui/package.json
 
 ## Bestanden met TODO/FIXME
   (geen)

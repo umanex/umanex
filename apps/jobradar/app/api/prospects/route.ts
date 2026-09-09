@@ -40,7 +40,9 @@ export async function GET(request: Request) {
   )
   const sorteringRuw = url.searchParams.get('sortering')
   const sortering: Sortering =
-    sorteringRuw === 'omvang' || sorteringRuw === 'ebitda' ? sorteringRuw : 'oprichting'
+    sorteringRuw === 'omvang' || sorteringRuw === 'ebitda' || sorteringRuw === 'actie'
+      ? sorteringRuw
+      : 'oprichting'
   const herkomstRuw = url.searchParams.get('herkomst')
   const herkomst: Herkomst =
     herkomstRuw === 'kbo' || herkomstRuw === 'csv' ? herkomstRuw : 'beide'

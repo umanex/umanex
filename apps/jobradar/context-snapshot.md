@@ -22,13 +22,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 | Component | Pad | Categorie | Figma-node | Snapshot | Status |
 |---|---|---|---|---|---|
+| ContactPanel | `apps/jobradar/components/ContactPanel.tsx` | components | — | — | — |
+| ContactTimeline | `apps/jobradar/components/ContactTimeline.tsx` | components | — | — | — |
 | CoverageBar | `apps/jobradar/components/CoverageBar.tsx` | components | — | — | — |
 | DashboardClient | `apps/jobradar/components/DashboardClient.tsx` | components | — | — | — |
 | FilterBar | `apps/jobradar/components/FilterBar.tsx` | components | — | — | — |
 | HerkomstFilter | `apps/jobradar/components/HerkomstFilter.tsx` | components | — | — | — |
 | JobCard | `apps/jobradar/components/JobCard.tsx` | components | — | — | — |
 | LeadCard | `apps/jobradar/components/LeadCard.tsx` | components | — | — | — |
+| NextActionBadge | `apps/jobradar/components/NextActionBadge.tsx` | components | — | — | — |
 | ProspectCard | `apps/jobradar/components/ProspectCard.tsx` | components | — | — | — |
+| ProspectMap | `apps/jobradar/components/ProspectMap.tsx` | components | — | — | — |
 | RegionFilter | `apps/jobradar/components/RegionFilter.tsx` | components | — | — | — |
 | ScoreBadge | `apps/jobradar/components/ScoreBadge.tsx` | components | — | — | — |
 | SearchSettingsForm | `apps/jobradar/components/SearchSettingsForm.tsx` | components | — | — | — |
@@ -38,24 +42,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
+7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
+346ae77 fix(jobradar): give the flow harness its own build directory
+6fc0110 fix(jobradar): repair the mirror connection and close the review findings
 c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
-7d1a85e docs(jobradar): record the two decided critical items
-0e55e19 docs(jobradar): three briefings for CSV-sourced prospect follow-up
-798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
-259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/BACKLOG.md
+  M  apps/jobradar/CLAUDE.md
+  A  apps/jobradar/app/api/kaart/route.ts
+  A  apps/jobradar/app/api/opvolging/actie/route.ts
+  A  apps/jobradar/app/api/opvolging/moment/[id]/route.ts
+  A  apps/jobradar/app/api/opvolging/route.ts
   M  apps/jobradar/app/api/prospects/route.ts
-  M  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
-  M  apps/jobradar/components/DashboardClient.tsx
-  A  apps/jobradar/components/HerkomstFilter.tsx
-  M  apps/jobradar/components/ProspectCard.tsx
-  M  apps/jobradar/context-snapshot.md
-  M  apps/jobradar/lib/db/ddl.ts
-  M  apps/jobradar/lib/db/schema.ts
-  M  apps/jobradar/lib/kbo/spiegel.ts
+  M  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
+  M  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
+  A  apps/jobradar/components/ContactPanel.tsx
+  A  apps/jobradar/components/ContactTimeline.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

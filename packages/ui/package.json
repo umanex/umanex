@@ -28,6 +28,7 @@
     "./components/ui/tabs": "./components/ui/tabs.tsx",
     "./components/ui/slider": "./components/ui/slider.tsx",
     "./components/ui/tooltip": "./components/ui/tooltip.tsx",
+    "./components/ui/sheet": "./components/ui/sheet.tsx",
     "./components/ui/theme-toggle": "./components/ui/ThemeToggle.tsx"
   },
   "peerDependencies": {
@@ -36,6 +37,7 @@
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-dropdown-menu": "^2.1.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-separator": "^1.1.0",

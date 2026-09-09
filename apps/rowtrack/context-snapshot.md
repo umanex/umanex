@@ -73,24 +73,21 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c195a96 chore(rowtrack): spec, manifest, geometry and ratchets after the screens round
 f681424 feat(rowtrack): a render path for the seven routes that had no story
 7209f3d feat(rowtrack): every component with variant axes now declares which variant it is
 3dbc9d9 fix(rowtrack): the depth cap counted a different unit than it cut
 7571740 fix(rowtrack): the 42 screen differences are gone, fixed at the source
-ce2eba0 feat(rowtrack): the screens are exported to RowTrack - Design as library instances
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/components/GoalSheet.stories.tsx
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/geometry.schermen.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/library-component-keys.json
-  M  apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/figma/niet-reproduceerbaar.json
+  M  apps/rowtrack/context-snapshot.md
+  M  packages/ui/CLAUDE.md
+  A  packages/ui/components/ui/sheet.stories.tsx
+  A  packages/ui/components/ui/sheet.tsx
+  M  packages/ui/figma/geometry.code.json
+  M  packages/ui/figma/manifest.json
+  M  packages/ui/package.json
 
 ## Bestanden met TODO/FIXME
   (geen)

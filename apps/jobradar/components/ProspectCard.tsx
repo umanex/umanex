@@ -6,6 +6,7 @@ import { Badge } from '@umanex/ui/components/ui/badge'
 import { cn } from '@umanex/ui/lib/utils'
 import { focusRing } from '@umanex/ui/lib/focus'
 import { StatusDropdown } from './StatusDropdown'
+import { NextActionBadge } from './NextActionBadge'
 import { NACE_LABEL, leeftijdInJaren } from '@/lib/kbo/universum'
 import type { ItemStatus } from '@/lib/db/schema'
 
@@ -28,6 +29,8 @@ export type Prospect = {
   multiple: number | null
   ondernemingswaarde: number | null
   eigenVermogen: number | null
+  actieDatum: string | null
+  actieOmschrijving: string | null
 }
 
 type ProspectCardProps = {
@@ -36,6 +39,8 @@ type ProspectCardProps = {
   heeftVacatures: boolean
   vandaag: string
   onStatusChange: (status: ItemStatus) => void
+  /** Opent de contacthistoriek van dit bedrijf. */
+  onOpvolging: () => void
 }
 
 /**
@@ -66,7 +71,13 @@ function metPunten(nummer: string): string {
  * 6% die er een heeft. Bewust geen scorepil: een getal suggereert een rangschikking die de
  * data niet draagt.
  */
-export function ProspectCard({ prospect, heeftVacatures, vandaag, onStatusChange }: ProspectCardProps) {
+export function ProspectCard({
+  prospect,
+  heeftVacatures,
+  vandaag,
+  onStatusChange,
+  onOpvolging,
+}: ProspectCardProps) {
   const codes = (prospect.codes ?? '').split(',').filter(Boolean)
   const jaren = leeftijdInJaren(prospect.opgericht, vandaag)
   const jaartal = prospect.opgericht?.slice(0, 4) ?? null
@@ -157,12 +168,26 @@ export function ProspectCard({ prospect, heeftVacatures, vandaag, onStatusChange
             </a>
           )}
         </div>
-        <div className="mt-2 border-t pt-2">
+        <div className="mt-2 flex items-center justify-between gap-2 border-t pt-2">
           <StatusDropdown
             endpoint={`/api/prospects/${prospect.nummer}`}
             status={prospect.status}
             onStatusChange={onStatusChange}
           />
+          <span className="flex items-center gap-2">
+            <NextActionBadge
+              datum={prospect.actieDatum}
+              omschrijving={prospect.actieOmschrijving}
+              vandaag={vandaag}
+            />
+            <button
+              type="button"
+              onClick={onOpvolging}
+              className={cn('rounded-md border px-2 py-1 text-2xs', focusRing)}
+            >
+              Opvolging
+            </button>
+          </span>
         </div>
       </CardContent>
     </Card>

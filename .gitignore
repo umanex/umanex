@@ -4,6 +4,7 @@ node_modules
 # Build outputs
 .next
 .next-harness
+.next-dev
 .turbo
 dist
 storybook-static

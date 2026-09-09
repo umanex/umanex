@@ -60,6 +60,10 @@ export const SCHEMA_DDL = `
   CREATE TABLE IF NOT EXISTS prospect_status (
     enterprise_number TEXT PRIMARY KEY,
     status TEXT NOT NULL DEFAULT 'new',
+    -- Dezelfde rem als op companies. Zonder deze kolom zou de opt-out-controle bij het
+    -- vastleggen van een contactmoment stil alleen voor leads gelden, en dat is precies
+    -- een guard die compleet lijkt en het niet is.
+    opt_out INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT NOT NULL
   );
 
@@ -86,6 +90,56 @@ export const SCHEMA_DDL = `
   -- Sorteren op omvang is de reden dat deze bron bestaat; zonder index betaalt elke
   -- pagina een volledige scan over de tabel.
   CREATE INDEX IF NOT EXISTS csv_prospects_employee_idx ON csv_prospects (employee_count);
+
+  -- Contactmomenten. De sleutel is bewust samengesteld en niet het ondernemingsnummer:
+  -- de companies-tabel draagt geen nummer-kolom, de KBO-koppeling gebeurt bij het renderen, en
+  -- daarvan zijn 12 van de 27 leads gekoppeld en 15 niet gevonden — één van die twaalf
+  -- naar een tandartspraktijk. Alles op het nummer sleutelen verliest dus stil 15 leads
+  -- en hangt één historiek aan het verkeerde bedrijf.
+  --
+  -- rechtsgrond staat op het moment zelf en niet alleen op het bedrijf: die kan later
+  -- wijzigen, en een register wil weten op welke grond je tóén contacteerde.
+  CREATE TABLE IF NOT EXISTS contact_moments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_type TEXT NOT NULL,
+    subject_key TEXT NOT NULL,
+    datum TEXT NOT NULL,
+    kanaal TEXT NOT NULL,
+    notitie TEXT,
+    rechtsgrond TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS contact_moments_subject_idx
+    ON contact_moments (subject_type, subject_key, datum DESC);
+
+  -- Eén volgende actie per bedrijf, niet meerdere: dit veld bestaat om de lijst te
+  -- sorteren, en twee open acties maken die sleutel dubbelzinnig.
+  CREATE TABLE IF NOT EXISTS next_actions (
+    subject_type TEXT NOT NULL,
+    subject_key TEXT NOT NULL,
+    datum TEXT NOT NULL,
+    omschrijving TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (subject_type, subject_key)
+  );
+
+  -- Coordinaten per onderneming. KBO levert adressen maar geen lat/lon, dus die worden
+  -- eenmalig opgehaald en hier bewaard. In jobradar.db en niet in de spiegel: die wordt bij
+  -- elke --full overschreven, en een geocode-run kost tijd en het geduld van een publieke
+  -- dienst -- dat gooi je niet weg bij een sync.
+  --
+  -- mislukt_reden is niet hetzelfde als een ontbrekende rij: "niet gevonden" is een
+  -- uitkomst die je wilt bewaren, anders vraagt elke volgende run hem opnieuw op.
+  CREATE TABLE IF NOT EXISTS geocode_cache (
+    enterprise_number TEXT PRIMARY KEY,
+    lat REAL,
+    lon REAL,
+    precisie TEXT,
+    bron TEXT NOT NULL,
+    opgehaald_at TEXT NOT NULL,
+    mislukt_reden TEXT
+  );
 
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
@@ -130,5 +184,11 @@ export function pasKolomMigratiesToe(sqlite: {
   }
   for (const kolom of ['vacature_aantal', 'design_vacatures', 'dev_vacatures']) {
     if (!companyCols.includes(kolom)) sqlite.exec(`ALTER TABLE companies ADD COLUMN ${kolom} INTEGER`)
+  }
+
+  // `prospect_status` bestond vóór deze kolom, dus een bestaande database krijgt hem hier.
+  const prospectCols = kolommen('prospect_status')
+  if (prospectCols.length && !prospectCols.includes('opt_out')) {
+    sqlite.exec('ALTER TABLE prospect_status ADD COLUMN opt_out INTEGER NOT NULL DEFAULT 0')
   }
 }
