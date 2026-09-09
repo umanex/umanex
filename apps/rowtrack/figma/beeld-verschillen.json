@@ -9,17 +9,17 @@
    "story": "componenten-workoutdetailscreen--zonder-hartslag",
    "W": 430,
    "H": 932,
-   "zicht": 33.55,
-   "grof": 7.27,
-   "heet": 420,
+   "zicht": 33.31,
+   "grof": 6.97,
+   "heet": 419,
    "blokken": 1034,
    "plaatsen": [
     "40,40",
     "60,40",
-    "100,40",
     "120,40",
-    "140,40",
-    "160,40"
+    "160,40",
+    "60,60",
+    "0,80"
    ],
    "iconenGemaskeerd": 1
   },
@@ -28,9 +28,9 @@
    "story": "componenten-historyscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 12.58,
-   "grof": 6.79,
-   "heet": 181,
+   "zicht": 11.42,
+   "grof": 6.62,
+   "heet": 183,
    "blokken": 1034,
    "plaatsen": [
     "0,20",
@@ -47,17 +47,17 @@
    "story": "componenten-workoutdetailscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 32.55,
-   "grof": 6.62,
+   "zicht": 32.3,
+   "grof": 6.31,
    "heet": 401,
    "blokken": 1034,
    "plaatsen": [
     "40,40",
     "60,40",
-    "100,40",
     "120,40",
-    "140,40",
-    "160,40"
+    "160,40",
+    "360,40",
+    "380,40"
    ],
    "iconenGemaskeerd": 1
   },
@@ -66,17 +66,17 @@
    "story": "componenten-activephase--doel-bereikt",
    "W": 430,
    "H": 932,
-   "zicht": 9.07,
-   "grof": 5.76,
-   "heet": 106,
+   "zicht": 9.09,
+   "grof": 5.72,
+   "heet": 113,
    "blokken": 1034,
    "plaatsen": [
-    "40,0",
-    "240,0",
+    "200,20",
+    "400,20",
     "100,40",
     "120,40",
-    "120,180",
-    "120,200"
+    "240,160",
+    "60,180"
    ],
    "iconenGemaskeerd": 2
   },
@@ -85,17 +85,17 @@
    "story": "componenten-forgotpasswordscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 5.43,
-   "grof": 4.9,
-   "heet": 103,
+   "zicht": 5.31,
+   "grof": 4.75,
+   "heet": 102,
    "blokken": 1034,
    "plaatsen": [
-    "20,320",
     "40,320",
     "60,320",
     "80,320",
     "100,320",
-    "120,320"
+    "120,320",
+    "140,320"
    ],
    "iconenGemaskeerd": 0
   },
@@ -104,9 +104,9 @@
    "story": "componenten-historyscreen--een-record",
    "W": 430,
    "H": 932,
-   "zicht": 10.11,
-   "grof": 4.84,
-   "heet": 143,
+   "zicht": 8.96,
+   "grof": 4.67,
+   "heet": 144,
    "blokken": 1034,
    "plaatsen": [
     "0,20",
@@ -123,17 +123,17 @@
    "story": "componenten-registerscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 5.53,
-   "grof": 4.69,
-   "heet": 102,
+   "zicht": 5.72,
+   "grof": 4.53,
+   "heet": 104,
    "blokken": 1034,
    "plaatsen": [
-    "20,240",
     "40,240",
     "60,240",
     "80,240",
     "100,240",
-    "120,240"
+    "120,240",
+    "140,240"
    ],
    "iconenGemaskeerd": 2
   },
@@ -142,9 +142,9 @@
    "story": "componenten-historyscreen--leeg",
    "W": 430,
    "H": 932,
-   "zicht": 9.39,
-   "grof": 4.16,
-   "heet": 126,
+   "zicht": 8.22,
+   "grof": 3.97,
+   "heet": 125,
    "blokken": 1034,
    "plaatsen": [
     "0,20",
@@ -176,25 +176,6 @@
    "iconenGemaskeerd": 1
   },
   {
-   "bestand": "LoginScreen__Playground.figma.png",
-   "story": "componenten-loginscreen--playground",
-   "W": 430,
-   "H": 932,
-   "zicht": 4.84,
-   "grof": 3.29,
-   "heet": 57,
-   "blokken": 1034,
-   "plaatsen": [
-    "120,260",
-    "200,260",
-    "20,280",
-    "40,280",
-    "60,280",
-    "80,280"
-   ],
-   "iconenGemaskeerd": 1
-  },
-  {
    "bestand": "ActivePhase__Playground.figma.png",
    "story": "componenten-activephase--playground",
    "W": 430,
@@ -210,6 +191,25 @@
     "320,40",
     "120,200",
     "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "LoginScreen__Playground.figma.png",
+   "story": "componenten-loginscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.67,
+   "grof": 3.01,
+   "heet": 48,
+   "blokken": 1034,
+   "plaatsen": [
+    "120,260",
+    "200,260",
+    "280,260",
+    "120,280",
+    "140,280",
+    "160,280"
    ],
    "iconenGemaskeerd": 1
   },
@@ -309,25 +309,6 @@
    "iconenGemaskeerd": 9
   },
   {
-   "bestand": "IdlePhase__Toestel-Keuze.figma.png",
-   "story": "componenten-idlephase--toestel-keuze",
-   "W": 430,
-   "H": 932,
-   "zicht": 4.27,
-   "grof": 2.23,
-   "heet": 64,
-   "blokken": 1034,
-   "plaatsen": [
-    "60,180",
-    "80,180",
-    "100,180",
-    "120,180",
-    "140,180",
-    "40,240"
-   ],
-   "iconenGemaskeerd": 11
-  },
-  {
    "bestand": "ActivePhase__Samenvatting.figma.png",
    "story": "componenten-activephase--samenvatting",
    "W": 430,
@@ -347,13 +328,32 @@
    "iconenGemaskeerd": 2
   },
   {
+   "bestand": "IdlePhase__Toestel-Keuze.figma.png",
+   "story": "componenten-idlephase--toestel-keuze",
+   "W": 430,
+   "H": 932,
+   "zicht": 3.92,
+   "grof": 1.89,
+   "heet": 58,
+   "blokken": 1034,
+   "plaatsen": [
+    "60,180",
+    "80,180",
+    "100,180",
+    "120,180",
+    "140,180",
+    "40,240"
+   ],
+   "iconenGemaskeerd": 11
+  },
+  {
    "bestand": "ProfileScreen__Playground.figma.png",
    "story": "componenten-profilescreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 3.49,
-   "grof": 1.94,
-   "heet": 57,
+   "zicht": 3.36,
+   "grof": 1.79,
+   "heet": 48,
    "blokken": 1034,
    "plaatsen": [
     "40,100",
@@ -370,9 +370,9 @@
    "story": "componenten-profilescreen--zonder-gewicht",
    "W": 430,
    "H": 932,
-   "zicht": 3.49,
-   "grof": 1.94,
-   "heet": 57,
+   "zicht": 3.36,
+   "grof": 1.79,
+   "heet": 48,
    "blokken": 1034,
    "plaatsen": [
     "40,100",
@@ -389,9 +389,9 @@
    "story": "componenten-profilescreen--onvolledig",
    "W": 430,
    "H": 932,
-   "zicht": 3.44,
-   "grof": 1.91,
-   "heet": 57,
+   "zicht": 3.31,
+   "grof": 1.76,
+   "heet": 48,
    "blokken": 1034,
    "plaatsen": [
     "40,100",
@@ -408,17 +408,17 @@
    "story": "componenten-workoutdetailscreen--niet-gevonden",
    "W": 430,
    "H": 932,
-   "zicht": 0.47,
-   "grof": 0.34,
-   "heet": 7,
+   "zicht": 0.46,
+   "grof": 0.36,
+   "heet": 6,
    "blokken": 1034,
    "plaatsen": [
-    "100,540",
+    "120,540",
     "140,540",
     "160,540",
     "200,540",
     "240,540",
-    "260,540"
+    "300,540"
    ],
    "iconenGemaskeerd": 2
   },
