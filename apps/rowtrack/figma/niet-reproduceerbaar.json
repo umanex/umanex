@@ -1,8 +1,8 @@
 {
  "$comment": "GEGENEREERD door scripts/instabiele-nodes.mjs — twee walker-runs, node voor node op boompad. Deze nodes hebben per meetmoment een andere maat (roterende spinner, gerandomiseerde confetti) en kunnen dus door geen enkele statische vergelijking gemeten worden. NIET met de hand aanvullen: een echte afwijking hoort hier niet in te kunnen verdwijnen.",
  "gegenereerd": "2026-09-09",
- "bezocht": 4123,
- "gemeten": 308,
+ "bezocht": 4142,
+ "gemeten": 324,
  "instabiel": 328,
  "perNaam": {
   "spinnerBox": 81,

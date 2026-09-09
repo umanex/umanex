@@ -186,6 +186,40 @@ herbouwd (1,4 tot 5,5 s per scherm), schermgeometrie vers, `parity` 0, 24 beelde
 - [x] De twaalf instance-frames dalen na de publicatie — bewijs: `beeld-verschillen.json` na de herbouw van 2026-09-09 (avond): ActivePhase Landscape 3,36 → 2,96, Samenvatting 2,00 → 1,66, Playground 3,04 → 2,82, Zonder Hartslagband 2,96 → 2,74, Doel Afstand 2,91 → 2,86, IdlePhase ×3 −0,02 tot −0,04; ResetPassword ×2 al op de vloer; Doel Bereikt +0,12 door de gerandomiseerde confetti. Tegen het origineel: 16 beter, 7 gelijk, 1 slechter; som grof 77,82 → 74,10
 - [x] Geen wees-property in de library — bewijs: `figma:check` `[eigenschappen]` 36 tekst-properties over 22 componenten, elk met een node; 73 verwijderd door de herbouw, nameting in Figma 0 zonder node, 0 dubbele stammen; alle 45 op `CURRENT`
 
+### Acceptatie tweede ronde (E, G, L, J, C, F)
+
+- [x] Een marge die Figma kan uitdrukken verdwijnt niet meer — bewijs: WorkoutDetail/Playground
+      telt 84+28+54+682+84 = 932 in een frame van 932; vóór de fix 904
+- [x] Wat Figma NIET kan uitdrukken wordt gemeld, niet verzwegen — bewijs: 17 ouders met
+      `margeRest`, meldingsoort `marge-zonder-equivalent`, `figma:poort:selftest` 30/30 (elke
+      meldingsplek heeft een soort en elke soort een plek)
+- [x] Een invoerveld draagt zijn placeholder — bewijs: 8 veldnodes in de spec, 2 leeg,
+      kleur `Theme:fg/tertiary`
+- [x] Inline tekst naast een kind blijft staan — bewijs: 3 nodes met eigen tekst én kinderen,
+      alle drie met scheider (Login, Register, Forgot)
+- [x] De randvorm reist per zijde — bewijs: spec 243 nodes met rand, 77 asymmetrisch, vormen
+      `0/0/1/0` (55) en `1/0/1/0` (22); DOM-controle vóór de bouw 333/138 in dezelfde twee vormen
+- [x] Een verschil op één randzijde wordt rood — bewijs: `parity --selftest` geval
+      "randbreedte op één zijde": `ErrorState[size=sm]>4:Button randbreedte (onder): browser
+      1/1/1/1 tegen Figma 1/1/4/1`; het geval zoekt eerst een node MÉT rand
+- [x] De schema-poort dekt béide geometriebestanden — bewijs: `parity --selftest`, schermbestand
+      op schema 2 → exit 2 met een klacht over dát bestand, op schema 3 → erdoor
+- [x] Geen instance toont nog de data van een ander scherm — bewijs: `figma:instance-tekst`
+      0 stil / 37 terugval, ratel op 0; vóór de ronde 23
+- [x] De slot-as kan zijn eigen defect opwekken — bewijs: `instance-tekst --selftest` 6/6, met
+      "het defect is opgewekt 0 → 21" en "hetzelfde slot terug → exact terug op de basislijn"
+- [x] Geen afgeleide slotnaam botst op zijn stam — bewijs: 60 slots over 27 componenten,
+      0 stam-botsingen onder `k.split('#')[0].replace(/\d+$/, '')`; `figma:check`
+      `[eigenschappen]` groen
+- [x] Een gerolde container toont waar hij staat — bewijs: 9 containers, kind-offset exact
+      −scrollTop (GoalSheet −950, 4× WheelPicker −150, IdlePhase −250/−450), alle negen `abs`
+      en knippend
+- [x] Alle offline assen groen — bewijs: `figma:check` 14/14 · `figma:check:selftest` 47/47 ·
+      `figma:poort:selftest` 30/30 · `parity --selftest` 9/9 · `instance-tekst --selftest` 6/6
+- [ ] De Figma-kant is herbouwd en parity + beeld staan op nul — **niet uitgevoerd**: de Desktop
+      Bridge stond uit. Dit is de helft van de ronde die alleen op de runtime te bewijzen is;
+      zie *Wat deze ronde NIET bewijst* hierboven
+
 ## Een component bijwerken — Figma beslist, code bewaart
 
 Besluit Jeroen, 2026-09-09. Code blijft het bestand dat de app bouwt; de **wijziging** wordt in
@@ -205,6 +239,59 @@ Figma gemaakt en gaat zo rond:
 Een bewerking die 3 en 4 overslaat, overleeft de volgende herbouw niet. Dat was het risico uit
 HANDOFF 2026-09-08; het is nu de tegenproef.
 
+## De tweede ronde — E, G, L, J, C, F
+
+De zes klassen die na A, B en I overbleven, gebouwd **per laag en niet per klasse**: E, G en L
+raken allemaal het walker/pruner-paar, J en F allebei de builder plus een uitleesrecept, en C
+staat op zichzelf in de pruner. Twee commits, één spec-herbouw per laag.
+
+| # | Wat er gebouwd is | Gemeten ná |
+|---|---|---|
+| L | Walker meet `margin`; pruner vouwt hem in de gap of de padding van de ouder, zet een spacer waar alleen een middenkind hem draagt, en geeft wat Figma niet kan (negatief, kruis-as) als `margeRest` aan de builder — een benoemde melding in plaats van stilte. Spacers vallen buiten de noemer van de laagnaam-as: ze hebben geen codenaam om tegen gemeten te worden. | 18 spacers · 17 ouders met een onvertaalbare rest · WorkoutDetail/Playground sluit: 84+28+54+682+84 = **932** in een frame van 932 (was 904) |
+| G | Walker leest `value`-of-`placeholder` op `<input>`/`<textarea>`, met de placeholderkleur uit `--placeholderTextColor`, `::placeholder` of de eigen kleur, in die volgorde; de builder pint de tekstdoos in plaats van hem te laten huggen. | 8 veldnodes, 2 leeg |
+| E | De eigen tekstrun van een node met elementkinderen blijft behouden, inclusief witruimte tussen twee elementen. | 3 nodes (Login, Register, Forgot), alle drie met scheider |
+| J | Walker meet vier zijden; pruner draagt `borderZijden` alleen als ze verschillen; builder zet `strokeTopWeight` c.s. ná `strokeWeight` — die laatste zet de vier terug. Uitleesschema naar **3**: index 5 draagt vier breedtes. `isDoorvoer` toetst nu élke zijde, want een node met alleen `border-bottom` viel eerst als doorvoer-wrapper weg mét zijn rand. | DOM, alle 257 stories: 333 nodes met rand, **138 asymmetrisch** in twee vormen (99× `0/0/1/0`, 39× `1/0/1/0`), **0** met meer dan één kleur. Spec ná: 243 / 77 |
+| C | `markeerAfgeleideSlots` in de pruner: een pad waar twee **schermvoorkomens** van hetzelfde component andere tekst tonen, is data en krijgt een slot. Dwars door geneste componentgrenzen, want in de library is een genest component gewoon een frame. | **23 stille teksten → 0**; 27 componenten, 60 slots, 0 stam-botsingen |
+| F | `clipsContent` volgt `overflow`. Een gerolde container laat zijn auto-layout vallen: de kinderen dragen de rolling al in hun gemeten offset, dus absolute plaatsing plus knippen is de hele fix — en dat kost geen extra wrapper die `kinderparen()` als vierde syntheseregel zou moeten kennen. | 393 knippende nodes · 9 gerolde containers, kind-offset **exact** −scrollTop in alle negen |
+
+**Drie dingen die de meting anders besliste dan de redenering.**
+
+*De randen hebben geen kleurprobleem.* Het plan droeg een `randRest`-tak voor kleuren per zijde,
+naar het model van `margeRest`. De meting vóór de bouw telde 0 van 333 nodes met meer dan één
+kleur op hun gezette zijden, dus die tak verviel — maar niet helemaal: nul is een meting van
+vandaag, geen eigenschap, dus de builder meldt het als het verandert. Zonder die meting was er
+een tak gebouwd voor een geval dat niet bestaat, én was `randKleurRest` er niet geweest voor het
+geval dat morgen wel bestaat.
+
+*Slots afleiden uit varianten is de verkeerde bron, en dat is te zien.* Met de varianten erbij
+kreeg WheelPicker **32** slots, één per wielrij — een component dat in de schermen portaleert en
+dus nul instances heeft. Een variant is een stijl-as; zijn tekst is per ontwerp constant. De
+bovengrens van twaalf staat er sindsdien als luide weigering: liever niets doen dan stil een
+onbruikbare library bouwen.
+
+*Een tegenproef die het defect zoekt, verdwijnt met het defect.* De zelftest van
+`instance-tekst` had een kant die een bestaand stil geval repareerde. Toen die op nul kwam,
+meldde hij `XX er is een stil geval om te muteren` en was de as onbewijsbaar. Hij **maakt** het
+defect nu zelf — slot weg, 0 → 21; hetzelfde slot terug, 21 → 0 — en de tweede hendel staat
+bewust op een ánder component.
+
+**De schema-poort dekte één van de twee bestanden.** `geometry-parity.mjs` las `fig.schema` en
+voegde `geometry.schermen.json` in zónder diens schema ooit te lezen. Een schermbestand van een
+ouder schema reisde dus mee met de codering van een nieuwer, zonder één woord — precies de vorm
+die deze as hoort te betrappen: twee bronnen, één controle. De poort staat nu vóór het
+samenvoegen, toetst wat hij samenvoegt, en de zelftest draait hem in een apart proces op beide
+kanten (een verouderd schermbestand wordt geweigerd, een actueel komt erdoor). Zonder die tweede
+kant is een poort die altijd weigert niet te onderscheiden van een poort die weigert om de
+juiste reden.
+
+**Wat deze ronde NIET bewijst.** De Desktop Bridge stond uit, dus er is geen Figma-herbouw, geen
+vers manifest, geen verse geometrie en geen beeldronde. Alles hierboven is gemeten op de spec en
+op de DOM. Twee dingen wachten daarom expliciet op de runtime: de toewijzing van de losse
+`strokeTopWeight`-velden (de builder meldt een weigering luid in plaats van stil een volle doos
+te zetten) en of `clipsContent = true` op 393 nodes de beeld-as niet juist omhoog duwt — Figma
+meet dezelfde tekst breder dan Chromium, en waar de browser overloopt zal Figma voortaan
+afkappen. Dat is de eerlijke transcriptie, maar het is een verandering die het beeld kan raken.
+
 ## Waar de lessen landen
 
 | Les | Plaats |
@@ -216,6 +303,11 @@ HANDOFF 2026-09-08; het is nu de tegenproef.
 | Storybook is de aangenomen waarheid | toestel-ronde-item, rij 6 |
 | De keten hoort ooit hoger, op de trigger | `BACKLOG.md` (root), extractie-item |
 | Stories zijn het variantmodel (D) | kandidaat-promotie naar `nieuw-component`, niet gedaan |
+| Een slot leid je af uit VOORKOMENS, nooit uit varianten — een variant is een stijl-as | `scripts/figma-build-prune.mjs` `markeerAfgeleideSlots` · `code-naar-figma/SKILL.md` |
+| `figma.mixed` op `strokeWeight` wordt `null`, en `null` komt door élke vergelijking | `apps/rowtrack/CLAUDE.md` eigenaardigheid 11 · geometrieschema 3 |
+| Een poort die twee bronnen samenvoegt, toetst er meestal één | `scripts/geometry-parity.mjs` `toetsSchema` + zelftest op beide kanten |
+| Een tegenproef die het defect ZOEKT verdwijnt met het defect; laat hem het defect MAKEN | `scripts/instance-tekst.mjs --selftest` · `verify`-skill, rail tegenproef |
+| Een blindevlek-teller die een gedicht gat blijft tellen, is een vals alarm | `scripts/walker-blindvlekken.mjs` as `randkleur` mét positieve controle `metRand` |
 
 ## Beslissingsgeschiedenis
 

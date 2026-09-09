@@ -40,6 +40,18 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 <!-- De sessie-reflectie skill voegt hieronder de juiste laag-header toe bij de eerste entry. -->
 # Project — rowtrack
 
+## 2026-09-09 — De halve verschilklassen-ronde: zes klassen gebouwd, geen enkele in Figma bewezen · [risico]
+- **Bevinding:** E, G, L, J, C en F staan in de keten en zijn offline gemeten, maar de Desktop Bridge stond uit, dus er is geen herbouw, geen vers manifest, geen verse geometrie en geen beeldronde. Twee dingen hangen daaraan die alleen de runtime kan beantwoorden: of `strokeTopWeight` c.s. zich op een frame laten zetten zoals de builder aanneemt, en of `clipsContent = true` op 393 nodes de beeld-as niet juist omhoog duwt — Figma meet dezelfde tekst breder dan Chromium, dus waar de browser overloopt zal Figma voortaan afkappen.
+- **Check:** `node -e 'const g=require("./figma/geometry.figma.json"); console.log(g.schema, g.gegenereerd)'` in `apps/rowtrack` — schema 2 of een datum vóór 2026-09-09 betekent dat de Figma-kant nog niet opnieuw gelezen is, en dan zijn `parity` én `beeld` blind: ze leggen de nieuwe spec naast een oude lezing. `pnpm --filter rowtrack parity` weigert dat sinds vandaag met exit 2 in plaats van stil groen te staan.
+- **Volgende zet:** Bridge aan in **RowTrack -  Design System** → `figma/voorverwarm-imports.js` tot `resterend` 0 → library herbouwen → manifest verversen (schema-3-recept) → `figma:check` → geometrie uitlezen (schema 3) → `parity`. Daarna hetzelfde in **RowTrack - Design** voor de 24 schermframes, en `beeld`. Let op de volgorde uit `CLAUDE.md`: eerst het manifest, dan pas `figma:links` en `figma:check`; en commit het manifest niet vóór de spec, anders valt de `[publicatie]`-as om.
+- **Status:** open
+
+## 2026-09-09 — De opvouwregel rekent nu per zijde, en niets kan dat vandaag tegenspreken · [aanname]
+- **Bevinding:** `bedektPredikaat` gebruikt de randbreedte als inzet van de content-box. Sinds klasse J is `n.border` het MAXIMUM van vier zijden, wat voor `0/0/1/0` de doos aan alle vier de kanten ruimer zou maken dan ze is; de regel rekent daarom per zijde, op alle drie zijn kopieën (`spec-boom.mjs`, `builder.js` 2×). Dat is meetkundig juist, maar het is niet gevalideerd op een verschil in de uitvoer: boven-only, maximum en per-zijde geven alle drie 64 opgevouwen kinderen, en dat komt doordat **0 van de 77 asymmetrische nodes een absoluut vullingskind heeft**. Gelijke uitkomsten zijn hier dus geen bevestiging maar de mededeling dat het geval niet voorkomt.
+- **Check:** `node -e 'const m=require("./figma/build-spec.min.json"); let a=0,b=0; const l=n=>{if(n.borderZijden){a++; if((n.k??[]).some(k=>k.abs&&!k.k&&!k.t&&(k.grad||k.bg)))b++;}(n.k??[]).forEach(l)}; for(const d of Object.values(m.componenten))for(const v of d.varianten)l(v.boom); for(const d of Object.values(m.schermen))for(const f of d.frames)l(f.boom); console.log(a,b)'` in `apps/rowtrack` — het tweede getal boven 0 betekent dat het geval is gaan voorkomen en dat de regel eindelijk toetsbaar is.
+- **Volgende zet:** Niets tot de check vuurt. Vuurt hij, zet dan de drie definities naast elkaar op dat ene component vóór je iets wijzigt.
+- **Status:** open
+
 ## 2026-08-16 — Twee calorieformules die elkaar kruisen, en de erg-waarde wordt weggegooid · [onzekerheid]
 - **Bevinding:** De app rekent calorieën zelf uit en negeert het kcal-veld dat de erg meestuurt.
   Beide formules zijn nu uit de rauwe pakketten van twee volledige trainingen gereconstrueerd.

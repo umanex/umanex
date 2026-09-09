@@ -73,22 +73,22 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+053de55 feat(rowtrack): carry per-side borders, derived slots and scroll into Figma
 ce0b54b feat(rowtrack): carry margins, input fields and inline text into the build spec
 9563112 chore(rowtrack): Figma artefacts after the type-style fix, and the image axis has a blind spot
 99b0234 fix(rowtrack): three of the four type gaps close at the source, not in the ratchet
 5cbca71 docs(rowtrack): the obvious slot diff covers none of the 23, and the rest wants one round per layer
-5d0a177 chore(rowtrack): Figma artefacts after the tracking fix
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/LEARNINGS.md
+  M  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
   M  apps/rowtrack/figma/build-spec.min.json
   M  apps/rowtrack/figma/builder.js
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/geometry-parity.mjs
-  M  apps/rowtrack/scripts/instance-tekst.mjs
-  M  apps/rowtrack/scripts/walker-blindvlekken.mjs
+  M  apps/rowtrack/figma/niet-reproduceerbaar.json
+  M  apps/rowtrack/scripts/spec-boom.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
