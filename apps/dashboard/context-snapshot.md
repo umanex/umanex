@@ -38,6 +38,7 @@ c8672e2 fix(dashboard): give next dev its own dist dir and port
 ```
 
 ## Uncommitted wijzigingen
+  M  apps/dashboard/context-snapshot.md
   M  apps/dashboard/tsconfig.json
 
 ## Bestanden met TODO/FIXME

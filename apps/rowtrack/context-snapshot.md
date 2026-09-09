@@ -73,16 +73,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+ac9db56 docs(rowtrack): write down the sweep flakiness the previous commit claimed to have written down
+f0b404c fix(rowtrack): the render sweep was flaky at its tail, and it failed the last stories
 01642b8 Merge remote-tracking branch 'origin/main' into feature/rowtrack-autolayout-beeld
 224430f docs(rowtrack): the node ids survive a rebuild now, so the deep links do too
 df1e0fe feat(rowtrack): update components instead of replacing them, and complete the alignment family
-5588c4e refactor(rowtrack): één babel-plugin in de optimizer in plaats van vier compensaties
-267bd8e feat(rowtrack): auto-layout is now the default, and an image axis to prove it
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/HANDOFF.md
-   M apps/rowtrack/scripts/render-sweep.mjs
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)
