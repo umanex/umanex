@@ -19,6 +19,7 @@ import { join } from 'node:path'
 import { csvRijen, csvObjecten, kboDatum, kboNummer } from '../lib/kbo/csv'
 import Database from 'better-sqlite3'
 import { schoneStraat } from '../lib/kbo/adres'
+import { ALL_REGIONS } from '../lib/regions'
 import {
   bouwNaamIndex,
   koppelSleutel,
@@ -29,9 +30,12 @@ import {
 import {
   bouwProspectSql,
   bouwZonderKboSql,
+  filterQuery,
+  leesFilter,
   leeftijdInJaren,
   NACE_VERSIE,
   type ProspectFilter,
+  type UiFilter,
   NACE_LABEL,
   PROSPECT_NACE,
   PAGINA_GROOTTE,
@@ -355,6 +359,37 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
       String(tel({ herkomst: 'beide', alleenWinstgevend: true }))
     )
 
+    // ── De nummers-projectie, waarop de kaart draait ─────────────────────────
+    // Gedragsmatig en niet op de string: `{ nummers: true }` bestaat om de kaart dezelfde
+    // selectie te geven als de lijst, dus de enige zinvolle toets is dat hij per
+    // filterstand exact de rijen oplevert die de telling telt. Een string-check op
+    // `SELECT e.EnterpriseNumber` zou groen blijven als de WHERE eronder wegviel.
+    const nummersVan = (f: Partial<ProspectFilter>) => {
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], ...f }, { nummers: true })
+      return (db.prepare(q.sql).all(...(q.params as never[])) as { nummer: string }[]).map((r) => r.nummer)
+    }
+    for (const f of [
+      { herkomst: 'kbo' as const },
+      { herkomst: 'csv' as const },
+      { herkomst: 'beide' as const },
+      { herkomst: 'beide' as const, alleenWinstgevend: true },
+      { regions: [] },
+    ]) {
+      const n = nummersVan(f)
+      const t = tel(f)
+      check(
+        `nummers-projectie levert precies wat de telling telt (${JSON.stringify(f)})`,
+        n.length === t,
+        `${n.length} rijen vs telling ${t}`
+      )
+    }
+    check('de nummers-projectie pagineert niet', !/LIMIT/.test(bouwProspectSql({ ...basis, regions: ['WVL'] }, { nummers: true }).sql))
+    check(
+      'en levert de nummers zelf, niet een telling',
+      nummersVan({ herkomst: 'csv' }).every((nr) => /^\d{10}$/.test(nr)),
+      nummersVan({ herkomst: 'csv' }).join(',')
+    )
+
     const winst = bouwProspectSql({ ...basis, regions: ['WVL'], alleenWinstgevend: true })
     const geenWinst = bouwProspectSql({ ...basis, regions: ['WVL'], alleenWinstgevend: false })
     check(
@@ -661,6 +696,44 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
   check('en verdubbelt de tabel niet', totaal === gebouwd, `${totaal}`)
 
   db.close()
+}
+
+// ── Eén filterstand voor lijst én kaart ──────────────────────────────────────
+// `filterQuery` (client) en `leesFilter` (server) zijn samen één declaratie. Ze moeten
+// elkaars inverse zijn: wat de UI verstuurt, moet de route terugkrijgen. Tot 2026-09-09
+// waren het twee losse plekken en las `/api/kaart` er geen enkele van — de kaart bleef
+// daardoor op al zijn punten staan bij elke filterkeuze.
+{
+  const standen: UiFilter[] = [
+    { regions: [...ALL_REGIONS], zoek: '', alleenWerkgevers: true, herkomst: 'beide', alleenWinstgevend: false },
+    { regions: ['WVL'], zoek: 'studio', alleenWerkgevers: false, herkomst: 'csv', alleenWinstgevend: true },
+    { regions: ['OVL', 'BRU'], zoek: '  spaties  ', alleenWerkgevers: true, herkomst: 'kbo', alleenWinstgevend: false },
+    { regions: [], zoek: '', alleenWerkgevers: false, herkomst: 'beide', alleenWinstgevend: true },
+  ]
+  for (const stand of standen) {
+    const terug = leesFilter(filterQuery(stand))
+    const verwachteRegios = stand.regions.length ? stand.regions : [...ALL_REGIONS]
+    check(
+      `filterstand overleeft de querystring (${stand.herkomst}, ${stand.regions.join('+') || 'geen regio'})`,
+      terug.herkomst === stand.herkomst &&
+        terug.alleenWerkgevers === stand.alleenWerkgevers &&
+        terug.alleenWinstgevend === stand.alleenWinstgevend &&
+        (terug.zoek ?? '') === stand.zoek.trim() &&
+        terug.regions.join(',') === verwachteRegios.join(','),
+      JSON.stringify(terug)
+    )
+  }
+  // De tegenproef die het defect zelf draagt: een lege querystring hoort de standen te
+  // geven waarop de lijst opent, niet "alles uit".
+  const standaard = leesFilter(new URLSearchParams())
+  check('lege querystring = de standaardstand van de lijst',
+    standaard.herkomst === 'beide' && standaard.alleenWerkgevers === true &&
+    standaard.alleenWinstgevend === false && standaard.regions.length === ALL_REGIONS.length,
+    JSON.stringify(standaard))
+  // Een onbekende regio hoort genegeerd te worden, niet doorgegeven aan de SQL.
+  check('een onbekende regio wordt niet doorgelaten',
+    !leesFilter(new URLSearchParams('regio=XX')).regions.includes('XX' as never),
+    leesFilter(new URLSearchParams('regio=XX')).regions.join(','))
 }
 
 // ── Zelftest ─────────────────────────────────────────────────────────────────

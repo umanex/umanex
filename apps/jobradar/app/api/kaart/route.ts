@@ -3,7 +3,8 @@ import { join } from 'node:path'
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
-import { koppelBedrijven } from '@/lib/kbo/spiegel'
+import { haalSelectie, koppelBedrijven } from '@/lib/kbo/spiegel'
+import { leesFilter } from '@/lib/kbo/universum'
 import { binnenKaart, inProvincie } from '@/lib/kaart'
 import type { ItemStatus } from '@/lib/db/schema'
 import type { RegionCode } from '@/lib/regions'
@@ -23,11 +24,11 @@ export type KaartPunt = {
 }
 
 /**
- * Alle punten voor de kaart in één antwoord.
+ * De punten voor de kaart in één antwoord, onder dezelfde filterstand als de lijst.
  *
- * Geen paginering, anders dan bij de lijst: het zijn er 227 en een kaart met een derde van
- * zijn punten is geen kaart. Bij een universum dat groeit hoort hier een grens — dan is een
- * zichtbare afkapping beter dan een stille.
+ * Geen paginering, anders dan bij de lijst: het zijn er een paar honderd en een kaart met
+ * een derde van zijn punten is geen kaart. Bij een universum dat groeit hoort hier een
+ * grens — dan is een zichtbare afkapping beter dan een stille.
  */
 /**
  * De ringen van de drie provincies, uit hetzelfde bestand dat de kaart tekent. Eén bron,
@@ -41,7 +42,24 @@ function provincieRingen(): number[][][] {
   return geo.features.map((f) => f.geometry.coordinates[0]!)
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const filter = leesFilter(new URL(request.url).searchParams)
+
+  // De selectie van de lijst, ongepagineerd. `null` = geen spiegel.
+  const selectie = haalSelectie(filter)
+  if (!selectie) {
+    return NextResponse.json({
+      ok: true,
+      spiegel: 'ontbreekt',
+      punten: [],
+      leadsZonderAdres: 0,
+      zonderCoordinaat: 0,
+      buitenProvincies: 0,
+      buitenFilter: 0,
+      totaalGeocodeerd: 0,
+    })
+  }
+
   const db = getDb()
   const ringen = provincieRingen()
 
@@ -58,8 +76,16 @@ export async function GET() {
   // Een punt dat wél een coördinaat heeft maar buiten de drie provincies valt, is iets
   // anders dan een punt zonder coördinaat. Aparte teller, anders verdwijnt het verschil.
   let buitenProvincies = 0
+  // Wat een coordinaat heeft maar buiten de huidige filterstand valt. Vierde teller en
+  // geen stilte: een punt dat wegvalt door een keuze van de gebruiker is iets anders dan
+  // een punt dat de geocoder niet vond.
+  let buitenFilter = 0
 
   for (const rij of csv) {
+    if (!selectie.has(rij.enterpriseNumber)) {
+      buitenFilter++
+      continue
+    }
     const g = coord.get(rij.enterpriseNumber)
     if (!g || g.lat === null || g.lon === null || !binnenKaart(g.lon, g.lat)) {
       zonderCoordinaat++
@@ -88,8 +114,22 @@ export async function GET() {
   )
   let leadsZonderAdres = 0
   const alGetekend = new Set(punten.map((p) => p.nummer))
+  const term = filter.zoek?.trim().toLowerCase()
 
   for (const lead of leads) {
+    // De lead-laag is een tweede laag, geen tweede selectie: hij volgt regio, zoekterm en
+    // bron, maar niet de zeven die eigenschappen van het KBO-*universum* toetsen. Een lead
+    // komt uit een vacaturebron en draagt geen NACE-hoofdactiviteit, geen RSZ-registratie
+    // en geen EBITDA. Gemeten 2026-09-09: door de volledige prospectselectie halen 2 van
+    // de 12 vermoedens het — die zeef toepassen zou er tien stil laten verdwijnen.
+    if (
+      filter.herkomst === 'csv' ||
+      !filter.regions.includes(lead.region as RegionCode) ||
+      (term && !lead.companyName.toLowerCase().includes(term))
+    ) {
+      buitenFilter++
+      continue
+    }
     const v = vermoedens.get(lead.companyName)
     if (!v) {
       leadsZonderAdres++
@@ -124,6 +164,7 @@ export async function GET() {
     leadsZonderAdres,
     zonderCoordinaat,
     buitenProvincies,
+    buitenFilter,
     totaalGeocodeerd: geo.filter((g) => g.lat !== null).length,
   })
 }
