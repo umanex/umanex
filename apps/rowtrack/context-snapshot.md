@@ -65,20 +65,32 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | SummaryTitle | `apps/rowtrack/components/workout/active/SummaryTitle.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
+| DeviceSection | `apps/rowtrack/components/workout/idle/DeviceSection.tsx` | idle | — | — | — |
+| GoalHeader | `apps/rowtrack/components/workout/idle/GoalHeader.tsx` | idle | — | — | — |
+| StartCta | `apps/rowtrack/components/workout/idle/StartCta.tsx` | idle | — | — | — |
 | IdlePhase | `apps/rowtrack/components/workout/IdlePhase.tsx` | workout | — | — | — |
 | WorkoutCard | `apps/rowtrack/components/WorkoutCard.tsx` | components | — | — | — |
 
 ## Recente commits (app + packages)
 ```
+e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
 e81fb62 chore(rowtrack): Figma round C — the four summary components in the library
 681dfd6 refactor(rowtrack): cuts 10 and 11 — SummaryKpiBand and StatsTable, and the clock
 5f19171 refactor(rowtrack): cuts 8 and 9 — SummaryTitle and PrBanner
-45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
-58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
+7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/context-snapshot.md
+  M  apps/rowtrack/app/(tabs)/workout.tsx
+  M  apps/rowtrack/components/workout/IdlePhase.stories.tsx
+  M  apps/rowtrack/components/workout/IdlePhase.tsx
+  A  apps/rowtrack/components/workout/idle/DeviceSection.stories.tsx
+  A  apps/rowtrack/components/workout/idle/DeviceSection.tsx
+  A  apps/rowtrack/components/workout/idle/GoalHeader.stories.tsx
+  A  apps/rowtrack/components/workout/idle/GoalHeader.tsx
+  A  apps/rowtrack/components/workout/idle/StartCta.stories.tsx
+  A  apps/rowtrack/components/workout/idle/StartCta.tsx
+  M  apps/rowtrack/figma/build-spec.min.json
 
 ## Bestanden met TODO/FIXME
   (geen)

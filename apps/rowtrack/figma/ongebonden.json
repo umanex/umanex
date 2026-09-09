@@ -1,7 +1,7 @@
 {
  "$comment": "GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.",
  "aantalUniek": 49,
- "aantalVoorkomens": 1996,
+ "aantalVoorkomens": 2144,
  "decoratiefGenegeerd": 120,
  "uniek": [
   "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.7}",
@@ -209,6 +209,19 @@
   ],
   "SummaryKpiBand": [
    "gap = 3"
+  ],
+  "DeviceSection": [
+   "achtergrond = {\"r\":239,\"g\":68,\"b\":68,\"a\":1}",
+   "achtergrond = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
+   "tekstkleur = {\"r\":34,\"g\":197,\"b\":94,\"a\":1}",
+   "text style = ionicons 14px ls=0",
+   "text style = ionicons 15px ls=0"
+  ],
+  "GoalHeader": [
+   "text style = ionicons 16px ls=0"
+  ],
+  "StartCta": [
+   "text style = ionicons 18px ls=0"
   ],
   "ActivePhase": [
    "achtergrond = {\"r\":0,\"g\":0,\"b\":0,\"a\":0.85}",

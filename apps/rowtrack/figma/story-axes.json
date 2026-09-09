@@ -559,9 +559,56 @@
    "assen": {},
    "uitgesloten": {},
    "variantNodes": 1
+  },
+  "DeviceSection": {
+   "storyId": "componenten-devicesection--playground",
+   "titel": "Componenten/DeviceSection",
+   "assen": {
+    "bleStatus": [
+     "idle",
+     "scanning",
+     "connecting",
+     "discovering",
+     "connected",
+     "disconnecting",
+     "reconnecting",
+     "error"
+    ],
+    "hrStatus": [
+     "idle",
+     "scanning",
+     "waiting",
+     "connected",
+     "error"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 40
+  },
+  "GoalHeader": {
+   "storyId": "componenten-goalheader--playground",
+   "titel": "Componenten/GoalHeader",
+   "assen": {
+    "selectedSegment": [
+     "none",
+     "duration",
+     "distance",
+     "split",
+     "watts"
+    ]
+   },
+   "uitgesloten": {},
+   "variantNodes": 5
+  },
+  "StartCta": {
+   "storyId": "componenten-startcta--playground",
+   "titel": "Componenten/StartCta",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
   }
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 634
+ "totaalVariantNodes": 680
 }
