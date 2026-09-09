@@ -73,20 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-db77523 feat(rowtrack): the screens export mechanism, and the variant as a fact
-dcef5b1 refactor(rowtrack): step 5 — the heuristic component boundary is gone
-62ad3be feat(rowtrack): 3b — dataSet names the Reanimated nodes, and Figma round D
-c86eab8 refactor(rowtrack): cuts 12 to 14 — DeviceSection, GoalHeader, StartCta
-e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
+9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
+172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
+7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
+45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
+58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/app/(tabs)/workout.tsx
   M  apps/rowtrack/briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md
-  M  apps/rowtrack/figma/bouw-schermen.js
-  M  apps/rowtrack/figma/builder.js
-  A  apps/rowtrack/figma/geometry.schermen.json
-  M  apps/rowtrack/scripts/geometry-parity.mjs
+  M  apps/rowtrack/components/BottomSheet.tsx
+  M  apps/rowtrack/components/Button.tsx
+  M  apps/rowtrack/components/Chip.tsx
+  M  apps/rowtrack/components/DeviceRow.tsx
+  M  apps/rowtrack/components/GoalSegments.stories.tsx
+  M  apps/rowtrack/components/GoalSegments.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

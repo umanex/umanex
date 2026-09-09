@@ -30,16 +30,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
+172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
 2fcec12 Merge pull request #390 from umanex/feature/rowtrack-storybook-figma
 2afe45c chore: sync umanex-os layer with global umanex-os
 259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
-9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
-653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
 ```
 
 ## Uncommitted wijzigingen
   M  apps/dashboard/BACKLOG.md
   M  apps/dashboard/CLAUDE.md
+  M  apps/dashboard/context-snapshot.md
   M  apps/dashboard/package.json
 
 ## Bestanden met TODO/FIXME

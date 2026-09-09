@@ -22,13 +22,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 | Component | Pad | Categorie | Figma-node | Snapshot | Status |
 |---|---|---|---|---|---|
+| ContactPanel | `apps/jobradar/components/ContactPanel.tsx` | components | — | — | — |
+| ContactTimeline | `apps/jobradar/components/ContactTimeline.tsx` | components | — | — | — |
 | CoverageBar | `apps/jobradar/components/CoverageBar.tsx` | components | — | — | — |
 | DashboardClient | `apps/jobradar/components/DashboardClient.tsx` | components | — | — | — |
 | FilterBar | `apps/jobradar/components/FilterBar.tsx` | components | — | — | — |
 | HerkomstFilter | `apps/jobradar/components/HerkomstFilter.tsx` | components | — | — | — |
 | JobCard | `apps/jobradar/components/JobCard.tsx` | components | — | — | — |
 | LeadCard | `apps/jobradar/components/LeadCard.tsx` | components | — | — | — |
+| NextActionBadge | `apps/jobradar/components/NextActionBadge.tsx` | components | — | — | — |
 | ProspectCard | `apps/jobradar/components/ProspectCard.tsx` | components | — | — | — |
+| ProspectMap | `apps/jobradar/components/ProspectMap.tsx` | components | — | — | — |
 | RegionFilter | `apps/jobradar/components/RegionFilter.tsx` | components | — | — | — |
 | ScoreBadge | `apps/jobradar/components/ScoreBadge.tsx` | components | — | — | — |
 | SearchSettingsForm | `apps/jobradar/components/SearchSettingsForm.tsx` | components | — | — | — |
@@ -38,24 +42,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
-7d1a85e docs(jobradar): record the two decided critical items
-0e55e19 docs(jobradar): three briefings for CSV-sourced prospect follow-up
-798493f docs: sessie-reflectie 2026-09-08 — RowTrack storybook + Figma design system
-259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
+9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
+172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
+6ef3d79 feat(jobradar): the prospect map, drawn as inline SVG
+8129486 feat(jobradar): geocoding layer and province boundaries for the map
+72e469b feat(jobradar): data layer, rules and API for contact follow-up
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/BACKLOG.md
-  M  apps/jobradar/app/api/prospects/route.ts
-  M  apps/jobradar/briefings/2026-09-08-feature-csv-prospectbron.tcebc.md
-  M  apps/jobradar/components/DashboardClient.tsx
-  A  apps/jobradar/components/HerkomstFilter.tsx
-  M  apps/jobradar/components/ProspectCard.tsx
   M  apps/jobradar/context-snapshot.md
-  M  apps/jobradar/lib/db/ddl.ts
-  M  apps/jobradar/lib/db/schema.ts
-  M  apps/jobradar/lib/kbo/spiegel.ts
 
 ## Bestanden met TODO/FIXME
   (geen)

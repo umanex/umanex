@@ -15,7 +15,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next-harness/types/**/*.ts"
+    ".next-harness/types/**/*.ts",
+    ".next-apiprobe/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

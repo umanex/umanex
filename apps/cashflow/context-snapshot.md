@@ -49,15 +49,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
+172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
 259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
 9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
 653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
-1edc38c fix(ui): add the DropdownMenu stories to the geometry baseline
-ddcb3e4 feat(ui): add DropdownMenu primitive from shadcn
 ```
 
 ## Uncommitted wijzigingen
   M  apps/cashflow/BACKLOG.md
+  M  apps/cashflow/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)

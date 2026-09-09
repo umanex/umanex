@@ -122,6 +122,19 @@ function rgbNaarHslTriplet({ r, g, b }) {
   return `${rond(hu)} ${rond(sa * 100)}% ${rond(l * 100)}%`;
 }
 
+// `variantGroupProperties` geeft { as: { values: [...] } }; het manifest en
+// figma-sync-check.mjs lezen de PLATTE vorm { as: [...] }. Deze helper vlakt af, en hij
+// geldt voor primary én extra — tot 2026-09-09 stond hij alleen bij `extra` genoemd en
+// nergens gedefinieerd, en schreef `primary` de geneste vorm rechtstreeks weg. Een manifest
+// daaruit gaf voor elk component met varianten een vals verschil, met de melding "fix de
+// code, of werk Figma bij" — opnieuw de verkeerde oorzaak.
+const platteAssen = (n) => {
+  if (!n || n.type !== "COMPONENT_SET" || !n.variantGroupProperties) return null;
+  return Object.fromEntries(
+    Object.entries(n.variantGroupProperties).map(([as, v]) => [as, v.values])
+  );
+};
+
 // Pagina's: primary is de component(set) waarop de guard ankert. `varianten` legt de
 // individuele variant-nodes vast — de join-sleutel die een maat-as later nodig heeft om
 // een padding in Figma aan een padding in de browser te koppelen.
@@ -142,7 +155,7 @@ for (const p of figma.root.children) {
     pageId: p.id,
     primary: hoofd ? {
       name: hoofd.name, id: hoofd.id, type: hoofd.type,
-      variantProperties: hoofd.type === "COMPONENT_SET" ? hoofd.variantGroupProperties : null,
+      variantProperties: platteAssen(hoofd),
       varianten: hoofd.type === "COMPONENT_SET"
         ? hoofd.children.map(v => ({ name: v.name, id: v.id })) : null,
     } : null,
