@@ -16,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { bg, fg, border, fontFamily, fontSize, radii } from '@/constants';
 import { wheelItemParts, type WheelItem } from '@/lib/formatters';
+import { variantData } from '@/lib/variantData';
 
 const ITEM_H = 50;
 const PILL_H = 60;
@@ -67,13 +68,13 @@ function WheelRow({ item, index, scrollY }: WheelRowProps) {
 
   return (
     <View style={styles.item}>
-      <Animated.View style={[styles.layer, smallStyle]}>
+      <Animated.View dataSet={{ laag: 'smallLayer' }} style={[styles.layer, smallStyle]}>
         <View style={styles.valueRow}>
           <Text style={styles.smallValue}>{value}</Text>
           {unit ? <Text style={styles.smallUnit}>{unit}</Text> : null}
         </View>
       </Animated.View>
-      <Animated.View style={[styles.layer, bigStyle]}>
+      <Animated.View dataSet={{ laag: 'bigLayer' }} style={[styles.layer, bigStyle]}>
         <View style={styles.valueRow}>
           <Text style={styles.bigValue}>{value}</Text>
           {unit ? <Text style={styles.bigUnit}>{unit}</Text> : null}
@@ -173,7 +174,7 @@ export function WheelPicker({
   }, [initialized, scrollRef, scrollY, selectedIndex]);
 
   return (
-    <View testID="WheelPicker" style={[styles.container, { height: pickerH }]}>
+    <View testID="WheelPicker" dataSet={variantData({ showPill, surface })} style={[styles.container, { height: pickerH }]}>
       {showPill ? (
         <View style={[styles.pill, { top: pillTop, backgroundColor: fadeColors.pill }]} pointerEvents="none" />
       ) : null}

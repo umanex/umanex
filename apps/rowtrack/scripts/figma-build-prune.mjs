@@ -43,6 +43,7 @@ function snoei(node, diepte, pad, comp) {
   // De gedeclareerde componentgrens reist mee: de schermen-export heeft hem nodig om te
   // beslissen of een node een INSTANCE van een library-component wordt of een gewoon frame.
   if (node.component) o.component = node.component;
+  if (node.variant) o.variant = node.variant;
   if (node.naamAmbigu) o.naamAmbigu = true;
   if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
   if (node.slot) o.slot = node.slot;      // deze tekstnode hangt aan een component property
@@ -183,7 +184,7 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
 // dit bestand ná de snoei, met dezelfde vorm als ongebonden.json.
 {
   const plat = (n, u = []) => { u.push(n); for (const k of n.kinderen ?? n.k ?? []) plat(k, u); return u; };
-  const perBron = { sleutel: 0, gefold: 0, component: 0, testid: 0, laag: 0, heuristiek: 0, rnw: 0, rol: 0, terugval: 0 };
+  const perBron = { sleutel: 0, gefold: 0, component: 0, testid: 0, bron: 0, laag: 0, heuristiek: 0, rnw: 0, rol: 0, terugval: 0 };
   const perNaam = new Map();
   let nodes = 0, ambigu = 0, gestabiliseerd = 0, indexNamen = 0, copyNamen = 0;
   const instabiel = [];
@@ -210,7 +211,7 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
     bomen.forEach((b, i) => { const v = vorm(b); if (!groepen.has(v)) groepen.set(v, []); groepen.get(v).push({ i, n: namenVan(b).join('>') }); });
     for (const [, g] of groepen) for (const x of g.slice(1)) if (x.n !== g[0].n) instabiel.push(`${comp}: variant ${g[0].i} tegen ${x.i}`);
   }
-  const echt = perBron.sleutel + perBron.gefold + perBron.component + perBron.testid + perBron.laag + perBron.heuristiek;
+  const echt = perBron.sleutel + perBron.gefold + perBron.component + perBron.testid + perBron.bron + perBron.laag + perBron.heuristiek;
   // DE EERLIJKE NOEMER. Een node die `rnwRol()` benoemde is DOM die react-native-web zelf
   // schrijft — de cirkels van een ActivityIndicator, de vijf hostlagen van een Modal. Die
   // kan per constructie geen code-naam krijgen, dus hij hoorde nooit in de noemer van

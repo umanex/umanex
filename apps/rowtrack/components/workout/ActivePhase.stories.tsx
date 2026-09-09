@@ -63,6 +63,7 @@ const meta = {
     splits: { control: 'object' },
     prEntries: { control: 'object' },
     insets: { control: 'object' },
+    now: { control: false },
     pulseAnim: { control: false },
     startScan: { control: false },
     startHRScan: { control: false },
@@ -105,6 +106,9 @@ const meta = {
     hrBpm: 148,
     startHRScan: () => {},
     insets: geenInsets,
+    // Vaste klok: de datumregel van de samenvatting komt anders uit `new Date()`, en dan
+    // verschilt die tekstnode tussen twee metingen. Zie `now` in ActivePhase.tsx.
+    now: new Date(2026, 8, 9, 18, 44),
   },
   parameters: {
     figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2020-13601' },

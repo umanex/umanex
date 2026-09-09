@@ -57,33 +57,40 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
 | KpiRow | `apps/rowtrack/components/workout/active/KpiRow.tsx` | active | — | — | — |
+| PrBanner | `apps/rowtrack/components/workout/active/PrBanner.tsx` | active | — | — | — |
 | ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
+| StatsTable | `apps/rowtrack/components/workout/active/StatsTable.tsx` | active | — | — | — |
 | SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
+| SummaryKpiBand | `apps/rowtrack/components/workout/active/SummaryKpiBand.tsx` | active | — | — | — |
+| SummaryTitle | `apps/rowtrack/components/workout/active/SummaryTitle.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
+| DeviceSection | `apps/rowtrack/components/workout/idle/DeviceSection.tsx` | idle | — | — | — |
+| GoalHeader | `apps/rowtrack/components/workout/idle/GoalHeader.tsx` | idle | — | — | — |
+| StartCta | `apps/rowtrack/components/workout/idle/StartCta.tsx` | idle | — | — | — |
 | IdlePhase | `apps/rowtrack/components/workout/IdlePhase.tsx` | workout | — | — | — |
 | WorkoutCard | `apps/rowtrack/components/WorkoutCard.tsx` | components | — | — | — |
 
 ## Recente commits (app + packages)
 ```
-9d1016e feat(rowtrack): screens out of the library, and parity green on every node
-fe66969 feat(rowtrack): recognise react-native-web's own DOM, and count it honestly
-4a005e8 feat(rowtrack): screens render at device size, and landscape renders at all
-b1ef67a feat(rowtrack): parity measures every node and every screen, not ~110 roots
-ed214f1 refactor(rowtrack): one source for which story components are screens
+9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
+172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
+7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
+45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
+58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/components/BleStatusBar.stories.tsx
-  M  apps/rowtrack/components/BleStatusBar.tsx
-  M  apps/rowtrack/components/BottomFade.stories.tsx
-  M  apps/rowtrack/components/BottomFade.tsx
-  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/app/(tabs)/workout.tsx
+  M  apps/rowtrack/briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md
   M  apps/rowtrack/components/BottomSheet.tsx
-  M  apps/rowtrack/components/Button.stories.tsx
   M  apps/rowtrack/components/Button.tsx
+  M  apps/rowtrack/components/Chip.tsx
+  M  apps/rowtrack/components/DeviceRow.tsx
+  M  apps/rowtrack/components/GoalSegments.stories.tsx
+  M  apps/rowtrack/components/GoalSegments.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -326,11 +326,8 @@ export default function WorkoutScreen() {
         onCancelSelection={cancelSelection}
         idleGoalType={idleGoalType}
         setIdleGoalType={setIdleGoalType}
-        idleGoalInput={idleGoalInput}
         setIdleGoalInput={setIdleGoalInput}
-        idleDurMin={idleDurMin}
         setIdleDurMin={setIdleDurMin}
-        idleDurSec={idleDurSec}
         setIdleDurSec={setIdleDurSec}
         onStart={handleStart}
         insets={insets}

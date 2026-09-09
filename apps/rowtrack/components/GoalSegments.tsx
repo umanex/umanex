@@ -72,7 +72,7 @@ function SegmentButton({ type, isActive, onPress }: SegmentButtonProps) {
       accessibilityState={{ selected: isActive }}
     >
       {isActive && (
-        <Animated.View entering={pillEnter} style={styles.activePill} pointerEvents="none" />
+        <Animated.View dataSet={{ laag: 'activePill' }} entering={pillEnter} style={styles.activePill} pointerEvents="none" />
       )}
       <Ionicons
         name={GOAL_ICONS[type]}
@@ -81,6 +81,7 @@ function SegmentButton({ type, isActive, onPress }: SegmentButtonProps) {
       />
       {isActive && (
         <Animated.Text
+          dataSet={{ laag: 'activeLabel' }}
           entering={pillEnter}
           style={styles.activeLabel}
           numberOfLines={1}

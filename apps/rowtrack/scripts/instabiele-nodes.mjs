@@ -141,6 +141,18 @@ writeFileSync(join(APP, 'figma/niet-reproduceerbaar.json'), JSON.stringify({
     + 'echte afwijking hoort hier niet in te kunnen verdwijnen.',
   gegenereerd: new Date().toISOString().slice(0, 10),
   bezocht, gemeten, instabiel: paden.size, perNaam,
+ /**
+  * De KLASSE, naast de paden. Een padlijst veroudert zodra er een component bijkomt dat
+  * hetzelfde defect draagt: gemeten 2026-09-09 gaf `spec-diff` 56 verschillen op de spinners
+  * van KpiRow, puur omdat die story ná de laatste hermeting in de basislijn kwam. Drie keer
+  * hermeten voor iets waarvan de klasse al vaststaat, is geen meting maar onderhoud.
+  *
+  * Een consument sluit daarom uit: het pad staat in `paden`, ÓF een segment van het pad heet
+  * zoals een naam in `klassen`. Alleen namen die `rnwRol` uitdeelt komen hierin — die zijn
+  * per constructie uniek. `item` (confetti) en `dateText` (klok) blijven padgebonden: dat zijn
+  * gewone laagnamen die elders iets anders kunnen betekenen.
+  */
+ klassen: ['spinnerBox'],
  redenen: {
   spinner: 'react-native-web ActivityIndicator roteert (animationKeyframes 0->360deg, 0,75 s, oneindig); '
     + 'getBoundingClientRect geeft de as-gelijnde doos, dus de maat hangt af van het meetmoment. '

@@ -12,10 +12,13 @@ import type { ConnectionStatus, HRStatus } from '@/lib/ble/types';
 import type { WorkoutGoal } from '@/lib/workout-goals';
 // Directe imports, geen barrel — zie IdlePhase.tsx voor het waarom.
 import { Button } from '@/components/Button';
-import { KpiSingle } from '@/components/KpiSingle';
 import { ActiveHeader } from './active/ActiveHeader';
 import { ConnectionOverlay } from './active/ConnectionOverlay';
 import { KpiRow } from './active/KpiRow';
+import { PrBanner } from './active/PrBanner';
+import { StatsTable } from './active/StatsTable';
+import { SummaryKpiBand } from './active/SummaryKpiBand';
+import { SummaryTitle } from './active/SummaryTitle';
 import { ProgressBar, type FillKind } from './active/ProgressBar';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
@@ -25,7 +28,7 @@ import { useSpmHalved } from '@/lib/hooks/useSpmHalved';
 import type { PrEntry } from '@/lib/personalRecords';
 import { prMetricLabel, formatPrValue, formatPrPrevious, prEntrySpoken } from '@/lib/prDisplay';
 import { t } from '@/i18n';
-import { bg, fg, accent, achievement, body, border, fontFamily, space, radii, componentRadius, fontSize, typeStyles, layout } from '@/constants';
+import { bg, space, layout } from '@/constants';
 import type { WorkoutMetricsState } from '@/lib/hooks/useWorkoutMetrics';
 import { styles } from './workout.styles';
 
@@ -57,6 +60,13 @@ type ActivePhaseProps = {
   summaryMaxSpm: number | null;
   summaryMaxHr: number | null;
   summaryTotalStrokes: number | null;
+  /**
+   * De klok voor de datumregel van de samenvatting. Injecteerbaar, en dat is geen luxe: zolang
+   * dit `new Date()` was, verschilde die tekstnode tussen twee metingen en moest hij in
+   * `figma/niet-reproduceerbaar.json` staan — een uitsluiting die bovendien verouderde zodra
+   * de boom erboven veranderde. Met een vaste waarde in de story is hij weer meetbaar.
+   */
+  now?: Date;
   onStop: () => void;
   onContinue: () => void;
   onGoalContinue: () => void;
@@ -96,6 +106,7 @@ export function ActivePhase({
   hrBpm,
   startHRScan,
   insets,
+  now,
 }: ActivePhaseProps) {
   const { seconds, distanceMeters, calories } = metricsState;
   // Live weergave: gesmoothe huidige metingen (EMA), niet de sessie-gemiddelden.
@@ -127,11 +138,11 @@ export function ActivePhase({
 
   const summaryDateLabel = useMemo(() => {
     if (phase !== 'summary') return '';
-    const now = new Date();
-    const h = String(now.getHours());
-    const m = String(now.getMinutes()).padStart(2, '0');
+    const d = now ?? new Date();
+    const h = String(d.getHours());
+    const m = String(d.getMinutes()).padStart(2, '0');
     return t.workout.summary.todayAt(`${h}:${m}`);
-  }, [phase]);
+  }, [phase, now]);
 
   // --- Hero-getal + subtitle + progress-fill per doeltype (gedeeld portrait/landscape) ---
   function computeGoalView(): { heroLabel: string | null; heroText: string; subLabel: string | null; subtitle: HeroSubtitle; fillPct: number; fillKind: FillKind } {
@@ -424,105 +435,35 @@ export function ActivePhase({
         <View style={summaryStyles.screen}>
           {/* Top: titel + datum + PR-banner */}
           <View style={summaryStyles.topSection}>
-            <View style={[summaryStyles.titleBlock, { paddingTop: Math.max(space['28'], insets.top) }]}>
-              <Text style={summaryStyles.title}>{t.workout.summary.title}</Text>
-              <Text style={summaryStyles.dateText}>{summaryDateLabel}</Text>
-            </View>
-            {prEntries.length > 0 && (
-              <View style={summaryStyles.prWrapper}>
-                <View style={summaryStyles.prBanner}>
-                  <View style={summaryStyles.prBannerTop}>
-                    <Text style={summaryStyles.prEmoji}>🏅</Text>
-                    <Text style={summaryStyles.prText}>
-                      {prEntries.length === 1
-                        ? t.pr.bannerTitleOne
-                        : t.pr.bannerTitleMany(prEntries.length)}
-                    </Text>
-                  </View>
-                  {/* Eén regel per record: "Vermogen · 143 W" met daaronder wat het verving.
-                      Eerder stond hier één generieke zin, waardoor je wél las dát je een
-                      record brak maar niet waarop. */}
-                  {prEntries.map((entry) => (
-                    <View
-                      key={entry.metric}
-                      accessible
-                      accessibilityLabel={prEntrySpoken(entry)}
-                      style={summaryStyles.prEntryRow}
-                    >
-                      <Text style={summaryStyles.prEntryMetric}>
-                        {prMetricLabel(entry.metric)}
-                      </Text>
-                      <View style={summaryStyles.prEntryValues}>
-                        <Text style={summaryStyles.prEntryValue}>
-                          {formatPrValue(entry.metric, entry.value)}
-                        </Text>
-                        <Text style={summaryStyles.prEntryPrevious}>
-                          {formatPrPrevious(entry)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
+            <SummaryTitle
+              title={t.workout.summary.title}
+              dateLabel={summaryDateLabel}
+              paddingTop={Math.max(space['28'], insets.top)}
+            />
+            <PrBanner prEntries={prEntries} />
           </View>
 
           {/* KPI-metrics — volle-breedte bg.raised band */}
-          <View style={summaryStyles.kpiBand}>
-            <View style={summaryStyles.kpiRow}>
-              <KpiSingle
-                value={formattedDistance.value}
-                unit={formattedDistance.unit}
-                label={t.workout.summary.kpiDistance}
-                style={summaryStyles.kpiCell}
-              />
-              <KpiSingle
-                value={formatTimerFull(seconds)}
-                label={t.workout.summary.kpiDuration}
-                style={summaryStyles.kpiCell}
-              />
-            </View>
-            <View style={summaryStyles.kpiBandDivider} />
-            <View style={summaryStyles.kpiRow}>
-              <KpiSingle
-                value={`${formatInt(calories)}${hasProfileWeight ? '' : '*'}`}
-                unit="kcal"
-                label={t.workout.summary.kpiEnergy}
-                style={summaryStyles.kpiCell}
-              />
-              <KpiSingle
-                value={summaryTotalStrokes != null ? formatInt(correctSpm(summaryTotalStrokes, spmHalved)) : '—'}
-                label={t.workout.summary.kpiStrokes}
-                style={summaryStyles.kpiCell}
-              />
-            </View>
-          </View>
+          <SummaryKpiBand
+            kpis={[
+              { value: formattedDistance.value, unit: formattedDistance.unit, label: t.workout.summary.kpiDistance },
+              { value: formatTimerFull(seconds), label: t.workout.summary.kpiDuration },
+              { value: `${formatInt(calories)}${hasProfileWeight ? '' : '*'}`, unit: 'kcal', label: t.workout.summary.kpiEnergy },
+              { value: summaryTotalStrokes != null ? formatInt(correctSpm(summaryTotalStrokes, spmHalved)) : '—', label: t.workout.summary.kpiStrokes },
+            ]}
+          />
 
           {/* Stats-sectie */}
-          <View style={summaryStyles.statsSection}>
-            <View style={summaryStyles.statsHeader}>
-              <View style={summaryStyles.statsLabelCol} />
-              <Text style={summaryStyles.statsColLabel}>{t.detail.colAvg}</Text>
-              <Text style={summaryStyles.statsColLabel}>{t.detail.colPeak}</Text>
-            </View>
-            <View style={summaryStyles.statsTable}>
-              {[
-                { label: t.workout.summary.statSplit, gem: formatSplit(avgSplit), piek: summaryBestSplit != null ? formatSplit(summaryBestSplit) : '—' },
-                { label: t.workout.summary.statWatt, gem: `${avgWatts}`, piek: summaryMaxWatts != null ? `${summaryMaxWatts}` : '—' },
-                { label: t.workout.summary.statSpm, gem: `${correctSpm(avgSpm, spmHalved)}`, piek: summaryMaxSpm != null ? `${correctSpm(summaryMaxSpm, spmHalved)}` : '—' },
-                { label: t.workout.summary.statBpm, gem: summaryAvgHr != null ? `${summaryAvgHr}` : '—', piek: summaryMaxHr != null ? `${summaryMaxHr}` : '—' },
-              ].map((row, i, arr) => (
-                <View key={row.label}>
-                  <View style={summaryStyles.statsRow}>
-                    <Text style={summaryStyles.statsRowLabel}>{row.label}</Text>
-                    <Text style={summaryStyles.statsRowValue}>{row.gem}</Text>
-                    <Text style={summaryStyles.statsRowValue}>{row.piek}</Text>
-                  </View>
-                  {i < arr.length - 1 && <View style={summaryStyles.statsRowDivider} />}
-                </View>
-              ))}
-            </View>
-          </View>
+          <StatsTable
+            colAvg={t.detail.colAvg}
+            colPeak={t.detail.colPeak}
+            rows={[
+              { label: t.workout.summary.statSplit, gem: formatSplit(avgSplit), piek: summaryBestSplit != null ? formatSplit(summaryBestSplit) : '—' },
+              { label: t.workout.summary.statWatt, gem: `${avgWatts}`, piek: summaryMaxWatts != null ? `${summaryMaxWatts}` : '—' },
+              { label: t.workout.summary.statSpm, gem: `${correctSpm(avgSpm, spmHalved)}`, piek: summaryMaxSpm != null ? `${correctSpm(summaryMaxSpm, spmHalved)}` : '—' },
+              { label: t.workout.summary.statBpm, gem: summaryAvgHr != null ? `${summaryAvgHr}` : '—', piek: summaryMaxHr != null ? `${summaryMaxHr}` : '—' },
+            ]}
+          />
 
           {/* Knoppen — onderaan */}
           <View style={[summaryStyles.buttonsArea, { paddingBottom: Math.max(space['28'], insets.bottom) }]}>
@@ -586,140 +527,6 @@ const summaryStyles = StyleSheet.create({
   topSection: {
     paddingBottom: space['28'],
     gap: space['20'],
-  },
-  titleBlock: {
-    paddingHorizontal: space['20'],
-    // paddingTop wordt inline gezet (safe-area top)
-  },
-  title: {
-    ...typeStyles.sectionValue,
-    color: fg.primary,
-  },
-  dateText: {
-    ...typeStyles.labelGoalPrefix,
-    color: fg.secondary,
-    textTransform: 'uppercase',
-  },
-  prWrapper: {
-    paddingHorizontal: space['20'],
-  },
-  prBanner: {
-    // Was een rauwe rgba-amber — een hardcoded waarde zonder token. Nu de raised-rol met
-    // een achievement-rand: dezelfde betekenis, dezelfde markering als het PR-blok op het
-    // detailscherm, en geen nieuwe kleur nodig.
-    backgroundColor: bg.raised,
-    // Een volledige rand en niet alleen links: `bg.raised` is ook het vlak van de KPI-band
-    // eronder, dus zonder eigen omtrek leest het vieringsmoment als een gewone sectie.
-    // TODO: geen borderWidth-token in constants/; een `achievement.surface`-rol zou hier
-    // beter passen dan een rand — bespreken vóór er een derde plek bij komt.
-    borderWidth: 2,
-    borderColor: achievement.muted,
-    borderRadius: componentRadius.highlightRow,
-    padding: space['20'],
-    gap: space['12'],
-  },
-  prBannerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space['8'],
-  },
-  prEmoji: {
-    fontSize: fontSize['14'],
-  },
-  prText: {
-    ...typeStyles.kpiUnit,
-    color: achievement.default,
-  },
-  prEntryRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: space['12'],
-  },
-  prEntryMetric: {
-    ...typeStyles.labelMicro,
-    color: fg.secondary,
-    paddingTop: space['4'],
-    flexShrink: 1,
-  },
-  prEntryValues: {
-    alignItems: 'flex-end',
-    gap: space['2'],
-    // Zie het PR-blok op het detailscherm: zonder shrink loopt de vorige-waarde-regel
-    // buiten de banner, en wrappen kan hij niet.
-    flexShrink: 1,
-  },
-  prEntryValue: {
-    ...typeStyles.kpiValue,
-    color: achievement.default,
-  },
-  prEntryPrevious: {
-    // Volzin, dus body.xs — labelMicro kapitaliseerde de eenheden ('12,5 KM').
-    ...body.xs,
-    color: fg.tertiary,
-    textAlign: 'right',
-  },
-  // KPI-metrics — volle-breedte bg.raised band (KPI Row-frame)
-  kpiBand: {
-    backgroundColor: bg.raised,
-    paddingHorizontal: space['20'],
-  },
-  kpiRow: {
-    flexDirection: 'row',
-    paddingVertical: space['20'],
-    gap: space['20'],
-  },
-  kpiCell: {
-    flex: 1,
-  },
-  kpiBandDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: border.strong,
-  },
-  // Stats-sectie (Frame 42 + 49)
-  statsSection: {
-    paddingHorizontal: space['20'],
-    paddingVertical: space['28'],
-    gap: space['8'],
-  },
-  statsHeader: {
-    flexDirection: 'row',
-    paddingHorizontal: space['16'],
-  },
-  statsLabelCol: {
-    width: 165,
-  },
-  statsColLabel: {
-    flex: 1,
-    ...typeStyles.labelGoalPrefix,
-    color: fg.tertiary,
-  },
-  statsTable: {
-    backgroundColor: bg.raised,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    borderColor: border.default,
-    overflow: 'hidden',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: space['16'],
-    paddingVertical: space['16'],
-  },
-  statsRowLabel: {
-    width: 165,
-    ...typeStyles.labelGoalPrefix,
-    color: fg.secondary,
-  },
-  statsRowValue: {
-    flex: 1,
-    ...typeStyles.kpiValue,
-    color: fg.primary,
-  },
-  statsRowDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: border.default,
   },
   // Knoppen — onderaan (Frame 41)
   buttonsArea: {

@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import { border, fg, fontFamily, fontSize } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 export type KpiRowProps = {
   label: string;
@@ -34,9 +35,10 @@ export function KpiRow({ label, value, fill = false, divider = false, onPress, d
       {loading ? <ActivityIndicator size="small" color={fg.secondary} /> : <Text style={styles.kpiValue}>{value}</Text>}
     </>
   );
-  if (!onPress) return <View testID="KpiRow" style={stijl}>{inhoud}</View>;
+  const variant = variantData({ fill, divider, disabled, loading });
+  if (!onPress) return <View testID="KpiRow" dataSet={variant} style={stijl}>{inhoud}</View>;
   return (
-    <TouchableOpacity testID="KpiRow" style={stijl} onPress={onPress} disabled={disabled} activeOpacity={0.8}>
+    <TouchableOpacity testID="KpiRow" dataSet={variant} style={stijl} onPress={onPress} disabled={disabled} activeOpacity={0.8}>
       {inhoud}
     </TouchableOpacity>
   );

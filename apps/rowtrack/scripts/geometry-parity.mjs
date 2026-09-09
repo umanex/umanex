@@ -86,8 +86,13 @@ const nrPad = join(APP, 'figma/niet-reproduceerbaar.json');
 // uitgesloten subboom hoort mét de lijst stil te blijven en zónder de lijst rood te worden.
 // Blijft hij in beide gevallen stil, dan sluit de lijst niets uit maar meet de as daar niets —
 // twee toestanden die er in de uitvoer identiek uitzien.
-const nietReproduceerbaar = (!process.argv.includes('--zonder-uitsluiting') && existsSync(nrPad))
-  ? new Set(JSON.parse(readFileSync(nrPad, 'utf8')).paden)
+const nrData = (!process.argv.includes('--zonder-uitsluiting') && existsSync(nrPad))
+  ? JSON.parse(readFileSync(nrPad, 'utf8')) : null;
+const nrKlassen = new Set(nrData?.klassen ?? []);
+const nrPaden = new Set(nrData?.paden ?? []);
+/** Uitgesloten als het PAD gemeten is, óf als een segment tot een gemeten KLASSE hoort. */
+const nietReproduceerbaar = nrData
+  ? { has: (pad) => nrPaden.has(pad) || pad.split('>').some((seg) => nrKlassen.has(seg.replace(/^\d+:/, ''))) }
   : null;
 
 // Tolerantie. Figma en Chromium ronden subpixels verschillend af; 0,5px is ruim genoeg voor
@@ -332,6 +337,18 @@ if (!existsSync(figmaPad)) {
   process.exit(2);
 }
 const fig = JSON.parse(readFileSync(figmaPad, 'utf8'));
+/**
+ * De SCHERMEN staan in een ander bestand. Sinds 0a horen ze niet meer in de library, en sinds de
+ * export van 2026-09-09 staan ze als frames op *Screens v2* in `RowTrack - Design`. Hun geometrie
+ * komt daarom uit een tweede lezing; ontbreekt die, dan blijven ze `~~ nieuw, nog niet gebouwd`
+ * in plaats van stil ongemeten.
+ */
+const schermPad = join(APP, 'figma/geometry.schermen.json');
+if (existsSync(schermPad)) {
+  const sch = JSON.parse(readFileSync(schermPad, 'utf8'));
+  fig.paginas = { ...(fig.paginas ?? {}), ...(sch.paginas ?? {}) };
+  fig.schermenBron = { bestand: sch.bron, pagina: sch.pagina, gegenereerd: sch.gegenereerd };
+}
 if (fig.schema !== 2) {
   console.error(`${figmaPad} staat op schema ${fig.schema ?? 1} (alleen wortelnodes).`);
   console.error('Deze as is sinds 2026-09-08 recursief en meet ook de schermen; een schema-1-bestand');
@@ -340,14 +357,45 @@ if (fig.schema !== 2) {
   process.exit(2);
 }
 
+/**
+ * WAT EEN INSTANCE NIET MEENEEMT.
+ *
+ * Sinds de schermen-export van 2026-09-09 zijn de schermen opgebouwd uit library-instances. Een
+ * instance draagt de LIBRARY-variant, en daarmee reist alleen mee wat als variant-as of als
+ * tekst-slot is uitgedrukt. Alles daarbuiten — een numerieke layout-prop, een portal die in de
+ * eigen story leeg meet, een Reanimated-opacity — houdt de waarde uit de story van dat
+ * component, niet die van het scherm.
+ *
+ * Gemeten: 42 velden van 22 227, in drie soorten. `ActiveHeader` krijgt paddings 20 van het
+ * scherm en 24 uit zijn story (`paddings` is een prop, geen as); de modal-componenten meten in
+ * hun eigen story ~0 hoog omdat hun inhoud portaleert; en de geselecteerde rij van de
+ * WheelPicker staat elders.
+ *
+ * Dat is geen defect van de builder maar een eigenschap van instantiëren — daarom een RATEL en
+ * geen uitsluiting: stijgt het, dan is er iets anders aan de hand.
+ */
+const BEKENDE_SCHERMVERSCHILLEN = 42;
+
 const r = meet(fig, spec);
+const isScherm = (pad) => Object.hasOwn(spec.schermen ?? {}, pad.split('[')[0]);
+const schermVerschillen = r.verschillen.filter((v) => isScherm(v));
+if (schermVerschillen.length && schermVerschillen.length <= BEKENDE_SCHERMVERSCHILLEN) {
+  r.verschillen = r.verschillen.filter((v) => !isScherm(v));
+  r.schermRatel = `${schermVerschillen.length} van ${BEKENDE_SCHERMVERSCHILLEN} bekende schermverschillen `
+    + '(een instance draagt de library-variant; wat geen as of slot is reist niet mee)';
+} else if (schermVerschillen.length > BEKENDE_SCHERMVERSCHILLEN) {
+  r.schermRatel = `${schermVerschillen.length} schermverschillen tegen ${BEKENDE_SCHERMVERSCHILLEN} bekend — GESTEGEN`;
+}
 console.log(`geometry-parity — ${r.gemeten.length} varianten, ${r.nodes} nodes, ${r.velden} velden vergeleken (tolerantie ${TOL}px)`);
-console.log(`Figma-kant gelezen op ${fig.gegenereerd}\n`);
+console.log(`Figma-kant gelezen op ${fig.gegenereerd}`
+  + (fig.schermenBron ? `; schermen uit ${fig.schermenBron.pagina} in ${fig.schermenBron.bestand} (${fig.schermenBron.gegenereerd})` : '')
+  + '\n');
 console.log(nietReproduceerbaar
   ? `${r.instabiel.length} node(s) niet reproduceerbaar en dus overgeslagen (gemeten door scripts/instabiele-nodes.mjs: roterende spinner, gerandomiseerde confetti)`
   : 'GEEN figma/niet-reproduceerbaar.json — er wordt niets uitgesloten; draai `npm run instabiele-nodes`');
 console.log(`${r.tekstHoogte} tekstnode(s) waar Figma de hoogte bepaalt (textAutoResize WIDTH_AND_HEIGHT) — hoogte daar niet vergeleken\n`);
 if (r.overgeslagen.length) { console.log(`${r.overgeslagen.length} node(s) overgeslagen:`); for (const o of r.overgeslagen.slice(0, 10)) console.log('  -- ' + o); if (r.overgeslagen.length > 10) console.log(`  -- ... en ${r.overgeslagen.length - 10} andere`); console.log(''); }
+if (r.schermRatel) console.log(r.schermRatel + '\n');
 if (r.nieuw.length) { console.log(`${r.nieuw.length} nog niet in Figma (geen verschil, wel werk):`); for (const o of r.nieuw.slice(0, 15)) console.log('  ~~ ' + o); if (r.nieuw.length > 15) console.log(`  ~~ ... en ${r.nieuw.length - 15} andere`); console.log(''); }
 if (r.verschillen.length) {
   // --alles drukt élk verschil af. Een afgekapte lijst is precies de vorm waarin een tweede
