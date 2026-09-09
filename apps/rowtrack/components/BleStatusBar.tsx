@@ -2,6 +2,7 @@ import type { ConnectionStatus } from '@/lib/ble/types';
 import { accent, status } from '@/constants';
 import { t } from '@/i18n';
 import { DeviceRow } from './DeviceRow';
+import { variantData } from '@/lib/variantData';
 
 type BleStatusBarProps = {
   bleStatus: ConnectionStatus;
@@ -19,6 +20,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
     return (
       <DeviceRow
         testID="BleStatusBar"
+        dataSet={variantData({ bleStatus })}
         icon="dot"
         iconColor={status.success}
         label={deviceName || t.devices.rowerConnected}
@@ -32,6 +34,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
     return (
       <DeviceRow
         testID="BleStatusBar"
+        dataSet={variantData({ bleStatus })}
         icon="dot"
         iconColor={accent.default}
         label={t.devices.rower}
@@ -47,6 +50,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
     return (
       <DeviceRow
         testID="BleStatusBar"
+        dataSet={variantData({ bleStatus })}
         icon="dot"
         iconColor={status.error}
         label={t.devices.rower}
@@ -59,6 +63,7 @@ export function BleStatusBar({ bleStatus, deviceName, onConnect, onDisconnect }:
   return (
     <DeviceRow
       testID="BleStatusBar"
+        dataSet={variantData({ bleStatus })}
       icon="dot"
       iconColor={accent.default}
       label={t.devices.rower}

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { achievement, fontSize, neutral, radii, space, typeStyles } from '@/constants';
 import { t } from '@/i18n';
+import { variantData } from '@/lib/variantData';
 
 export type PrBadgeProps = {
   /** Tekst naast de medaille. Leeg laten voor de kale 'PR'-badge. */
@@ -26,6 +27,7 @@ export const PrBadge = ({ label, size = 'md' }: PrBadgeProps) => {
     // dus dit botst niet met het rij-label.
     <View
       testID="PrBadge"
+        dataSet={variantData({ size })}
       accessible
       accessibilityLabel={label != null ? `${t.pr.a11yPlain}: ${label}` : t.pr.a11yPlain}
       style={[styles.badge, small && styles.badgeSm]}

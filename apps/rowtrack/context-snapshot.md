@@ -73,11 +73,11 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+3dbc9d9 fix(rowtrack): the depth cap counted a different unit than it cut
 7571740 fix(rowtrack): the 42 screen differences are gone, fixed at the source
 ce2eba0 feat(rowtrack): the screens are exported to RowTrack - Design as library instances
 db77523 feat(rowtrack): the screens export mechanism, and the variant as a fact
 dcef5b1 refactor(rowtrack): step 5 — the heuristic component boundary is gone
-62ad3be feat(rowtrack): 3b — dataSet names the Reanimated nodes, and Figma round D
 ```
 
 ## Uncommitted wijzigingen

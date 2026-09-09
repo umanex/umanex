@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { bg, fg, accent, border, space, radii, typeStyles } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 export type SegmentedOption<T extends string> = { value: T; label: string };
 
@@ -33,7 +34,8 @@ export function Segmented<T extends string>({
   style,
 }: SegmentedProps<T>) {
   return (
-    <View testID="Segmented" style={[variant === 'band' ? styles.band : styles.filled, style]}>
+    <View testID="Segmented"
+        dataSet={variantData({ variant })} style={[variant === 'band' ? styles.band : styles.filled, style]}>
       {options.map((opt) => {
         const active = value === opt.value;
         return (

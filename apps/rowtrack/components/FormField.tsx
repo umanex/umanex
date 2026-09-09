@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { t } from '@/i18n';
+import { variantData } from '@/lib/variantData';
 import {
   bg,
   fg,
@@ -55,7 +56,8 @@ export const FormField = memo(function FormField({
   const isPassword = !!secureTextEntry;
 
   return (
-    <View testID="FormField" style={styles.wrap}>
+    <View testID="FormField"
+        dataSet={variantData({ secureTextEntry: !!secureTextEntry })} style={styles.wrap}>
       {fieldLabel && <Text style={styles.label}>{fieldLabel}</Text>}
 
       <View

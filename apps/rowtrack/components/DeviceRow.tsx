@@ -22,6 +22,15 @@ export type DeviceRowProps = {
    * eigen naam mee — anders zou de grens van dat component nergens in de DOM staan.
    */
   testID?: string;
+  /**
+   * De variant-vingerafdruk van het component dat deze rij als zijn eigen wortel rendert.
+   * Zelfde vorm als overal (`lib/variantData.ts`), maar hij moet hier langs een prop: de
+   * wortel draagt al `dataSet={{ bron }}`, en twee `dataSet`-props op één node zouden elkaar
+   * overschrijven. Zonder deze doorgifte kan de builder voor BleStatusBar en HrStatusBar
+   * géén variant kiezen en bouwt hij de subboom na in plaats van te instantiëren — gemeten
+   * 2026-09-09: 8 van de 8 voorkomens in de schermen.
+   */
+  dataSet?: Record<string, string>;
 };
 
 /**
@@ -40,9 +49,10 @@ export function DeviceRow({
   loading = false,
   actionDisabled = false,
   testID = 'DeviceRow',
+  dataSet,
 }: DeviceRowProps) {
   return (
-    <View testID={testID} dataSet={{ bron: 'DeviceRow' }} style={styles.container}>
+    <View testID={testID} dataSet={{ bron: 'DeviceRow', ...dataSet }} style={styles.container}>
       <View style={styles.left}>
         <View style={styles.iconContainer}>
           {loading ? (
