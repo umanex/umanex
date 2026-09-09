@@ -16,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { bg, fg, border, fontFamily, fontSize, radii } from '@/constants';
 import { wheelItemParts, type WheelItem } from '@/lib/formatters';
+import { variantData } from '@/lib/variantData';
 
 const ITEM_H = 50;
 const PILL_H = 60;
@@ -173,7 +174,7 @@ export function WheelPicker({
   }, [initialized, scrollRef, scrollY, selectedIndex]);
 
   return (
-    <View testID="WheelPicker" style={[styles.container, { height: pickerH }]}>
+    <View testID="WheelPicker" dataSet={variantData({ showPill, surface })} style={[styles.container, { height: pickerH }]}>
       {showPill ? (
         <View style={[styles.pill, { top: pillTop, backgroundColor: fadeColors.pill }]} pointerEvents="none" />
       ) : null}

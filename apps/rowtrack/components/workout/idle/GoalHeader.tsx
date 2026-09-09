@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { GoalSegments, type GoalSegmentType } from '@/components/GoalSegments';
 import { t } from '@/i18n';
 import { fg, layout, typeStyles } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 export type GoalHeaderProps = {
   selectedSegment: GoalSegmentType;
@@ -18,7 +19,7 @@ export type GoalHeaderProps = {
 /** Het DOEL-kopje van het startscherm: sectielabel met de full-bleed segmentenrij eronder. */
 export function GoalHeader({ selectedSegment, onChange, screenWidth }: GoalHeaderProps) {
   return (
-    <View testID="GoalHeader" style={styles.doelHeader}>
+    <View testID="GoalHeader" dataSet={variantData({ selectedSegment })} style={styles.doelHeader}>
       <Text style={styles.sectionLabel}>{t.workout.idle.goalLabel}</Text>
       <View style={{ width: screenWidth, marginLeft: -layout.screenHorizontal }}>
         <GoalSegments selected={selectedSegment} onChange={onChange} />

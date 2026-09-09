@@ -13,6 +13,7 @@ import {
   space,
   componentRadius,
 } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 export type DeviceSelectionKind = 'rower' | 'hr';
 
@@ -42,7 +43,7 @@ function signalLabel(rssi: number): { text: string; color: string } {
  */
 export const DeviceSelectionModal = ({ visible, kind, devices, onSelect, onCancel }: Props) => (
   <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-    <View testID="DeviceSelectionModal" style={styles.backdrop}>
+    <View testID="DeviceSelectionModal" dataSet={variantData({ visible, kind })} style={styles.backdrop}>
       <View style={styles.sheet}>
         <Text style={styles.title}>
           {kind === 'rower' ? t.workout.deviceModal.titleRower : t.workout.deviceModal.titleHr}

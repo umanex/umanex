@@ -17,6 +17,7 @@ import {
   space,
   radii,
 } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
@@ -73,6 +74,7 @@ export const Button = memo(function Button({
   return (
     <TouchableOpacity
       testID="Button"
+      dataSet={variantData({ variant, size, loading, disabled })}
       style={[
         styles.base,
         size === 'lg' ? styles.sizeLg : styles.sizeMd,

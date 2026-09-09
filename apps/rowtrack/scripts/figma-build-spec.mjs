@@ -473,6 +473,11 @@ const WALKER = () => {
     // toelichting bij de `testID`-prop van DeviceRow.
     const bron = el.getAttribute('data-bron');
     if (bron) { o.bron = bron; gezienBron.add(bron); }
+    // `data-variant`: welke variant-as-waarden dit component draagt. Nodig om bij de
+    // schermen-export de JUISTE library-variant te instantiëren; uit de gemeten geometrie is
+    // dat niet af te leiden (zie lib/variantData.ts).
+    const variant = el.getAttribute('data-variant');
+    if (variant) o.variant = variant;
     const rnw = rnwRol(el, cs);
     if (rnw) { o.rnw = rnw.rol; if (rnw.gedeeld) o.rnwGedeeld = true; }
     o.kandidaten = [];

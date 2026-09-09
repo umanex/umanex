@@ -43,6 +43,7 @@ function snoei(node, diepte, pad, comp) {
   // De gedeclareerde componentgrens reist mee: de schermen-export heeft hem nodig om te
   // beslissen of een node een INSTANCE van een library-component wordt of een gewoon frame.
   if (node.component) o.component = node.component;
+  if (node.variant) o.variant = node.variant;
   if (node.naamAmbigu) o.naamAmbigu = true;
   if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
   if (node.slot) o.slot = node.slot;      // deze tekstnode hangt aan een component property

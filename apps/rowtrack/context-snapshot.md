@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+dcef5b1 refactor(rowtrack): step 5 — the heuristic component boundary is gone
 62ad3be feat(rowtrack): 3b — dataSet names the Reanimated nodes, and Figma round D
 c86eab8 refactor(rowtrack): cuts 12 to 14 — DeviceSection, GoalHeader, StartCta
 e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
 e81fb62 chore(rowtrack): Figma round C — the four summary components in the library
-681dfd6 refactor(rowtrack): cuts 10 and 11 — SummaryKpiBand and StatsTable, and the clock
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/BottomSheet.tsx
-  M  apps/rowtrack/components/DeviceRow.tsx
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
-  M  apps/rowtrack/scripts/figma-build-spec.mjs
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
-  M  apps/rowtrack/scripts/laagnamen-selftest.mjs
-  M  apps/rowtrack/scripts/laagnamen.mjs
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/components/Button.tsx
+  M  apps/rowtrack/components/Chip.tsx
+  M  apps/rowtrack/components/WheelPicker.tsx
+  M  apps/rowtrack/components/workout/DeviceSelectionModal.tsx
+  M  apps/rowtrack/components/workout/active/KpiRow.tsx
+  M  apps/rowtrack/components/workout/active/ProgressBar.tsx
+  M  apps/rowtrack/components/workout/idle/DeviceSection.tsx
+  M  apps/rowtrack/components/workout/idle/GoalHeader.tsx
+  A  apps/rowtrack/figma/bouw-schermen.js
 
 ## Bestanden met TODO/FIXME
   (geen)

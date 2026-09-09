@@ -1,5 +1,6 @@
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { bg, fg, accent, border, fontFamily, fontSize, radii } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 type ChipProps = {
   value: string;
@@ -12,6 +13,7 @@ export function Chip({ value, unit, active, onPress }: ChipProps) {
   return (
     <TouchableOpacity
       testID="Chip"
+      dataSet={variantData({ active })}
       style={[styles.chip, active ? styles.chipActive : styles.chipDefault]}
       onPress={onPress}
       activeOpacity={0.8}
