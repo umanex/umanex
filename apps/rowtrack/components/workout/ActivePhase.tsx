@@ -16,6 +16,8 @@ import { KpiSingle } from '@/components/KpiSingle';
 import { ActiveHeader } from './active/ActiveHeader';
 import { ConnectionOverlay } from './active/ConnectionOverlay';
 import { KpiRow } from './active/KpiRow';
+import { PrBanner } from './active/PrBanner';
+import { SummaryTitle } from './active/SummaryTitle';
 import { ProgressBar, type FillKind } from './active/ProgressBar';
 import { HeroPanel, type HeroSubtitle } from './active/HeroPanel';
 import { MotivationalToast } from '@/components/workout';
@@ -424,47 +426,12 @@ export function ActivePhase({
         <View style={summaryStyles.screen}>
           {/* Top: titel + datum + PR-banner */}
           <View style={summaryStyles.topSection}>
-            <View style={[summaryStyles.titleBlock, { paddingTop: Math.max(space['28'], insets.top) }]}>
-              <Text style={summaryStyles.title}>{t.workout.summary.title}</Text>
-              <Text style={summaryStyles.dateText}>{summaryDateLabel}</Text>
-            </View>
-            {prEntries.length > 0 && (
-              <View style={summaryStyles.prWrapper}>
-                <View style={summaryStyles.prBanner}>
-                  <View style={summaryStyles.prBannerTop}>
-                    <Text style={summaryStyles.prEmoji}>🏅</Text>
-                    <Text style={summaryStyles.prText}>
-                      {prEntries.length === 1
-                        ? t.pr.bannerTitleOne
-                        : t.pr.bannerTitleMany(prEntries.length)}
-                    </Text>
-                  </View>
-                  {/* Eén regel per record: "Vermogen · 143 W" met daaronder wat het verving.
-                      Eerder stond hier één generieke zin, waardoor je wél las dát je een
-                      record brak maar niet waarop. */}
-                  {prEntries.map((entry) => (
-                    <View
-                      key={entry.metric}
-                      accessible
-                      accessibilityLabel={prEntrySpoken(entry)}
-                      style={summaryStyles.prEntryRow}
-                    >
-                      <Text style={summaryStyles.prEntryMetric}>
-                        {prMetricLabel(entry.metric)}
-                      </Text>
-                      <View style={summaryStyles.prEntryValues}>
-                        <Text style={summaryStyles.prEntryValue}>
-                          {formatPrValue(entry.metric, entry.value)}
-                        </Text>
-                        <Text style={summaryStyles.prEntryPrevious}>
-                          {formatPrPrevious(entry)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
+            <SummaryTitle
+              title={t.workout.summary.title}
+              dateLabel={summaryDateLabel}
+              paddingTop={Math.max(space['28'], insets.top)}
+            />
+            <PrBanner prEntries={prEntries} />
           </View>
 
           {/* KPI-metrics — volle-breedte bg.raised band */}
@@ -586,78 +553,6 @@ const summaryStyles = StyleSheet.create({
   topSection: {
     paddingBottom: space['28'],
     gap: space['20'],
-  },
-  titleBlock: {
-    paddingHorizontal: space['20'],
-    // paddingTop wordt inline gezet (safe-area top)
-  },
-  title: {
-    ...typeStyles.sectionValue,
-    color: fg.primary,
-  },
-  dateText: {
-    ...typeStyles.labelGoalPrefix,
-    color: fg.secondary,
-    textTransform: 'uppercase',
-  },
-  prWrapper: {
-    paddingHorizontal: space['20'],
-  },
-  prBanner: {
-    // Was een rauwe rgba-amber — een hardcoded waarde zonder token. Nu de raised-rol met
-    // een achievement-rand: dezelfde betekenis, dezelfde markering als het PR-blok op het
-    // detailscherm, en geen nieuwe kleur nodig.
-    backgroundColor: bg.raised,
-    // Een volledige rand en niet alleen links: `bg.raised` is ook het vlak van de KPI-band
-    // eronder, dus zonder eigen omtrek leest het vieringsmoment als een gewone sectie.
-    // TODO: geen borderWidth-token in constants/; een `achievement.surface`-rol zou hier
-    // beter passen dan een rand — bespreken vóór er een derde plek bij komt.
-    borderWidth: 2,
-    borderColor: achievement.muted,
-    borderRadius: componentRadius.highlightRow,
-    padding: space['20'],
-    gap: space['12'],
-  },
-  prBannerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space['8'],
-  },
-  prEmoji: {
-    fontSize: fontSize['14'],
-  },
-  prText: {
-    ...typeStyles.kpiUnit,
-    color: achievement.default,
-  },
-  prEntryRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: space['12'],
-  },
-  prEntryMetric: {
-    ...typeStyles.labelMicro,
-    color: fg.secondary,
-    paddingTop: space['4'],
-    flexShrink: 1,
-  },
-  prEntryValues: {
-    alignItems: 'flex-end',
-    gap: space['2'],
-    // Zie het PR-blok op het detailscherm: zonder shrink loopt de vorige-waarde-regel
-    // buiten de banner, en wrappen kan hij niet.
-    flexShrink: 1,
-  },
-  prEntryValue: {
-    ...typeStyles.kpiValue,
-    color: achievement.default,
-  },
-  prEntryPrevious: {
-    // Volzin, dus body.xs — labelMicro kapitaliseerde de eenheden ('12,5 KM').
-    ...body.xs,
-    color: fg.tertiary,
-    textAlign: 'right',
   },
   // KPI-metrics — volle-breedte bg.raised band (KPI Row-frame)
   kpiBand: {

@@ -86,8 +86,13 @@ const nrPad = join(APP, 'figma/niet-reproduceerbaar.json');
 // uitgesloten subboom hoort mét de lijst stil te blijven en zónder de lijst rood te worden.
 // Blijft hij in beide gevallen stil, dan sluit de lijst niets uit maar meet de as daar niets —
 // twee toestanden die er in de uitvoer identiek uitzien.
-const nietReproduceerbaar = (!process.argv.includes('--zonder-uitsluiting') && existsSync(nrPad))
-  ? new Set(JSON.parse(readFileSync(nrPad, 'utf8')).paden)
+const nrData = (!process.argv.includes('--zonder-uitsluiting') && existsSync(nrPad))
+  ? JSON.parse(readFileSync(nrPad, 'utf8')) : null;
+const nrKlassen = new Set(nrData?.klassen ?? []);
+const nrPaden = new Set(nrData?.paden ?? []);
+/** Uitgesloten als het PAD gemeten is, óf als een segment tot een gemeten KLASSE hoort. */
+const nietReproduceerbaar = nrData
+  ? { has: (pad) => nrPaden.has(pad) || pad.split('>').some((seg) => nrKlassen.has(seg.replace(/^\d+:/, ''))) }
   : null;
 
 // Tolerantie. Figma en Chromium ronden subpixels verschillend af; 0,5px is ruim genoeg voor

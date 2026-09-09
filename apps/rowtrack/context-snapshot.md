@@ -57,8 +57,10 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 | GoalPill | `apps/rowtrack/components/workout/active/GoalPill.tsx` | active | — | — | — |
 | HeroPanel | `apps/rowtrack/components/workout/active/HeroPanel.tsx` | active | — | — | — |
 | KpiRow | `apps/rowtrack/components/workout/active/KpiRow.tsx` | active | — | — | — |
+| PrBanner | `apps/rowtrack/components/workout/active/PrBanner.tsx` | active | — | — | — |
 | ProgressBar | `apps/rowtrack/components/workout/active/ProgressBar.tsx` | active | — | — | — |
 | SubtitleProgress | `apps/rowtrack/components/workout/active/SubtitleProgress.tsx` | active | — | — | — |
+| SummaryTitle | `apps/rowtrack/components/workout/active/SummaryTitle.tsx` | active | — | — | — |
 | ActivePhase | `apps/rowtrack/components/workout/ActivePhase.tsx` | workout | — | — | — |
 | DeviceSelectionModal | `apps/rowtrack/components/workout/DeviceSelectionModal.tsx` | workout | — | — | — |
 | IdlePhase | `apps/rowtrack/components/workout/IdlePhase.tsx` | workout | — | — | — |
@@ -66,24 +68,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
 58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
 e9b4004 chore(rowtrack): remeasure the non-reproducible nodes after cut 6
 945ffa1 refactor(rowtrack): cut 6 — ConnectionOverlay
 784c2bd refactor(rowtrack): cut 5 — ProgressBar
-db48bdc refactor(rowtrack): cut 4 — ActiveHeader
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/workout/active/ActiveHeader.stories.tsx
-  M  apps/rowtrack/components/workout/active/ConnectionOverlay.stories.tsx
-  M  apps/rowtrack/components/workout/active/GoalPill.stories.tsx
-  M  apps/rowtrack/components/workout/active/HeroPanel.stories.tsx
-  M  apps/rowtrack/components/workout/active/KpiRow.stories.tsx
-  M  apps/rowtrack/components/workout/active/ProgressBar.stories.tsx
-  M  apps/rowtrack/components/workout/active/SubtitleProgress.stories.tsx
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/components/workout/ActivePhase.tsx
+  A  apps/rowtrack/components/workout/active/PrBanner.stories.tsx
+  A  apps/rowtrack/components/workout/active/PrBanner.tsx
+  A  apps/rowtrack/components/workout/active/SummaryTitle.stories.tsx
+  A  apps/rowtrack/components/workout/active/SummaryTitle.tsx
+  M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/laagnamen.json
+  M  apps/rowtrack/figma/niet-reproduceerbaar.json
+  M  apps/rowtrack/figma/ongebonden.json
+  M  apps/rowtrack/figma/story-axes.json
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -31,7 +31,11 @@ const REL = 'figma/build-spec.min.json';
 
 /** Dezelfde uitsluiting als parity: nodes die per meetmoment een andere maat hebben. */
 const nrPad = join(APP, 'figma/niet-reproduceerbaar.json');
-const instabiel = existsSync(nrPad) ? new Set(JSON.parse(readFileSync(nrPad, 'utf8')).paden) : new Set();
+const nrData = existsSync(nrPad) ? JSON.parse(readFileSync(nrPad, 'utf8')) : null;
+const nrKlassen = new Set(nrData?.klassen ?? []);
+const nrPaden = new Set(nrData?.paden ?? []);
+/** Uitgesloten als het PAD gemeten is, óf als een segment tot een gemeten KLASSE hoort. */
+const instabiel = { has: (pad) => nrPaden.has(pad) || pad.split('>').some((seg) => nrKlassen.has(seg.replace(/^\d+:/, ''))) };
 
 // Alles wat de vorm of de maat van een node bepaalt. Breedte en tekst-hoogte zitten er WEL in:
 // beide kanten zijn dezelfde browser, dus een verschil is een echt verschil.

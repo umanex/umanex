@@ -507,6 +507,13 @@
    "uitgesloten": {},
    "variantNodes": 16
   },
+  "PrBanner": {
+   "storyId": "componenten-prbanner--playground",
+   "titel": "Componenten/PrBanner",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
   "ProgressBar": {
    "storyId": "componenten-progressbar--playground",
    "titel": "Componenten/ProgressBar",
@@ -531,9 +538,16 @@
    "assen": {},
    "uitgesloten": {},
    "variantNodes": 1
+  },
+  "SummaryTitle": {
+   "storyId": "componenten-summarytitle--playground",
+   "titel": "Componenten/SummaryTitle",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
   }
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 630
+ "totaalVariantNodes": 632
 }

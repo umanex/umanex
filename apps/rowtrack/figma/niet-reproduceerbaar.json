@@ -181,5 +181,8 @@
   "KPI[highlighted=true, compact=true, fill=true, loading=true]>1:spinner>0:spinnerBox>0:spinnerSvg>1:spinnerArc",
   "MotivationalToast[default]>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:overlay>2:item",
   "MotivationalToast[default]>0:modalAnimation>1:modalTrap>0:modalContent>0:modalContainer>0:overlay>3:item"
+ ],
+ "klassen": [
+  "spinnerBox"
  ]
 }
