@@ -312,6 +312,9 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
         enterprise_number TEXT PRIMARY KEY, name TEXT, nace_label TEXT, city TEXT,
         employee_count REAL, ebitda REAL, valuation_multiple REAL,
         enterprise_value REAL, equity_value REAL, bestandsnaam TEXT, imported_at TEXT);
+      CREATE TABLE jr.next_actions (
+        subject_type TEXT, subject_key TEXT, datum TEXT, omschrijving TEXT, updated_at TEXT,
+        PRIMARY KEY (subject_type, subject_key));
     `)
 
     // Vier bedrijven, elk met precies één eigenschap die ertoe doet.
@@ -425,6 +428,9 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
         enterprise_number TEXT PRIMARY KEY, name TEXT, nace_label TEXT, city TEXT,
         employee_count REAL, ebitda REAL, valuation_multiple REAL,
         enterprise_value REAL, equity_value REAL, bestandsnaam TEXT, imported_at TEXT);
+      CREATE TABLE jr.next_actions (
+        subject_type TEXT, subject_key TEXT, datum TEXT, omschrijving TEXT, updated_at TEXT,
+        PRIMARY KEY (subject_type, subject_key));
     `)
     const zet = (nr: string, start: string, werknemers: number | null, ebitda: number | null) => {
       db.prepare(`INSERT INTO enterprise VALUES (?, 'AC', ?)`).run(nr, start)
@@ -470,6 +476,45 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
         `sortering ${s} eindigt op een unieke tiebreak`,
         clausule.endsWith('e.EnterpriseNumber'),
         `laatste ORDER BY: "${clausule}"`
+      )
+    }
+
+    // ── Sorteren op volgende actie ─────────────────────────────────────────
+    // De val zit in NULL: `ASC` zet die in SQLite vooráán, dus zonder expliciete sleutel
+    // staan bedrijven zónder afspraak boven een verlopen afspraak — precies omgekeerd.
+    {
+      const zet = db.prepare(`INSERT INTO jr.next_actions
+        (subject_type, subject_key, datum, omschrijving, updated_at)
+        VALUES ('prospect', ?, ?, 'x', 'x')`)
+      zet.run('2000000003', '2020-01-01') // verlopen
+      zet.run('2000000001', '2030-01-01') // ver in de toekomst
+      // 2000000002 en 2000000004 krijgen bewust géén actie.
+
+      const q = bouwProspectSql({ ...basis, regions: ['WVL'], sortering: 'actie' })
+      const rijen = db.prepare(q.sql).all(...(q.params as never[])) as { nummer: string; actieDatum: string | null }[]
+      const volgorde = rijen.map((r) => r.nummer)
+
+      check('verlopen actie staat bovenaan', volgorde[0] === '2000000003', volgorde.join(','))
+      check('daarna de toekomstige actie', volgorde[1] === '2000000001', volgorde.join(','))
+      check(
+        'bedrijven zonder actie staan onderaan, niet bovenaan',
+        volgorde.slice(2).sort().join(',') === '2000000002,2000000004',
+        volgorde.join(',')
+      )
+      check('geen enkel bedrijf raakt zoek door de join', rijen.length === 4, String(rijen.length))
+      check(
+        'de actie-datum komt mee in de rij',
+        rijen.find((r) => r.nummer === '2000000003')?.actieDatum === '2020-01-01',
+        String(rijen.find((r) => r.nummer === '2000000003')?.actieDatum)
+      )
+      // Een actie van een LEAD met hetzelfde getal mag niet op een prospect landen.
+      db.prepare(`INSERT INTO jr.next_actions VALUES ('lead','2000000002','1999-01-01','x','x')`).run()
+      const q2 = bouwProspectSql({ ...basis, regions: ['WVL'], sortering: 'actie' })
+      const rijen2 = db.prepare(q2.sql).all(...(q2.params as never[])) as { nummer: string; actieDatum: string | null }[]
+      check(
+        'een lead-actie lekt niet naar de prospect met hetzelfde nummer',
+        rijen2.find((r) => r.nummer === '2000000002')?.actieDatum === null,
+        String(rijen2.find((r) => r.nummer === '2000000002')?.actieDatum)
       )
     }
 

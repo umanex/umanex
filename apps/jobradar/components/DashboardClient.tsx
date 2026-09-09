@@ -14,6 +14,7 @@ import { LeadCard } from './LeadCard'
 import { ProspectCard, type Prospect } from './ProspectCard'
 import { HerkomstFilter } from './HerkomstFilter'
 import { ProspectMap } from './ProspectMap'
+import { ContactPanel } from './ContactPanel'
 import { Button } from '@umanex/ui/components/ui/button'
 import { Checkbox } from '@umanex/ui/components/ui/checkbox'
 import { Label } from '@umanex/ui/components/ui/label'
@@ -75,6 +76,8 @@ export function DashboardClient({
   // Kaart of lijst — dezelfde selectie, een andere weergave. Geen apart tabblad: dan zou het
   // filter erboven er niet voor gelden.
   const [weergave, setWeergave] = useState<'lijst' | 'kaart'>('lijst')
+  // Welk bedrijf staat open in het opvolgingspaneel. Null = dicht.
+  const [opvolging, setOpvolging] = useState<{ nummer: string; naam: string } | null>(null)
   // CSV-rijen zonder KBO-tegenhanger. Ze kunnen niet in de lijst staan; ze worden gemeld.
   const [zonderKbo, setZonderKbo] = useState(0)
   // Ongefilterd rijaantal in csv_prospects: onderscheidt "nog niets geïmporteerd" van
@@ -388,6 +391,7 @@ export function DashboardClient({
                   <option value="oprichting">Nieuwste eerst</option>
                   <option value="omvang">Grootste eerst</option>
                   <option value="ebitda">Hoogste EBITDA eerst</option>
+                  <option value="actie">Volgende actie eerst</option>
                 </select>
                 <p className="text-sm tabular-nums text-muted-foreground">
                   {prospectBezig ? 'Bezig…' : `${prospectTotaal} prospect${prospectTotaal === 1 ? '' : 's'}`}
@@ -469,6 +473,7 @@ export function DashboardClient({
                     heeftVacatures={leadNummers.has(p.nummer)}
                     vandaag={vandaag}
                     onStatusChange={(status) => handleProspectStatusChange(p.nummer, status)}
+                    onOpvolging={() => setOpvolging({ nummer: p.nummer, naam: p.naam })}
                   />
                 ))}
               </div>
@@ -499,6 +504,22 @@ export function DashboardClient({
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Buiten de Tabs: een sheet hoort over de hele pagina te liggen, niet binnen het
+            paneel dat hem opende. */}
+        {opvolging && (
+          <ContactPanel
+            open
+            onOpenChange={(o) => !o && setOpvolging(null)}
+            type="prospect"
+            subjectKey={opvolging.nummer}
+            naam={opvolging.naam}
+            vandaag={vandaag}
+            onStatusChange={(status) =>
+              handleProspectStatusChange(opvolging.nummer, status as ItemStatus)
+            }
+          />
+        )}
       </div>
     </TooltipProvider>
   )

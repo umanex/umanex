@@ -28,6 +28,7 @@
     "./components/ui/tabs": "./components/ui/tabs.tsx",
     "./components/ui/slider": "./components/ui/slider.tsx",
     "./components/ui/tooltip": "./components/ui/tooltip.tsx",
+    "./components/ui/sheet": "./components/ui/sheet.tsx",
     "./components/ui/theme-toggle": "./components/ui/ThemeToggle.tsx"
   },
   "peerDependencies": {

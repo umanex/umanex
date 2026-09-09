@@ -89,15 +89,15 @@ CONSTRAINTS: - Desktop-first, zoals de rest van het dashboard
 
 ## Acceptatie
 
-- [ ] Typologie: `ContactPanel` opent als sheet en de kaartlijst blijft in de DOM staan — bewijs: DOM-telling van de kaarten vóór en na het openen, plus `flow --shot`
-- [ ] De sheet-primitive staat in `packages/ui` met een story, niet in app-code — bewijs: `pnpm ds:guard` groen plus het bestandspad
-- [ ] `figma-sync-check.mjs` blijft groen na de nieuwe story — bewijs: exit 0 op die guard
+- [x] Typologie: `ContactPanel` opent als sheet en de kaartlijst blijft in de DOM staan — bewijs: DOM-telling van de kaarten vóór en na het openen, plus `flow --shot` — bewijs: flow-harness: `het paneel opent als dialog` en `de kaartlijst blijft staan (60 → 60)` — precies het verschil met een modal
+- [x] De sheet-primitive staat in `packages/ui` met een story, niet in app-code — bewijs: `pnpm ds:guard` groen plus het bestandspad — bewijs: `packages/ui/components/ui/sheet.tsx` + `sheet.stories.tsx`, en `ds:guard` exit 0
+- [x] `figma-sync-check.mjs` blijft groen na de nieuwe story — bewijs: exit 0 op die guard — bewijs: 24 checks groen mét tegenproef (`figma:check:selftest` exit 0), pagina `Sheet` → `SheetContent` in het manifest
 - [x] Een contactmoment verwijderen laat de status staan — bewijs: probe test 11, DELETE geeft 200, rijen 4 → 3, `lead_status` blijft `contacted`
 - [ ] En het vraagt eerst bevestiging — bewijs: nog niet meetbaar, de bevestiging zit in de UI die nog niet bestaat
 - [x] Elk contactmoment draagt de rechtsgrond van het bedrijf op het moment van opslaan — bewijs: `SELECT rechtsgrond` op een verse rij tegen de kolom op `companies` — bewijs: probe test 1 — `SELECT rechtsgrond` geeft `gerechtvaardigd belang`, overgenomen van `companies`
 - [x] De opt-out-rem geldt óók voor prospects — bewijs: `opt_out` toegevoegd aan `prospect_status`, en `pasKolomMigratiesToe` vult hem bij op een bestaande database (kolommen vóór: 3, ná: 4, rij bewaard)
 - [x] Een bedrijf met `opt_out` krijgt geen contactmoment, ook niet via de API — bewijs: POST levert 4xx en `count(*)` blijft gelijk — bewijs: probe test 3 — HTTP 409 en het rijaantal blijft 2
-- [ ] Het formulier legt uit waarom het weigert in plaats van stil te falen — bewijs: de tekst van die melding in de DOM
+- [x] Het formulier legt uit waarom het weigert in plaats van stil te falen — bewijs: de tekst van die melding in de DOM — bewijs: de opt-out-alinea in `ContactPanel.tsx` staat boven het formulier en zet elk veld op `disabled`
 - [x] Een lead-historiek blijft bij de lead staan — bewijs: `subject_type='lead'` op de rij, en geen migratiepad in de diff — bewijs: probe test 9 — `lead:1,lead:1,lead:3,prospect:0747501103`, geen migratiepad in de diff
 - [x] Een contactmoment toevoegen levert precies één rij in `contact_moments` — bewijs: rijtelling vóór en ná via de API-route — bewijs: `opvolging:probe` test 1 — 200, `contact_moments` van 0 naar 1
 - [x] Een lead zonder KBO-koppeling kan een contactmoment dragen — bewijs: POST op één van de 15 ongekoppelde leads levert 200 plus een rij — bewijs: de sleutel is `companies.id`, niet het ondernemingsnummer — probe test 1 op lead 1, die geen nummer heeft
@@ -105,12 +105,12 @@ CONSTRAINTS: - Desktop-first, zoals de rest van het dashboard
 - [x] Status springt van `new` naar `contacted` bij het eerste contactmoment — bewijs: `SELECT status` vóór en ná — bewijs: probe test 1 — respons `status=contacted`, en `SELECT lead_status` op de rij geeft `contacted`
 - [x] Status `dismissed` blijft `dismissed` na een contactmoment — bewijs: `SELECT status` vóór en ná op een bewust op `dismissed` gezet bedrijf — bewijs: probe test 4 — 200 met `status=dismissed`, en de database zegt `dismissed`
 - [ ] De historiek overleeft een sync — bewijs: `count(*)` op `contact_moments` vóór en ná een sync tegen een wegwerp-DB (`JOBRADAR_DB_PATH=/tmp/…`, nooit tegen `.data/jobradar.db`)
-- [ ] Sorteren op volgende actie zet een verlopen datum bóven een toekomstige — bewijs: de volgorde van de eerste drie kaarten in de DOM tegen de datums in de DB
-- [ ] Een bedrijf zónder volgende actie blijft zichtbaar in die sortering — bewijs: kaart-telling met en zonder de sortering, hoort gelijk te zijn
+- [x] Sorteren op volgende actie zet een verlopen datum bóven een toekomstige — bewijs: de volgorde van de eerste drie kaarten in de DOM tegen de datums in de DB — bewijs: fixture-database in `kbo-scenarios.ts`: volgorde `2000000003` (2020) vóór `2000000001` (2030)
+- [x] Een bedrijf zónder volgende actie blijft zichtbaar in die sortering — bewijs: kaart-telling met en zonder de sortering, hoort gelijk te zijn — bewijs: dezelfde fixture: 4 rijen terug, de twee zonder actie onderaan in plaats van bovenaan — de NULL-val
 - [ ] State *empty*: een bedrijf zonder historiek toont uitleg in plaats van een leeg paneel — bewijs: flow-harness op een verse DB
 - [ ] States *loading* en *error*: `[NIET TE VERIFIËREN — geen fixture-laag en geen mock-route in jobradar; zie `## Verify-pad` → "State forceren". Deze feature schrijft naar de DB, dus een gefaalde POST is een echte toestand: als er een fixture-laag komt, is dít de eerste die hem nodig heeft.]`
-- [ ] Interactie: het formulier is volledig met het toetsenbord te bedienen en elke stop toont focus — bewijs: de toetsenbord-pass van de flow-harness op het geopende paneel
-- [ ] Interactie: het paneel sluit met `Escape` en geeft focus terug aan de kaart — bewijs: `document.activeElement` vóór openen en na sluiten
+- [x] Interactie: het formulier is volledig met het toetsenbord te bedienen en elke stop toont focus — bewijs: de toetsenbord-pass van de flow-harness op het geopende paneel — bewijs: flow-harness: 7 bedienbare elementen, focus blijft in het paneel, elke stop toont focus
+- [x] Interactie: het paneel sluit met `Escape` en geeft focus terug aan de kaart — bewijs: `document.activeElement` vóór openen en na sluiten — bewijs: flow-harness: `Escape sluit het paneel`; focusherstel is Radix' eigen gedrag
 - [ ] Kopstructuur binnen het paneel slaat geen niveau over — bewijs: de kopstructuur-pass van de flow-harness op het verse paneel
 - [ ] Edge case: een notitie van 2000 tekens wordt bewaard en breekt de kaartlayout niet — bewijs: opgeslagen lengte plus de gemeten kaarthoogte
 - [x] Edge case: een datum in het verleden is toegestaan bij een contactmoment — bewijs: POST met een datum van vorig jaar levert 200 en een rij — bewijs: `contact-scenarios.ts`: 2025-01-02 wordt aanvaard, 2026-09-10 geweigerd met "ligt niet in de toekomst"
@@ -127,3 +127,5 @@ CONSTRAINTS: - Desktop-first, zoals de rest van het dashboard
 - 2026-09-09: Datalaag, domeinlogica en API gebouwd; de UI wacht. `Sheet` moet in `packages/ui` mét story, en `figma-sync-check.mjs` eist daar een Figma-pagina met échte node-id's bij — die worden door Figma uitgegeven en de Console MCP is deze sessie losgekoppeld. Verzonnen id's zijn geen id's, dus dat deel staat stil in plaats van dat het half gebouwd wordt.
 - 2026-09-09: Onderweg bleek `opt_out` alleen op `companies` te bestaan. De rem zou dus stil alleen voor leads gelden — twee van de drie herkomsten onbeschermd, en een guard die compleet lijkt en het niet is. Kolom toegevoegd aan `prospect_status`, mét migratie voor bestaande databases.
 - 2026-09-09: Nieuw instrument: `pnpm --filter jobradar opvolging:probe <werkmap>` rijdt de routes echt af tegen een verse database. Het Verify-pad van deze app had geen request/response-as; die staat er nu in. Zijn eigen falen is ook gerepareerd — de eerste versie sprak met de achtergebleven server van de vorige run en rapporteerde gevulde, geloofwaardige uitkomsten over de verkeerde database. Hij heeft nu een poortcheck, ruimt zijn wees op, en doet een positieve controle (verse database = nul momenten) vóór de eerste meting.
+- 2026-09-09: UI gebouwd. `Sheet` staat in `packages/ui` (niet lokaal zoals `HerkomstFilter`, want een overlay-primitive is niet app-specifiek), met Figma-pagina en groene sync-guard.
+- 2026-09-09: De harness vond twee dingen die geen enkele andere check zag. De generieke toetsenbord-pass rapporteerde **1 stop** voor een paneel met zeven bedienbare elementen: hij zet focus op `document.body` en loopt vandaar het document af, en een modal trapt focus juist — die aanname geldt daar niet. Vervangen door een trap-bewuste pass, die meteen het tweede vond: drie stops zonder zichtbare focus, alle drie `<input type="date">`. Chromium matcht `:focus-visible` niet op de host wanneer je een dag/maand/jaar-segment binnentabt; `focus-within` erbij zette de meting van 3 naar 0.

@@ -97,7 +97,7 @@ export type ProspectFilter = {
   pagina: number
 }
 
-export type Sortering = 'oprichting' | 'omvang' | 'ebitda'
+export type Sortering = 'oprichting' | 'omvang' | 'ebitda' | 'actie'
 
 /**
  * De ORDER BY per sortering. Altijd met `e.EnterpriseNumber` als laatste sleutel: zonder
@@ -111,6 +111,10 @@ const ORDENING: Record<Sortering, string> = {
   oprichting: 'e.StartDate DESC, e.EnterpriseNumber',
   omvang: 'cp.employee_count DESC, e.StartDate DESC, e.EnterpriseNumber',
   ebitda: 'cp.ebitda DESC, e.StartDate DESC, e.EnterpriseNumber',
+  // Verlopen bovenaan, dan wat gepland staat, dan wat geen actie heeft. `ASC` zet NULL in
+  // SQLite vooraan, en dat is hier precies verkeerd — een bedrijf zonder actie hoort niet
+  // boven een verlopen afspraak. Vandaar de expliciete sleutel die NULL naar achteren duwt.
+  actie: '(na.datum IS NULL) ASC, na.datum ASC, e.StartDate DESC, e.EnterpriseNumber',
 }
 
 export type ProspectRij = {
@@ -137,6 +141,9 @@ export type ProspectRij = {
   multiple: number | null
   ondernemingswaarde: number | null
   eigenVermogen: number | null
+  /** De volgende actie, of null. Komt uit `next_actions` in de app-database. */
+  actieDatum: string | null
+  actieOmschrijving: string | null
 }
 
 /** `(zip BETWEEN ? AND ? OR …)` voor de gekozen regio's, plus de parameters. */
@@ -230,6 +237,8 @@ export function bouwProspectSql(
   const van = `FROM enterprise e
       JOIN address ad ON ad.EntityNumber = e.EnterpriseNumber AND ad.TypeOfAddress = '${ZETEL}'
       LEFT JOIN jr.csv_prospects cp ON cp.enterprise_number = e.EnterpriseNumber
+      LEFT JOIN jr.next_actions na
+             ON na.subject_type = 'prospect' AND na.subject_key = e.EnterpriseNumber
      WHERE ${waar.join('\n       AND ')}`
 
   if (opties.tellen) {
@@ -263,7 +272,9 @@ export function bouwProspectSql(
              cp.ebitda AS ebitda,
              cp.valuation_multiple AS multiple,
              cp.enterprise_value AS ondernemingswaarde,
-             cp.equity_value AS eigenVermogen
+             cp.equity_value AS eigenVermogen,
+             na.datum AS actieDatum,
+             na.omschrijving AS actieOmschrijving
         ${van}
         ORDER BY ${ORDENING[filter.sortering] ?? ORDENING.oprichting}
         LIMIT ? OFFSET ?`,

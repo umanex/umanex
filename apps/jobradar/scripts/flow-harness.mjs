@@ -474,6 +474,91 @@ async function main() {
               }
             }
 
+            // ── Het opvolgingspaneel ──────────────────────────────────────────
+            // De briefing kiest een sheet boven een modal of inline uitklappen omdát de
+            // kaartlijst zichtbaar blijft. Dat is dus de check: telt het grid nog evenveel
+            // kaarten terwijl het paneel open staat?
+            const opvolgKnop = page.locator('[role="tabpanel"]:visible button', { hasText: /^Opvolging$/ }).first();
+            if (!(await opvolgKnop.count())) {
+              fail('prospects: geen Opvolging-knop op de kaarten');
+            } else {
+              const kaartenVoor = await page.locator('[role="tabpanel"]:visible h3').count();
+              const historiek = page
+                .waitForResponse((r) => r.url().includes('/api/opvolging?'), { timeout: 20_000 })
+                .catch(() => null);
+              await opvolgKnop.click();
+              const res = await historiek;
+              if (!res) {
+                fail('opvolging: klik vroeg geen historiek op');
+              } else {
+                await page.waitForTimeout(500);
+                const paneel = page.locator('[role="dialog"]');
+                if ((await paneel.count()) !== 1) {
+                  fail(`opvolging: ${await paneel.count()} dialogen, verwacht 1`);
+                } else {
+                  ok('opvolging: het paneel opent als dialog');
+
+                  // Dit onderscheidt een sheet van een modal die de lijst vervangt.
+                  const kaartenNa = await page.locator('[role="tabpanel"]:visible h3').count();
+                  if (kaartenNa >= kaartenVoor) ok(`opvolging: de kaartlijst blijft staan (${kaartenVoor} → ${kaartenNa})`);
+                  else fail(`opvolging: kaartlijst kromp van ${kaartenVoor} naar ${kaartenNa}`);
+
+                  const heeftFormulier = await paneel.locator('#contact-datum').count();
+                  if (heeftFormulier) ok('opvolging: het formulier staat in het paneel');
+                  else fail('opvolging: geen formulier in het paneel');
+
+                  // NIET de generieke toetsenbord-pass: die zet focus op `document.body` en
+                  // loopt vandaar het document af, en een modal trapt focus juist — dus die
+                  // aanname geldt hier niet. Gemeten 2026-09-09: hij rapporteerde "1 stops"
+                  // voor een paneel met acht bedienbare elementen, en meldde dat als groen.
+                  // Voor een dialog is de trap zélf de eigenschap die telt.
+                  const trap = await (async () => {
+                    await paneel.locator('#contact-datum').focus();
+                    const stops = [];
+                    for (let i = 0; i < 20; i++) {
+                      await page.keyboard.press('Tab');
+                      const s = await page.evaluate(() => {
+                        const el = document.activeElement;
+                        if (!el) return null;
+                        const dlg = el.closest('[role="dialog"]');
+                        const st = getComputedStyle(el);
+                        return {
+                          sleutel: (el.id || el.tagName + ':' + (el.textContent ?? '').trim().slice(0, 20)),
+                          binnen: !!dlg,
+                          zichtbaar: st.outlineStyle !== 'none' || st.boxShadow !== 'none',
+                        };
+                      });
+                      if (!s) break;
+                      stops.push(s);
+                    }
+                    return stops;
+                  })();
+
+                  const uniek = new Set(trap.map((s) => s.sleutel)).size;
+                  const buiten = trap.filter((s) => !s.binnen).length;
+                  const zonderRing = trap.filter((s) => !s.zichtbaar).length;
+
+                  if (uniek >= 5) ok(`opvolging: ${uniek} bedienbare elementen in het paneel`);
+                  else fail(`opvolging: slechts ${uniek} bedienbare elementen — de pass meet vermoedelijk niets`);
+
+                  if (buiten === 0) ok('opvolging: focus blijft in het paneel (trap werkt)');
+                  else fail(`opvolging: focus verliet het paneel ${buiten}× — de trap lekt`);
+
+                  if (zonderRing === 0) ok('opvolging: elke stop toont focus');
+                  else
+                    fail(
+                      `opvolging: ${zonderRing} stop(s) zonder zichtbare focus — ` +
+                        trap.filter((s) => !s.zichtbaar).map((s) => s.sleutel).join(', ')
+                    );
+
+                  await page.keyboard.press('Escape');
+                  await page.waitForTimeout(400);
+                  if ((await page.locator('[role="dialog"]').count()) === 0) ok('opvolging: Escape sluit het paneel');
+                  else fail('opvolging: Escape sloot het paneel niet');
+                }
+              }
+            }
+
             // ── De kaart ──────────────────────────────────────────────────────
             // Er is geen kaart-library en geen basemap, dus de kaart mag per constructie
             // geen enkel verzoek naar buiten doen. De origin-guard hierboven bewijst dat
