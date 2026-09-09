@@ -96,7 +96,14 @@ const NIET_VISUEEL = {
 //   AlbertSans_400Regular 18px ls=0       (2x, toast-body — was type/buttonPrimary)
 // Alle vier zijn een tokenvraag, geen walker-fout: er bestaat geen `Theme/type/*` met die
 // tracking. Ze staan in het BACKLOG-item over de ongebonden waarden.
-const BEKENDE_GATEN = 56;
+// 56 -> 53 op 2026-09-09 (later die avond): drie van de vier text-style-gaten zijn bij de BRON
+// opgelost in plaats van weggeratelt. Besluit Jeroen per waarde: de tekststijl heeft gelijk,
+// niet de handmatig opgebouwde stijl in de component. `Chip.value` gebruikt nu
+// `typeStyles.splitsRow` en de titel en body van `MotivationalToast` gebruiken
+// `typeStyles.sectionValue` en `typeStyles.buttonPrimary`. Wat overblijft is één gat dat een
+// écht ontbrekende token is: AlbertSans_600SemiBold 16px met 20 % tracking (`heroLabel`, 14
+// nodes) — de 20 %-reeks bestaat op 13 en 11 px, maar niet op 16. Zie het BACKLOG-item.
+const BEKENDE_GATEN = 53;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
 // 2 257 -> 3 760 op 2026-09-09. Het aantal UNIEKE ongebonden waarden bleef 52: dit zijn
@@ -106,7 +113,9 @@ const BEKENDE_GATEN = 56;
 // 3 760 -> 3 792 op 2026-09-09: exact de 32 tekstnodes die hun onterechte text style verliezen
 // door de strikte tracking-filter. Geen andere gat-soort beweegt mee — kleur, radius, padding,
 // gap en gradient lopen niet langs `styleRef`.
-const BEKENDE_VOORKOMENS = 3792;   // 1996 + 148: DeviceSection heeft 40 variantcombinaties (bleStatus x hrStatus), dus elke ongebonden waarde in een toestelrij wordt nu 40 keer geteld in plaats van een handvol keer in het scherm
+// 3 792 -> 3 774: exact de 18 nodes die hun tekststijl terugkregen (14x Chip.value in Chip en
+// de vier IdlePhase-frames, 2x toast-titel, 2x toast-body).
+const BEKENDE_VOORKOMENS = 3774;   // 1996 + 148: DeviceSection heeft 40 variantcombinaties (bleStatus x hrStatus), dus elke ongebonden waarde in een toestelrij wordt nu 40 keer geteld in plaats van een handvol keer in het scherm
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
  *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft

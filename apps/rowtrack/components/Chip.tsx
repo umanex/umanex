@@ -1,5 +1,5 @@
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
-import { bg, fg, accent, border, fontFamily, fontSize, radii } from '@/constants';
+import { bg, fg, accent, border, fontFamily, fontSize, radii, typeStyles } from '@/constants';
 import { variantData } from '@/lib/variantData';
 
 type ChipProps = {
@@ -63,9 +63,11 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   value: {
-    fontFamily: fontFamily.sourceSerifRegular,
-    fontSize: fontSize['16'],
-    letterSpacing: -0.4,
+    // De tekststijl is de bron, niet drie losse tokens. Tot 2026-09-09 stond hier
+    // `letterSpacing: -0.4` naast dezelfde familie en grootte als `splitsRow` (-0,24), en
+    // die 0,16 px verschil per teken zorgde dat de walker er in Figma stil een style op
+    // plakte die een ándere tracking droeg. Besluit Jeroen: gelijktrekken.
+    ...typeStyles.splitsRow,
   },
   unit: {
     fontFamily: fontFamily.sourceSerifItalic,
