@@ -18,7 +18,7 @@ const meta = {
   },
   args: { title: 'Samenvatting', dateLabel: 'Vandaag - 18:44', paddingTop: 28 },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2027-15891' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-22171' },
   },
 } satisfies Meta<typeof SummaryTitle>;
 

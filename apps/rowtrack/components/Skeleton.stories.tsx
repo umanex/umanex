@@ -29,7 +29,7 @@ const meta = {
     children: <Text style={styles.value}>2.000 m</Text>,
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2025-14455' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-20776' },
   },
 } satisfies Meta<typeof Skeleton>;
 

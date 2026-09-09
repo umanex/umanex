@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+df1e0fe feat(rowtrack): update components instead of replacing them, and complete the alignment family
 267bd8e feat(rowtrack): auto-layout is now the default, and an image axis to prove it
 2a96b4f docs: session reflection — triage ten stale handoff items, and correct a number I got wrong
 c99a7ad chore(rowtrack): remove two scripts nothing calls
 bd03cef ci: run the rowtrack guards, and make render-shot discoverable
-62eab07 docs(rowtrack): close what the screens round left open, and correct a false status message
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  A  apps/rowtrack/figma/beeld-verschillen.json
-  A  apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
-  A  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
-  A  apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
-  A  apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
-  A  apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
-  A  apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
-  A  apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
-  A  apps/rowtrack/figma/beelden/HistoryScreen__Een-Record.figma.png
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/components/BleStatusBar.stories.tsx
+  M  apps/rowtrack/components/BottomFade.stories.tsx
+  M  apps/rowtrack/components/BottomSheet.stories.tsx
+  M  apps/rowtrack/components/Button.stories.tsx
+  M  apps/rowtrack/components/Chip.stories.tsx
+  M  apps/rowtrack/components/DeviceRow.stories.tsx
+  M  apps/rowtrack/components/Dot.stories.tsx
+  M  apps/rowtrack/components/EmptyState.stories.tsx
+  M  apps/rowtrack/components/ErrorMessage.stories.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

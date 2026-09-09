@@ -177,10 +177,23 @@ opnieuw, en een nieuwe node heeft een nieuwe key — elke instance die iemand er
 dan ontkoppeld. Gemeten 2026-09-08: na de vorige herbouw stonden alle 33 componenten op
 `UNPUBLISHED`, precies omdat ze vervangen waren.
 
-**Daarom staat er een poort vóór het legen.** `figma/builder.js` weigert een pagina te legen
-zodra een van beide waar is:
+**Sinds 2026-09-09 vervangt een herbouw de component niet meer, hij WERKT HEM BIJ.** Alleen de
+key van de COMPONENT (en van elke VARIANT in een set) telt voor een instance; de kinderen
+eronder mogen vrij vervangen worden en een instance spiegelt gewoon de nieuwe inhoud. De builder
+hergebruikt daarom elke set en variant die hij bij naam terugvindt — die naam is de
+variant-as-combinatie, dus een stabiele sleutel — leegt alleen hun kinderen, en maakt alleen wat
+er nog niet was. Gemeten op Chip, vóór en ná in één aanroep: set-key gelijk, beide variant-keys
+gelijk, status `CURRENT → CHANGED` in plaats van vervangen, en gebouwd zónder `__force`. Over
+alle 45: **194 nodes hielden hun key, 0 geweigerd, 0 geforceerd.** Gevolg voor de praktijk: een
+herbouw kost geen ontkoppelde instances meer en geen herpublicatie — Jeroen publiceert een
+wijziging in plaats van een vervanging.
 
-- een kind is **gepubliceerd** (`getPublishStatusAsync() !== 'UNPUBLISHED'`);
+**Daarom staat er een poort vóór het legen** — die nu één vraag méér stelt. `figma/builder.js`
+weigert een pagina te legen zodra een van beide waar is:
+
+- een kind is **gepubliceerd** (`getPublishStatusAsync() !== 'UNPUBLISHED'`) **én er is geen
+  bruikbare variant om te hergebruiken** — pas dan wordt de node écht vervangen en ontkoppelt
+  elke instance eruit. Is hergebruik wél mogelijk, dan heeft de poort niets te beschermen;
 - een kind is **met de hand gewijzigd** — de builder legt na elke bouw een `bouwhash` in
   `setPluginData`, en die wordt bij de volgende run hertoetst tegen de live node. De hash draagt
   type, naam, afgeronde maat en tekstinhoud; positie en subpixel-ruis zitten er bewust niet in,
@@ -188,7 +201,7 @@ zodra een van beide waar is:
 
 De enige ontsnapping is `SPEC.__force = true`, en die hoort **zichtbaar in de aanroep** te staan
 — nooit stil gezet. Geforceerd overschrijven komt in `meldingen` terecht met de reden erbij.
-Tegenproef: `pnpm --filter rowtrack figma:poort:selftest`.
+Tegenproef: `pnpm --filter rowtrack figma:poort:selftest` — 23 gevallen, waaronder beide kanten van de hergebruik-tak (gepubliceerd mét hergebruik gaat door, zónder wordt geweigerd) en dat handwerk óók bij hergebruik weegt.
 
 **De 30 s van `figma_execute` is een WACHTlimiet, geen uitvoerlimiet — en dat verschil heeft
 twee scherpe kanten.** De plugin bouwt gewoon door nadat de tool-call is afgekapt; alleen de
@@ -257,6 +270,9 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 | **Niet-reproduceerbare nodes** | `npm run instabiele-nodes` (in `apps/rowtrack`) — draait de walker **twee keer** en vergelijkt node voor node op boompad. Wat tussen twee runs van ónveranderde code verschilt, kan door geen enkele statische vergelijking gemeten worden; `parity` slaat die paden over. Gemeten 2026-09-09: **309 van 4 117 nodes instabiel, gesloten tot 331** — waarvan `parity` er **85** werkelijk raakt (de rest zit in subbomen die hij op een andere grond al niet vergelijkt). Twee verschillende getallen, en de tabel noemt ze allebei — de `<ActivityIndicator>` roteert (RNW `animationKeyframes` 0→360°, 0,75 s, oneindig), dus `getBoundingClientRect` geeft een as-gelijnde doos die per meetmoment anders is; de confetti in MotivationalToast is `6 + random * 8`. De sluiting gaat vanaf **`spinnerBox`** en niet vanaf `spinner`: de rotatie zit in RNW op de binnenste View, en `spinner` bleek in geen enkele run instabiel. Het script stopt met exit 2 als de sluiting geen superset van de meting is. **Deze stap SCHRIJFT** (`scripts/instabiele-nodes.mjs:44` draait zelf `figma:spec`), dus hij herschrijft `build-spec.min.json`, `laagnamen.json`, `ongebonden.json` en `story-axes.json` — en nooit byte-identiek, want de spinner draait. Gemeten 2026-09-09: één run zette er twee spinner-waarden bij in `ongebonden.json` (`radius = 3.86406`, het blauw van de `ActivityIndicator`) en `figma:check` viel om op *2 nieuwe*. Draai hem dus op een schone tree en zet de artefacten daarna terug (`git checkout origin/main -- figma/`) tenzij er écht code veranderd is; zie ook het BACKLOG-item van 2026-09-08 over dezelfde oorzaak. **Vul `figma/niet-reproduceerbaar.json` nooit met de hand aan** — een echte afwijking hoort er niet in te kunnen verdwijnen. |
 | **Uitsluitings-tegenproef** | `node scripts/geometry-parity.mjs --figma=<gemuteerde kopie> --zonder-uitsluiting` — een mutatie bínnen een uitgesloten subboom hoort mét de lijst stil te blijven en zónder de lijst rood te worden. Blijft hij in beide gevallen stil, dan sluit de lijst niets uit maar meet de as daar niets, en dat ziet er in de uitvoer identiek uit. Getoetst op beide kanten, 2026-09-08. |
 | **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. Weigert te schrijven zodra één component nul varianten oplevert (exit 2, spec ongewijzigd): een mislukte meting die tóch wegschrijft, vervangt een goede spec door een lege. |
+| **Figma ↔ browser (beeld)** | `pnpm --filter rowtrack beeld` — legt de gecommitte Figma-export (`figma/beelden/`, 24 frames, ~950 KB) naast een verse browser-render van dezelfde story, en diff't in Chromium's canvas (geen dependency). Dit is de as die `parity` per constructie NIET heeft: kleurwaarde, icoonvorm, `text-transform` en **breedte** — dat laatste staat op élke node buiten parity omdat twee tekstengines dezelfde tekst anders meten, en juist daar leefde de drift. Gemeten 2026-09-09: elke formulier-instance stond 390 breed met inhoud van 224, met dertien guard-assen groen. Maskeert de Ionicons-glyphs (die bestaan niet in Figma) identiek op beide beelden. **De vloer is gemeten**: `ResetPasswordScreen`, het enige scherm zonder instances, wijkt 0,02% af — dat is de renderer-ruis. Zonder `--drempel` rapporteert het script alleen; een tolerantie kies je pas als de echte verschillen weg zijn. `--schrijf` legt per frame een 3-luik in `figma/beeld-diff/` (gitignored). |
+| **Beeld-tegenproef** | `pnpm --filter rowtrack beeld:selftest` — hetzelfde beeld tegen zichzelf hoort 0,00% te geven, hetzelfde beeld met een vlak van 60×60 erover ver daarboven. Geven beide dezelfde uitkomst, dan meet de opstelling niets en is dát de enige geldige conclusie. |
+| **Beelden exporteren** | `figma/exporteer-beelden.js` via `figma_execute`, met `scripts/figma-serve.mjs` aan. Gebruikt `exportAsync` en niet `figma_capture_screenshot`: dat laatste legt het canvas vast, mét zoomniveau en selectie-randen. 43 ms en 24 KB voor een frame van 430×932. De bytes gaan base64 naar de lokale server — binair door een plugin-fetch is niet gegarandeerd, tekst wel. |
 | **Instrument-tegenproef (dieptekap)** | `node scripts/figma-build-spec.mjs --kap=N` — verzet de kap waarop de walker de DOM-boom afsnijdt, en rapporteert per run hoeveel nodes hij weggooide én hoeveel daarvan tekst droegen. Bestaat omdat de teller ernaast tot 2026-09-09 alléén weggegooide `[data-testid]`-grenzen telde — op die diepte per constructie nul — zodat elke run `0 weggegooid` meldde terwijl er bij kap 8 **3 018 nodes** verdwenen, 2 018 met tekst. Gemeten over 257 stories: 8 -> 3 018, 9 -> 1 998, 10 -> 0, 12 -> 0; de kap staat op 12. **Let op waar je meet:** een `--kap=N`-run SCHRIJFT `figma/build-spec.json`, dus draai er `figma:spec` achteraan vóór je iets anders meet — anders draait de volgende meting op de invoer van je vorige meting (gemeten, 2026-09-09). |
 | **Instrument-tegenproef (laagnamen)** | `node scripts/figma-build-spec.mjs --rnw-keys-uit` — zet de StyleSheet-sleutelkaart uit via `?rnwKeysUit=1`. Hoort **exit 2** te geven met "sleutelkaart uitgeschakeld" en de spec ongemoeid te laten. Zonder deze vlag is "elke node heet `wrapper`" niet te onderscheiden van "het instrument staat uit" — beide geven een gevulde spec zonder foutmelding. |
 | **Beeld van één story** | `pnpm --filter rowtrack render:shot <story-id> [<story-id>…]` — schrijft per story een PNG uit `storybook-static`, voor de beeldvergelijking naast een Figma-capture. Vereist een verse `build-storybook`. Dit is het pad dat `figma_capture_screenshot` aan de codekant spiegelt; de geometrie-as (`parity`) ziet géén kleur, icoonvorm of `text-transform`, dus voor die drie is dit het enige instrument. |

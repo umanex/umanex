@@ -16,7 +16,7 @@ const meta = {
     prEntries: [{ metric: 'watts', value: 143, previous: 138, previous_at: '2026-08-12' }],
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2027-15905' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-22184' },
   },
 } satisfies Meta<typeof PrBanner>;
 
