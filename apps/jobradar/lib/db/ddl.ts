@@ -124,6 +124,23 @@ export const SCHEMA_DDL = `
     PRIMARY KEY (subject_type, subject_key)
   );
 
+  -- Coordinaten per onderneming. KBO levert adressen maar geen lat/lon, dus die worden
+  -- eenmalig opgehaald en hier bewaard. In jobradar.db en niet in de spiegel: die wordt bij
+  -- elke --full overschreven, en een geocode-run kost tijd en het geduld van een publieke
+  -- dienst -- dat gooi je niet weg bij een sync.
+  --
+  -- mislukt_reden is niet hetzelfde als een ontbrekende rij: "niet gevonden" is een
+  -- uitkomst die je wilt bewaren, anders vraagt elke volgende run hem opnieuw op.
+  CREATE TABLE IF NOT EXISTS geocode_cache (
+    enterprise_number TEXT PRIMARY KEY,
+    lat REAL,
+    lon REAL,
+    precisie TEXT,
+    bron TEXT NOT NULL,
+    opgehaald_at TEXT NOT NULL,
+    mislukt_reden TEXT
+  );
+
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,

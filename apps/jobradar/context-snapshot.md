@@ -38,24 +38,22 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+72e469b feat(jobradar): data layer, rules and API for contact follow-up
 7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
 346ae77 fix(jobradar): give the flow harness its own build directory
 6fc0110 fix(jobradar): repair the mirror connection and close the review findings
 c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
-d6da091 feat(jobradar): origin filter, profitability sieve and sorting in the UI
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/CLAUDE.md
-  A  apps/jobradar/app/api/opvolging/actie/route.ts
-  A  apps/jobradar/app/api/opvolging/moment/[id]/route.ts
-  A  apps/jobradar/app/api/opvolging/route.ts
-  M  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
-  A  apps/jobradar/lib/contact.ts
+  M  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
   M  apps/jobradar/lib/db/ddl.ts
   M  apps/jobradar/lib/db/schema.ts
-  A  apps/jobradar/lib/opvolging.ts
+  A  apps/jobradar/lib/kbo/adres.ts
   M  apps/jobradar/package.json
+  A  apps/jobradar/public/geo/provincies.json
+  A  apps/jobradar/scripts/geocode.mjs
+  M  apps/jobradar/scripts/kbo-scenarios.ts
 
 ## Bestanden met TODO/FIXME
   (geen)

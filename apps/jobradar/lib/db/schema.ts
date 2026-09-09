@@ -142,6 +142,23 @@ export const nextActions = sqliteTable(
   })
 )
 
+/**
+ * Coördinaten per onderneming, eenmalig opgehaald.
+ *
+ * `lat`/`lon` zijn nullable en `mislukt_reden` gevuld wanneer de bron niets vond: dat is een
+ * uitkomst om te bewaren, niet een gat om opnieuw te bevragen.
+ */
+export const geocodeCache = sqliteTable('geocode_cache', {
+  enterpriseNumber: text('enterprise_number').primaryKey(),
+  lat: real('lat'),
+  lon: real('lon'),
+  /** Wat de bron werkelijk vond: `huisnummer`, `straat` of `gemeente`. */
+  precisie: text('precisie'),
+  bron: text('bron').notNull(),
+  opgehaaldAt: text('opgehaald_at').notNull(),
+  misluktReden: text('mislukt_reden'),
+})
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
@@ -169,3 +186,4 @@ export type ProspectStatus = typeof prospectStatus.$inferSelect
 export type CsvProspect = typeof csvProspects.$inferSelect
 export type ContactMoment = typeof contactMoments.$inferSelect
 export type NextAction = typeof nextActions.$inferSelect
+export type GeocodeRij = typeof geocodeCache.$inferSelect

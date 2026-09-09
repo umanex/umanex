@@ -18,6 +18,7 @@ import { existsSync, readdirSync, createReadStream } from 'node:fs'
 import { join } from 'node:path'
 import { csvRijen, csvObjecten, kboDatum, kboNummer } from '../lib/kbo/csv'
 import Database from 'better-sqlite3'
+import { schoneStraat } from '../lib/kbo/adres'
 import {
   bouwNaamIndex,
   koppelSleutel,
@@ -477,6 +478,33 @@ const gelijk = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(
     check('een onbekende sortering valt terug op oprichting', /e\.StartDate DESC/.test(onzin.sql) && !/drop table/i.test(onzin.sql))
 
     db.close()
+  }
+
+  // ── De straatnaam-opschoning voor geocoding ────────────────────────────────
+  // KBO hangt een deelgemeente-marker aan de straatnaam. Gemeten op het geleverde bestand:
+  // 16 van de 215 adressen dragen er een, en Nominatim gaf op precies zo'n adres
+  // "niet gevonden" (AUCXIS, Zavelstraat(STE) 40) tot de marker eraf ging.
+  {
+    const gevallen: [string, string][] = [
+      ['Zavelstraat(STE)', 'Zavelstraat'],
+      ['Spinnerijstraat(Kor)', 'Spinnerijstraat'],
+      ['Steenkaaistraat (BAA)', 'Steenkaaistraat'],
+      ['President Kennedypark(Kor)', 'President Kennedypark'],
+      ['Blokkestraat(Z)', 'Blokkestraat'],
+      // Zonder marker mag er niets veranderen — een opschoning die altijd iets doet is een
+      // opschoning die ook het goede geval sloopt.
+      ['Gewone Straat', 'Gewone Straat'],
+      ['Sint-Pietersnieuwstraat', 'Sint-Pietersnieuwstraat'],
+      ['', ''],
+      // De marker staat niet altijd achteraan: 29 unieke straatnamen in de spiegel hebben
+      // een haakje middenin. Zonder dít geval geeft een gulzige `\\(.*` exact dezelfde
+      // uitkomst als de correcte versie, en meet de tegenproef niets (gemeten 2026-09-09).
+      ['Maison (Résiedence Keno) 1 E', 'Maison 1 E'],
+      ['Rue de Meuse (Barrage), Waulsort', 'Rue de Meuse , Waulsort'],
+    ]
+    for (const [in_, uit] of gevallen) {
+      check(`straatnaam "${in_}" → "${uit}"`, schoneStraat(in_) === uit, schoneStraat(in_))
+    }
   }
 
   for (const code of PROSPECT_NACE) {
