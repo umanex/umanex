@@ -73,15 +73,20 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+99b0234 fix(rowtrack): three of the four type gaps close at the source, not in the ratchet
+5cbca71 docs(rowtrack): the obvious slot diff covers none of the 23, and the rest wants one round per layer
 5d0a177 chore(rowtrack): Figma artefacts after the tracking fix
 e172448 fix(rowtrack): the text style must match the tracking too, also when it is the only candidate
 92c0713 docs(rowtrack): what you read in Figma is what the chain could build, not what anyone meant
-349c990 feat(rowtrack): measure what Storybook cannot show, so the device question surfaces itself
-b35b66e docs(rowtrack): the shifted tab row is a margin the walker never reads, not a misplaced instance
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/figma/beeld-verschillen.json
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
+  M  apps/rowtrack/figma/geometry.figma.json
+  M  apps/rowtrack/figma/geometry.schermen.json
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)

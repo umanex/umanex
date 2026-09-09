@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Button } from '@/components/Button';   // direct, geen barrel — zie workout/IdlePhase.tsx
 import { t } from '@/i18n';
-import { bg, fg, fontFamily, fontSize, componentRadius, space } from '@/constants';
+import { bg, fg, fontSize, componentRadius, space, typeStyles } from '@/constants';
 
 const CONFETTI_COLORS = ['#F05454', '#3B82F6', '#22C55E', '#FFD700', '#FF69B4', '#FFFFFF'];
 const PARTICLE_COUNT = 60;
@@ -205,14 +205,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize['48'],
   },
   title: {
-    fontFamily: fontFamily.albertSansBold,
-    fontSize: fontSize['34'],
+    // Tot 2026-09-09 werd deze stijl met de hand uit familie + grootte opgebouwd, zónder
+    // tracking — terwijl `sectionValue` dezelfde familie en grootte heeft mét −1,02.
+    // Gevolg in Figma: de walker plakte er `type/sectionValue` op en de style won van de
+    // meting. Besluit Jeroen: de stijl heeft gelijk.
+    ...typeStyles.sectionValue,
     color: fg.primary,
     textAlign: 'center',
   },
   body: {
-    fontFamily: fontFamily.albertSansRegular,
-    fontSize: fontSize['18'],
+    // Idem: `buttonPrimary` is Albert Sans Regular 18 met −0,27. De lineHeight blijft
+    // apart, want die zit niet in de tekststijl.
+    ...typeStyles.buttonPrimary,
     color: fg.secondary,
     textAlign: 'center',
     lineHeight: 26,
