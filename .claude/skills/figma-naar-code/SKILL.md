@@ -251,6 +251,24 @@ Regels:
 - Bij ontbrekende tokens: placeholder + voorstel (zie stap 4, niveau 4)
 - Zet (of behoud) de `// @figma [node-URL]` header bovenaan het bestand — dat is de bron voor de gegenereerde component-inventaris (`gen-snapshot.sh`) en houdt de traceability naar de Figma-node
 
+**Sizing terugvertalen, niet de maat overnemen.**
+De tegenhanger van principe 1 in `code-naar-figma` (*auto layout by default — en dat is méér
+dan `layoutMode`*). Een node draagt per as een sizing: `FILL`, `HUG` of `FIXED`, en dat staat in
+de design-snapshot (stap 4b). Vertaal die intentie, niet het getal:
+
+| Figma | code (flex / React Native) |
+|---|---|
+| `layoutSizingHorizontal: 'FILL'` op de hoofdas | `flex: 1` |
+| `FILL` op de kruis-as | `alignSelf: 'stretch'` (of `width: '100%'`) |
+| `HUG` | niets — de inhoud bepaalt de maat |
+| `FIXED` | een expliciete maat, en alléén dan |
+
+Neem je de gemeten breedte over waar Figma `FILL` zegt, dan schrijf je een component dat op
+één plek klopt en overal elders te smal of te breed is — precies de fout in spiegelbeeld die
+`code-naar-figma` in rowtrack maakte: 390 breed met inhoud van 224, op elk scherm met een
+formulier. Een `FIXED` die uit een sizing-mode komt is een maat; een maat die je uit een `FILL`
+afleest is een momentopname.
+
 **States: eerst de `state`-variant-as, dan pas `reactions`.**
 Dit is de afspraak die deze skill met `code-naar-figma` deelt. Een component die door die skill
 geëxporteerd is, draagt zijn states als **variantframes op een `state`-as** en heeft géén
@@ -280,13 +298,13 @@ De `reactions` uit de deep-response (stap 3) zijn de bron-van-waarheid voor welk
 
 Token-correctheid (stap 7) bewijst niet dat het component eruitziet als het design. Deze stap doet dat wel — een vergelijking, geen aanname. Dit is de Figma → Code tegenhanger van de check in `code-naar-figma`.
 
-1. **Figma-referentie ophalen** — `figma_take_screenshot` van de bron-node (`nodeId` uit stap 3).
+1. **Figma-referentie ophalen** — `node.exportAsync({format:'PNG', constraint:{type:'SCALE',value:1}})` via `figma_execute`, niet `figma_take_screenshot`. Twee redenen, allebei gemeten. De REST-tool leest de laatst **opgeslagen** cloud-staat en is na een verse edit per definitie stale (zie *Valideer je eigen edits op de runtime* in CLAUDE.md). En een canvas-screenshot draagt zoomniveau, selectie-randen en raster mee, terwijl `exportAsync` de node zelf levert op een gekozen schaal — 43 ms en 24 KB voor een frame van 430×932. De bytes overleven de tool-call niet: stuur ze base64 naar een lokale server (de plugin mag localhost op 9223–9232).
 2. **Gebouwd component renderen** — render via de preview van het project (Storybook-story, dev-route, of de methode uit klant-CLAUDE.md) en screenshot dat. Is er geen render-pad geconfigureerd → vraag welke; ga niet zelf gokken.
 3. **Vergelijk** op de dingen die de token-checks níet vangen: layout & flex-richting, spacing/gap, proporties & afmetingen, alignment, typografie, afgekapte of overlopende content, en elke state uit stap 5.
 4. **Itereer** — bij een mismatch: fix in code → opnieuw renderen → opnieuw vergelijken. Max 3 iteraties; daarna structurele afwijkingen melden i.p.v. blijven bijschaven.
 5. **Meet wat het oog niet haalt** — de enumererende kant. Een visuele vergelijking accepteert stil élk verschil onder je waarnemingsdrempel, en daar zit parity-drift nu net: `pb-3` vs `pb-4` is 4 px, naast elkaar onzichtbaar, en een maand later een fix-commit. Gemeten in Luminus `partner-portal`: 16 parity-fix-commits in 90 dagen, waarvan twee paren met een identiek subject — dezelfde afwijking twee keer gevonden, twee keer met de hand bijgesteld.
 
-   Diff daarom getallen tegen getallen, niet beeld tegen beeld. De Figma-kant staat machine-leesbaar in de design-snapshot (stap 4b) en `token-mapping.json` (stap 3); de code-kant komt uit `getComputedStyle` op de gerenderde component. Vergelijk per property — de vier paddings, gap, `font-size`, `line-height`, `border-radius`, `border-width`, kleur — en rapporteer elk verschil mét zijn twee waarden, ook 1 px. Heeft het doelwit geen DOM (React Native, native preview), dan bestaat dit pad niet: meld dat als `[NIET GEMETEN — geen computed-style-pad]` en behandel de visuele vergelijking als wat ze dan is, een zwakkere as.
+   Diff daarom getallen tegen getallen, niet beeld tegen beeld — **maar laat het beeld niet vallen zodra de getallen een as uitsluiten.** Een numerieke parity sluit breedte vaak uit omdat twee tekstengines dezelfde tekst anders meten, en dan is dát de as waar de drift leeft. Gemeten in rowtrack (2026-09-09): dertien guard-assen groen, geometrie-parity nul verschillen over 27 480 velden, en tóch was elke formulier-instance 390 breed met een inhoud van 224 — alleen een beeldvergelijking vond het. De twee assen zijn complementair: getallen vangen wat onder je waarnemingsdrempel ligt, het beeld vangt wat buiten de vergelijking valt. Meet ook de vloer, dan weet je wat een verschil wáárd is: het enige scherm zonder instances week 0,02% af, dus alles daarboven was echt. De Figma-kant staat machine-leesbaar in de design-snapshot (stap 4b) en `token-mapping.json` (stap 3); de code-kant komt uit `getComputedStyle` op de gerenderde component. Vergelijk per property — de vier paddings, gap, `font-size`, `line-height`, `border-radius`, `border-width`, kleur — en rapporteer elk verschil mét zijn twee waarden, ook 1 px. Heeft het doelwit geen DOM (React Native, native preview), dan bestaat dit pad niet: meld dat als `[NIET GEMETEN — geen computed-style-pad]` en behandel de visuele vergelijking als wat ze dan is, een zwakkere as.
 
 6. **Meet ook de structuur, niet alleen de waarden.** Een diff op tekst en op losse
    properties mist nog steeds de vorm: of een blok een **kaart** is (vulling + rand-paint +
