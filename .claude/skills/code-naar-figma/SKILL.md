@@ -88,6 +88,24 @@ const sets = figma.root.findAll(n => n.type === 'COMPONENT_SET');
 return sets.map(s => ({ naam: s.name, id: s.id, status: s.documentationLinks?.length ?? 0 }));
 ```
 
+**Een slot is elke tekst die per gebruiksplek verschilt — niet elke tekst die gelijk is aan een
+story-arg.** Een instance draagt de tekst van de library-variant (de story-data) tenzij er een
+slot op staat, en een slot dat je afleidt uit *gelijkheid met een string-arg* mist alles wat het
+component zelf formatteert: "27:00 min", "20 AUG 2026", de labels van een tab-rij. Die instances
+tonen dan stil de data van een ánder scherm, en niets meldt het: de builder kent geen slot om
+te missen, parity ziet gelijke geometrie, en elke guard-as toetst de library en niet de vulling.
+GEMETEN 2026-09-09 (rowtrack): 135 instances over 24 schermframes, 37 vallen terug op een
+nagebouwde subboom (en tonen dus de schermdata), en van de rest tonen **23 tekstnodes** stil de
+library-tekst — de Historiek met vier ritten van "20 AUG 2026" waar de story 2 tot 5 september
+rendert, de detail-tabs "Week Maand Jaar" waar de app "Overzicht Splits Hartslag" toont. Tel
+dat dus vóór je bouwt, offline op de bouwspec, en tel het **ná de terugval-toets**: een eerste
+telling zonder die toets zei 119, want de 96 items van een WheelPicker telden mee terwijl die
+instance terugvalt en dus wél de schermdata draagt. Per instance de tekstnodes die van de
+library-variant verschillen, gesplitst in *met slot* en *zonder*, met een tweezijdige ratel op
+beide getallen (rowtrack: `scripts/instance-tekst.mjs`, mét zelftest op drie kanten). Een
+slot-detectie die alleen letterlijke args herkent, is een instrument dat op afgeleide tekst per
+constructie zwijgt.
+
 ---
 
 ## Drie principes — niet-onderhandelbaar
@@ -102,7 +120,7 @@ Dus: **elke node krijgt per as een sizing die uit de BRON komt** — `FILL` waar
 
 **En `FILL` is een belofte, geen maat — dus lees hem terug.** Figma rekent restruimte anders uit dan de browser zijn flex oplost: marges bestaan er niet, en een scroll-container meet in de bron zijn vénster en niet zijn inhoud. Zet `FILL`, lees de maat terug, en draai die as terug naar `FIXED` zodra hij afwijkt van wat de bron zegt. Gemeten over 45 componenten: 717 keer gezet, **111 keer teruggedraaid**, 0 geweigerd — zonder die terugleescontrole groeide één `scrollView` van 168 naar 192 en dat waren de enige twee parity-fouten van de ronde.
 
-**Let op twee stille no-ops in de Figma-API**, allebei nagemeten: `resize()` op een kind ín een instance doet niets (geen fout, geen effect), en `layoutMode` op een instance-wortel evenmin. Wie de maat van een instance-kind wil sturen, moet dat in de **library** doen — een wrapper zonder auto layout maakt elke instance eronder onrekbaar. Tweezijdig bewezen op een wegwerp-component: een resize van 224 naar 390 laat het kind op 224 staan zonder auto layout op de wrapper, en trekt kind én kleinkind mee naar 390 mét.
+**Let op drie stille no-ops in de Figma-API**, alle drie nagemeten: `resize()` op een kind ín een instance doet niets (geen fout, geen effect), `layoutMode` op een instance-wortel evenmin, en `layoutAlign = 'MIN' | 'CENTER' | 'MAX'` op een kind wordt zonder fout genegeerd en leest `INHERIT` terug — alleen `STRETCH` en `INHERIT` doen nog iets (gemeten 2026-09-09 op LoginScreen: `align-self: flex-end` landde links). Een per-kind kruis-as-uitlijning bestaat dus niet meer; wat wél werkt is het kind de kruis-as laten vullen en zijn inhoud zelf laten uitlijnen (`counterAxisAlignItems` of `primaryAxisAlignItems`, afhankelijk van welke as van het kind de kruis-as van de ouder is; bij een tekstnode `textAlignHorizontal`). Lees élke van deze drie terug na het zetten — dat is de enige manier om ze te zien. Wie de maat van een instance-kind wil sturen, moet dat in de **library** doen — een wrapper zonder auto layout maakt elke instance eronder onrekbaar. Tweezijdig bewezen op een wegwerp-component: een resize van 224 naar 390 laat het kind op 224 staan zonder auto layout op de wrapper, en trekt kind én kleinkind mee naar 390 mét.
 
 **1b. Werk een component BIJ, vervang hem niet.** Een generator die zijn output elke ronde
 weggooit en opnieuw maakt is eenvoudig en idempotent, en hij kost elke ronde hetzelfde: een
@@ -123,6 +141,24 @@ alleen waar de node écht vervangen wordt. Weigert je poort óók wanneer hij he
 dwing je elke ronde een force af en went iedereen aan de ontsnapping. De handwerk-bewaking is
 wél onvoorwaardelijk: de kinderen worden hoe dan ook opnieuw gemaakt, dus een bewerking van
 iemand anders gaat bij een update net zo goed verloren.
+
+**1c. Tekst hugt, tenzij de doos bewezen breder is dan de run — en de uitlijning reist mee.**
+De sizing-intentie van 1 is voor een tekstnode niet uit `align-self` te lezen: react-native-web
+zet `alignItems: stretch` op élke View, dus élk tekst-kind van een kolom "rekt" volgens de DOM,
+terwijl de run zelf zo breed is als zijn glyphs. Wie daar `FILL` van maakt, pint de breedte, en
+Figma's tekstengine meet dezelfde tekst breder dan Chromium — dus de tekst breekt af waar de
+browser hem op één regel toont. GEMETEN 2026-09-09 (rowtrack, 24 schermframes): 124 van 625
+tekstnodes kregen zo `FILL`, 97 ervan éénregelig; "1 sep 2026" (doos 159,03 = run 159,03) stond
+in Figma in twee regels over de terug-link heen, dertien guard-assen groen, parity op nul — want
+parity sluit breedte uit, precies omdat twee tekstengines verschillen. Alleen het beeld vond het.
+
+Meet daarom twee breedtes per tekst: de **doos** (`getBoundingClientRect` op het element) en de
+**run** (`Range.selectNodeContents(el).getBoundingClientRect()`). Is de doos aantoonbaar breder,
+dan is de tekst een blok dat zijn ouder vult en mag hij `FILL`; anders hugt hij
+(`textAutoResize: WIDTH_AND_HEIGHT`, géén `FILL`), en dan is de maat van Figma's engine gewoon de
+maat. En een blok-tekst is alleen getrouw mét zijn uitlijning: zet `textAlignHorizontal` altijd
+(`LEFT` is de default van beide engines, alles daarvan afwijkend reist mee). Zonder dat landt een
+gecentreerde titel links — 23 van de 625, in dezelfde meting, allemaal alleen in beeld zichtbaar.
 
 **2. Tokens-first — nul hardcoded waarden.** Elke kleur, spacing, radius en effect bindt aan een Figma variable of style. Een ontbrekende variable is een **gap** die je oplost (`figma_import_library_variable` of `figma_create_variable`) of rapporteert aan de gebruiker — nooit een excuus om een raw hex- of getalwaarde te hardcoden.
 

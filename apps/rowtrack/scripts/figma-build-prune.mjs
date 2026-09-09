@@ -41,6 +41,30 @@ const afkappingen = [];
 
 const r2 = n => typeof n === 'number' ? Math.round(n * 100) / 100 : n;
 
+/**
+ * HUGT DEZE TEKST, OF IS HIJ EEN BLOK?
+ *
+ * `rekt` komt uit de walker en leest `align-self: stretch` als "rekt mee met zijn ouder". Voor
+ * een tekst is dat geen intentie: RNW zet `alignItems: stretch` op élke View, dus élk tekst-kind
+ * van een kolom "rekt" — terwijl de run zelf zo breed is als zijn glyphs. FILL op zo'n node pint
+ * de breedte in Figma, en Figma's tekstengine meet dezelfde tekst breder dan Chromium, dus de
+ * tekst breekt af waar de browser hem op één regel toont. Gemeten 2026-09-09 op de 24
+ * schermframes: 124 van 625 tekstnodes kregen FILL, 97 daarvan éénregelig; "1 sep 2026" (doos
+ * 159,03 = run 159,03) stond in Figma in twee regels over de terug-link heen.
+ *
+ * Dus: H blijft alleen staan wanneer de DOOS aantoonbaar breder is dan de RUN — dan is de tekst
+ * een blok dat zijn ouder vult en doet `t.al` (de uitlijning) het werk. Anders hugt hij, en dan
+ * is de breedte van Figma's engine gewoon de breedte. De drempel is gemeten op de verdeling van
+ * `w - inhoudBreedte` over alle tekstnodes (zie de meting bij de constante).
+ */
+const TEKST_BLOK_DREMPEL = 4;   // gemeten: 5 065 nodes ≤ 0,5 · 1 in 2–4 · 2 in 4–8 · 213 > 40
+const isBlok = (node) => typeof node.tekst?.inhoudBreedte === 'number'
+  && node.w - node.tekst.inhoudBreedte > TEKST_BLOK_DREMPEL;
+function rektVoorTekst(node) {
+  if (typeof node.tekst.inhoudBreedte !== 'number') return node.rekt;   // spec van vóór de meting: niets aannemen
+  return node.rekt.replace('H', isBlok(node) ? 'H' : '') || null;
+}
+
 function snoei(node, diepte, pad, comp) {
   const o = { w: r2(node.w), h: r2(node.h) };
   // De laagnaam is een BESLUIT van scripts/laagnamen.mjs; het bewijs (rKlassen, kandidaten)
@@ -88,7 +112,7 @@ function snoei(node, diepte, pad, comp) {
   }
   // De sizing-intentie moet mee: zonder haar zet de builder alles op FIXED en is geen enkele
   // instance te strekken (gemeten 2026-09-09 op LoginScreen: wrapper 390, inhoud 224).
-  if (node.rekt) o.rekt = node.rekt;
+  if (node.rekt) { const r = node.tekst ? rektVoorTekst(node) : node.rekt; if (r) o.rekt = r; }
   if (node.zelf) o.zelf = node.zelf;
   // Alleen de AFWIJKENDE waarde reist mee: nowrap en flex-start zijn de default en zouden
   // 7 259 keer niets toevoegen. Wat overblijft is precies wat de builder moet melden.
@@ -110,6 +134,19 @@ function snoei(node, diepte, pad, comp) {
     // equivalent: het bewaart de brontekst en zet alleen de weergave om.
     const TC = { uppercase: 'UPPER', lowercase: 'LOWER', capitalize: 'TITLE' };
     if (TC[node.tekst.transform]) o.t.tc = TC[node.tekst.transform];
+    // De uitlijning reist mee. De walker mat `textAlign` al sinds het begin, maar hij kwam
+    // hier niet doorheen en de builder zette nooit `textAlignHorizontal` — dus elke
+    // gecentreerde blok-tekst landde links ("RowTrack", "Account aanmaken", "RowTrack
+    // v1.0.0"). Gemeten 2026-09-09: 23 tekstnodes in de 24 schermframes. Alleen wat van
+    // LEFT afwijkt reist mee; de builder vult LEFT in.
+    const AL = { center: 'CENTER', right: 'RIGHT', end: 'RIGHT', justify: 'JUSTIFIED' };
+    if (AL[node.tekst.align]) o.t.al = AL[node.tekst.align];
+    // Een BLOK-tekst (doos breder dan run) houdt zijn breedte in Figma, ook zonder FILL: de
+    // labelkolom van StatsTable is 165 breed met een run van ~40, en een hug maakte daar
+    // "WATT208" van — de waarde plakte tegen het label. Gemeten 2026-09-09 over 5 295
+    // tekstnodes: 5 065 op doos = run (±0,5), 213 boven de 40 px, 17 ertussen; de drempel
+    // van 4 ligt in dat gat. De builder zet een blok op `HEIGHT` + vaste breedte.
+    if (isBlok(node)) o.t.blok = true;
   }
   if (node.bevatSvg) o.svg = true;
   const kids = node.kinderen ?? [];
