@@ -73,21 +73,18 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+763315e fix(rowtrack): reuse a component property instead of re-adding it, and a guard axis for orphans
 5d11313 docs(rowtrack): classify the 24 image differences by cause, and the Figma-decides flow
 308a44c chore(rowtrack): spec, manifest, geometry and images after the text fix
 0f11ef0 feat(rowtrack): a pre-flight that counts the text an instance will show from the library
 a4cacdc fix(rowtrack): text hugs unless its box is wider than its run, and alignment travels
-dc796cc feat(rowtrack): the builder's messages get a baseline of kinds, checked on both sides
 ```
 
 ## Uncommitted wijzigingen
    M apps/rowtrack/CLAUDE.md
    M apps/rowtrack/HANDOFF.md
    M apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
-  M  apps/rowtrack/figma/builder.js
-   M apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
-  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
+  M  apps/rowtrack/figma/manifest.json
 
 ## Bestanden met TODO/FIXME
   (geen)
