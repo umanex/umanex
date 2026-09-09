@@ -27,7 +27,15 @@ const MAX_BROERS = 8;
 // inhoud -> knop -> LABEL is er al vijf. Gemeten 2026-09-08 op HealthConsentScreen, waar
 // beide CTA-knoppen als lege omlijnde pillen in Figma stonden omdat hun label net buiten
 // het budget viel. Doorvoer-wrappers tellen niet mee, dus zes telt écht zes ontwerplagen.
-const MAX_DIEPTE = 8;
+// Stond tot 2026-09-09 op 8 — dezelfde waarde als de walker, en met hetzelfde gevolg één laag
+// verderop: de vier samenvattings-KPI's van HistoryScreen kwamen als een LEEG `valueRow` in de
+// min-spec terwijl de browser er "2:35:00" toont. Anders dan de walker kapte deze stap niet
+// stil (elke afkapping staat in `afkappingen`), maar 28 van de 39 regels gingen over diepte en
+// niemand las ze. Gemeten over de verse spec: 8 -> 1 106 nodes over 39 plekken (706 KB),
+// 10 -> 1 072 over 11 (715 KB), 12 en 14 -> identiek aan 10. Vanaf 10 blijven alleen de
+// BEDOELDE breedte-afkappingen over (62 confetti-kinderen -> 4); 12 loopt gelijk met de kap
+// van de walker en laat dezelfde marge.
+const MAX_DIEPTE = 12;
 let afgekaptTotaal = 0;
 const afkappingen = [];
 

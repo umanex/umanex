@@ -73,19 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+7571740 fix(rowtrack): the 42 screen differences are gone, fixed at the source
 ce2eba0 feat(rowtrack): the screens are exported to RowTrack - Design as library instances
 db77523 feat(rowtrack): the screens export mechanism, and the variant as a fact
 dcef5b1 refactor(rowtrack): step 5 — the heuristic component boundary is gone
 62ad3be feat(rowtrack): 3b — dataSet names the Reanimated nodes, and Figma round D
-c86eab8 refactor(rowtrack): cuts 12 to 14 — DeviceSection, GoalHeader, StartCta
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md
-  M  apps/rowtrack/figma/bouw-schermen.js
-  M  apps/rowtrack/figma/builder.js
-  M  apps/rowtrack/figma/geometry.schermen.json
-  M  apps/rowtrack/scripts/geometry-parity.mjs
+   M apps/rowtrack/.storybook/main.ts
+   M apps/rowtrack/.storybook/mocks/supabase.ts
+   M apps/rowtrack/.storybook/preview.tsx
+   M apps/rowtrack/app/(auth)/forgot-password.tsx
+   M apps/rowtrack/app/(auth)/login.tsx
+   M apps/rowtrack/app/(auth)/register.tsx
+   M apps/rowtrack/app/(auth)/reset-password.tsx
+   M apps/rowtrack/app/(tabs)/history/[id].tsx
+   M apps/rowtrack/app/(tabs)/history/index.tsx
+   M apps/rowtrack/app/(tabs)/profile.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)
