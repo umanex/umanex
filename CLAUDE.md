@@ -73,8 +73,8 @@ Een tweede tree alleen voor een schrijvende sub-agent (`isolation: "worktree"` �
 
 | | |
 |---|---|
-| Dev-poorten | cashflow `:3000` · portfolio `:3001` · vyvey `:3002` · jobradar `:3003` — hardcoded in de `dev`-scripts. Dezelfde app niet vanuit twee trees draaien. |
-| cashflow PM2 | De productie-build op `:3000` hangt aan `ecosystem.config.js` met absolute paden (gitignored) en draait uit de hoofdtree — dezelfde tree waarin je nu cashflow-feature-branches uitcheckt. Geen `next build` of `pm2:rebuild` daar op een feature branch (het eerste breekt de draaiende server, het tweede deployt ongemergde code); verifieer feature-werk via de flow-harness (`pnpm --filter cashflow flow` bouwt zelf in `.next-harness` en serveert op `:3100`, raakt `.next` niet) of via CI, herbouw pas op `main` na de merge. |
+| Dev-poorten | cashflow `:3000` · portfolio `:3001` · vyvey `:3002` · jobradar `:3003` · dashboard `:3010` — hardcoded in de `dev`-scripts. Dezelfde app niet vanuit twee trees draaien. |
+| PM2-apps | Twee productie-builds draaien uit de hoofdtree — cashflow op `:3000` (config in `ecosystem.config.js`, absolute paden, gitignored) en het dashboard op `:3010` (`pnpm --filter dashboard pm2:start`, loopback-bind). Dat is dezelfde tree waarin je hun feature-branches uitcheckt. Geen `next build` of `pm2:rebuild` daar op een feature branch (het eerste breekt de draaiende server, het tweede deployt ongemergde code); verifieer cashflow-feature-werk via de flow-harness (`pnpm --filter cashflow flow` bouwt zelf in `.next-harness` en serveert op `:3100`, raakt `.next` niet) of via CI, herbouw pas op `main` na de merge. Beide komen na een reboot vanzelf terug via `pm2 resurrect` over `~/.pm2/dump.pm2` — wie een van beide opnieuw aanmaakt, doet er `pm2 save` achteraan. |
 | rowtrack | Expo dev-client: een tweede tree betekent een tweede native build. |
 | `.githooks` | Rijdt automatisch mee — `core.hooksPath` staat in de gedeelde git-config. Niets extra te doen. |
 

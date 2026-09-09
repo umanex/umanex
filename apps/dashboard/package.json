@@ -9,7 +9,13 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "node scripts/guards-selftest.mjs",
-    "clean": "rm -rf .next .runtime"
+    "clean": "rm -rf .next .runtime",
+    "pm2:start": "pm2 start ./node_modules/.bin/next --name dashboard --interpreter none -- start --hostname 127.0.0.1 --port 3010",
+    "pm2:stop": "pm2 stop dashboard",
+    "pm2:restart": "pm2 restart dashboard",
+    "pm2:logs": "pm2 logs dashboard",
+    "pm2:rebuild": "next build && pm2 restart dashboard",
+    "pm2:status": "pm2 status"
   },
   "dependencies": {
     "@umanex/tokens": "workspace:*",
