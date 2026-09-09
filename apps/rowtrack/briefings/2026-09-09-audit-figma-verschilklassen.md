@@ -78,11 +78,16 @@ per schakel. Daarom is de eerste stap toewijzen, niet fixen.
 Twee dingen die pas tijdens het bouwen bovenkwamen en die geen klasse van het beeld zijn maar
 van de keten zelf, allebei in `CLAUDE.md` als eigenaardigheid 9 en in de skill:
 
-- **Een vérse import uit een library met ongepubliceerde wijzigingen komt nooit terug.** Direct
-  na de library-herbouw hing `importStyleByKeyAsync` voor drie styles die het Design-bestand
-  nog nooit had geïmporteerd; de elf die het al kende landden in 2 tot 9 ms. De builder
-  importeerde álles vooraf, dus de eerste schermbouw stond vier minuten stil. Nu: alleen wat
-  de spec noemt, 4 s wachttijd per import, en een hangende import is een melding.
+- **De import-wachtrij van de plugin-runtime kan vastlopen.** Direct na de library-herbouw
+  hing `importStyleByKeyAsync` voor drie styles; de eerste hypothese (een verse import uit een
+  library met ongepubliceerde wijzigingen) is dezelfde dag verworpen: na een volledige herstart
+  van de plugin importeerde alles in 4 tot 410 ms, óók de 22 nog ongepubliceerde componenten.
+  De builder importeert nu alleen wat de spec noemt, met 4 s wachttijd, en een hangende import
+  is een melding: het signaal om de plugin te herstarten.
+- **`addComponentProperty` met een bestaande naam hernoemt stil** (`value2`, `value3`) en laat
+  de vorige property zonder node achter; Figma weigert de component dan bij publicatie als
+  invalid asset — 22 van de 45. De builder hergebruikt nu de property zonder suffix, verwijdert
+  de wezen, en `figma:check` heeft er een as voor (`[eigenschappen]`).
 - **`layoutAlign = MIN | CENTER | MAX` is een stille no-op** (de derde, naast `resize()` op een
   instance-kind en `layoutMode` op een instance-wortel). De builder leest nu terug en vervangt
   hem door FILL op de kruis-as plus uitlijning op het kind zelf.
@@ -194,7 +199,7 @@ HANDOFF 2026-09-08; het is nu de tegenproef.
 | Stretch is geen intentie voor tekst; twee breedtes; uitlijning reist mee; drie stille no-ops | `code-naar-figma/SKILL.md` principe 1 en 1c (umanex-os) · `LEARNINGS.md` umanex-os `# Skill` |
 | Een slot is elke tekst die per gebruiksplek verschilt; tel het vóór de bouw, ná de terugval-toets | `code-naar-figma/SKILL.md` Doel-poort · `LEARNINGS.md` umanex-os `# Skill` · `scripts/instance-tekst.mjs` |
 | Vijf DOM-eigenschappen buiten bereik van de walker | `apps/rowtrack/LEARNINGS.md` · `scripts/walker-blindvlekken.mjs` · zes BACKLOG-items |
-| Verse import hangt bij ongepubliceerde library; `layoutAlign`-no-op | `apps/rowtrack/CLAUDE.md` eigenaardigheid 8 en 9 · builder |
+| Import-wachtrij kan vastlopen; `layoutAlign`-no-op; `addComponentProperty` hernoemt stil | `apps/rowtrack/CLAUDE.md` eigenaardigheid 8, 9 en 10 · builder · `[eigenschappen]`-as |
 | Storybook is de aangenomen waarheid | toestel-ronde-item, rij 6 |
 | De keten hoort ooit hoger, op de trigger | `BACKLOG.md` (root), extractie-item |
 | Stories zijn het variantmodel (D) | kandidaat-promotie naar `nieuw-component`, niet gedaan |
