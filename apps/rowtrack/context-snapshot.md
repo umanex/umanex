@@ -73,16 +73,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+349c990 feat(rowtrack): measure what Storybook cannot show, so the device question surfaces itself
+b35b66e docs(rowtrack): the shifted tab row is a margin the walker never reads, not a misplaced instance
+f6470ea docs(rowtrack): the publication handoff is resolved and the briefing's acceptance is closed
 6a79010 chore(rowtrack): manifest, screen geometry and images after the publication
 fd95441 fix(rowtrack): a time budget for the screen build, a warm-up for imports, and a leaf keeps its size
-56fb806 docs(rowtrack): the import hypothesis is withdrawn; peculiarities 9 and 10
-8cd3842 chore(rowtrack): manifest with property references after the property repair
-763315e fix(rowtrack): reuse a component property instead of re-adding it, and a guard axis for orphans
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
+  M  apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -17,6 +17,7 @@
     "figma:links": "node scripts/figma-links.mjs",
     "figma:check": "node scripts/figma-sync-check.mjs",
     "figma:instance-tekst": "node scripts/instance-tekst.mjs",
+    "toestel:schuld": "node scripts/toestel-schuld.mjs",
     "figma:check:selftest": "node scripts/figma-sync-selftest.mjs",
     "parity": "node scripts/geometry-parity.mjs",
     "render:sweep": "node scripts/render-sweep.mjs",
