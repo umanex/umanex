@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+7209f3d feat(rowtrack): every component with variant axes now declares which variant it is
 3dbc9d9 fix(rowtrack): the depth cap counted a different unit than it cut
 7571740 fix(rowtrack): the 42 screen differences are gone, fixed at the source
 ce2eba0 feat(rowtrack): the screens are exported to RowTrack - Design as library instances
 db77523 feat(rowtrack): the screens export mechanism, and the variant as a fact
-dcef5b1 refactor(rowtrack): step 5 — the heuristic component boundary is gone
 ```
 
 ## Uncommitted wijzigingen
-   M apps/rowtrack/.storybook/main.ts
-   M apps/rowtrack/.storybook/mocks/supabase.ts
-   M apps/rowtrack/.storybook/preview.tsx
-   M apps/rowtrack/app/(auth)/forgot-password.tsx
-   M apps/rowtrack/app/(auth)/login.tsx
-   M apps/rowtrack/app/(auth)/register.tsx
-   M apps/rowtrack/app/(auth)/reset-password.tsx
-   M apps/rowtrack/app/(tabs)/history/[id].tsx
-   M apps/rowtrack/app/(tabs)/history/index.tsx
-   M apps/rowtrack/app/(tabs)/profile.tsx
+  M  apps/rowtrack/.storybook/main.ts
+  A  apps/rowtrack/.storybook/mocks/expo-router.tsx
+  M  apps/rowtrack/.storybook/mocks/supabase.ts
+  M  apps/rowtrack/.storybook/preview.tsx
+  A  apps/rowtrack/app/(auth)/forgot-password.stories.tsx
+  M  apps/rowtrack/app/(auth)/forgot-password.tsx
+  A  apps/rowtrack/app/(auth)/login.stories.tsx
+  M  apps/rowtrack/app/(auth)/login.tsx
+  A  apps/rowtrack/app/(auth)/register.stories.tsx
+  M  apps/rowtrack/app/(auth)/register.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

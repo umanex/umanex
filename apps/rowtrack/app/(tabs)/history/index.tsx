@@ -223,7 +223,7 @@ export default function HistoryScreen() {
   );
 
   return (
-    <View style={styles.screen}>
+    <View testID="HistoryScreen" style={styles.screen}>
       <FlatList
         style={[styles.container, { paddingTop: insets.top }]}
         contentContainerStyle={styles.content}

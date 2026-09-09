@@ -76,6 +76,7 @@ export default function ResetPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
+      testID="ResetPasswordScreen"
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >

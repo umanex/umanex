@@ -460,6 +460,7 @@ export default function ProfileScreen() {
   return (
     <>
       <ScrollView
+        testID="ProfileScreen"
         style={[styles.container, { paddingTop: insets.top }]}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"

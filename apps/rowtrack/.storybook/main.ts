@@ -25,6 +25,10 @@ import type { StorybookConfig } from '@storybook/react-native-web-vite';
  */
 const MOCKS: Record<string, string> = {
   '/lib/supabase.ts': './mocks/supabase.ts',
+  // expo-router is geen bestand in deze repo maar een pakket; de staart van zijn opgeloste
+  // entry is stabiel genoeg om op te matchen, en de rest van de regel hierboven geldt ook hier.
+  '/expo-router/build/index.js': './mocks/expo-router.tsx',
+  '/expo-router/entry.js': './mocks/expo-router.tsx',
 };
 
 /**
@@ -127,7 +131,10 @@ const stubPlugin = {
 };
 
 const config: StorybookConfig = {
-  stories: ['../docs/**/*.mdx', '../components/**/*.stories.@(ts|tsx)'],
+  // `app/` staat erbij sinds fase 1 van de schermen-briefing: de zeven route-schermen krijgen
+  // een story zodat ze een render-pad hebben. Ze zijn SCHERMEN, geen componenten — ze staan in
+  // `scripts/schermen.mjs` en worden daarmee uitgesloten van de library-assen.
+  stories: ['../docs/**/*.mdx', '../components/**/*.stories.@(ts|tsx)', '../app/**/*.stories.@(ts|tsx)'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
   staticDirs: ['./public'],
   framework: {

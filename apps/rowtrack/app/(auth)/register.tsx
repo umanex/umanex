@@ -64,6 +64,7 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
+      testID="RegisterScreen"
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
