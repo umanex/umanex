@@ -76,10 +76,15 @@ const NIET_VISUEEL = {
 // Geen nieuw gat in de code maar een nieuw MEETBAAR gat — het waarschuwingsicoon zat in
 // ActivePhase achter `bleStatus !== 'connected'`, en alle schermframes staan op `connected`.
 // Snede 6 gaf de overlay een eigen story mét foutvariant, en pas daar rendert dat icoon.
-const BEKENDE_GATEN = 47;
+// 47 -> 49 op 2026-09-09, allebei uit PrBanner: `-apple-system 14px` (de 🏅-emoji, bedoeld —
+// een emoji hoort de systeem-emojifont te gebruiken) en `AlbertSans_400Regular 12px` (`body.xs`
+// op de vorige-waarde-regel). Opnieuw geen nieuw gat in de code maar een nieuw MEETBAAR gat:
+// het PR-blok had nog nooit gerenderd, want elke ActivePhase-frame draagt `prEntries: []`.
+// Snede 9 gaf het een eigen story mét records.
+const BEKENDE_GATEN = 49;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1990;   // 1947 + 43: de zeven uitgesneden componenten hebben elk een eigen story, dus dezelfde ongebonden waarden worden nu ook BUITEN het scherm gemeten
+const BEKENDE_VOORKOMENS = 1996;   // 1990 + 6 uit de vier samenvattingscomponenten, die elk een eigen story kregen
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
  *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
@@ -97,7 +102,7 @@ const BEKENDE_VOORKOMENS = 1990;   // 1947 + 43: de zeven uitgesneden componente
  *  83,4 -> 84,4 na de zeven sneden van ingreep 2: elke uitgesneden component draagt zijn eigen
  *  StyleSheet, dus zijn nodes winnen nu een sleutel uit hun eigen bestand in plaats van terug te
  *  vallen. `activeStyles` bestaat niet meer. */
-const LAAGNAAM_DEKKING = 84.4;
+const LAAGNAAM_DEKKING = 84.7;
 /**
  * Hoe vaak de HEURISTISCHE componentgrens nog vuurt. Sinds de testID-ronde van 2026-09-08 staat
  * de grens als feit in de DOM, dus elke treffer hier is een node waar de code hem niet

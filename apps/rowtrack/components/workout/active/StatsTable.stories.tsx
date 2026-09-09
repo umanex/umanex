@@ -26,6 +26,9 @@ const meta = {
       { label: 'BPM', gem: '148', piek: '175' },
     ],
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2027-15964' },
+  },
 } satisfies Meta<typeof StatsTable>;
 
 export default meta;

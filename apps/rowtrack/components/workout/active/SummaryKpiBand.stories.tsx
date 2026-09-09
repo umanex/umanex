@@ -19,6 +19,9 @@ const meta = {
       { value: '486', label: 'Halen' },
     ],
   },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2027-15931' },
+  },
 } satisfies Meta<typeof SummaryKpiBand>;
 
 export default meta;

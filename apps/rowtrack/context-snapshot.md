@@ -70,24 +70,21 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+681dfd6 refactor(rowtrack): cuts 10 and 11 — SummaryKpiBand and StatsTable, and the clock
 5f19171 refactor(rowtrack): cuts 8 and 9 — SummaryTitle and PrBanner
 45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
 58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
 e9b4004 chore(rowtrack): remeasure the non-reproducible nodes after cut 6
-945ffa1 refactor(rowtrack): cut 6 — ConnectionOverlay
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/workout/ActivePhase.stories.tsx
-  M  apps/rowtrack/components/workout/ActivePhase.tsx
-  A  apps/rowtrack/components/workout/active/StatsTable.stories.tsx
-  A  apps/rowtrack/components/workout/active/StatsTable.tsx
-  A  apps/rowtrack/components/workout/active/SummaryKpiBand.stories.tsx
-  A  apps/rowtrack/components/workout/active/SummaryKpiBand.tsx
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/laagnamen.json
-  M  apps/rowtrack/figma/niet-reproduceerbaar.json
-  M  apps/rowtrack/figma/ongebonden.json
+  M  apps/rowtrack/components/workout/active/PrBanner.stories.tsx
+  M  apps/rowtrack/components/workout/active/StatsTable.stories.tsx
+  M  apps/rowtrack/components/workout/active/SummaryKpiBand.stories.tsx
+  M  apps/rowtrack/components/workout/active/SummaryTitle.stories.tsx
+  M  apps/rowtrack/figma/geometry.figma.json
+  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/scripts/figma-sync-check.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
