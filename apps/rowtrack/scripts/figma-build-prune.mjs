@@ -65,6 +65,61 @@ function rektVoorTekst(node) {
   return node.rekt.replace('H', isBlok(node) ? 'H' : '') || null;
 }
 
+/**
+ * MARGES — DRIE VERTALINGEN, EN EEN MELDING VOOR WAT ER GEEN HEEFT.
+ *
+ * WAAROM. Figma's auto-layout kent geen per-kind marge. Er is `itemSpacing` (één waarde voor
+ * álle gaten), `padding` (op de ouder), en verder niets. De walker las `margin` tot 2026-09-09
+ * niet eens, dus de ruimte verdween zonder één melding en alles eronder schoof op. Gemeten op
+ * WorkoutDetailScreen/Playground: vier kinderen van 84+54+682+84 = 904 in een frame van 932,
+ * met `Segmented` op y=112 terwijl zijn broer op 84 eindigt — 28 px die nergens bestond.
+ * `parity` stond daarbij groen, want die vergelijkt hoogtes en geen posities van stromende
+ * kinderen.
+ *
+ * DE DRIE, in volgorde van "kost geen node":
+ *  (b) het EERSTE of LAATSTE kind → de padding van de ouder. Exact, geen nieuwe node.
+ *  (a) elk gat draagt DEZELFDE extra → `itemSpacing`. Figma heeft één waarde voor alle gaten,
+ *      dus alleen het MINIMUM over de gaten mag erin.
+ *  (c) wat daarna overblijft hoort bij een MIDDENkind → een spacer vóór dat kind.
+ *
+ * DE SPACER STAAT IN DE MIN-SPEC, NIET IN DE BUILDER. Dan bouwt de builder hem als elk ander
+ * kind, staan de indices aan beide kanten gelijk, en VERGELIJKT `geometry-parity` hem in plaats
+ * van hem over te slaan. Een spacer die de builder zelf verzint dwingt `kinderparen()` juist
+ * blind te worden voor precies de node die de fix toevoegt — een guard die minder meet.
+ *
+ * LET OP BIJ HET DRAAIEN: een spacer verschuift de broer-indices, en `figma/niet-reproduceerbaar.json`
+ * bewaart zijn uitsluitingen als `<pad>>i:<naam>`. Draai `npm run instabiele-nodes` dus ná
+ * `figma:spec` en vóór `parity`, anders vergelijkt parity de instabiele spinner-nodes alsnog.
+ *
+ * ZONDER EQUIVALENT: een NEGATIEVE marge (de breakout `[0,-20,0,-20]`) en een marge op de
+ * KRUIS-as. Die klemmen we op 0 én melden we (`figma/builder.js`, soort
+ * `marge-zonder-equivalent`) — een stille nul is precies hoe deze hele klasse tot vandaag
+ * onzichtbaar bleef.
+ *
+ * DE GEBONDEN VARIABELE VALT WEG waar er marge bij komt: `spacing/16` + 28 is geen `spacing/*`
+ * meer, en een binding zou de opgetelde waarde in Figma stil terugzetten naar de variabele.
+ */
+function vouwMarges(node) {
+  const uit = { gap: 0, padding: [0, 0, 0, 0], voor: new Map(), rest: [] };
+  const kids = (node.kinderen ?? []).filter((k) => k.positie !== 'absolute' && k.positie !== 'fixed');
+  if (!kids.length || !node.display?.includes('flex')) return uit;
+  const rij = (node.richting ?? '').startsWith('row');
+  const [start, eind] = rij ? [3, 1] : [0, 2];        // index in [top, right, bottom, left]
+  const kruis = rij ? [0, 2] : [3, 1];
+  const m = (k) => k.marge ?? [0, 0, 0, 0];
+  for (const k of kids) {
+    const eigen = m(k);
+    if (eigen.some((v) => v < 0) || kruis.some((i) => eigen[i] > 0)) uit.rest.push([k.naam ?? 'wrapper', eigen]);
+  }
+  uit.padding[start] = Math.max(0, m(kids[0])[start]);
+  uit.padding[eind] = Math.max(0, m(kids[kids.length - 1])[eind]);
+  const gaten = kids.slice(1).map((k, i) => Math.max(0, m(kids[i])[eind]) + Math.max(0, m(k)[start]));
+  if (!gaten.length) return uit;
+  uit.gap = Math.min(...gaten);
+  gaten.forEach((g, i) => { if (g - uit.gap > 0) uit.voor.set(kids[i + 1], g - uit.gap); });
+  return uit;
+}
+
 function snoei(node, diepte, pad, comp) {
   const o = { w: r2(node.w), h: r2(node.h) };
   // De laagnaam is een BESLUIT van scripts/laagnamen.mjs; het bewijs (rKlassen, kandidaten)
@@ -80,10 +135,14 @@ function snoei(node, diepte, pad, comp) {
   if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
   if (node.slot) o.slot = node.slot;      // deze tekstnode hangt aan een component property
   if (node.richting && node.display?.includes('flex')) o.rij = node.richting.startsWith('row');
-  if (node.gap) { o.gap = r2(node.gap); if (node.gapVar) o.gapVar = node.gapVar; }
-  if (node.padding.some(p => p)) {
-    o.padding = node.padding.map(r2);
-    if (node.paddingVar?.some(Boolean)) o.paddingVar = node.paddingVar;
+  // De marge van de KINDEREN wordt hier bij de gap en de padding van de OUDER opgeteld; de rest
+  // gaat als spacer de kinderlijst in (zie `o.k` verderop). Een opgetelde waarde is geen
+  // tokenwaarde meer, dus de binding valt op die as weg — anders zet Figma hem stil terug.
+  const M = vouwMarges(node);
+  if (node.gap || M.gap) { o.gap = r2(node.gap + M.gap); if (node.gapVar && !M.gap) o.gapVar = node.gapVar; }
+  if (node.padding.some(p => p) || M.padding.some(p => p)) {
+    o.padding = node.padding.map((p, i) => r2(p + M.padding[i]));
+    if (node.paddingVar?.some(Boolean)) o.paddingVar = node.paddingVar.map((v, i) => (M.padding[i] ? null : v));
   }
   if (node.radius.some(x => x)) { o.radius = node.radius.map(r2); if (node.radiusVar) o.radiusVar = node.radiusVar; }
   if (node.bg && node.bg.a > 0) { o.bg = node.bg; if (node.bgVar) o.bgVar = node.bgVar; }
@@ -147,7 +206,16 @@ function snoei(node, diepte, pad, comp) {
     // tekstnodes: 5 065 op doos = run (±0,5), 213 boven de 40 px, 17 ertussen; de drempel
     // van 4 ligt in dat gat. De builder zet een blok op `HEIGHT` + vaste breedte.
     if (isBlok(node)) o.t.blok = true;
+    // EEN INVOERVELD. De doos is gemeten (12 px padding boven en onder één regel van 21,6 —
+    // samen de 46 die de browser meet), maar een tekstnode kan in Figma geen padding dragen.
+    // De builder heeft dat onderscheid nodig: zonder `veld` plakt de placeholder bovenin die
+    // doos, 12 px hoger dan in de browser, en `parity` ziet daar niets van — die vergelijkt de
+    // hoogte (46 = 46), niet de plaats van de glyphs erbinnen.
+    if (node.tekst.veld) o.t.veld = true;
   }
+  // Wat geen auto-layout-vorm heeft reist als FEIT mee, niet als correctie: de builder maakt er
+  // een melding van, zodat een breakout niet stil op nul wordt gezet.
+  if (M.rest.length) o.margeRest = M.rest;
   if (node.bevatSvg) o.svg = true;
   const kids = node.kinderen ?? [];
   // Zelfde regel als in de walker: een doorvoer-wrapper (één kind, geen tekst, geen eigen
@@ -169,7 +237,20 @@ function snoei(node, diepte, pad, comp) {
       afkappingen.push(`${comp}${pad}: ${kids.length} kinderen -> ${houden.length}`
         + (decor.length ? ` (${decor.length} decoratief)` : ''));
     }
-    o.k = houden.map((k, i) => snoei(k, volgende, `${pad}>${i}`, comp));
+    // GEVAL (c): een marge die noch bij de padding noch bij de itemSpacing past, hoort bij één
+    // gat. Figma kent daar niets voor, dus komt er een lege spacer vóór dat kind. De sleutel is
+    // de KINDNODE zelf en niet zijn index: `houden` heeft decoratieve broers naar achteren
+    // verplaatst en broers boven MAX_BROERS weggesneden, dus een index uit de meting slaat hier
+    // een ánder kind aan. Het pad volgt `o.k.length`, zodat elk pad in de min-spec blijft
+    // kloppen met de uiteindelijke kinderlijst (`instance-tekst.mjs` en de
+    // niet-reproduceerbaar-sleutels lopen hem af).
+    const spacerRij = (node.richting ?? '').startsWith('row');
+    o.k = [];
+    for (const k of houden) {
+      const extra = M.voor.get(k);
+      if (extra) o.k.push({ w: r2(spacerRij ? extra : 1), h: r2(spacerRij ? 1 : extra), naam: 'spacer', naamBron: 'marge' });
+      o.k.push(snoei(k, volgende, `${pad}>${o.k.length}`, comp));
+    }
   } else if (kids.length) {
     o.dieperWeggelaten = kids.length;
     afgekaptTotaal += kids.length;
@@ -252,6 +333,11 @@ writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
     // modalboom hoort niet tegen een schermboom gelegd te worden.
     const alleBomen = [...bomen, ...items.flatMap(v => v.overlays ?? [])];
     for (const b of alleBomen) for (const n of plat(b)) {
+      // Een spacer uit `vouwMarges` is een BOUWARTEFACT, geen app-node: er staat geen element in
+      // de DOM tegenover en er is geen code die hem een naam kan geven. `echteNaamPct` meet welk
+      // deel van de laagnamen uit de CODE komt; een spacer meetellen verlaagt dat getal zonder
+      // dat er dekking verdween.
+      if (n.naamBron === 'marge') continue;
       nodes++;
       perBron[n.naamBron ?? 'sleutel'] = (perBron[n.naamBron ?? 'sleutel'] ?? 0) + 1;
       perNaam.set(n.naam, (perNaam.get(n.naam) ?? 0) + 1);

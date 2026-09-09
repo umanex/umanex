@@ -73,20 +73,19 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9563112 chore(rowtrack): Figma artefacts after the type-style fix, and the image axis has a blind spot
 99b0234 fix(rowtrack): three of the four type gaps close at the source, not in the ratchet
 5cbca71 docs(rowtrack): the obvious slot diff covers none of the 23, and the rest wants one round per layer
 5d0a177 chore(rowtrack): Figma artefacts after the tracking fix
 e172448 fix(rowtrack): the text style must match the tracking too, also when it is the only candidate
-92c0713 docs(rowtrack): what you read in Figma is what the chain could build, not what anyone meant
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/figma/beeld-verschillen.json
-  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/geometry.schermen.json
-  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/components/FormField.stories.tsx
+  M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/builder.js
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/scripts/figma-build-spec.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

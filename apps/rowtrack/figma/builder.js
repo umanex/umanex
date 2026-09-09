@@ -142,6 +142,7 @@ const MELDING_SOORTEN = [
   ['component-property-mislukt',   /: component property ".*" mislukt/],
   ['tekst-uitlijning-geweigerd',   /: tekst-uitlijning .* geweigerd/],
   ['eigenschap-zonder-node-verwijderd', /: eigenschap ".*" zonder node verwijderd/],
+  ['marge-zonder-equivalent',      /: marge .* op kind ".*" heeft geen Figma-equivalent/],
 ];
 function soortVan(m) {
   const s = String(m);
@@ -447,6 +448,15 @@ function zetRek(f, kinderen, naamPad) {
 }
 
 async function maak(n, naamPad, wortelComp) {
+  // MARGES ZONDER FIGMA-EQUIVALENT. `vouwMarges()` in scripts/figma-build-prune.mjs vertaalt een
+  // hoofdas-marge naar padding (eerste of laatste kind), itemSpacing (alle gaten gelijk) of een
+  // spacer-node (middenkind). Wat overblijft heeft in auto-layout geen vorm: een NEGATIEVE marge
+  // — de breakout van de Home-lijst — en een marge op de KRUIS-as. De pruner klemt die op 0, dus
+  // zonder deze regel verdwijnt de uitbraak precies zoals de hele klasse tot vandaag verdween:
+  // zonder één melding. Dit staat vóór de instance-tak, zodat ook een ouder die zelf een
+  // instance wordt zijn gat meldt.
+  for (const [kind, m] of n.margeRest ?? [])
+    meldingen.push(`${naamPad}: marge ${JSON.stringify(m)} op kind "${kind}" heeft geen Figma-equivalent (negatief of kruis-as)`);
   // Een gedeclareerde grens die de library kent wordt een INSTANCE, en dan stopt de afdaling:
   // wat eronder zit hoort bij dat component en komt met de instance mee.
   if (INST && n.component && n.component !== wortelComp && INST[n.component]) {
@@ -529,7 +539,16 @@ async function maak(n, naamPad, wortelComp) {
     // breed met een run van ~40, en als hug werd dat "WATT208" — de waarde plakte tegen
     // het label. Vaste breedte is daar de transcriptie; de uitlijning erin doet het werk.
     const enkeleRegel = n.t.lh ?? n.t.px * 1.35;
-    if (n.h > enkeleRegel * 1.5 || n.t.blok) {
+    if (n.t.veld) {
+      // EEN INVOERVELD IS EEN DOOS MET EEN REGEL ERIN. De browser meet 46 hoog (12 + 21,6 + 12);
+      // een tekstnode draagt die padding niet. Dus vaste maat plus verticale uitlijning, en in
+      // die volgorde — `NONE` en niet `HEIGHT`, want alleen bij een vaste maat is
+      // `textAlignVertical` gedefinieerd. Dit gaat niet over de 46 maar over de 12 px die de
+      // regel anders te hoog staat, en dat is iets wat `parity` per constructie niet ziet.
+      t.textAutoResize = 'NONE';
+      t.resize(Math.max(1, n.w), Math.max(1, n.h));
+      t.textAlignVertical = 'CENTER';
+    } else if (n.h > enkeleRegel * 1.5 || n.t.blok) {
       t.textAutoResize = 'HEIGHT';
       t.resize(Math.max(1, n.w), Math.max(1, n.h));
     } else {

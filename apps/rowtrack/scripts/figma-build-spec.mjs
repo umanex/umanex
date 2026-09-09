@@ -354,6 +354,41 @@ const WALKER = () => {
     return { r: d[0], g: d[1], b: d[2], a: d[3] ?? 1 };
   };
   /**
+   * EEN INVOERVELD DRAAGT ZIJN TEKST IN EEN ATTRIBUUT, NIET IN EEN TEKSTKNOOP.
+   *
+   * `lees()` verzamelt tekst met `nodeType === 3`, en een `<input>` heeft per constructie geen
+   * tekstkinderen: waarde en placeholder zijn IDL-properties. Gemeten 2026-09-09: 14
+   * `<input>`-nodes, alle veertien met `tekst: null` — 2 in de FormField-varianten, 6 in de
+   * auth-schermen (waarvan 4 met placeholder) en 6 switches. In Figma is dat een lege doos.
+   *
+   * De TYPES zijn een WITTE lijst, geen zwarte: de zes switches zijn `type="checkbox"` en
+   * horen frames te blijven. RNW leidt het type af uit keyboardType/secureTextEntry; bij
+   * number-pad blijft het leeg en is `el.type` per IDL 'text'.
+   */
+  const VELD_TYPES = new Set(['text', 'email', 'password', 'search', 'tel', 'url', 'number']);
+  const isVeld = (el) => el.tagName === 'TEXTAREA'
+    || (el.tagName === 'INPUT' && VELD_TYPES.has(el.type));
+  const hex = v => {
+    const m = String(v).trim().match(/^#([0-9a-f]{6})([0-9a-f]{2})?$/i);
+    if (!m) return null;
+    const n = parseInt(m[1], 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: m[2] ? parseInt(m[2], 16) / 255 : 1 };
+  };
+  /**
+   * DE PLACEHOLDER-KLEUR — uit de custom property, NIET uit `getComputedStyle(el, '::placeholder')`.
+   *
+   * react-native-web zet `placeholderTextColor` als `--placeholderTextColor` op het element en
+   * compileert `::placeholder { color: var(--placeholderTextColor) }` — beide dragen dezelfde
+   * waarde. Waarom dan niet de pseudo? Blink geeft bij een pseudo die hij in
+   * `getComputedStyle` niet kent de stijl van het ELEMENT terug. Dat is hier fg.primary: een
+   * geldige kleur met een geldig token, dus een gevulde, geloofwaardige, verkeerde uitkomst in
+   * plaats van een lege. De custom property kan dat niet — hij staat er of hij staat er niet.
+   */
+  const placeholderKleur = (el, cs) => {
+    const eigen = cs.getPropertyValue('--placeholderTextColor');
+    return rgba(eigen) ?? hex(eigen) ?? rgba(getComputedStyle(el, '::placeholder').color) ?? rgba(cs.color);
+  };
+  /**
    * Een DOORVOER-WRAPPER draagt geen ontwerpinformatie: precies één elementkind, geen eigen
    * tekst, en geen eigen verf (achtergrond, verloop, rand, schaduw, radius, opacity). In RN
    * levert elke <View> er een, en een portal-constructie stapelt er drie tot vier op elkaar.
@@ -434,8 +469,24 @@ const WALKER = () => {
   function lees(el, diepte, ouderRect) {
     const cs = getComputedStyle(el);
     const r = el.getBoundingClientRect();
-    const eigenTekst = [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim())
-      .map(n => n.textContent).join('');
+    // DE SCHEIDER TUSSEN TWEE INLINE-RUNS IS ZELF EEN TEKSTNODE.
+    //
+    // `{t.auth.login.noAccount}{' '}<Text>` rendert DRIE childNodes: "Nog geen account?", " "
+    // en de <span>. `n.textContent.trim()` gooide die middelste weg, dus de spec droeg
+    // "Nog geen account?" ZONDER spatie — terwijl de gemeten geometrie hem wél bevat: doos
+    // 208,08 = run 208,08, kind "Registreer" 70,03 op dx=138,05, en 208,08 − 70,03 = 138,05.
+    // Zonder scheider plakt de builder er "Nog geen account?Registreer" van (gemeten
+    // 2026-09-09 op Login, Register en Forgot — de enige drie nodes met eigen tekst én kinderen).
+    //
+    // Een spatie-node telt alleen mee als hij ergens TUSSEN staat én een ELEMENT naast zich
+    // heeft: dat is de inline-stroom en niets anders. `{a}{' '}{b}` zonder elementkind blijft
+    // dus onaangeroerd, en een element zonder échte eigen tekst krijgt er geen tekst bij.
+    const tekstKinderen = [...el.childNodes].filter(n => n.nodeType === 3);
+    const scheider = n => n.previousSibling && n.nextSibling
+      && (n.previousSibling.nodeType === 1 || n.nextSibling.nodeType === 1);
+    const eigenTekst = tekstKinderen.some(n => n.textContent.trim())
+      ? tekstKinderen.filter(n => n.textContent.trim() || scheider(n)).map(n => n.textContent).join('')
+      : '';
     const o = {
       tag: el.tagName.toLowerCase(),
       w: Math.round(r.width * 100) / 100, h: Math.round(r.height * 100) / 100,
@@ -493,6 +544,16 @@ const WALKER = () => {
         return { 'flex-start': 'MIN', center: 'CENTER', 'flex-end': 'MAX', stretch: 'STRETCH' }[eigen] ?? null;
       })(),
       padding: [px(cs.paddingTop), px(cs.paddingRight), px(cs.paddingBottom), px(cs.paddingLeft)],
+      // DE MARGE, in dezelfde volgorde als de padding hierboven. Tot 2026-09-09 las de walker
+      // hem NIET, en dat is de vorm van een stil gat: Figma's auto-layout kent geen per-kind
+      // marge, dus wat hier niet gemeten wordt kan de builder niet bouwen en kan `parity` —
+      // die op dezelfde meting rust — niet missen. Gemeten in de DOM van storybook-static
+      // (`scripts/walker-blindvlekken.mjs`, as `marge`, buiten deze walker om): 57 van 13 237
+      // nodes over 38 stories, twaalf unieke waarden, waaronder `[28,0,0,0]` op 14
+      // `Segmented`-nodes en de breakout `[0,-20,0,-20]` van de Home-lijst. Zonder Figma erbij
+      // te halen op WorkoutDetailScreen/Playground: vier kinderen van 84+54+682+84 = 904 in
+      // een frame van 932.
+      marge: [px(cs.marginTop), px(cs.marginRight), px(cs.marginBottom), px(cs.marginLeft)],
       radius: [px(cs.borderTopLeftRadius), px(cs.borderTopRightRadius),
                px(cs.borderBottomRightRadius), px(cs.borderBottomLeftRadius)],
       bg: rgba(cs.backgroundColor),
@@ -508,14 +569,25 @@ const WALKER = () => {
       dx: ouderRect ? Math.round((r.left - ouderRect.left) * 100) / 100 : 0,
       dy: ouderRect ? Math.round((r.top - ouderRect.top) * 100) / 100 : 0,
     };
-    if (eigenTekst) {
+    // Een VELD krijgt ALTIJD een tekst-object, ook als het leeg is. Reden, gemeten 2026-09-09:
+    // de schermen bouwen FormField als library-instance (6 instances, 0 terugval) en alleen
+    // een slot-waarde steekt die grens over. Zonder de lege string blijft het slot van
+    // login-Wachtwoord en register-Bevestig-wachtwoord ongezet, en tonen die twee velden in
+    // Figma de placeholder van de LIBRARY.
+    const veld = isVeld(el);
+    if (eigenTekst || veld) {
       o.tekst = {
-        inhoud: eigenTekst,
+        inhoud: veld ? (el.value || el.placeholder || '') : eigenTekst,
+        veld: veld || undefined,
         family: cs.fontFamily.replace(/["']/g, '').split(',')[0].trim(),
         size: px(cs.fontSize),
         lineHeight: cs.lineHeight === 'normal' ? null : px(cs.lineHeight),
         letterSpacing: cs.letterSpacing === 'normal' ? 0 : px(cs.letterSpacing),
-        kleur: rgba(cs.color),
+        // Een LEEG veld toont zijn placeholder, en die heeft een EIGEN kleur: `cs.color` is de
+        // kleur van de waarde (fg.primary), niet die van de placeholder (fg.tertiary). Allebei
+        // bestaande rollen — dus zonder deze splitsing bindt de tekst netjes aan
+        // Theme:fg/primary en is er nergens iets aan te zien.
+        kleur: veld && !el.value ? placeholderKleur(el, cs) : rgba(cs.color),
         align: cs.textAlign,
         transform: cs.textTransform,
         // DE BREEDTE VAN DE RUN, naast de breedte van de DOOS. `getBoundingClientRect` op
@@ -525,7 +597,12 @@ const WALKER = () => {
         // `align-self: stretch` kan dat niet, want dat is de RNW-default van élk View-kind.
         // Gemeten 2026-09-09: 124 van 625 tekstnodes in de schermen kregen daardoor FILL,
         // en "1 sep 2026" (doos 159 = run 159) brak in Figma in twee regels over OVERZICHT.
-        inhoudBreedte: (() => {
+        // Een veld heeft geen tekstknopen, dus een Range eroverheen meet 0. Dat is hier de
+        // JUISTE waarde en geen ongeluk: de doos ÍS de intentie — een veld vult zijn rij en de
+        // tekst staat erin. `isBlok` (pruner) wordt daarmee per constructie waar en de `H` uit
+        // `rekt` blijft staan. Expliciet, want een 0 die uit een lege meting rolt is niet te
+        // onderscheiden van een 0 die iemand bedoeld heeft.
+        inhoudBreedte: veld ? 0 : (() => {
           const r = document.createRange(); r.selectNodeContents(el);
           return Math.round(r.getBoundingClientRect().width * 100) / 100;
         })(),
