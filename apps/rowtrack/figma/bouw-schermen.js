@@ -22,6 +22,7 @@ let uitkomst;
 try {
   const min = await (await fetch(`http://localhost:${POORT}/build-spec.min.json`)).json();
   const keys = await (await fetch(`http://localhost:${POORT}/library-component-keys.json`)).json();
+  const bib = await (await fetch(`http://localhost:${POORT}/library-keys.json`)).json();
   const ontbreekt = SCHERMEN.filter(n => !min.schermen[n]);
   if (ontbreekt.length) throw new Error('onbekend scherm: ' + ontbreekt.join(', '));
   // FRAMES filtert tot één frame per aanroep. Zie de opmerking bij `doelX` in builder.js:
@@ -69,11 +70,27 @@ try {
         perVariant[vNaam] = { key: vKey, slotPaden: v ? slotPaden(v.boom, naam) : {} };
       }
     }
+    // Hoe diep zit de componentgrens in zijn eigen gemeten boom? Nul zonder story-decorator,
+    // één met. Plus de wrapper die de builder eromheen zet: dat is het aantal stappen van de
+    // instance-wortel naar de node die de layout draagt — en dus naar de node waarop een
+    // override hoort te landen.
+    let grensDiepte = 0;
+    if (eigen) {
+      const zoek = (n, k) => { if (n.component === naam) return k;
+        for (const x of n.k ?? []) { const r = zoek(x, k + 1); if (r !== null) return r; } return null; };
+      grensDiepte = zoek(eigen.varianten[0].boom, 0) ?? 0;
+    }
+    // PORTALEERT DIT COMPONENT ZIJN INHOUD? Dan is de library-component een lege wrapper met de
+    // inhoud als zuster-overlay, en is één instance niet de goede vorm: gemeten 2026-09-09 gaven
+    // MotivationalToast en DeviceSelectionModal 0,01 hoog met nul kinderen in het scherm.
+    const portaleert = !!(eigen && eigen.varianten.some(v => (v.overlays ?? []).length));
     instanties[naam] = {
       key: c.key,
       varianten: c.varianten ? perVariant : null,
       slotPaden: c.varianten ? null : (eigen ? slotPaden(eigen.varianten[0].boom, naam) : {}),
       slots: c.slots,
+      diepte: grensDiepte,
+      portaleert,
     };
   }
 
@@ -81,6 +98,7 @@ try {
   SPEC.__stamp = STAMP;
   SPEC.__doelPagina = 'Screens v2';
   SPEC.__instanties = instanties;
+  SPEC.__bibliotheek = bib;
 
   const bron = await (await fetch(`http://localhost:${POORT}/builder.js`)).text();
   const F = Object.getPrototypeOf(async function () {}).constructor;
@@ -88,7 +106,7 @@ try {
   uitkomst = {
     schermen: SCHERMEN, fout: null,
     bibliotheek: { totaal: Object.keys(keys.componenten).length, bruikbaar: Object.keys(instanties).length },
-    geweigerd: r.geweigerd, aantalMeldingen: r.aantalMeldingen,
+    geweigerd: r.geweigerd, vervangen: r.vervangen, aantalMeldingen: r.aantalMeldingen,
     meldingen: (r.meldingen ?? []).slice(0, 12),
     gebouwd: (r.gebouwd ?? []).map(g => ({ component: g.component, type: g.type, nodes: g.nodes })),
   };

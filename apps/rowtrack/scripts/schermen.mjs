@@ -25,6 +25,22 @@ export const SCHERMEN = {
     frames: ['Playground', 'Niet Verbonden', 'Doel Afstand', 'Toestel Keuze'],
     reden: 'schermcompositie — idem, 320 nodes; hoort in RowTrack - Design op Screens v2',
   },
+
+  // ── De ROUTE-schermen (fase 1 van de schermen-briefing, 2026-09-09) ────────────────────
+  // Deze zeven hadden tot vandaag geen render-pad. Ze staan in `app/`, niet in `components/`,
+  // en hun stories leunen op de mocks in `.storybook/mocks/` — expo-router voor de navigatie
+  // en een vulbare supabase voor de data én de sessie.
+  //
+  // Ze zijn per definitie een scherm: een route is geen herbruikbaar ding. Hun `reden` is
+  // daarom korter dan die van ActivePhase/IdlePhase — daar was het een oordeel over
+  // variant-assen, hier volgt het uit wat ze zijn.
+  LoginScreen: { frames: ['Playground'], reden: 'route-scherm — een route is geen herbruikbaar component; hoort in RowTrack - Design op Screens v2' },
+  RegisterScreen: { frames: ['Playground'], reden: 'route-scherm — idem' },
+  ForgotPasswordScreen: { frames: ['Playground'], reden: 'route-scherm — idem' },
+  ResetPasswordScreen: { frames: ['Playground', 'Met Link'], reden: 'route-scherm — idem' },
+  HistoryScreen: { frames: ['Playground', 'Leeg', 'Een Record'], reden: 'route-scherm — idem' },
+  WorkoutDetailScreen: { frames: ['Playground', 'Zonder Hartslag', 'Niet Gevonden'], reden: 'route-scherm — idem' },
+  ProfileScreen: { frames: ['Playground', 'Onvolledig', 'Zonder Gewicht'], reden: 'route-scherm — idem' },
 };
 
 /** Is dit story-component een scherm? */

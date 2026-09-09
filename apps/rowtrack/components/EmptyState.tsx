@@ -2,6 +2,7 @@ import { type ComponentProps, memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fg, display, body, space } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
@@ -23,7 +24,8 @@ export const EmptyState = memo(function EmptyState({
   const resolvedIconSize = iconSize ?? (size === 'lg' ? 64 : 48);
 
   return (
-    <View testID="EmptyState" style={size === 'lg' ? styles.containerLg : styles.containerSm}>
+    <View testID="EmptyState"
+        dataSet={variantData({ size })} style={size === 'lg' ? styles.containerLg : styles.containerSm}>
       <Ionicons name={icon} size={resolvedIconSize} color={fg.tertiary} />
       <Text style={size === 'lg' ? styles.titleLg : styles.titleSm}>
         {title}

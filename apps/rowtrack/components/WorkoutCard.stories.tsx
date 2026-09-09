@@ -3,11 +3,18 @@ import type { PrEntry } from '@/lib/personalRecords';
 import { WorkoutCard, type WorkoutRowData } from './WorkoutCard';
 
 /**
- * Geen variant-assen, en dat is bewust. De twee zichtbare varianten hangen allebei aan
- * data en niet aan een keuze uit een lijst: de zebra-striping komt uit `index % 2` (een
- * getal, geen union) en de PR-badge uit de aanwezigheid van `prEntries`. Ze staan hier
- * daarom als named stories in plaats van als as — een as verzinnen zou in Figma een
- * variant-node eisen die er geen is.
+ * ÉÉN variant-as: `index`, met opzet teruggebracht tot [0, 1]. De zebra-striping komt uit
+ * `index % 2` (`WorkoutCard.tsx:109`), dus alleen de pariteit is zichtbaar — rij 7 ziet er
+ * uit als rij 1. De as stond hier tot 2026-09-09 NIET, met als reden "een getal is geen
+ * union"; gemeten gevolg: de library kende maar één WorkoutCard, en de twee kaarten met een
+ * raised tile in HistoryScreen/Playground waren de laatste twee parity-verschillen
+ * (`vulling: browser wel tegen Figma niet`). Een zichtbare vorm die de library niet kan
+ * uitdrukken, is een vorm die de koppeling moet raden.
+ *
+ * De PR-badge blijft wél een named story en geen as: die hangt aan de aanwezigheid van
+ * `prEntries` en verandert het aantal kinderen van `dateRow`, en een instance kan geen kind
+ * bijkrijgen. Dat verschil is gemeten (`kinderen 1 tegen 2`) en valt terug op een nagebouwde
+ * subboom, met melding.
  *
  * De datum is bewust een vaste dag in het verleden: `fmtDate` schrijft vandaag en gisteren
  * uit als woord, en dan zou de render per dag veranderen.
@@ -32,6 +39,7 @@ const meta = {
   component: WorkoutCard,
   argTypes: {
     onPress: { control: false },
+    index: { control: 'select', options: [0, 1] },
   },
   args: {
     workout: basisRit,
@@ -40,7 +48,7 @@ const meta = {
     onPress: () => {},
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2025-14570' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2034-17610' },
   },
 } satisfies Meta<typeof WorkoutCard>;
 

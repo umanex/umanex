@@ -8,6 +8,7 @@ import type { PrEntry } from '@/lib/personalRecords';
 import { t } from '@/i18n';
 import { formatInt } from '@/lib/formatters';
 import { bg, fg, accent, space, typeStyles } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 function fmtDate(iso: string): string {
   const d = new Date(iso);
@@ -89,6 +90,8 @@ export const WorkoutCard = memo(function WorkoutCard({
   return (
     <Pressable
       testID="WorkoutCard"
+      // Alleen de PARITEIT is zichtbaar (`index % 2`), dus de as draagt 0 of 1 — niet de rij.
+      dataSet={variantData({ index: index % 2 })}
       onPress={() => onPress(w.id)}
       accessibilityRole="button"
       // Volledig label, niet alleen de datum: een Pressable staat standaard op

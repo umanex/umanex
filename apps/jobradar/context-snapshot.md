@@ -42,15 +42,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-9fbb5cf feat(jobradar): contact panel, next-action badge and sorting
-172079a feat(ui): add Sheet, and repair the manifest recipe it exposed
-6ef3d79 feat(jobradar): the prospect map, drawn as inline SVG
-8129486 feat(jobradar): geocoding layer and province boundaries for the map
-72e469b feat(jobradar): data layer, rules and API for contact follow-up
+e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
+7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
+346ae77 fix(jobradar): give the flow harness its own build directory
+6fc0110 fix(jobradar): repair the mirror connection and close the review findings
+c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/context-snapshot.md
+  M  apps/jobradar/CLAUDE.md
+  A  apps/jobradar/app/api/kaart/route.ts
+  A  apps/jobradar/app/api/opvolging/actie/route.ts
+  A  apps/jobradar/app/api/opvolging/moment/[id]/route.ts
+  A  apps/jobradar/app/api/opvolging/route.ts
+  M  apps/jobradar/app/api/prospects/route.ts
+  M  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
+  M  apps/jobradar/briefings/2026-09-08-feature-prospectkaart.tcebc.md
+  A  apps/jobradar/components/ContactPanel.tsx
+  A  apps/jobradar/components/ContactTimeline.tsx
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -31,6 +31,7 @@ import { chromium } from 'playwright';
 // producent-tegenproef: die muteert een kopie van de spec, draait de echte naamgevingspas
 // erover en eist dat de guard omvalt — met het echte script, niet met een nabouw ervan.
 const rootFlag = process.argv.find(a => a.startsWith('--root='));
+const kapFlag = process.argv.find(a => a.startsWith('--kap='));
 const APP = rootFlag ? rootFlag.slice('--root='.length) : join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
@@ -289,6 +290,21 @@ const WALKER = () => {
   // verdwijnt een grens stil, en leest "44 componenten zonder testID" als een code-probleem
   // terwijl het een meet-probleem is.
   let weggelatenComponenten = 0;
+  // ... en ALLES wat hij wegkapt. De teller hierboven telt enkel `[data-testid]`, en dat is
+  // precies de blinde vlek die op 2026-09-09 een KPI-waarde liet verdwijnen: HistoryScreen
+  // toont "2:35:00" in de DOM (117x41, gemeten in Chromium) terwijl de spec daar een LEEG
+  // `valueRow` had. Geen enkele as kon dat zien — parity vergelijkt spec met Figma, en het
+  // ontbrak aan beide kanten. Een grens is niet het enige wat een kap kan kosten.
+  let weggelatenNodes = 0, weggelatenTekst = 0;
+  // DE DIEPTEKAP. Stond tot 2026-09-09 op 8 en kostte toen 3 018 nodes waarvan 2 018 met
+  // tekst — stil, want de teller ernaast telde alleen weggegooide `[data-testid]`-grenzen en
+  // die stond op 0. Het zichtbare gevolg: de vier samenvattings-KPI's van HistoryScreen
+  // hadden in de spec een LEEG `valueRow`, terwijl de browser er "2:35:00" toont (117x41,
+  // gemeten met getBoundingClientRect). Gemeten met `--kap=N` over alle 257 stories:
+  // 8 -> 3 018 weggekapt (2 018 met tekst), 9 -> 1 998, 10 -> 0, 12 -> 0. De diepste echte
+  // boom is dus 10 lagen; 12 laat marge en raakt geen enkele node, dus een diepere component
+  // valt straks niet stil weg maar verschijnt gewoon.
+  const KAP = Number(new URLSearchParams(location.search).get('kap')) || 12;
 
   const root = document.querySelector('#storybook-root');
   const decorator = root?.firstElementChild;
@@ -491,7 +507,7 @@ const WALKER = () => {
     if (el.tagName.toLowerCase() === 'svg' || el.querySelector?.(':scope > svg')) o.bevatSvg = true;
     const doorvoer = isDoorvoer(el, cs);
     if (doorvoer) o.doorvoer = true;
-    if (diepte < 8) {
+    if (diepte < KAP) {
       const kids = [...el.children].filter(k => {
         const c2 = getComputedStyle(k);
         return c2.display !== 'none' && c2.visibility !== 'hidden';
@@ -501,6 +517,12 @@ const WALKER = () => {
       if (kids.length) o.kinderen = kids.map(k => lees(k, doorvoer ? diepte : diepte + 1, r));
     } else {
       weggelatenComponenten += el.querySelectorAll('[data-testid]').length;
+      const gekapt = [...el.querySelectorAll('*')].filter(k => {
+        const c2 = getComputedStyle(k);
+        return c2.display !== 'none' && c2.visibility !== 'hidden';
+      });
+      weggelatenNodes += gekapt.length;
+      weggelatenTekst += gekapt.filter(k => k.children.length === 0 && k.textContent.trim()).length;
     }
     // Een absoluut gepositioneerd kind valt buiten de box van zijn ouder, dus een overlay-
     // wortel meet 0 breed of 0 hoog terwijl er wél iets staat. Gemeten 2026-09-07: tien
@@ -545,8 +567,8 @@ const WALKER = () => {
   });
   const gezien = { testid: [...gezienTestid], laag: [...gezienLaag], bron: [...gezienBron] };
   return overlayBomen.length
-    ? { boom, overlays: overlayBomen, gezien, weggelatenComponenten }
-    : { boom, gezien, weggelatenComponenten };
+    ? { boom, overlays: overlayBomen, gezien, weggelatenComponenten, weggelatenNodes, weggelatenTekst }
+    : { boom, gezien, weggelatenComponenten, weggelatenNodes, weggelatenTekst };
 };
 
 // ---------------------------------------------------------------------------
@@ -629,7 +651,11 @@ async function meet(storyId, args, herladen = false) {
     // --rnw-keys-uit is de NEGATIEVE CONTROLE van de sleutelkaart. Zonder hem is "elke node
     // heet wrapper" niet te onderscheiden van "het instrument staat uit": beide geven een
     // gevulde spec zonder foutmelding. Met de vlag hoort de walker hard te falen.
-    + (process.argv.includes('--rnw-keys-uit') ? '&rnwKeysUit=1' : '');
+    + (process.argv.includes('--rnw-keys-uit') ? '&rnwKeysUit=1' : '')
+    // --kap=N verzet de dieptekap. Bestaat om de KOST van de kap te meten in plaats van hem
+    // te schatten: de walker rapporteert per run hoeveel nodes hij weggooit, dus twee runs
+    // met verschillende N zeggen precies wat een diepere boom oplevert.
+    + (kapFlag ? `&kap=${kapFlag.split('=')[1]}` : '');
   await page.goto(`http://localhost:${poort}/iframe.html?id=${storyId}&viewMode=story${q}`,
     { waitUntil: 'networkidle', timeout: 20000 });
   await page.waitForTimeout(120);
@@ -767,6 +793,8 @@ function onthoudGezien(r) {
   for (const l of r.gezien?.laag ?? []) gezienLaag.add(l);
   for (const b of r.gezien?.bron ?? []) gezienBron.add(b);
   spec.weggelatenComponenten += r.weggelatenComponenten ?? 0;
+  spec.weggelatenNodes = (spec.weggelatenNodes ?? 0) + (r.weggelatenNodes ?? 0);
+  spec.weggelatenTekst = (spec.weggelatenTekst ?? 0) + (r.weggelatenTekst ?? 0);
 }
 
 /** Toetst de grens van één component en meldt hem als hij ontbreekt of te diep zit. */
@@ -844,6 +872,8 @@ spec.gezien = { testid: [...gezienTestid].sort(), laag: [...gezienLaag].sort(), 
 process.stderr.write(`grenzen: ${Object.keys(spec.grenzen).length} componenten met een gemeten testID-grens, `
   + `${spec.gezien.testid.length} unieke testid's in de DOM, ${spec.gezien.laag.length} data-laag, `
   + `${spec.weggelatenComponenten} grens(en) weggegooid door de dieptekap\n`);
+process.stderr.write(`dieptekap: ${spec.weggelatenNodes ?? 0} node(s) weggekapt, waarvan `
+  + `${spec.weggelatenTekst ?? 0} met tekst\n`);
 
 // ---- Poort vóór het schrijven ----------------------------------------------------------
 // Deze stap SCHRIJFT: figma/build-spec.json is de invoer van de builder én van de guard. Een

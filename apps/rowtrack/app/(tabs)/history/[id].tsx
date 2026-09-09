@@ -137,7 +137,7 @@ export default function WorkoutDetailScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.centered, { paddingTop: insets.top }]}>
+      <View testID="WorkoutDetailScreen" style={[styles.container, styles.centered, { paddingTop: insets.top }]}>
         <ActivityIndicator color={accent.default} size="large" />
       </View>
     );
@@ -145,7 +145,7 @@ export default function WorkoutDetailScreen() {
 
   if (error) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View testID="WorkoutDetailScreen" style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.notFoundHeader}>
           <TouchableOpacity
             onPress={() => router.back()}
@@ -163,7 +163,7 @@ export default function WorkoutDetailScreen() {
 
   if (!workout) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View testID="WorkoutDetailScreen" style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.notFoundHeader}>
           <TouchableOpacity
             onPress={() => router.back()}
@@ -189,7 +189,7 @@ export default function WorkoutDetailScreen() {
   const prEntries = entriesFor(workout);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View testID="WorkoutDetailScreen" style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>

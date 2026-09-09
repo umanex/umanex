@@ -352,9 +352,14 @@
   "WorkoutCard": {
    "storyId": "componenten-workoutcard--playground",
    "titel": "Componenten/WorkoutCard",
-   "assen": {},
+   "assen": {
+    "index": [
+     0,
+     1
+    ]
+   },
    "uitgesloten": {},
-   "variantNodes": 1
+   "variantNodes": 2
   },
   "ActivePhase": {
    "storyId": "componenten-activephase--playground",
@@ -606,9 +611,58 @@
    "assen": {},
    "uitgesloten": {},
    "variantNodes": 1
+  },
+  "ForgotPasswordScreen": {
+   "storyId": "componenten-forgotpasswordscreen--playground",
+   "titel": "Componenten/ForgotPasswordScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "LoginScreen": {
+   "storyId": "componenten-loginscreen--playground",
+   "titel": "Componenten/LoginScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "RegisterScreen": {
+   "storyId": "componenten-registerscreen--playground",
+   "titel": "Componenten/RegisterScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "ResetPasswordScreen": {
+   "storyId": "componenten-resetpasswordscreen--playground",
+   "titel": "Componenten/ResetPasswordScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "WorkoutDetailScreen": {
+   "storyId": "componenten-workoutdetailscreen--playground",
+   "titel": "Componenten/WorkoutDetailScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "HistoryScreen": {
+   "storyId": "componenten-historyscreen--playground",
+   "titel": "Componenten/HistoryScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
+  },
+  "ProfileScreen": {
+   "storyId": "componenten-profilescreen--playground",
+   "titel": "Componenten/ProfileScreen",
+   "assen": {},
+   "uitgesloten": {},
+   "variantNodes": 1
   }
  },
  "zonderPlayground": [],
  "fouten": [],
- "totaalVariantNodes": 680
+ "totaalVariantNodes": 688
 }
