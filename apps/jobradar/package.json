@@ -15,7 +15,8 @@
     "flow": "node scripts/flow-harness.mjs",
     "scenarios": "node scripts/scenarios.mjs",
     "kbo:sync": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/ts-resolve.mjs scripts/kbo-sync.mjs",
-    "prospects:import": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/ts-resolve.mjs scripts/prospects-import.mjs"
+    "prospects:import": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/ts-resolve.mjs scripts/prospects-import.mjs",
+    "opvolging:probe": "bash scripts/opvolging-probe.sh"
   },
   "dependencies": {
     "@umanex/tokens": "workspace:*",

@@ -38,15 +38,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
 346ae77 fix(jobradar): give the flow harness its own build directory
 6fc0110 fix(jobradar): repair the mirror connection and close the review findings
+c91b621 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-testid-op-componentwortels
 d6da091 feat(jobradar): origin filter, profitability sieve and sorting in the UI
-28a9a6c feat(jobradar): filter prospects by origin and by profitability
-3d22f9d feat(jobradar): import a delivered CSV of companies into csv_prospects
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/jobradar/context-snapshot.md
+  M  apps/jobradar/CLAUDE.md
+  A  apps/jobradar/app/api/opvolging/actie/route.ts
+  A  apps/jobradar/app/api/opvolging/moment/[id]/route.ts
+  A  apps/jobradar/app/api/opvolging/route.ts
+  M  apps/jobradar/briefings/2026-09-08-feature-contactopvolging.tcebc.md
+  A  apps/jobradar/lib/contact.ts
+  M  apps/jobradar/lib/db/ddl.ts
+  M  apps/jobradar/lib/db/schema.ts
+  A  apps/jobradar/lib/opvolging.ts
+  M  apps/jobradar/package.json
 
 ## Bestanden met TODO/FIXME
   (geen)

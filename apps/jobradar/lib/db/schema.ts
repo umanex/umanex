@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, index, primaryKey, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const SCHEMA_VERSION = 6
 
@@ -73,6 +73,8 @@ export const prospectStatus = sqliteTable('prospect_status', {
   /** Ondernemingsnummer zonder punten, zoals de KBO-spiegel het bewaart. */
   enterpriseNumber: text('enterprise_number').primaryKey(),
   status: text('status').notNull().default('new'),
+  /** Dezelfde rem als op `companies`: zonder deze kolom gold de opt-out alleen voor leads. */
+  optOut: integer('opt_out', { mode: 'boolean' }).notNull().default(false),
   updatedAt: text('updated_at').notNull(),
 })
 
@@ -100,6 +102,46 @@ export const csvProspects = sqliteTable('csv_prospects', {
   importedAt: text('imported_at').notNull(),
 })
 
+/** Waar een contactmoment aan hangt. Zie het commentaar bij de tabel in `ddl.ts`. */
+export type SubjectType = 'lead' | 'prospect'
+
+/** De kanalen waarlangs contact loopt. Vaste enum, geen vrije tekst. */
+export const KANALEN = ['mail', 'linkedin', 'telefoon', 'in-persoon'] as const
+export type Kanaal = (typeof KANALEN)[number]
+
+export const contactMoments = sqliteTable(
+  'contact_moments',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    subjectType: text('subject_type').notNull(),
+    /** `companies.id` als tekst voor een lead, het ondernemingsnummer voor een prospect. */
+    subjectKey: text('subject_key').notNull(),
+    datum: text('datum').notNull(),
+    kanaal: text('kanaal').notNull(),
+    notitie: text('notitie'),
+    /** De grond zoals die gold op het moment van opslaan, niet zoals hij nu is. */
+    rechtsgrond: text('rechtsgrond').notNull(),
+    createdAt: text('created_at').notNull(),
+  },
+  (table) => ({
+    subjectIdx: index('contact_moments_subject_idx').on(table.subjectType, table.subjectKey),
+  })
+)
+
+export const nextActions = sqliteTable(
+  'next_actions',
+  {
+    subjectType: text('subject_type').notNull(),
+    subjectKey: text('subject_key').notNull(),
+    datum: text('datum').notNull(),
+    omschrijving: text('omschrijving').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.subjectType, table.subjectKey] }),
+  })
+)
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
@@ -125,3 +167,5 @@ export type Company = typeof companies.$inferSelect
 export type SyncRun = typeof syncRuns.$inferSelect
 export type ProspectStatus = typeof prospectStatus.$inferSelect
 export type CsvProspect = typeof csvProspects.$inferSelect
+export type ContactMoment = typeof contactMoments.$inferSelect
+export type NextAction = typeof nextActions.$inferSelect
