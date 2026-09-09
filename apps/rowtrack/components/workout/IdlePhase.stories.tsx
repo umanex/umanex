@@ -82,11 +82,8 @@ const meta = {
     onCancelSelection: () => {},
     idleGoalType: 'duration',
     setIdleGoalType: () => {},
-    idleGoalInput: '',
     setIdleGoalInput: () => {},
-    idleDurMin: '30',
     setIdleDurMin: () => {},
-    idleDurSec: '0',
     setIdleDurSec: () => {},
     onStart: () => {},
     insets: geenInsets,
@@ -108,22 +105,22 @@ export const Playground: Story = {};
 
 /** De null-kant van `idleGoalType`: het "Geen"-segment, met de vrij-trainen-regel in plaats van een picker. */
 export const ZonderDoel: Story = {
-  args: { idleGoalType: null, idleDurMin: '', idleDurSec: '' },
+  args: { idleGoalType: null },
 };
 
 /** Afstandsdoel: chips op 2, 5 en 10 km, wielpicker in meters. */
 export const DoelAfstand: Story = {
-  args: { idleGoalType: 'distance', idleGoalInput: '5000', idleDurMin: '', idleDurSec: '' },
+  args: { idleGoalType: 'distance' },
 };
 
 /** Splitdoel: chips op 2:00, 2:10 en 2:20 per 500 m. */
 export const DoelSplit: Story = {
-  args: { idleGoalType: 'split', idleGoalInput: '120', idleDurMin: '', idleDurSec: '' },
+  args: { idleGoalType: 'split' },
 };
 
 /** Vermogensdoel: chips op 150, 180 en 200 W. */
 export const DoelVermogen: Story = {
-  args: { idleGoalType: 'watts', idleGoalInput: '180', idleDurMin: '', idleDurSec: '' },
+  args: { idleGoalType: 'watts' },
 };
 
 /** Vertreksituatie: geen trainer, geen band — beide rijen tonen "Verbinden". */

@@ -16,11 +16,11 @@ import { buildGoalSuggestions } from '@/lib/workout-goals';
 // StyleSheet.create van elke component de preview-iframe in — en die sleutels concurreren
 // daarna om élke node, want react-native-web deelt zijn atomaire klassen globaal. Vite
 // tree-shaket een top-level StyleSheet.create niet weg.
-import { BleStatusBar } from '@/components/BleStatusBar';
-import { Button } from '@/components/Button';
-import { HrStatusBar } from '@/components/HrStatusBar';
-import { GoalSegments, type GoalSegmentType } from '@/components/GoalSegments';
+import type { GoalSegmentType } from '@/components/GoalSegments';
 import { Chip } from '@/components/Chip';
+import { DeviceSection } from './idle/DeviceSection';
+import { GoalHeader } from './idle/GoalHeader';
+import { StartCta } from './idle/StartCta';
 import { WheelPicker } from '@/components/WheelPicker';
 import {
   buildDurItems,
@@ -29,18 +29,7 @@ import {
   buildWattItems,
   wheelItemParts,
 } from '@/lib/formatters';
-import {
-  bg,
-  fg,
-  border,
-  status,
-  typeStyles,
-  fontFamily,
-  fontSize,
-  radii,
-  layout,
-  space,
-} from '@/constants';
+import { bg, fg, typeStyles, space } from '@/constants';
 import { useAuth } from '@/lib/auth-context';
 import { useRecentGoals } from '@/lib/hooks/useRecentGoals';
 import { t } from '@/i18n';
@@ -70,11 +59,12 @@ type IdlePhaseProps = {
   onCancelSelection: () => void;
   idleGoalType: GoalType | null;
   setIdleGoalType: (type: GoalType | null) => void;
-  idleGoalInput: string;
+  // Alleen de SETTERS. De waarden stonden hier ook, maar dit component las ze nooit — het
+  // schrijft de keuze van de picker weg en leest hem daarna niet terug. Ze meegeven suggereert
+  // een tweerichtingsband die er niet is; `app/(tabs)/workout.tsx` houdt de waarden zelf bij
+  // en gebruikt ze bij het starten.
   setIdleGoalInput: (v: string) => void;
-  idleDurMin: string;
   setIdleDurMin: (v: string) => void;
-  idleDurSec: string;
   setIdleDurSec: (v: string) => void;
   onStart: () => void;
   insets: EdgeInsets;
@@ -266,36 +256,24 @@ export function IdlePhase({
           </View>
 
           {/* Toestellen */}
-          <View style={styles.toestelSection}>
-            <Text style={styles.sectionLabel}>{t.workout.idle.devicesLabel}</Text>
-            <View style={styles.deviceCard}>
-              <BleStatusBar
-                bleStatus={bleStatus}
-                deviceName={deviceName}
-                onConnect={onConnect}
-                onDisconnect={onDisconnect}
-              />
-              <View style={styles.deviceDivider} />
-              <HrStatusBar
-                hrStatus={hrStatus}
-                hrDeviceName={hrDeviceName}
-                onConnect={onHRConnect}
-                onDisconnect={onHRDisconnect}
-              />
-            </View>
-            {/* Een mislukte hartslag-scan liet de rij gewoon terugvallen op "Verbinden",
-                zonder één woord uitleg — niet te onderscheiden van een dode knop. */}
-            {hrError ? <Text style={styles.deviceError}>{hrError}</Text> : null}
-          </View>
+          <DeviceSection
+            bleStatus={bleStatus}
+            deviceName={deviceName}
+            onConnect={onConnect}
+            onDisconnect={onDisconnect}
+            hrStatus={hrStatus}
+            hrDeviceName={hrDeviceName}
+            hrError={hrError}
+            onHRConnect={onHRConnect}
+            onHRDisconnect={onHRDisconnect}
+          />
 
           {/* Doel header + segments */}
-          <View style={styles.doelHeader}>
-            <Text style={styles.sectionLabel}>{t.workout.idle.goalLabel}</Text>
-            {/* Full-bleed: definite screen width so the segments distribute evenly */}
-            <View style={{ width: screenWidth, marginLeft: -layout.screenHorizontal }}>
-              <GoalSegments selected={selectedSegment} onChange={handleSegmentChange} />
-            </View>
-          </View>
+          <GoalHeader
+            selectedSegment={selectedSegment}
+            onChange={handleSegmentChange}
+            screenWidth={screenWidth}
+          />
         </View>
 
         {/* Picker — vertically centred in the remaining space, responsive to
@@ -306,15 +284,7 @@ export function IdlePhase({
       </ScrollView>
 
       {/* Fixed CTA */}
-      <View style={styles.ctaArea}>
-        <Button
-          title={t.workout.idle.startButton}
-          variant="primary"
-          icon="arrow-forward"
-          iconPosition="trailing"
-          onPress={onStart}
-        />
-      </View>
+      <StartCta onStart={onStart} />
 
       <DeviceSelectionModal
         visible={picking !== null}
@@ -364,37 +334,8 @@ const styles = StyleSheet.create({
     color: fg.primary,
   },
 
-  toestelSection: {
-    gap: 8,
-  },
-  // Grouped device card: one rounded container holding both rows, split by a
-  // hairline divider. The rows themselves are transparent (DeviceRow).
-  deviceCard: {
-    backgroundColor: bg.elevated,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    borderColor: border.default,
-    overflow: 'hidden',
-  },
-  deviceDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: border.default,
-  },
-  sectionLabel: {
-    ...typeStyles.labelGoalPrefix,
-    color: fg.tertiary,
-  },
 
-  deviceError: {
-    fontFamily: fontFamily.albertSansRegular,
-    fontSize: fontSize['13'],
-    color: status.error,
-    marginTop: space['8'],
-  },
 
-  doelHeader: {
-    gap: 8,
-  },
 
   // Geen placeholder
   geenText: {
@@ -418,10 +359,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // CTA
-  ctaArea: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 20,
-  },
 });
