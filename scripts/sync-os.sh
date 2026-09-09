@@ -25,6 +25,8 @@
 # - ~/.claude/hooks/identifier-bron-guard.sh + settings.json        (PreToolUse identifier-guard, user-level)
 # - ~/.claude/hooks/tegenspraak-guard.sh + settings.json            (PostToolUse tegenspraak-guard, user-level)
 # - ~/.claude/hooks/tegenproef-guard.sh + settings.json             (PostToolUse tegenproef-guard, user-level)
+# - ~/.claude/hooks/cwd-guard.sh + settings.json                    (PostToolUse cwd-guard, user-level)
+# - ~/.claude/hooks/cwd-guard.sh + settings.json                    (PostToolUse cwd-guard, user-level)
 # - LEARNINGS.md                   (capture-staging in root + elke app, geseed als afwezig — nooit overschreven)
 # - HANDOFF.md                     (sessie-handoff in root + elke app, geseed als afwezig — nooit overschreven)
 # - BACKLOG.md                     (gemeld-niet-gebouwd in root + elke app, geseed als afwezig — nooit overschreven)
@@ -911,6 +913,74 @@ else
     else
       _tmp="$(mktemp)"
       if jq --arg cmd "$TPF_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Tegenproef-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
+      fi
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# cwd-guard (PostToolUse op Bash, user-level). Vuurt wanneer een relatief pad vanuit de
+# shell-cwd niet gevonden werd (de tool-shell houdt zijn cwd vast tussen calls): een `cd`
+# die er al stond, of een git-pathspec die verdubbelde. Wat ná zo'n fout in de uitkomst
+# staat, bewijst niets over wat ervóór had moeten draaien.
+# ---------------------------------------------------------------------------
+echo "→ Installeer cwd-guard (PostToolUse, user-level)..."
+CWD_SRC="$UMANEX_OS_PATH/templates/cwd-guard.sh"
+CWD_CMD="$USER_HOOKS/cwd-guard.sh"
+if [ ! -f "$CWD_SRC" ]; then
+  echo "  ⚠ templates/cwd-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$CWD_SRC" "$CWD_CMD"
+  chmod +x "$CWD_CMD"
+  echo "  ✓ ~/.claude/hooks/cwd-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$CWD_CMD" '.hooks.PostToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$CWD_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Cwd-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
+        cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
+        echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
+      else
+        rm -f "$_tmp"; echo "  ⚠ kon settings.json niet bewerken"
+      fi
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# cwd-guard (PostToolUse op Bash, user-level). Vuurt wanneer een relatief pad vanuit de
+# shell-cwd niet gevonden werd (de tool-shell houdt zijn cwd vast tussen calls): een `cd`
+# die er al stond, of een git-pathspec die verdubbelde. Wat ná zo'n fout in de uitkomst
+# staat, bewijst niets over wat ervóór had moeten draaien.
+# ---------------------------------------------------------------------------
+echo "→ Installeer cwd-guard (PostToolUse, user-level)..."
+CWD_SRC="$UMANEX_OS_PATH/templates/cwd-guard.sh"
+CWD_CMD="$USER_HOOKS/cwd-guard.sh"
+if [ ! -f "$CWD_SRC" ]; then
+  echo "  ⚠ templates/cwd-guard.sh niet gevonden — hook overgeslagen"
+else
+  mkdir -p "$USER_HOOKS"
+  cp "$CWD_SRC" "$CWD_CMD"
+  chmod +x "$CWD_CMD"
+  echo "  ✓ ~/.claude/hooks/cwd-guard.sh"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  ⚠ jq niet gevonden — settings.json niet aangepast."
+  else
+    [ -f "$USER_SETTINGS" ] || echo '{}' > "$USER_SETTINGS"
+    if jq -e --arg cmd "$CWD_CMD" '.hooks.PostToolUse[]?.hooks[]? | select(.command == $cmd)' "$USER_SETTINGS" >/dev/null 2>&1; then
+      echo "  • settings.json bevat de hook al — ongemoeid gelaten"
+    else
+      _tmp="$(mktemp)"
+      if jq --arg cmd "$CWD_CMD" '.hooks.PostToolUse += [{"matcher":"Bash","hooks":[{"type":"command","command":$cmd,"timeout":10,"statusMessage":"Cwd-check"}]}]' "$USER_SETTINGS" > "$_tmp" 2>/dev/null; then
         cat "$_tmp" > "$USER_SETTINGS" && rm -f "$_tmp"
         echo "  ✓ PostToolUse-hook toegevoegd aan settings.json"
       else
