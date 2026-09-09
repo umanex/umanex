@@ -1401,8 +1401,8 @@
         "name": "Chip",
         "id": "2036:20575",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1yt0clz:11",
+        "publishStatus": "CHANGED",
+        "bouwhash": "1gqkyrl:11",
         "componentProperties": [
           "value#2036:868",
           "unit#2036:871",
@@ -1817,8 +1817,8 @@
         "name": "default",
         "id": "2036:20821",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
-        "bouwhash": "t0kmoc:19",
+        "publishStatus": "CHANGED",
+        "bouwhash": "1bqqgna:19",
         "componentProperties": [
           "message#2036:884"
         ],
@@ -1836,7 +1836,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:28660",
+          "id": "2045:30201",
           "type": "RECTANGLE"
         }
       ]
@@ -2940,8 +2940,8 @@
         "name": "default",
         "id": "2036:21925",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
-        "bouwhash": "kjw5jf:12",
+        "publishStatus": "CHANGED",
+        "bouwhash": "19lfk5p:12",
         "componentProperties": [
           "heroLabel#2036:1001",
           "heroText#2036:1002",
@@ -2969,7 +2969,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:29078",
+          "id": "2045:30213",
           "type": "RECTANGLE"
         }
       ]
