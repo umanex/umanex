@@ -160,6 +160,48 @@ maat. En een blok-tekst is alleen getrouw mét zijn uitlijning: zet `textAlignHo
 (`LEFT` is de default van beide engines, alles daarvan afwijkend reist mee). Zonder dat landt een
 gecentreerde titel links — 23 van de 625, in dezelfde meting, allemaal alleen in beeld zichtbaar.
 
+**1d. Een slot is tekst die per GEBRUIKSPLEK verschilt — niet per variant.** Een variant is een
+stijl-as (`size=sm`, `state=loading`); zijn tekst is er per ontwerp constant. Wie slots afleidt
+uit een diff over de varianten, vindt daarom precies de verkeerde nodes: GEMETEN 2026-09-09
+(rowtrack) dekte die diff **nul** van de 23 instances die stil de library-data toonden, terwijl
+hij `WheelPicker` 32 slots gaf — één per wielrij, op een component dat in de schermen portaleert
+en dus nul instances heeft. Wat wél werkt is een diff over de **voorkomens**: hetzelfde component,
+op twee plekken, met andere tekst op hetzelfde boompad. Dat sloot 23 → 0.
+
+Drie dingen die daarbij niet vrij zijn, alle drie op een meting gesneuveld vóór ze regel werden.
+De naam hoort bij het **pad**, niet bij de variant — per variant bepaald kreeg hetzelfde pad in
+variant twee een tweede naam, en dat zijn twee properties op één node. Een pad waar de gewone
+slot-detectie al iets vond, sla je over — anders reserveer je een naam zonder node, en dat is
+precies de "unused property" waarop Figma de component bij publicatie weigert. En er hoort een
+**bovengrens** op: twintig tekst-properties op één component betekent dat het geen component met
+velden is maar een lijst, en dan is een slot per rij het verkeerde model; liever luid niets doen
+dan stil een onbruikbare library bouwen.
+
+**1e. Vijf CSS-eigenschappen hebben geen Figma-equivalent, en stilte is er nooit het antwoord.**
+Ze komen alle vijf uit dezelfde ronde en delen één vorm: de bron drukt iets uit dat het doel niet
+kent, dus de transcriptie moet **vertalen of melden** — nooit de waarde laten vallen.
+
+| Bron | Figma | Wat je doet |
+|---|---|---|
+| `margin` per kind | auto-layout kent alleen `gap` en `padding` | vouw hem in de gap of de padding van de ouder; zet een spacer-node waar alleen een middenkind hem draagt; **meld** wat overblijft (negatief, kruis-as) |
+| rand per zijde (`0/0/1/0`) | één `strokeWeight` | zet `strokeTopWeight` c.s. **ná** `strokeWeight` — die laatste zet de vier terug |
+| randkleur per zijde | `strokes` is één verfarray | niet uit te drukken: zet de eerste en **meld** het |
+| `scrollTop` | geen scrollpositie | laat de auto-layout van die container vallen: de kinderen dragen de rolling al in hun gemeten offset, dus absolute plaatsing plus `clipsContent` is de hele vertaling — en dat kost geen extra wrapper die je parity-vergelijking als syntheseregel moet kennen |
+| `<input placeholder>` | een tekstnode of niets | lees `value`-of-`placeholder`, met de placeholderkleur, en **pin** de doos: een placeholder die hugt is smaller dan het veld eromheen |
+
+**Meet de verdeling vóór je de vertaling ontwerpt.** Deze vijf zijn allemaal ontworpen ná een
+telling over de hele bron, en die telling veranderde in twee gevallen het ontwerp. De randen
+zouden een tak voor kleuren-per-zijde krijgen; de meting zei 0 van 333 nodes, dus die tak werd
+één melding in plaats van een mechanisme. De asymmetrische randen bleken maar **twee** vormen te
+hebben (99× `0/0/1/0`, 39× `1/0/1/0`), niet de zestien die de combinatoriek toelaat. Een
+vertaling die je op de combinatoriek bouwt in plaats van op de verdeling, is bijna altijd te
+groot — en de plek waar hij te klein is, vind je alleen door te tellen.
+
+**En let op de stille helft van zo'n gat.** Bij de randen was dat niet de builder maar de
+opruimregel ervóór: een `isDoorvoer`-toets die alleen `borderTopWidth` las, vouwde een node met
+enkel `border-bottom` weg als betekenisloze wrapper — mét zijn rand, vóórdat de spec hem ooit
+zag. Wie alleen naar het schrijfeinde kijkt, ziet zulke verliezen niet.
+
 **2. Tokens-first — nul hardcoded waarden.** Elke kleur, spacing, radius en effect bindt aan een Figma variable of style. Een ontbrekende variable is een **gap** die je oplost (`figma_import_library_variable` of `figma_create_variable`) of rapporteert aan de gebruiker — nooit een excuus om een raw hex- of getalwaarde te hardcoden.
 
 **En een variabele is geen ontsnapping aan het token-probleem.** Bestaat er een `tokens.json` (pad in de klant-CLAUDE.md), dan moet élke Figma-variabele die je aanmaakt of bindt daar een tegenhanger in hebben. Een variabele aanmaken voor een waarde die nergens in de token-bron staat, verplaatst het hardcoded getal enkel van de node naar de variabele en maakt Figma een **tweede bron van waarheid** naast `tokens.json` — de gate meldt groen terwijl de drift een laag dieper zit. Gemeten op de umanex Component library (2026-08-25): collectie `Theme` mapt 43/43 op `packages/tokens/tokens.json`, collectie `Base` **1/21** — dertien `spacing-*`, vier `radius-*`, `border-1/2` en `icon-stroke` bestaan alleen in Figma, met de Tailwind-default als stille bron. CLAUDE.md is hier al duidelijk over (*Alleen token-mapping, geen hardcoded values*): heeft een benodigde waarde geen token, **vraag eerst** of er één bij moet. Bouw je op verzoek toch door zonder token, dan is dat een gap die je rapporteert én als item in de dichtstbijzijnde `BACKLOG.md` zet — nooit stilzwijgend.

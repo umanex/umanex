@@ -44,7 +44,7 @@ Meerdere assen tegelijk is normaal: een feature-flow met een berekening heeft er
 
 ---
 
-## Dertien rails — de discipline van de Beoordeel-stap
+## Veertien rails — de discipline van de Beoordeel-stap
 
 Deze staan als werkprincipe in `CLAUDE.md`; hier zijn ze operationeel.
 
@@ -184,6 +184,18 @@ Koppel de tegenproef aan het defect zelf, niet aan een buurdefect — drie vorme
 
 Gemeten op LQB (2026-08-18): "reaction bestaat · trigger `ON_CLICK` · actie `NAVIGATE` · bestemming geldig" stond 4 van 4 groen op een link waar klikken niets deed. Die vier asserties staan wóórd voor woord even groen op de kapotte als op de herstelde staat — de reaction hing op het `link`-FRAME (`604:43106`, `fills:0`, `strokes:0`) in plaats van op de TEXT-node eronder (`604:43108`, `fills:1`), waar hij na het herstel wél staat. Wat de twee onderscheidt, werd nooit geasserteerd. Het ijkpunt lag in het bestand zelf: op dezelfde pagina hebben 217 van de 219 eigen NAVIGATE-hotspots een trefvlak, en alle acht de structureel identieke tekstlinks dragen hun reaction op de TEXT-node. In dezelfde sessie faalde een overloop-check op de tweede manier: `CONTENT`-hoogte ís de som van de kinderen, dus "0px speling" stond voor alle 27 frames vast vóór de meting begon.
 
+*Een tegenproef die zijn defect uit de MÉTING haalt, sterft aan het succes van de fix.* Vorm (a)
+hierboven neemt de fix weg; de valstrik is de spiegelvorm daarvan — een zelftest die het eerste
+echte defect uit de lopende meting pakt en dát repareert om te tonen dat de as beweegt. Dat werkt
+precies zolang er defecten zijn. GEMETEN 2026-09-09 (rowtrack, `scripts/instance-tekst.mjs`): de
+teller stond op 23, de zelftest repareerde `a.stil[0]` en eiste "één minder". Toen een fix de
+teller op **0** zette, meldde diezelfde zelftest `XX er is een stil geval om te muteren` en was de
+as onbewijsbaar op het moment dat hij groen werd. Laat de tegenproef het defect dus **maken**:
+haal een werkend geval kapot (0 → 21), zet het terug (21 → 0), en eis de **exacte** terugkeer naar
+de basislijn — dat is bovendien een scherpere claim dan "minder", want hij sluit uit dat de as op
+iets anders reageert. Bijvangst uit dezelfde meting: de oude eis *"precies één minder"* klopte
+alleen zolang elk defect zijn eigen oorzaak had; één gedeelde bron bediende er eenentwintig.
+
 *De moeilijk meetbare as krijgt geen lagere lat.* Kun je het gedrag niet opwekken, dan is dat rail 3 (`[NIET TE VERIFIËREN — reden]`), niet een goedkopere check die er verifiërend uitziet. Signaal: één taak, twee oppervlakken, ongelijke latten — de code-kant getoetst door te klikken, het design-bestand door een property te lezen.
 
 *Geven beide kanten dezelfde uitkomst, dan is de opstelling ongeschikt.* Gemeten op 2026-08-27 bij een guard tegen exit 123 (`xargs` na een `grep` zonder treffers, onder GitHub's `bash -e`): mét guard leefde het script, zónder guard ook. Ik rapporteerde de eerste kant als bevestiging dat de fix nodig was, terwijl de tweede net had aangetoond dat de opstelling het defect niet kón reproduceren — de meting zat in een `$( )`, en command substitution vangt de fout. Pas de CI-run was geldig: umanex-apps viel om, luminus en columba niet. Dezelfde dag nog een tweede vorm: bij de receiver-test miste een vervangingsstring één spatie, zodat het geplante defect nooit landde en de test ten onrechte groen bleef — bijna gerapporteerd als "hij vangt het niet".
@@ -275,6 +287,37 @@ diff -q <(git show origin/main:"$P") "$P" && echo SWAP-BEVESTIGD || { echo "STOP
 
 *De kap met een teller die een andere eenheid telde.* GEMETEN 2026-09-09 (rowtrack, `scripts/figma-build-spec.mjs`): de DOM-walker kapte op diepte 8 en telde daarnaast wat dat kostte — maar alleen weggegooide `[data-testid]`-grenzen, en op die diepte zit per constructie geen grens meer, dus elke run meldde `0 grens(en) weggegooid`. Toen de teller álles ging tellen: **3 018 nodes weg, 2 018 met tekst**, waaronder de KPI-waarde die de browser als `2:35:00` toont; de bouwspec had daar een leeg `valueRow`, en geen enkele as zag het, want Figma was uit dezelfde afgekapte spec gebouwd. Een kap, filter of steekproef rapporteert zijn verlies in de eenheid die fout kán gaan, en de drempel is zelf een meting: `--kap=8` naast `--kap=12`, en het verschil hoort nul te zijn.
 
+**14. Een validatie dekt de bron waarvoor ze geschreven is, niet de bronnen die er daarna
+bijkwamen.** Rail 10 gaat over een meetbereik dat te ruim is; deze over een controle die te smal
+staat. De vorm is altijd dezelfde en altijd onzichtbaar: een check wordt geschreven wanneer er
+één invoer is, later komt er een tweede bij, en de tweede wordt *ingevoegd* in plaats van
+*getoetst*.
+
+GEMETEN 2026-09-09 (rowtrack, `scripts/geometry-parity.mjs`). De as vergelijkt de code met Figma
+en leest daarvoor twee bestanden: de library-geometrie en — sinds de schermen naar een ander
+Figma-bestand verhuisden — de schermgeometrie. Het schemaslot stond er, keurig, met een
+foutmelding en exit 2. Het las alleen `fig.schema`. Het tweede bestand werd er vlak ervóór in
+gevouwen (`fig.paginas = { ...fig.paginas, ...sch.paginas }`) zonder dat zijn eigen `schema` ooit
+gelezen werd, dus een schermlezing van een ouder schema reisde mee met de codering van een
+nieuwer — bij precies de bestanden waar de gemeten fout het zichtbaarst was.
+
+**Herkenningsteken:** een `existsSync`- of merge-blok dat een tweede bron invoegt vlak vóór een
+validatie die maar één bron bij naam noemt. Ook: een versienummer, een `assert`, een
+schema-controle of een fileKey-assert die in het enkelvoud staat terwijl de functie eromheen in
+het meervoud werkt.
+
+**De vorm van de fix.** Maak de validatie een functie met de bron als parameter, roep hem aan op
+**elke** bron, en zet hem **vóór** het samenvoegen — na de merge is niet meer te zien welk veld
+uit welk bestand kwam. En toets hem op de bron die hem niet had: één kant volstaat niet, want een
+poort die altijd weigert is niet te onderscheiden van een poort die weigert om de juiste reden.
+Klaagt de poort met `process.exit`, dan draait die tegenproef in een apart proces.
+
+```js
+function toetsSchema(pad, gelezen) { if (gelezen !== SCHEMA) { console.error(`${pad} staat op schema ${gelezen}`); process.exit(2); } }
+toetsSchema(bibliotheekPad, bib.schema);
+if (existsSync(schermPad)) { const sch = lees(schermPad); toetsSchema(schermPad, sch.schema); voegSamen(bib, sch); }
+```
+
 ---
 
 ## Rail-mapping — welke `CLAUDE.md`-kern hoort bij welke rail hier
@@ -303,6 +346,7 @@ verouderde regel valt hier op; een verouderde `case` in een script niet.
 | bewering over een bibliotheek | 4 |
 | minstens één invariant | 12 |
 | muterende stap | 13 |
+| validatie dekt de bron | 14 |
 
 Het fragment is een substring van de rail-kop in `CLAUDE.md`; een streepje betekent dat deze
 skill er nog geen rail voor heeft en er dus een bij moet vóór het bewijs hierheen kan.
