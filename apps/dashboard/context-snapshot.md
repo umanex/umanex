@@ -30,24 +30,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-2fcec12 Merge pull request #390 from umanex/feature/rowtrack-storybook-figma
-2afe45c chore: sync umanex-os layer with global umanex-os
-259286a Merge remote-tracking branch 'origin/main' into feature/rowtrack-storybook-figma
-9e7a028 feat(ui): mirror DropdownMenu into the Figma Component library
-653fe13 fix(ui): resolve kebab-case component filenames in the sync guard
+d84679f Merge remote-tracking branch 'origin/main' into fix/rowtrack-schermverschillen
+93a448b docs(dashboard): close the shared-.next backlog item
+c8672e2 fix(dashboard): give next dev its own dist dir and port
+2c970c9 test(ui): add Sheet to the rendered-size baseline
+86a9885 Merge remote-tracking branch 'origin/main' into feature/jobradar-contactopvolging
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/dashboard/BACKLOG.md
-  M  apps/dashboard/CLAUDE.md
-  M  apps/dashboard/context-snapshot.md
-  M  apps/dashboard/next.config.mjs
-  M  apps/dashboard/package.json
-  M  packages/ui/CLAUDE.md
-  A  packages/ui/components/ui/sheet.stories.tsx
-  A  packages/ui/components/ui/sheet.tsx
-  M  packages/ui/figma/geometry.code.json
-  M  packages/ui/figma/manifest.json
+  M  apps/dashboard/tsconfig.json
 
 ## Bestanden met TODO/FIXME
   (geen)
