@@ -23,7 +23,7 @@
  * MCP-instantie pakt de volgende. Vandaar het zoeken in plaats van een vast getal.
  */
 import { createServer } from 'node:http';
-import { readFileSync, existsSync, writeFileSync, statSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, statSync, mkdirSync } from 'node:fs';
 import { dirname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,12 +43,21 @@ const server = createServer((req, rep) => {
   if (!pad) { rep.writeHead(403); return rep.end('buiten figma/'); }
 
   if (req.method === 'POST') {
-    let body = '';
-    req.on('data', (c) => (body += c));
+    // BINAIR-VEILIG. Tot 2026-09-09 stond hier `body += c`, en dat maakt van elke chunk een
+    // string — voor JSON onzichtbaar, voor een PNG dodelijk. De beeld-as stuurt PNG's door,
+    // dus de bytes moeten heel blijven. Een `.png`-pad komt binnen als base64: de plugin-fetch
+    // draagt geen binaire body gegarandeerd, tekst wél, en 33% inflatie is goedkoper dan een
+    // stil corrupt beeld.
+    const stukken = [];
+    req.on('data', (c) => stukken.push(Buffer.from(c)));
     req.on('end', () => {
-      writeFileSync(pad, body);
-      process.stdout.write(`  <- ${u.pathname} (${body.length} tekens)\n`);
-      rep.writeHead(200); rep.end('ok');
+      const rauw = Buffer.concat(stukken);
+      const png = pad.endsWith('.png');
+      const inhoud = png ? Buffer.from(rauw.toString('utf8'), 'base64') : rauw;
+      mkdirSync(dirname(pad), { recursive: true });
+      writeFileSync(pad, inhoud);
+      process.stdout.write(`  <- ${u.pathname} (${inhoud.length} bytes${png ? ', uit base64' : ''})\n`);
+      rep.writeHead(200); rep.end(String(inhoud.length));
     });
     return;
   }

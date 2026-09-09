@@ -247,6 +247,74 @@ async function maakInstance(n, naamPad) {
   return inst;
 }
 
+/**
+ * DE SIZING-INTENTIE OP DE NODE ZETTEN — pas NA het aanhangen, want `layoutSizing*` bestaat
+ * alleen voor een kind van een auto-layout frame.
+ *
+ * Waarom dit bestaat. De builder zette elke auto-layout op `FIXED`/`FIXED`, dus elke node
+ * stond star op zijn gemeten maat. Dat is als transcriptie correct en als DESIGN fout: een
+ * instance kan zijn inhoud dan niet strekken, en dat is geen randgeval maar de regel —
+ * gemeten 2026-09-09 op LoginScreen: een `FormField`-instance 390 breed met inhoud van 224,
+ * en hetzelfde voor Button (390 tegen 151). Geen enkele guard-as zag het: parity sluit
+ * breedte uit, de vlaggen matchten, en `resize()` op een instance-kind doet niets — geen
+ * fout, geen effect (nagemeten, twee keer, net als `layoutMode` op een instance-wortel).
+ *
+ * De browser-layout ÍS flexbox en Figma's auto-layout is hetzelfde model, dus dit is een
+ * mapping en geen nabouw. `rekt` komt uit de DOM (`flex-grow` op de hoofdas, `stretch` op de
+ * kruis-as) en zegt per as of de node meerekt. Alles zonder intentie blijft FIXED: dat is de
+ * gemeten maat, en die is per definitie getrouw.
+ *
+ * FILL kan mislukken — een ouder zonder auto-layout weigert hem. Dat wordt geteld en gemeld
+ * in plaats van stil geslikt; een sizing die niet plakt is precies het soort stille no-op
+ * waar deze hele ronde over gaat.
+ */
+let rekGezet = 0, rekTeruggedraaid = 0, rekGeweigerd = 0;
+
+/**
+ * DE SIZING-INTENTIE OP DE KINDEREN ZETTEN — en meteen nakijken of ze klopt.
+ *
+ * Waarom dit bestaat. De builder zette elke auto-layout op `FIXED`/`FIXED`, dus elke node
+ * stond star op zijn gemeten maat. Correct als transcriptie, fout als DESIGN: een instance
+ * kan zijn inhoud dan niet strekken. Gemeten 2026-09-09 op LoginScreen: een `FormField`-
+ * instance 390 breed met inhoud van 224, en Button 390 tegen 151. Geen enkele as zag het —
+ * parity sluit breedte uit, de vlaggen matchten, en `resize()` op een instance-kind doet
+ * niets (geen fout, geen effect; `layoutMode` op een instance-wortel evenmin).
+ *
+ * WAAROM DE TERUGLEESCONTROLE. FILL is een BELOFTE over de layout, geen maat. Figma rekent
+ * de restruimte anders uit dan de browser zijn flex oplost — marges bestaan in Figma niet, en
+ * een scroll-container meet in de browser zijn venster en niet zijn inhoud. Gemeten: de
+ * `scrollView` in DeviceSelectionModal werd 192 waar de browser 168 zegt; dat waren de enige
+ * twee parity-fouten van de hele ronde. Een eerdere poging leidde dat af uit "knipt de node
+ * af?" — dat was de verkeerde diagnose (er werd niets afgeknipt) en bovendien een gok.
+ *
+ * Dus: zet FILL, LEES TERUG, en draai terug zodra de maat afwijkt. Een mutatie die niet kan
+ * klagen is een aanname; deze klaagt, en telt zichzelf.
+ *
+ * Pas ná álle kinderen, want een latere broer verandert de restruimte van een eerdere.
+ */
+function zetRek(f, kinderen, naamPad) {
+  if (f.layoutMode === 'NONE') return;
+  for (const { kind, k, pad } of kinderen) {
+    if (!k.rekt || k.abs) continue;
+    for (const [as, veld, maat, doel] of [
+      ['H', 'layoutSizingHorizontal', 'width', k.w],
+      ['V', 'layoutSizingVertical', 'height', k.h],
+    ]) {
+      if (!k.rekt.includes(as)) continue;
+      let voor;
+      try { voor = kind[veld]; kind[veld] = 'FILL'; } catch (e) {
+        rekGeweigerd++; meldingen.push(`${pad}: ${veld}=FILL geweigerd — ${e.message}`); continue;
+      }
+      if (kind[veld] !== 'FILL') { rekGeweigerd++; meldingen.push(`${pad}: ${veld}=FILL stil genegeerd`); continue; }
+      if (Math.abs(kind[maat] - doel) > 0.5) {
+        // FILL geeft hier een andere maat dan gemeten: intentie klopt niet met deze layout.
+        try { kind[veld] = voor === 'FILL' ? 'FIXED' : voor; kind.resize(as === 'H' ? doel : kind.width, as === 'H' ? kind.height : doel); } catch { /* laat staan */ }
+        rekTeruggedraaid++;
+      } else rekGezet++;
+    }
+  }
+}
+
 async function maak(n, naamPad, wortelComp) {
   // Een gedeclareerde grens die de library kent wordt een INSTANCE, en dan stopt de afdaling:
   // wat eronder zit hoort bij dat component en komt met de instance mee.
@@ -412,6 +480,7 @@ async function maak(n, naamPad, wortelComp) {
   }
   if (n.opacity !== undefined) f.opacity = n.opacity;
   if (n.schaduwStyle && ES.get(n.schaduwStyle)) await f.setEffectStyleIdAsync(ES.get(n.schaduwStyle).id);
+  const aangehangen = [];
   for (const [i, k] of echteKinderen.entries()) {
     const kind = await maak(k, `${naamPad}>${k.naam ?? i}`, wortelComp);   // meldingen lezen als Chip>row>value
     f.appendChild(kind);
@@ -422,7 +491,9 @@ async function maak(n, naamPad, wortelComp) {
       kind.x = k.dx ?? 0;
       kind.y = k.dy ?? 0;
     }
+    aangehangen.push({ kind, k, pad: `${naamPad}>${k.naam ?? i}` });
   }
+  zetRek(f, aangehangen, naamPad);
   if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`, wortelComp));
   return f;
 }
@@ -709,6 +780,29 @@ for (const [comp, d] of Object.entries(SPEC)) {
     page.appendChild(c);
     c.appendChild(node);
     node.x = 0; node.y = 0;
+    /**
+     * DE WRAPPER KRIJGT AUTO-LAYOUT EN ZIJN KIND FILL — anders is alle sizing eronder voor
+     * niets. Bewezen op een wegwerp-component (2026-09-09), tweezijdig: een instance van 224
+     * naar 390 laat zijn kind op 224 staan zónder auto-layout op de wrapper, en trekt hem mee
+     * naar 390 mét. `resize()` op dat kind doet niets, en `layoutMode` op een instance-wortel
+     * evenmin — allebei stil, geen fout. De maat MOET dus uit de library komen.
+     *
+     * Alleen wanneer de wrapper even groot is als het kind. Is hij groter — dat gebeurt zodra
+     * een overlay breder of hoger is dan de hoofdboom, want de wrapper is het maximum van
+     * beide — dan zou FILL het kind uitrekken tot de overlay-maat en is de bouw niet langer
+     * getrouw. Daar blijft het kind FIXED op zijn gemeten maat.
+     */
+    const past = Math.abs(node.width - br) < 0.5 && Math.abs(node.height - ho) < 0.5;
+    if (past) {
+      try {
+        c.layoutMode = 'VERTICAL';
+        c.primaryAxisSizingMode = 'FIXED';
+        c.counterAxisSizingMode = 'FIXED';
+        node.layoutSizingHorizontal = 'FILL';
+        node.layoutSizingVertical = 'FILL';
+        if (node.layoutSizingHorizontal !== 'FILL') meldingen.push(`${comp}[${v.naam}]: wrapper-FILL stil genegeerd`);
+      } catch (e) { meldingen.push(`${comp}[${v.naam}]: wrapper-FILL geweigerd — ${e.message}`); }
+    }
     // Een <Modal> portaleert in de DOM naar `body` en ligt dus OVER het scherm, niet erin.
     // Zo bouwen we hem ook: een los kind van de wrapper, absoluut op (0,0). Tot 2026-09-08
     // bestond hij voor de walker niet — drie ActivePhase-frames waren daardoor
@@ -716,6 +810,9 @@ for (const [comp, d] of Object.entries(SPEC)) {
     for (const o of v.overlays ?? []) {
       const ov = await maak(o, comp, comp);
       c.appendChild(ov);
+      // Absoluut, want een portal ligt OVER het scherm en niet erin. Zonder dit zou de
+      // auto-layout van de wrapper hem eronder stapelen.
+      try { if (c.layoutMode !== 'NONE') ov.layoutPositioning = 'ABSOLUTE'; } catch (e) { /* geen auto-layout */ }
       ov.x = 0; ov.y = 0;
     }
     // Pas ná het aanhangen: in een auto-layout krijgt een node zijn maat van zijn ouder.
@@ -791,4 +888,4 @@ for (const [comp, d] of Object.entries(SPEC)) {
              hashes,
              slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
-return { gebouwd: uit, geweigerd, vervangen, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
+return { gebouwd: uit, geweigerd, vervangen, rekGezet, rekTeruggedraaid, rekGeweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };

@@ -86,6 +86,9 @@ function snoei(node, diepte, pad, comp) {
                    : null;
     if (!o.schaduwStyle) { o.schaduwOnbekend = node.boxShadow.slice(0, 90); }
   }
+  // De sizing-intentie moet mee: zonder haar zet de builder alles op FIXED en is geen enkele
+  // instance te strekken (gemeten 2026-09-09 op LoginScreen: wrapper 390, inhoud 224).
+  if (node.rekt) o.rekt = node.rekt;
   if (node.justify && node.justify !== 'normal' && node.justify !== 'flex-start') o.justify = node.justify;
   if (node.align && node.align !== 'normal' && node.align !== 'stretch') o.align = node.align;
   if (node.tekst) {
