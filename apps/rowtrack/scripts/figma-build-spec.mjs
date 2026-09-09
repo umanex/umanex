@@ -839,10 +839,33 @@ function bind(node, pad, comp) {
   if (node.tekst) {
     node.tekst.kleurVar = kiesKleur(node.tekst.kleur, comp);
     if (!node.tekst.kleurVar) meld('tekstkleur', JSON.stringify(node.tekst.kleur));
+    // DE TRACKING FILTERT ALTIJD MEE — ook bij één kandidaat.
+    //
+    // Tot 2026-09-09 won de enige kandidaat op familie+grootte zonder dat zijn tracking ooit
+    // werd nagekeken; `letterSpacing` werd pas een toets zodra er twee kandidaten waren. Dat
+    // is precies omgekeerd: bij één kandidaat is er niemand om tegen te vergelijken, dus daar
+    // is de toets het hardst nodig. Gevolg: `heroLabel` (AlbertSans_600SemiBold 16, tracking
+    // 3,2 px — hardcoded als `letterSpacing: 3.2, // 20% van 16` in
+    // `components/workout/active/HeroPanel.tsx:77`) kreeg `type/segmentActive`, en die style
+    // draagt in Figma −1,5 % = −0,24 px. Verschil 3,44 px per teken op "RESTERENDE TIJD", en
+    // in Figma won de STYLE van de meting: de builder doet bij een style uitsluitend
+    // `setTextStyleIdAsync` en zet fontSize en letterSpacing dan niet zelf.
+    //
+    // Wat er nu gebeurt met die 32 nodes (4 unieke combinaties, gemeten op de spec van
+    // 2026-09-09): ze verliezen hun style en komen als `text style`-gat in `ongebonden.json`
+    // (52 → 56 uniek, 3 760 → 3 792 voorkomens, ratels in figma-sync-check.mjs). Het BEELD
+    // wordt daarmee correcter — zonder style zet de builder fontSize en letterSpacing zélf uit
+    // de meting — en de binding is wat we verliezen. Dat verlies is de eerlijke uitkomst: er
+    // bestaat geen `Theme/type/*` met die tracking, en dat is een tokenvraag (BACKLOG, item
+    // over de 52 ongebonden waarden), geen reden om de walker te laten liegen.
+    //
+    // De drempel 0,02 draagt hier niets en blijft alleen als bescherming tegen floating point:
+    // gemeten over 2 804 nodes met een kandidaat is de afwijking bij een treffer 1 728 × exact
+    // 0, en bij een misser minimaal 0,16.
     const kandidaten = payload.textStyles.filter(t =>
       t.expoVariant === node.tekst.family && t.fontSize === node.tekst.size);
-    node.tekst.styleRef = kandidaten.length === 1 ? kandidaten[0].naam
-      : (kandidaten.find(t => Math.abs((t.letterSpacingPx ?? 0) - node.tekst.letterSpacing) < 0.02)?.naam ?? null);
+    node.tekst.styleRef = kandidaten.find(t =>
+      Math.abs((t.letterSpacingPx ?? 0) - node.tekst.letterSpacing) < 0.02)?.naam ?? null;
     if (!node.tekst.styleRef) meld('text style', `${node.tekst.family} ${node.tekst.size}px ls=${node.tekst.letterSpacing}`);
   }
   for (const k of node.kinderen ?? []) bind(k, pad + '>' + (node.kinderen.indexOf(k)), comp);

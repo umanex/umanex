@@ -73,15 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+e172448 fix(rowtrack): the text style must match the tracking too, also when it is the only candidate
+92c0713 docs(rowtrack): what you read in Figma is what the chain could build, not what anyone meant
 349c990 feat(rowtrack): measure what Storybook cannot show, so the device question surfaces itself
 b35b66e docs(rowtrack): the shifted tab row is a margin the walker never reads, not a misplaced instance
 f6470ea docs(rowtrack): the publication handoff is resolved and the briefing's acceptance is closed
-6a79010 chore(rowtrack): manifest, screen geometry and images after the publication
-fd95441 fix(rowtrack): a time budget for the screen build, a warm-up for imports, and a leaf keeps its size
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.claude/skills/figma-naar-code/SKILL.md
+  M  apps/rowtrack/figma/beeld-verschillen.json
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
+  M  apps/rowtrack/figma/beelden/IdlePhase__Doel-Afstand.figma.png
+  M  apps/rowtrack/figma/beelden/IdlePhase__Niet-Verbonden.figma.png
+  M  apps/rowtrack/figma/beelden/IdlePhase__Playground.figma.png
 
 ## Bestanden met TODO/FIXME
   (geen)

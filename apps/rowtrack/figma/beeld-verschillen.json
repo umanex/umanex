@@ -66,17 +66,17 @@
    "story": "componenten-activephase--doel-bereikt",
    "W": 430,
    "H": 932,
-   "zicht": 9.19,
-   "grof": 5.88,
-   "heet": 115,
+   "zicht": 8.87,
+   "grof": 5.62,
+   "heet": 109,
    "blokken": 1034,
    "plaatsen": [
-    "200,0",
-    "240,0",
-    "120,20",
-    "140,20",
+    "100,0",
+    "400,20",
     "100,40",
-    "120,40"
+    "120,40",
+    "0,60",
+    "120,200"
    ],
    "iconenGemaskeerd": 2
   },
@@ -276,7 +276,7 @@
    "W": 430,
    "H": 932,
    "zicht": 4.43,
-   "grof": 2.23,
+   "grof": 2.24,
    "heet": 38,
    "blokken": 1034,
    "plaatsen": [
@@ -313,7 +313,7 @@
    "story": "componenten-idlephase--toestel-keuze",
    "W": 430,
    "H": 932,
-   "zicht": 3.91,
+   "zicht": 3.92,
    "grof": 1.89,
    "heet": 58,
    "blokken": 1034,
