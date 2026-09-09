@@ -178,7 +178,7 @@ for (const o of spec.ongebonden) {
   (perComponent[c] ??= new Set()).add(o.split(': ')[1] ?? o);
 }
 writeFileSync(join(APP, 'figma/ongebonden.json'), JSON.stringify({
-  $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Elk gat heeft een item in BACKLOG.md.',
+  $comment: 'GEGENEREERD door scripts/figma-build-prune.mjs. Waarden die de code gebruikt en waarvoor geen token bestaat. Hier stond tot 2026-09-09 \"Elk gat heeft een item in BACKLOG.md\" — een bewering die niets toetste en die op die dag onwaar was: nul van de 52 kwam in BACKLOG.md voor. De [binding]-as van figma:check ratelt op het AANTAL, niet op de opvolging; wat er met een gat gebeurt staat in BACKLOG.md onder [tokens].',
   aantalUniek: uniekeGaten.length,
   aantalVoorkomens: spec.ongebonden.length,
   decoratiefGenegeerd: spec.decoratief ?? 0,

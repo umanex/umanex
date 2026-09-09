@@ -421,3 +421,40 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Waarom niet nu:** het vraagt een wijziging aan de schermen zelf (een `initialError`-achtige ingang, of de foutstaat naar een prop tillen), en dat is gedrag toevoegen aan productiecode om een meting mogelijk te maken. Dat is een eigen afweging, geen bijvangst van de render-pad-ronde. Het acceptatie-item in `briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md` staat daarom bewust op `- [ ]` met 4/7, in plaats van te worden verzacht tot iets dat wél afvinkbaar is.
 - **Eerste zet:** Kies de ingang — een `__storyError`-prop achter een `__DEV__`-guard is het goedkoopst, een gedeelde `useAuthForm`-hook met de fout als return-waarde het netst. Daarna per scherm één named story (`MetFout`), `figma:spec`, en de frames bouwen in `Screens v2`.
 - **Status:** open
+
+## 2026-09-09 — 31 instances vallen terug op een nagebouwde subboom omdat de library-variant een ander aantal kinderen heeft · [feature]
+- **Wat:** De schermbouwer plaatst op elke gedeclareerde componentgrens een library-instance, en toetst daarna of die instance getrouw is. Waar niet, vervangt hij hem door de nagebouwde subboom — luid, met melding. Gemeten op 2026-09-09 over de 24 frames van `Screens v2`: **31 van de plaatsingen vielen zo terug**, in vijf gevallen, allemaal dezelfde klasse — het *aantal kinderen* van de library-variant verschilt van de gebruiksplek:
+
+  | component | library-variant | gebruiksplek |
+  |---|---|---|
+  | `KpiSingle` | `valueRow > [value, unit]`, label van één regel, h=54,75 | `valueRow > [value]`, label van twee regels, h=68,5 — slotpad `0>1` bestaat daar niet |
+  | `Segmented` | 3 kinderen | 4 (de historiek-filter heeft vier periodes) |
+  | `WorkoutCard` | `dateRow` 1 kind | 2, zodra er een PR-badge staat |
+  | `WheelPicker` | `scrollContent` h=2000 | h=4400 (meer rijen) |
+  | `Button` | 1 kind | 2 (icoon + label) |
+
+  Dit is geen bug in de builder maar de grens van wat variant-gebaseerd instantiëren kan uitdrukken: een instance kan een tekst overschrijven, maar geen kind bijkrijgen. `parity` blijft er groen op — de nagebouwde subboom is getrouw — dus de kost is niet correctheid maar **dekking**: 31 plekken in Figma zijn een kopie in plaats van een instance, en lopen dus niet mee met een library-wijziging.
+- **Waarom niet nu:** de twee uitwegen zijn allebei een eigen afweging. Ofwel groeit de **library-variant** mee (een `KpiSingle` zonder unit, een `Segmented` per aantal opties — dat vermenigvuldigt de variant-nodes en maakt van een as een opsomming), ofwel krijgt de **builder** de bevoegdheid om kinderen aan een instance toe te voegen (dat kan de Figma-API niet voor een instance, alleen door hem los te koppelen — en dan is het geen instance meer). Beide keuzes raken het model, niet de code.
+- **Eerste zet:** Meet eerst of het loont: `grep -c "wijkt af" ` op de bouwmelding per scherm zegt waar de 31 zitten. Neem daarna één geval — `KpiSingle` is de goedkoopste, want `unit` is optioneel en een tweede variant `unit=false` lost vier van de 31 op — en kijk of de variant-explosie aanvaardbaar blijft vóór je de andere vier aanpakt.
+- **Status:** open
+
+## 2026-09-09 — 52 waarden in de code hebben geen token, en geen enkele heeft een backlog-item · [tokens]
+- **Wat:** `figma/ongebonden.json` verzamelt elke waarde die de code gebruikt en waarvoor geen token bestaat: **52 uniek over 3 760 voorkomens** (stand 2026-09-09). De `[binding]`-as van `figma:check` ratelt op dat aantal, dus een nieuw gat valt op — maar de gaten zelf zijn nooit ergens uitgeschreven. Het bestand beweerde in zijn eigen `$comment` letterlijk *"Elk gat heeft een item in BACKLOG.md"*; gemeten op 2026-09-09: **nul** van de 52 kwam in dit bestand voor, en er stond geen enkel item over ongebonden waarden. Die zin is daarom uit de generator gehaald — een rapport dat zijn eigen antwoord inbakt, is geen meting.
+
+  De drie die er vandaag bijkwamen door de zeven route-schermen: `radius = 10`, `radius = 100` en `text style = AlbertSans_400Regular 13px ls=0`. De drie WheelPicker-groottes (`AlbertSans_400Regular` 14px, 16px, 20px) staan er al langer in en zijn deze sessie alleen zichtbaarder geworden — niet nieuw.
+- **Waarom niet nu:** een token toevoegen gaat via Tokens Studio, niet via een handmatige edit van `tokens/tokens.json` — dat wordt bij de eerstvolgende plugin-push overschreven. Het is dus werk van Jeroen in de plugin, en het vraagt eerst een keuze per waarde: hoort hij in de schaal (een `radius/10` tussen de bestaande stappen) of is hij eenmalig en hoort de code hem op te geven?
+- **Eerste zet:** `node -e 'require("./figma/ongebonden.json").uniek.forEach(x=>console.log(x))'` in `apps/rowtrack` geeft de volledige lijst; sorteer hem op soort (radius, text style, achtergrond, gradientstop, tekstkleur) en beslis per groep. De radii zijn de kleinste groep en de duidelijkste kandidaat voor de schaal.
+- **Status:** open
+
+## 2026-09-09 — De rnw-laagnamen zijn eerlijk maar lelijk in Figma · [refactor]
+- **Wat:** Sinds ingreep 3c benoemt de walker react-native-web's eigen DOM aan zijn bron in plaats van aan een StyleSheet-sleutel die er toevallig op past. Dat is een winst — een node heet niet langer `base` omdat `Button.base` dezelfde atomaire klasse draagt — maar het levert boven elk sheet een stapel `modalAnimation > modalTrap > modalContent > modalContainer` op die geen ontwerper ooit getekend heeft. Gemeten: `grep -c modalAnimation figma/laagnamen.json`.
+- **Waarom niet nu:** wegsnoeien raakt twee dingen die er juist om vragen: de 0×0-herstelstap (een portal-wortel heeft geen eigen maat en erft die van zijn kind) en de portal-tak van de walker zelf. Het is een aparte wijziging aan de meetketen, en die wil je niet doen in dezelfde ronde als een structuurwijziging — anders is een verschoven laagnaam niet toe te wijzen.
+- **Eerste zet:** In `scripts/laagnamen.mjs`: vouw een rnw-keten zonder eigen sleutel samen tot één laag met de naam van de diepste (`modalContent`), en draai `--hernoem` vóór en ná om te tellen hoeveel namen er verschuiven. Rood/groen-tegenproef: de bestaande `laagnamen-selftest.mjs`, uitgebreid met een keten van vier rnw-lagen.
+- **Status:** open
+
+## 2026-09-09 — Ambiguïteit in de laagnamen is verdrievoudigd en geen enkele as ziet het · [refactor]
+- **Wat:** `figma/laagnamen.json` telt per node hoeveel StyleSheet-sleutels even goed passen. Gemeten over drie commits: plan-baseline `f4824d9` 177 ambigu op 1 935 app-nodes (9,1%), na ronde D `dcef5b1` 97 op 2 982 (3,3%), main vandaag **302 op 3 700 (8,2%)**. De noemer groeide 24%, de ambiguïteit 211% — dus het is geen noemer-effect. `terugval` liep mee: 47 → 82 (1,6% → 2,2%), terwijl het plan daar ≈ 0 verwachtte.
+- **En de guard is er per constructie blind voor.** Er is geen ratel: `scripts/figma-sync-check.mjs` rapporteert beide getallen alleen in `uitgesloten`. Erger, de tegenproef bevestigt de blindheid — `figma-sync-selftest.mjs` bevat `ok controle-ambigu — verdrievoudig het aantal ambigue nodes → exit 0 (hoort 0)`. De zelftest toont dus aan dat de as groen blijft bij precies de verandering die daarna echt plaatsvond.
+- **Waarom niet nu:** een ratel zetten op een getal waarvan de oorzaak niet is toegewezen, bevriest de regressie in plaats van hem op te lossen. Eerst moet vaststaan welk deel van 97 → 302 uit de zeven route-schermen komt (nieuwe code die sleutels deelt met bestaande componenten) en welk deel uit de diepere dieptekap (nodes die er altijd waren en nu pas meetellen).
+- **Eerste zet:** Twee attributie-runs met `node scripts/figma-build-spec.mjs --hernoem --root=<wegwerpmap>`: één op de spec zónder de zeven route-schermen (`scripts/schermen.mjs` tijdelijk inkorten), één met `--kap=8`. Het verschil van de twee `ambigu`-tellingen wijst de oorzaak aan. Pas dáárna beslissen: een ratel zoals `LAAGNAAM_DEKKING`, of de `o`-voorkeur in `rangschik()` scherper maken zodat een vreemde sleutel binnen een verklaarde grens nooit wint.
+- **Status:** open
