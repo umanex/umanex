@@ -40,12 +40,22 @@ draait bij het inloggen `pm2 resurrect` over precies dat bestand. Gemeten in
 20:35:15) met cashflow meteen online. Zonder die `pm2 save` staat de app niet in de
 dump en komt hij na een reboot niet terug.
 
-**`next dev` sloopt de draaiende server.** Dev-mode schrijft zijn eigen build in
-dezelfde `.next`, waarna `next start` faalt op *Could not find a production build*
-(gemeten 2026-09-09: PM2 op `errored`, `BUILD_ID` weg). Wil je het dashboard zélf
-ontwikkelen: `pm2 stop dashboard` — 3010 is dan vrij, gemeten — daarna
-`pnpm --filter dashboard dev`, en na afloop `pnpm --filter dashboard pm2:rebuild`. Een
-kale `pm2 start dashboard` komt dan níet meer omhoog.
+**Ontwikkelen doe je ernaast, op `:3011`.** `pnpm --filter dashboard dev` draait met
+`NEXT_DIST_DIR=.next-dev` op een eigen poort, dus de PM2-app op :3010 blijft gewoon
+staan — je hebt de stabiele versie en je wijziging tegelijk in beeld, en er is geen
+rebuild nodig als je klaar bent.
+
+Dat is niet cosmetisch: dev-mode schrijft zonder die variabele zijn build in dezelfde
+`.next` die PM2 serveert, en dan faalt `next start` op *Could not find a production
+build*. Tweezijdig gemeten op 2026-09-09 in een worktree, mét een productieserver
+ernaast: **met** de split bleef `.next/BUILD_ID` staan (`AZiT_9PFj…`) en bleef die
+server 200 geven; **zonder** de split was `BUILD_ID` na dezelfde dev-run weg en kwam
+`next start` niet meer omhoog (geen listener). Dat is ook precies wat er die ochtend
+met de echte PM2-app gebeurde — die ging op `errored`.
+
+De vangrail is één regel in `next.config.mjs` (`distDir: process.env.NEXT_DIST_DIR ??
+'.next'`): zonder de variabele blijft alles `.next`, dus `next start` en CI merken er
+niets van.
 
 **`pm2 status` is geen bewijs dat hij draait**, hier net zomin als bij cashflow. Toets
 met `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3010/` → 200.
@@ -96,7 +106,7 @@ noemen geen app bij naam, zodat een tweede app onder PM2 er meteen door gedekt i
 | **Lint + tokenregels** | `pnpm --filter dashboard lint` (`@umanex/config/eslint/tokens` zit in `.eslintrc.js`) |
 | **Tokenguard** | `pnpm --filter @umanex/tokens guard` |
 | **Design-systeem-declaratie** | `pnpm ds:guard` (tegenproef: `pnpm ds:guard:selftest`) |
-| **Render vastleggen** | De app draait al: `http://127.0.0.1:3010` (PM2, gebouwde `.next`). Je eigen wijziging zie je pas na `pm2:rebuild`, of via `pm2 stop dashboard` + `pnpm --filter dashboard dev` — zie de PM2-sectie hierboven. Dark mode via de ThemeToggle rechtsboven |
+| **Render vastleggen** | Twee doelwitten, houd ze uit elkaar. De PM2-app draait al op `http://127.0.0.1:3010` en serveert de gebouwde `.next` — je eigen wijziging zie je daar pas na `pm2:rebuild`. Je wijziging live: `pnpm --filter dashboard dev` → `http://127.0.0.1:3011` (eigen `.next-dev`, raakt :3010 niet). Dark mode via de ThemeToggle rechtsboven |
 | **State forceren** | De vier kaartstaten hangen aan gemeten feiten, dus je forceert ze door het feit te maken: `gestopt` = niets op de poort · `draait` = start vanuit het dashboard · `extern` = `pnpm --filter <app> dev` in een eigen terminal · `mislukt` = zet tijdelijk een onzinnig `startCommand` in `appsConfig.ts` |
 | **Guard tegenproeven** | Beide kanten van `blokkade()`: mét PM2 online moet cashflow's `dev` en `build` een reden teruggeven; met `pm2 stop cashflow` moeten ze `null` geven. Draai `pm2 start cashflow` daarna weer aan |
 | **Loopback-weigering** | `curl -s -o /dev/null -w '%{http_code}' -H 'Host: 10.0.0.5:3010' http://127.0.0.1:3010/api/status` → verwacht `403`; zonder de Host-header `200` |
