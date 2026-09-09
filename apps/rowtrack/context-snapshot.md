@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+267bd8e feat(rowtrack): auto-layout is now the default, and an image axis to prove it
 2a96b4f docs: session reflection — triage ten stale handoff items, and correct a number I got wrong
 c99a7ad chore(rowtrack): remove two scripts nothing calls
 bd03cef ci: run the rowtrack guards, and make render-shot discoverable
 62eab07 docs(rowtrack): close what the screens round left open, and correct a false status message
-d84679f Merge remote-tracking branch 'origin/main' into fix/rowtrack-schermverschillen
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/.gitignore
-   M apps/rowtrack/.storybook/main.ts
-  M  apps/rowtrack/figma/bouw-batch.js
-   M apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/builder.js
-  A  apps/rowtrack/figma/exporteer-beelden.js
-   M apps/rowtrack/figma/geometry.figma.json
-   M apps/rowtrack/figma/library-component-keys.json
-   M apps/rowtrack/figma/ongebonden.json
-  M  apps/rowtrack/package.json
+  M  apps/rowtrack/BACKLOG.md
+  A  apps/rowtrack/figma/beeld-verschillen.json
+  A  apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
+  A  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
+  A  apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
+  A  apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
+  A  apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
+  A  apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
+  A  apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
+  A  apps/rowtrack/figma/beelden/HistoryScreen__Een-Record.figma.png
 
 ## Bestanden met TODO/FIXME
   (geen)

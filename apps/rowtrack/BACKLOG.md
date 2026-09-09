@@ -489,3 +489,18 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Eerste zet:** Beide via Tokens Studio, in **beide** mode-sets (de build faalt op asymmetrie). Daarna `Skeleton.tsx` op de nieuwe rol zetten — één plek. Er staan al twee andere token-items open (`accent.selected` 0.20 en een `bg.raised`-alpha), dus dit kan in één push mee.
 - **Check:** `grep -ic skeleton apps/rowtrack/tokens/tokens.json` — 0 = de skeleton-rol ontbreekt nog; staat `buttonTokens.primary` daarnaast nog op wit op `#F05454`, dan is ook de knoptekst-keuze niet gemaakt.
 - **Status:** open
+
+## 2026-09-09 — Tekstnodes worden in Figma afgekapt waar de browser ze volledig toont · [fix]
+- **Wat:** De beeld-as (`pnpm --filter rowtrack beeld`) legt de gerenderde browser naast de gerenderde Figma-node en vond op 2026-09-09 een klasse die geen enkele bestaande as kán zien: tekst die in Figma smaller staat dan zijn inhoud en dus afknipt. Gemeten op `WorkoutDetailScreen/Zonder Hartslag`: de titel **"1 sep 2026" staat er als "1 sep"**, de terug-link "← OVERZICHT" ontbreekt, en in de statistiektabel plakt elk label tegen zijn waarde (`WATT208` in plaats van `WATT · 208 · 268`). Zichtbaar verschil 33,6% van het frame, grof 7,3% — het hoogste van de 24.
+- **Waarom geen enkele as dit ziet:** `geometry-parity` sluit **breedte** uit op élke node, omdat Figma's tekstengine dezelfde tekst anders meet dan Chromium (gemeten: SectionHeader 162,78 tegen 136). Dat is terecht voor de *vergelijking*, maar het betekent dat een tekstnode die te smal gebouwd is nergens rood wordt. De hoogte klopt (de tekst breekt niet), de vlaggen kloppen, de tokens kloppen.
+- **Waarom niet nu:** de fix zit in hoe de builder `textAutoResize` en de breedte van een tekstnode kiest, en dat raakt alle 1 489 tekstnodes tegelijk. Dat is een eigen ronde met parity als rechter, niet iets om aan het einde van een lange sessie in te schuiven — en de beeld-as staat er nu, dus de bevinding kan niet meer wegzakken.
+- **Eerste zet:** Meet eerst de verdeling: hoeveel tekstnodes staan op `textAutoResize: 'WIDTH_AND_HEIGHT'` (hugt, kan niet afknippen) tegen `'HEIGHT'` (vaste breedte, knipt af als Figma breder meet)? `parity` rapporteert het eerste getal al — 1 212 van 3 516. Kijk daarna of de afkappende gevallen te herkennen zijn aan de bron: een tekst die in de browser niet breekt (`h ≈ lineHeight`) hoort in Figma te huggen, ongeacht de gemeten breedte.
+- **Check:** `cd apps/rowtrack && node scripts/beeld-parity.mjs | head -3` — staat `WorkoutDetailScreen__Zonder-Hartslag` nog boven de 5% grof, dan leeft dit.
+- **Status:** open
+
+## 2026-09-09 — De beeld-as draait nog niet in CI · [ci]
+- **Wat:** `scripts/beeld-parity.mjs` vergelijkt de gecommitte Figma-exports (`figma/beelden/`, 24 frames, ~900 KB) met een verse browser-render. De Figma-kant is dus CI-baar zoals `geometry.figma.json` dat is — maar de browser-kant vraagt een `build-storybook`, en dat is de dure stap (~1 min) die de zeven bestaande rowtrack-guards juist níet nodig hebben.
+- **Waarom niet nu:** het is een afweging over CI-tijd die Jeroen hoort te maken, geen technische. En de drempel is nog niet vast: zonder `--drempel` rapporteert het script alleen. Die drempel kan pas gekozen worden als de tekstnode-afkapping (het item hierboven) weg is — nu zou elk getal boven de vloer van **0,02%** meteen 24 frames rood maken.
+- **Eerste zet:** Eerst het tekstnode-item oplossen, dan de vloer opnieuw meten (`node scripts/beeld-parity.mjs` en het laagste getal aflezen), dan `--drempel` op ruim boven die vloer zetten en de stap toevoegen ná `build-storybook` in `ci.yml`.
+- **Check:** `grep -c 'beeld' .github/workflows/ci.yml` — 0 = de as draait nog niet in CI.
+- **Status:** open

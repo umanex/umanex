@@ -442,6 +442,12 @@ const WALKER = () => {
       display: cs.display,
       richting: cs.flexDirection, gap: px(cs.gap) || px(cs.columnGap) || 0,
       justify: cs.justifyContent, align: cs.alignItems,
+      // `align-content` en `flex-wrap` horen bij dezelfde familie als `align-items` en
+      // `align-self`, en werden tot 2026-09-09 helemaal niet gemeten. Figma kent ze wél:
+      // `layoutWrap: 'WRAP'` en `counterAxisAlignContent`. Een container die in de browser
+      // afbreekt en in Figma niet, is een layoutverschil dat geen enkele as opmerkt zolang
+      // de gemeten maten per node toevallig kloppen.
+      alignContent: cs.alignContent, wrap: cs.flexWrap,
       // DE SIZING-INTENTIE, per as, uit de OUDER-richting gelezen.
       //
       // Waarom dit er niet was en waarom het moest: de builder zette elke auto-layout op
@@ -470,6 +476,21 @@ const WALKER = () => {
         const h = rij ? groei : strek;
         const v = rij ? strek : groei;
         return (h ? 'H' : '') + (v ? 'V' : '') || null;
+      })(),
+      // De EIGEN uitlijning op de kruis-as, als die van de ouder afwijkt. Figma kent geen
+      // per-kind `align-self` als zodanig, maar wél `layoutAlign` ('MIN' | 'CENTER' | 'MAX' |
+      // 'STRETCH'), en dat is precies deze as. Zonder deze mapping landt een rechts
+      // uitgelijnd element links: gemeten 2026-09-09 op LoginScreen, waar "Wachtwoord
+      // vergeten?" in Figma links stond én daardoor over twee regels brak, terwijl de browser
+      // hem rechts tegen de rand zet.
+      zelf: (() => {
+        const o = el.parentElement;
+        if (!o) return null;
+        const oc = getComputedStyle(o);
+        if (!(oc.display || '').includes('flex')) return null;
+        const eigen = cs.alignSelf && cs.alignSelf !== 'auto' ? cs.alignSelf : null;
+        if (!eigen || eigen === oc.alignItems) return null;
+        return { 'flex-start': 'MIN', center: 'CENTER', 'flex-end': 'MAX', stretch: 'STRETCH' }[eigen] ?? null;
       })(),
       padding: [px(cs.paddingTop), px(cs.paddingRight), px(cs.paddingBottom), px(cs.paddingLeft)],
       radius: [px(cs.borderTopLeftRadius), px(cs.borderTopRightRadius),

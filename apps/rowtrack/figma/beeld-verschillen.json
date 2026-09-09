@@ -1,0 +1,450 @@
+{
+ "$comment": "GEGENEREERD door scripts/beeld-parity.mjs. De browser naast de Figma-export, per frame.",
+ "gegenereerd": "2026-09-09",
+ "schaal": 1,
+ "drempel": null,
+ "rijen": [
+  {
+   "bestand": "WorkoutDetailScreen__Zonder-Hartslag.figma.png",
+   "story": "componenten-workoutdetailscreen--zonder-hartslag",
+   "W": 430,
+   "H": 932,
+   "zicht": 33.55,
+   "grof": 7.27,
+   "heet": 420,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,40",
+    "60,40",
+    "100,40",
+    "120,40",
+    "140,40",
+    "160,40"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "HistoryScreen__Playground.figma.png",
+   "story": "componenten-historyscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 12.58,
+   "grof": 6.79,
+   "heet": 181,
+   "blokken": 1034,
+   "plaatsen": [
+    "0,20",
+    "20,20",
+    "40,20",
+    "80,20",
+    "100,20",
+    "0,40"
+   ],
+   "iconenGemaskeerd": 5
+  },
+  {
+   "bestand": "WorkoutDetailScreen__Playground.figma.png",
+   "story": "componenten-workoutdetailscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 32.55,
+   "grof": 6.62,
+   "heet": 401,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,40",
+    "60,40",
+    "100,40",
+    "120,40",
+    "140,40",
+    "160,40"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "ActivePhase__Doel-Bereikt.figma.png",
+   "story": "componenten-activephase--doel-bereikt",
+   "W": 430,
+   "H": 932,
+   "zicht": 9.07,
+   "grof": 5.76,
+   "heet": 106,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,0",
+    "240,0",
+    "100,40",
+    "120,40",
+    "120,180",
+    "120,200"
+   ],
+   "iconenGemaskeerd": 2
+  },
+  {
+   "bestand": "ForgotPasswordScreen__Playground.figma.png",
+   "story": "componenten-forgotpasswordscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 5.43,
+   "grof": 4.9,
+   "heet": 103,
+   "blokken": 1034,
+   "plaatsen": [
+    "20,320",
+    "40,320",
+    "60,320",
+    "80,320",
+    "100,320",
+    "120,320"
+   ],
+   "iconenGemaskeerd": 0
+  },
+  {
+   "bestand": "HistoryScreen__Een-Record.figma.png",
+   "story": "componenten-historyscreen--een-record",
+   "W": 430,
+   "H": 932,
+   "zicht": 10.11,
+   "grof": 4.84,
+   "heet": 143,
+   "blokken": 1034,
+   "plaatsen": [
+    "0,20",
+    "20,20",
+    "40,20",
+    "80,20",
+    "100,20",
+    "0,40"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "RegisterScreen__Playground.figma.png",
+   "story": "componenten-registerscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 5.53,
+   "grof": 4.69,
+   "heet": 102,
+   "blokken": 1034,
+   "plaatsen": [
+    "20,240",
+    "40,240",
+    "60,240",
+    "80,240",
+    "100,240",
+    "120,240"
+   ],
+   "iconenGemaskeerd": 2
+  },
+  {
+   "bestand": "HistoryScreen__Leeg.figma.png",
+   "story": "componenten-historyscreen--leeg",
+   "W": 430,
+   "H": 932,
+   "zicht": 9.39,
+   "grof": 4.16,
+   "heet": 126,
+   "blokken": 1034,
+   "plaatsen": [
+    "0,20",
+    "20,20",
+    "40,20",
+    "80,20",
+    "100,20",
+    "0,40"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "ActivePhase__Landscape.figma.png",
+   "story": "componenten-activephase--landscape",
+   "W": 932,
+   "H": 430,
+   "zicht": 4.84,
+   "grof": 3.36,
+   "heet": 57,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "140,40",
+    "340,40",
+    "620,80",
+    "640,80"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "LoginScreen__Playground.figma.png",
+   "story": "componenten-loginscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.84,
+   "grof": 3.29,
+   "heet": 57,
+   "blokken": 1034,
+   "plaatsen": [
+    "120,260",
+    "200,260",
+    "20,280",
+    "40,280",
+    "60,280",
+    "80,280"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "ActivePhase__Playground.figma.png",
+   "story": "componenten-activephase--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.53,
+   "grof": 3.04,
+   "heet": 51,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "140,40",
+    "320,40",
+    "120,200",
+    "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "ActivePhase__Zonder-Hartslagband.figma.png",
+   "story": "componenten-activephase--zonder-hartslagband",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.44,
+   "grof": 2.96,
+   "heet": 50,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "140,40",
+    "320,40",
+    "120,200",
+    "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "ActivePhase__Doel-Afstand.figma.png",
+   "story": "componenten-activephase--doel-afstand",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.4,
+   "grof": 2.91,
+   "heet": 52,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "320,40",
+    "100,200",
+    "120,200",
+    "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "IdlePhase__Playground.figma.png",
+   "story": "componenten-idlephase--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.54,
+   "grof": 2.32,
+   "heet": 39,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,80",
+    "140,120",
+    "180,120",
+    "60,180",
+    "100,180",
+    "140,180"
+   ],
+   "iconenGemaskeerd": 9
+  },
+  {
+   "bestand": "IdlePhase__Doel-Afstand.figma.png",
+   "story": "componenten-idlephase--doel-afstand",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.45,
+   "grof": 2.27,
+   "heet": 38,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,80",
+    "140,120",
+    "180,120",
+    "60,180",
+    "100,180",
+    "140,180"
+   ],
+   "iconenGemaskeerd": 9
+  },
+  {
+   "bestand": "IdlePhase__Niet-Verbonden.figma.png",
+   "story": "componenten-idlephase--niet-verbonden",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.42,
+   "grof": 2.24,
+   "heet": 40,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,80",
+    "80,120",
+    "60,180",
+    "80,180",
+    "100,180",
+    "120,180"
+   ],
+   "iconenGemaskeerd": 9
+  },
+  {
+   "bestand": "IdlePhase__Toestel-Keuze.figma.png",
+   "story": "componenten-idlephase--toestel-keuze",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.27,
+   "grof": 2.23,
+   "heet": 64,
+   "blokken": 1034,
+   "plaatsen": [
+    "60,180",
+    "80,180",
+    "100,180",
+    "120,180",
+    "140,180",
+    "40,240"
+   ],
+   "iconenGemaskeerd": 11
+  },
+  {
+   "bestand": "ActivePhase__Samenvatting.figma.png",
+   "story": "componenten-activephase--samenvatting",
+   "W": 430,
+   "H": 932,
+   "zicht": 3,
+   "grof": 2,
+   "heet": 31,
+   "blokken": 1034,
+   "plaatsen": [
+    "20,40",
+    "40,40",
+    "100,40",
+    "120,40",
+    "140,40",
+    "160,40"
+   ],
+   "iconenGemaskeerd": 2
+  },
+  {
+   "bestand": "ProfileScreen__Playground.figma.png",
+   "story": "componenten-profilescreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 3.49,
+   "grof": 1.94,
+   "heet": 57,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,100",
+    "80,100",
+    "140,100",
+    "20,140",
+    "40,140",
+    "220,240"
+   ],
+   "iconenGemaskeerd": 5
+  },
+  {
+   "bestand": "ProfileScreen__Zonder-Gewicht.figma.png",
+   "story": "componenten-profilescreen--zonder-gewicht",
+   "W": 430,
+   "H": 932,
+   "zicht": 3.49,
+   "grof": 1.94,
+   "heet": 57,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,100",
+    "80,100",
+    "140,100",
+    "20,140",
+    "40,140",
+    "220,240"
+   ],
+   "iconenGemaskeerd": 5
+  },
+  {
+   "bestand": "ProfileScreen__Onvolledig.figma.png",
+   "story": "componenten-profilescreen--onvolledig",
+   "W": 430,
+   "H": 932,
+   "zicht": 3.44,
+   "grof": 1.91,
+   "heet": 57,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,100",
+    "80,100",
+    "140,100",
+    "20,140",
+    "40,140",
+    "220,240"
+   ],
+   "iconenGemaskeerd": 5
+  },
+  {
+   "bestand": "WorkoutDetailScreen__Niet-Gevonden.figma.png",
+   "story": "componenten-workoutdetailscreen--niet-gevonden",
+   "W": 430,
+   "H": 932,
+   "zicht": 0.47,
+   "grof": 0.34,
+   "heet": 7,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,540",
+    "140,540",
+    "160,540",
+    "200,540",
+    "240,540",
+    "260,540"
+   ],
+   "iconenGemaskeerd": 2
+  },
+  {
+   "bestand": "ResetPasswordScreen__Met-Link.figma.png",
+   "story": "componenten-resetpasswordscreen--met-link",
+   "W": 430,
+   "H": 932,
+   "zicht": 0.05,
+   "grof": 0.02,
+   "heet": 0,
+   "blokken": 1034,
+   "plaatsen": [],
+   "iconenGemaskeerd": 0
+  },
+  {
+   "bestand": "ResetPasswordScreen__Playground.figma.png",
+   "story": "componenten-resetpasswordscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 0.05,
+   "grof": 0.02,
+   "heet": 0,
+   "blokken": 1034,
+   "plaatsen": [],
+   "iconenGemaskeerd": 0
+  }
+ ]
+}
