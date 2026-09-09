@@ -124,13 +124,13 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   test-tooling. (b) BOUW-diagnose in `components/Subtitle.tsx`: waarom slikt de row synthetische
   taps in (Fabric/New-Arch touch-hittest?) en waarom rapporteert ALLE's node een verschoven frame;
   de `onEdit`-bedrading zelf is correct (`setGoalSheetOpen(true)`, app/(tabs)/index.tsx:216).
-- **Status:** open
+- **Status:** resolved (2026-09-09) — de Maestro-miniflow is niet gedraaid en vraagt een toestel of simulator. Verplaatst naar `apps/rowtrack/BACKLOG.md` (2026-09-09, toestel-ronde).
 
 ## 2026-08-11 — Adverteert de Apollo XL FTMS? · [onzekerheid]
 - **Bevinding:** De rower-scan matcht sinds PR #276 primair op de geadverteerde FTMS UUID (0x1826), met naam-prefix "Rower" als vangnet. Of de Fluid Rower Apollo XL die UUID adverteert is niet vastgesteld — BLE-scan kan niet op de simulator. Adverteert hij hem wél, dan kan de prefix eruit en kan het filter op OS-niveau (`startDeviceScan([FTMS_SERVICE_UUID], …)`), wat scanruis en batterij scheelt.
 - **Volgende zet:** Op de fysieke iPhone één scan starten met de Apollo XL aan en in de `[BLE]`-log de `adv:`-regel lezen. Let op: is `adv:` leeg, log dan ook `dev.overflowServiceUUIDs` vóór je concludeert dat hij niet adverteert — iOS parkeert service-UUIDs van sommige toestellen in de overflow area, en het predicaat leest alleen `serviceUUIDs`. De uitkomst documenteren in het commentaar van `apps/rowtrack/lib/ble/rowerCandidate.ts`, dan beslissen: prefix-vangnet houden of verwijderen.
 - **Check:** `grep -n "is nog niet op het toestel" apps/rowtrack/lib/ble/rowerCandidate.ts` — treffer = de uitkomst is nog niet gedocumenteerd en dit item leeft; leeg = gedocumenteerd, item resolved.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — check gedraaid: de zin staat nog in `rowerCandidate.ts`, dus de vraag leeft — maar hij is alleen op het toestel te beantwoorden. Verplaatst naar `apps/rowtrack/BACKLOG.md` (2026-09-09, toestel-ronde).
 
 ## 2026-08-05 — Unieke index op workouts staat nog niet in de database · [next-step]
 - **Bevinding:** `supabase/migrations/add_workouts_unique_started_at.sql` staat op main maar is niet toegepast. Zolang die index ontbreekt, dekt de client alleen de race binnen één app-run: wordt de app afgesloten tussen een geslaagde insert en het wissen van de pending-slot, dan schrijft de volgende start dezelfde rit nog een keer weg en telt elke KPI-som hem dubbel.
@@ -623,7 +623,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   gok, op het pad dat het starten van een rit bewaakt, zonder de meting die hem zou dragen:
   dezelfde fout, groter oppervlak.
 - **Check:** `grep -rn DATA_TIMEOUT apps/rowtrack/lib/ble/` — alleen treffers in `hr-service.ts` = de roeierkant heeft nog geen datadeadline.
-- **Status:** open — bewust, met een meetbare volgende stap in plaats van een ontwerp.
+- **Status:** resolved (2026-09-09) — check gedraaid: `DATA_TIMEOUT` staat nog alleen in `hr-service.ts`, dus het gat leeft — maar het is werk dat blijft liggen tot er een toestel is, geen sessie-context. Verplaatst naar `apps/rowtrack/BACKLOG.md` (2026-09-09, toestel-ronde), triage volgens `sessie-reflectie` stap 1: ouder dan 30 dagen. — bewust, met een meetbare volgende stap in plaats van een ontwerp.
 
 ## 2026-08-10 — Vier gemergede PR's zijn nog nooit gerenderd · [next-step]
 - **Bevinding:** #257 (HR-bedrading), #259 (a11y/F4), #260 (formattering/F10 + dood pad/F12) en
@@ -666,7 +666,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   **(4) GoalSheet-guard geblokkeerd** — zie de Subtitle-entry van 2026-08-11 hieronder: de
   WIJZIG-actie vuurt niet op synthetische taps, dus de sheet is met Maestro niet te openen.
   Punten 5 t/m 7 (tabs-oordeel, dynamic type, VoiceOver) blijven bij jou.
-- **Status:** open — rest: skelet/foutstaat, geen-doel-CTA + guard (vergt testaccount op de sim), en jouw punten 5-7
+- **Status:** resolved (2026-09-09) — de vier-PR-formulering is achterhaald — de componenten die #259 en #261 raakten zijn in ingreep 2 in veertien nieuwe componenten gesneden, elk met story, en alle 257 stories renderen en worden tegen Figma gemeten. Wat overblijft is het simulator-deel (dev-active deep links, getalweergave op echte data), en dat staat nu in `apps/rowtrack/BACKLOG.md` (2026-09-09, toestel-ronde). — rest: skelet/foutstaat, geen-doel-CTA + guard (vergt testaccount op de sim), en jouw punten 5-7
 
 ## 2026-08-10 — HR-verbinding: de regel is bewezen, de bedrading gelezen · [risico]
 - **Bevinding:** `hrLink.ts` heeft elf scenario's en een tegenproef (de bug terugzetten laat er 9
@@ -679,7 +679,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   bevriezen (dít is het geval dat verzonnen hartslag in de opgeslagen rit voorkwam);
   (4) toestemming op "Weigeren" → autoconnect raakt de band niet aan.
 - **Check (herbasislijnd 2026-09-08):** Vraag, geen commando: zijn de vier gevallen met het horloge op het toestel gereden? Nee zolang dit item geen toestel-blok met datum heeft. De tweede helft van de check is op 2026-09-08 gedraaid en gaf **niet leeg**: sinds `f8f9bc5` zijn er vier commits op deze twee bestanden (`43714ad`, `23432f0`, `0b21d93`, `928f7e7`), samen +408/-59 regels, waarvan het leeuwendeel in `hr-service.ts`. De vier scenario's hierboven beschrijven dus bedrading die intussen herschreven is — lees ze opnieuw vóór je ze rijdt, met name geval (3), want `928f7e7` raakt precies het meetbaar maken van het HR-pad en de disconnect-listener. Nieuwe basislijn: `git log --oneline 928f7e7.. -- apps/rowtrack/lib/ble/hrLink.ts apps/rowtrack/lib/ble/hr-service.ts` moet leeg zijn.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — de vier gevallen met het horloge zijn nog niet gereden en dat kan alleen op een toestel. Verplaatst naar `apps/rowtrack/BACKLOG.md` (2026-09-09, toestel-ronde); ouder dan 30 dagen.
 
 ## 2026-08-10 — Twee tokenkeuzes die code niet kan maken · [next-step]
 - **Bevinding:** Uit de a11y- en skeleton-passes rolden twee waarden die geen bestaande rol hebben.
@@ -692,7 +692,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   Daarna `Skeleton.tsx` op de nieuwe rol zetten — één plek. Let op: er staan al twee andere
   token-items open (`accent.selected` 0.20 en een `bg.raised`-alpha), dus dit kan in één push mee.
 - **Check:** `grep -ic skeleton apps/rowtrack/tokens/tokens.json` — 0 = de skeleton-rol ontbreekt en `Skeleton.tsx` leent nog `bg.raised`; staat `buttonTokens.primary` daarnaast nog op wit op `#F05454` (3,44:1), dan is ook de knoptekst-keuze niet gemaakt.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — check gedraaid: `grep -ic skeleton tokens/tokens.json` → 0, dus beide keuzes staan nog open. Het is een Tokens Studio-beslissing van Jeroen, dus werk dat blijft liggen: verplaatst naar `apps/rowtrack/BACKLOG.md` (2026-09-09, tokenkeuzes); ouder dan 30 dagen.
 
 ## 2026-08-10 — Eerste committed node:test in de repo · [next-step]
 - **Bevinding:** `lib/ble/adapterReady.test.ts` is het eerste testbestand dat blijft staan in plaats
@@ -727,7 +727,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** Ik heb het design-system-bestand geoptimaliseerd voor *bewijsbaarheid* — elke node herleidbaar tot de browser-render — en nooit uitgesproken dat dat een andere eis is dan *bruikbaarheid*. Gemeten: 82% van de 1288 frames draagt een machinenaam ("0" 608×, "1" 278×, "2" 78×), en geen enkele van de 15 component sets heeft slot-properties (boolean, instance-swap, text) — alleen varianten. Nu het bestand als library gepubliceerd is en er schermen uit samengesteld worden, telt die tweede eis pas echt: niemand componeert een scherm uit lagen die "0" heten.
 - **Check:** `figma_execute` op `QkRgMc7Quqtbow71DiYa1n`: tel de FRAME/GROUP-nodes waarvan de naam matcht op `/^(\d+|Frame|Group)$/` tegen het totaal. Boven ~20% is het bestand nog machinaal benoemd.
 - **Volgende zet:** Vóór er iets aan toegevoegd wordt: het bestand openen als designer en per component beoordelen of hij composeerbaar is. Kandidaten voor herstel: laagnamen uit de component-structuur afleiden in plaats van uit de index, en slots (icoon aan/uit, labeltekst) als component-property in plaats van als variant.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — eigen check gedraaid via `figma_execute`: **0 van 1 875** FRAME/GROUP-nodes draagt een machinale naam (`/^(\d+|Frame|Group)$/`), tegen een drempel van ~20%. En de premisse is weerlegd: op 2026-09-09 zijn 24 schermframes uit **100 instances** van dit bestand samengesteld — er is dus wél uit te componeren.
 
 ## 2026-09-08 — Vijf van de 33 componenten zijn met het oog bekeken · [onzekerheid]
 - **Bevinding:** De tellingen zijn volledig — 613/613 tekstnodes, 1066 geometrie-velden gelijk, tien guard-assen groen. Maar ik heb Button, Chip, SplitsList, HealthConsentScreen en WheelPicker daadwerkelijk bekéken; de andere 28 niet. Twee keer vandaag was iets zichtbaar fout terwijl elke telling klopte: tekst die buiten het frame liep, en knoplabels die over twee regels braken. Beide gevonden door te kijken, geen van beide door te meten.
@@ -797,4 +797,22 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De schermen-export plaatst library-instances met `figma.importComponentByKeyAsync`. Gemeten op 2026-09-09, drie toestanden en alle drie reproduceerbaar: (1) een **ongepubliceerde** key geeft meteen een duidelijke fout (*"Could not find a published component with the key"*); (2) een key die al eens in dít bestand geïmporteerd is, komt terug in **5–39 ms**; (3) een gepubliceerde key die nog **niet** in dit bestand zit, **hangt onbeperkt** — geen fout, geen console-regel, ook niet na 25 s en ook niet na een `figma_reload_plugin`. Het begon ná een afgebroken bouw die 72 imports tegelijk openzette; het vermoeden is dat de importwachtrij van de plugin daardoor wedged staat. Niet bewezen — de plugin-UI herladen laat `code.js` doorlopen, dus dat toetst het niet.
 - **Check:** Sluit de Desktop Bridge-plugin in Figma volledig af en start hem opnieuw (Plugins → Development → Figma Desktop Bridge). Draai dan in `RowTrack - Design`: `figma.importComponentByKeyAsync(<key van Dot uit figma/library-component-keys.json>)`. Komt hij binnen een seconde terug met een node, dan was het de wachtrij en is dit resolved. Hangt hij nog steeds, dan is het geen wachtrij maar iets aan de library-koppeling van dat bestand — controleer dan in Figma of `RowTrack - Design System` onder Libraries van dit bestand aan staat.
 - **Volgende zet:** Na een geslaagde check `node scripts/figma-serve.mjs` starten en `figma/bouw-schermen.js` per frame draaien (één frame per aanroep — een netwerk-import overleeft de 30 s wachtlimiet van `figma_execute` niet, gemeten: fire-and-forget bleef hangen, awaited duurde 39 ms).
+- **Status:** resolved (2026-09-09) — opgelost door de plugin-herstart. Deze sessie zijn alle 45 componenten geïmporteerd en 100 instances geplaatst over 24 frames, met 0 meldingen over een hangende import; één awaited import duurde 39 ms. Het was de wachtrij, zoals de check vermoedde.
+
+## 2026-09-09 — De ratels zijn eenrichtingsverkeer en niets duwt ze omlaag · [risico]
+- **Bevinding:** `scripts/figma-sync-check.mjs` draagt vijf `BEKENDE_*`-constanten die een gemeten gat vastleggen. Elke keer dat een as rood wordt, is de goedkoopste uitweg de constante ophogen mét een reden — en dat is vandaag drie keer gebeurd. `BEKENDE_VOORKOMENS` ging in één dag van 2 144 naar 3 760 (+75%), `BEKENDE_GATEN` van 49 naar 52, `BEKENDE_GRENSNODES` van 243 naar 305. Elke ophoging was terecht en gemotiveerd, maar er bestaat geen mechanisme dat er ooit één omlaag duwt: een gat dat gedicht wordt laat de ratel te hoog staan, en daarna is hij blind voor precies zoveel nieuwe gaten als er gedicht zijn.
+- **Check:** `node -e 'const o=require("./figma/ongebonden.json"); console.log(o.aantalUniek, o.aantalVoorkomens)'` in `apps/rowtrack`, naast `grep -n "BEKENDE_GATEN\|BEKENDE_VOORKOMENS" scripts/figma-sync-check.mjs` — staat de constante hóger dan de meting, dan is dat verschil het aantal nieuwe gaten dat ongemerkt binnen kan.
+- **Volgende zet:** De as ook laten falen op een TE HOGE ratel: `if (gemeten < BEKEND) fail("winst — zet de constante op <gemeten>")`. `[laagnaam]` doet dat al (hij meldde vandaag zelf *"winst; zet BEKENDE_GRENSNODES op 305"*), `[binding]` niet. Gelijktrekken kost weinig en maakt de ratel tweezijdig.
+- **Status:** open
+
+## 2026-09-09 — De 24 schermframes zijn door niemand bekeken, en parity kan de drie dingen die ertoe doen niet zien · [onzekerheid]
+- **Bevinding:** Alles wat vandaag groen werd is geometrie en structuur. `parity` vergelijkt hoogte, padding, gap, radius, randbreedte, opacity en de aanwezigheid van vulling/rand/effect — **niet** kleurwaarde, icoonvorm of `text-transform`. Dat laatste is bewezen misleidend: de browser rendert "500M" waar `textContent` "500m" is, over 42 nodes in 12 componenten (CLAUDE.md, eigenaardigheid 5). Er staan nu 24 frames uit 100 instances in `RowTrack - Design` en niemand heeft er één bekeken.
+- **Check:** `ls apps/rowtrack/figma/parity-beelden/ 2>/dev/null | wc -l` — 3 op 2026-09-09, tegen 45 componenten en 24 schermframes; ver onder dat aantal betekent dat de beeldronde niet af is.
+- **Volgende zet:** `pnpm --filter rowtrack render:shot <story-id>` bestaat sinds vandaag en is de helft van het instrument; de andere helft is `figma_capture_screenshot` (runtime, niet REST — een REST-render is na een verse bouw per definitie stale). Begin bij de vier schermen met de meeste tekst: HistoryScreen, WorkoutDetailScreen, ProfileScreen en ActivePhase/Samenvatting, want daar bijt `text-transform` het hardst.
+- **Status:** open
+
+## 2026-09-09 — De zebra-als-variant-as kantelt zodra er een derde data-gedreven vorm komt · [aanname]
+- **Bevinding:** `WorkoutCard` kreeg vandaag een variant-as `index` met de waarden [0, 1], omdat de zebra-tegel uit `index % 2` een zichtbare vorm is die de library anders niet kan uitdrukken. Dat werkt zolang het aantal data-gedreven vormen klein blijft — en dat is de onuitgesproken aanname. Elke extra as vermenigvuldigt de variant-nodes (Button staat al op 4 assen), en op enig moment is "de builder mag de gemeten vulling als override op de instance zetten" goedkoper. Die tweede weg is vandaag bewust niet gekozen omdat een override het bewijs uitwist: parity wordt dan groen doordat de builder eroverheen schildert.
+- **Check:** `node -e 'const m=require("./figma/manifest.json"); console.log(Object.values(m.pages).filter(p=>p.primary?.variantProperties).map(p=>[p.primary.name,(p.primary.varianten||[]).length]).sort((a,b)=>b[1]-a[1]).slice(0,3))'` in `apps/rowtrack` — komt een component boven ~32 varianten, of krijgt een tweede component een as die uit dáta volgt in plaats van uit een prop-union, dan is dit het moment om de afweging opnieuw te maken.
+- **Volgende zet:** Niets, tot de check vuurt. Dan de twee wegen naast elkaar zetten in het BACKLOG-item over de instance-terugvallen — die twee beslissingen hangen samen.
 - **Status:** open

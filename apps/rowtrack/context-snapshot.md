@@ -73,16 +73,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c99a7ad chore(rowtrack): remove two scripts nothing calls
 bd03cef ci: run the rowtrack guards, and make render-shot discoverable
 62eab07 docs(rowtrack): close what the screens round left open, and correct a false status message
 d84679f Merge remote-tracking branch 'origin/main' into fix/rowtrack-schermverschillen
 c195a96 chore(rowtrack): spec, manifest, geometry and ratchets after the screens round
-f681424 feat(rowtrack): a render path for the seven routes that had no story
 ```
 
 ## Uncommitted wijzigingen
-  D  apps/rowtrack/scripts/figma-emit.mjs
-  D  apps/rowtrack/scripts/render-probe.mjs
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/HANDOFF.md
 
 ## Bestanden met TODO/FIXME
   (geen)

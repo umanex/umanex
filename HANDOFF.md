@@ -66,13 +66,13 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Bevinding:** De regel `hardcoded-color` in `packages/tokens/scripts/guard.mjs` matcht alleen Tailwinds arbitrary-syntax (`bg-[#fff]`), niet een gewone `color: #ff0000` in een `.css`-bestand of een `fill="#..."` in een SVG — terwijl de docstring van diezelfde guard juist zegt dat hij bestaat omdat ESLint die twee niet ziet. Ontdekt doordat een tegenproef níet afging waar ik hem verwachtte.
 - **Volgende zet:** Het gat is klein en gemeten: kale hex komt in álle guard-scopes samen **één keer** voor, in `apps/cashflow/scripts/render-charts.tsx:149` (inline `<style>` in een preview-script). Een zevende regel toevoegen kost dus één baseline-entry of één refactor. Niet zelf gedaan: het verbreedt een guard die vier apps raakt.
 - **Check:** `grep -c "id: '" packages/tokens/scripts/guard.mjs` — 7 = status quo (zes regels + font-token-drift), de kale-hex-regel is er nog niet; 8+ = er is een regel bij, toets of die kale hex in CSS/SVG dekt.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — check gedraaid: `grep -c "id: '" packages/tokens/scripts/guard.mjs` → 7, de status quo, dus de regel ontbreekt nog. Werk dat blijft liggen: verplaatst naar de root-`BACKLOG.md` (2026-09-09); ouder dan 30 dagen.
 
 ## 2026-08-10 — hexToHslTriplet staat nu in twee pakketten · [debt]
 - **Bevinding:** `packages/rowtrack-tokens/lib/hslTriplet.mjs` is een bewuste kopie van `packages/tokens/lib/hslTriplet.mjs`. De afweging: de twee token-pipelines zijn onafhankelijk ontworpen, en een import ertussen creëert een koppeling waar er geen hoort — voor een pure functie van vijftig regels. Prijs: verandert de afrondingsstrategie, dan moet dat op twee plekken.
 - **Volgende zet:** Niets, tenzij er een derde consument komt. Dan is een gedeeld `packages/color-utils` goedkoper dan een derde kopie.
 - **Check:** `grep -rln hexToHslTriplet packages/ apps/ | wc -l` — 4 = status quo (twee kopieën + hun twee builds); 5+ = er is een derde consument en het gedeelde pakket wordt goedkoper dan een derde kopie.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — check gedraaid: 4 bestanden noemen hem, de status quo — nog geen derde consument, dus de afweging is ongewijzigd. Verplaatst naar de root-`BACKLOG.md` (2026-09-09); ouder dan 30 dagen.
 
 ## 2026-08-04 — React 18 en 19 delen één platte node_modules · [risico]
 - **Verplaatst:** dit punt hoort bij RowTrack, want die app dwingt de platte layout af. De volledige bevinding — inclusief de mislukte poging met de geïsoleerde layout (alle Next-builds groen, Metro valt op de phantom dependency `@expo/metro-runtime`) en de drie uitwegen — staat in `apps/rowtrack/HANDOFF.md`, entry van dezelfde datum. Hieronder de oorspronkelijke, inmiddels achterhaalde formulering.
