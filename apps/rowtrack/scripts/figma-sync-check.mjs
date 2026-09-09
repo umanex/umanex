@@ -522,9 +522,15 @@ else {
     if (!gepubliceerd.length)
       ok('publicatie', `0 van ${met.length} componenten gepubliceerd — een herbouw kost hier nog niets`);
     else if (!meetbaar)
-      ok('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash — `
-        + (onvastgelegd ? 'de volgorde spec/momentopname is NIET gemeten: een van beide staat onvastgelegd'
-                        : 'de volgorde spec/momentopname is NIET gemeten: geen git-historie'));
+      // OVERSLAAN, niet groen. Deze tak zei zelf "NIET gemeten" en telde toch mee in
+      // "14 van 14 assen groen" — precies de vorm waar de rail *een instrument dat draait
+      // is nog geen instrument dat meet* over gaat, en het instrument gaf de melding er
+      // gratis bij. Gemeten 2026-09-09: met een onvastgelegde `build-spec.min.json` stond
+      // de as vier keer op groen; zodra dezelfde spec gecommit was, viel hij om. Een as die
+      // zijn eigen leemte aankondigt hoort in de kolom die leemtes telt.
+      sla('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash, maar `
+        + (onvastgelegd ? 'de volgorde spec/momentopname is NIET te meten: een van beide staat onvastgelegd'
+                        : 'de volgorde spec/momentopname is NIET te meten: geen git-historie'));
     else
       ok('publicatie', `${gepubliceerd.length} van ${met.length} componenten gepubliceerd, allemaal met bouwhash, `
         + `bouwspec (${specDatum}) niet jonger dan de momentopname (${manifestDatum})`);

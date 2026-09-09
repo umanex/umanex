@@ -214,8 +214,17 @@ herbouwd (1,4 tot 5,5 s per scherm), schermgeometrie vers, `parity` 0, 24 beelde
 - [x] Een gerolde container toont waar hij staat — bewijs: 9 containers, kind-offset exact
       −scrollTop (GoalSheet −950, 4× WheelPicker −150, IdlePhase −250/−450), alle negen `abs`
       en knippend
-- [x] Alle offline assen groen — bewijs: `figma:check` 14/14 · `figma:check:selftest` 47/47 ·
-      `figma:poort:selftest` 30/30 · `parity --selftest` 9/9 · `instance-tekst --selftest` 6/6
+- [x] Alle assen die zónder Figma kúnnen meten, zijn groen — bewijs: `figma:poort:selftest`
+      30/30 · `parity --selftest` 9/9 · `instance-tekst --selftest` 6/6, ratel 0 stil /
+      37 terugval · `figma:check` 14/14 en `figma:check:selftest` 47/47, beide gemeten
+      **vóór** de spec gecommit was
+- [ ] `figma:check`, `figma:check:selftest` en `parity` op de gecommitte staat — **rood, en
+      terecht.** Alle drie hangen aan één oorzaak: de spec is vooruitgelopen op Figma.
+      `parity` weigert `geometry.figma.json` op schema 2 (dat is de poort van deze ronde die
+      zijn eigen werk tegenhoudt), `[publicatie]` meldt dat de bouwspec (21:04) jonger is dan
+      de Figma-momentopname (20:02), en de guard-zelftest weigert te draaien zolang de guard
+      al rood staat — *"de zelftest kan niets onderscheiden"*. Eén Figma-ronde maakt alle drie
+      tegelijk groen; tot dan is de PR terecht niet mergebaar
 - [ ] De Figma-kant is herbouwd en parity + beeld staan op nul — **niet uitgevoerd**: de Desktop
       Bridge stond uit. Dit is de helft van de ronde die alleen op de runtime te bewijzen is;
       zie *Wat deze ronde NIET bewijst* hierboven
@@ -283,6 +292,16 @@ samenvoegen, toetst wat hij samenvoegt, en de zelftest draait hem in een apart p
 kanten (een verouderd schermbestand wordt geweigerd, een actueel komt erdoor). Zonder die tweede
 kant is een poort die altijd weigert niet te onderscheiden van een poort die weigert om de
 juiste reden.
+
+**En één as telde groen terwijl hij zei niets te meten.** `[publicatie]` vergelijkt de
+commit-tijd van `build-spec.min.json` met die van `manifest.json`, en slaat over zodra een van
+beide onvastgelegd is — maar die overslag werd als `ok` geteld, mét de tekst *"de volgorde
+spec/momentopname is NIET gemeten"* erbij. Vier keer op rij las ik in deze ronde "14 van 14
+assen groen" terwijl die as op de samenvattingsregel meetelde en er zelf onder stond dat hij
+niets gemeten had. Zodra dezelfde spec gecommit was, viel hij om. Hij slaat nu ook echt over
+(`--`), zodat het groene getal alleen assen telt die iets hebben kunnen zeggen — precies de
+rail *een instrument dat draait is nog geen instrument dat meet*, met het instrument dat de
+melding er gratis bij gaf.
 
 **Wat deze ronde NIET bewijst.** De Desktop Bridge stond uit, dus er is geen Figma-herbouw, geen
 vers manifest, geen verse geometrie en geen beeldronde. Alles hierboven is gemeten op de spec en
