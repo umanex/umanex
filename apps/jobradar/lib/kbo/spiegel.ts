@@ -1,9 +1,17 @@
 import 'server-only'
-import { existsSync } from 'fs'
-import { join } from 'path'
+import { existsSync, mkdirSync } from 'fs'
+import { dirname, join } from 'path'
 import Database from 'better-sqlite3'
 import { kboDatum } from './csv'
-import { bouwProspectSql, NACE_LABEL, PAGINA_GROOTTE, type ProspectFilter, type ProspectRij } from './universum'
+import { SCHEMA_DDL, pasKolomMigratiesToe } from '../db/ddl'
+import {
+  bouwProspectSql,
+  bouwZonderKboSql,
+  NACE_LABEL,
+  PAGINA_GROOTTE,
+  type ProspectFilter,
+  type ProspectRij,
+} from './universum'
 import { zoekOnderneming } from './koppeling'
 import type { RegionCode } from '../regions'
 
@@ -19,6 +27,9 @@ import type { RegionCode } from '../regions'
 
 const PAD = () => process.env.KBO_DB_PATH ?? join(process.cwd(), '.data', 'kbo.db')
 
+/** Zelfde afleiding als `lib/db/index.ts`, want het is dezelfde database. */
+const APP_DB_PAD = () => process.env.JOBRADAR_DB_PATH ?? join(process.cwd(), '.data', 'jobradar.db')
+
 export type SpiegelStaat =
   | { soort: 'ontbreekt'; pad: string }
   | { soort: 'ok'; snapshot: string | null; extract: string | null; ouderdomDagen: number | null }
@@ -29,6 +40,14 @@ export type ProspectResultaat = {
   totaal: number
   pagina: number
   paginas: number
+  /** Rijen in `csv_prospects`, ongefilterd. Onderscheidt "niets geïmporteerd" van "niets over". */
+  csvTotaal: number
+  /**
+   * CSV-rijen zonder KBO-tegenhanger. Ze kunnen niet in de lijst staan — die vertrekt van
+   * `enterprise` en ze dragen geen postcode voor het regiofilter — maar ze verdwijnen niet
+   * stil: de UI meldt het aantal boven de lijst.
+   */
+  zonderKbo: number
 }
 
 let verbinding: Database.Database | null = null
@@ -36,7 +55,51 @@ let verbinding: Database.Database | null = null
 function open(): Database.Database | null {
   const pad = PAD()
   if (!existsSync(pad)) return null
-  if (!verbinding) verbinding = new Database(pad, { readonly: true, fileMustExist: true })
+  if (verbinding) return verbinding
+
+  // De app-database moet bestáán én zijn schema dragen vóór we hem aanhaken.
+  //
+  // Twee gemeten redenen, allebei fout gegaan in de eerste versie van dit blok:
+  //
+  // 1. Een readonly verbinding kan nergens in schrijven, ook niet in een `:memory:`-ATTACH
+  //    (better-sqlite3 12.10.0: `CREATE TABLE jr.…` → "attempt to write a readonly
+  //    database"). De vorige poging vulde een lege tabel in het geheugen aan wanneer
+  //    `jobradar.db` ontbrak — de tak die een crash moest voorkómen wás de crash.
+  // 2. `csv_prospects` ontstaat pas bij de eerste `getDb()`, en die hoeft in dit proces
+  //    nog niet gedraaid te hebben: `/api/prospects` roept `haalProspects()` aan vóór
+  //    `getDb()`. Op een dev-server die herstart terwijl de browser op het
+  //    prospects-tabblad staat, is de refetch het eerste dat de database raakt.
+  //
+  // `SCHEMA_DDL` is idempotent (`CREATE TABLE IF NOT EXISTS`), dus dit is hetzelfde wat
+  // `getDb()` doet — alleen eerder, en via een verbinding die het mág.
+  const appDb = APP_DB_PAD()
+  mkdirSync(dirname(appDb), { recursive: true })
+  const schrijfbaar = new Database(appDb)
+  try {
+    schrijfbaar.exec(SCHEMA_DDL)
+    pasKolomMigratiesToe(schrijfbaar)
+  } finally {
+    schrijfbaar.close()
+  }
+
+  const db = new Database(pad, { readonly: true, fileMustExist: true })
+  try {
+    // De prospect-lijst leest uit twee databases: de rijen uit de spiegel, de CSV-bron en
+    // de statussen uit `jobradar.db`. Eén ATTACH in plaats van twee verbindingen die in JS
+    // samengevoegd worden, want alleen zo delen de telling en de lijst hun WHERE — en
+    // lopen `totaal` en `paginas` niet uiteen van wat er werkelijk staat.
+    //
+    // De escaping is dragend: getoetst met een pad dat een quote plus een tweede
+    // ATTACH-statement bevat — zonder verdubbeling voert `exec` dat tweede statement uit.
+    db.exec(`ATTACH DATABASE '${appDb.replace(/'/g, "''")}' AS jr`)
+  } catch (e) {
+    // Niet cachen wat kapot is: een halfopen verbinding blijft anders het hele proces lang
+    // dezelfde fout geven, ook nadat de oorzaak verholpen is.
+    db.close()
+    throw e
+  }
+
+  verbinding = db
   return verbinding
 }
 
@@ -58,7 +121,10 @@ function staatVan(db: Database.Database, vandaag: string): SpiegelStaat {
 export function haalProspects(filter: ProspectFilter, vandaag: string): ProspectResultaat {
   const db = open()
   if (!db) {
-    return { staat: { soort: 'ontbreekt', pad: PAD() }, rijen: [], totaal: 0, pagina: 1, paginas: 0 }
+    // Ook de CSV-bron is hier onzichtbaar: de lijst vertrekt van `enterprise`, dus zonder
+    // spiegel is er niets om op te joinen. Dat is een echte beperking en geen detail — de
+    // lege toestand in de UI zegt het erbij.
+    return { staat: { soort: 'ontbreekt', pad: PAD() }, rijen: [], totaal: 0, pagina: 1, paginas: 0, zonderKbo: 0, csvTotaal: 0 }
   }
 
   const telling = bouwProspectSql(filter, { tellen: true })
@@ -67,12 +133,19 @@ export function haalProspects(filter: ProspectFilter, vandaag: string): Prospect
   const lijst = bouwProspectSql(filter)
   const rijen = db.prepare(lijst.sql).all(...lijst.params) as ProspectRij[]
 
+  const csvTotaal = (db.prepare('SELECT COUNT(*) AS n FROM jr.csv_prospects').get() as { n: number }).n
+
+  const buiten = bouwZonderKboSql(filter)
+  const zonderKbo = (db.prepare(buiten.sql).get(...buiten.params) as { n: number }).n
+
   return {
     staat: staatVan(db, vandaag),
     rijen,
     totaal,
     pagina: Math.max(1, Math.trunc(filter.pagina || 1)),
     paginas: Math.max(1, Math.ceil(totaal / PAGINA_GROOTTE)),
+    zonderKbo,
+    csvTotaal,
   }
 }
 

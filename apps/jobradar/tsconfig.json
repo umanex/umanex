@@ -2,7 +2,9 @@
   "extends": "@umanex/config/tsconfig/nextjs.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "isolatedModules": true,
     "noEmit": true,
@@ -12,7 +14,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next-harness/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

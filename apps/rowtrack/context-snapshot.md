@@ -70,21 +70,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+e81fb62 chore(rowtrack): Figma round C — the four summary components in the library
 681dfd6 refactor(rowtrack): cuts 10 and 11 — SummaryKpiBand and StatsTable, and the clock
 5f19171 refactor(rowtrack): cuts 8 and 9 — SummaryTitle and PrBanner
 45bcebe chore(rowtrack): Figma round B — the seven cut components in the library
 58c4352 refactor(rowtrack): cut 7 — KpiRow, and activeStyles is empty
-e9b4004 chore(rowtrack): remeasure the non-reproducible nodes after cut 6
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/components/workout/active/PrBanner.stories.tsx
-  M  apps/rowtrack/components/workout/active/StatsTable.stories.tsx
-  M  apps/rowtrack/components/workout/active/SummaryKpiBand.stories.tsx
-  M  apps/rowtrack/components/workout/active/SummaryTitle.stories.tsx
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)
