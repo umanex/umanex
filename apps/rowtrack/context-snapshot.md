@@ -73,19 +73,21 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+5d11313 docs(rowtrack): classify the 24 image differences by cause, and the Figma-decides flow
 308a44c chore(rowtrack): spec, manifest, geometry and images after the text fix
 0f11ef0 feat(rowtrack): a pre-flight that counts the text an instance will show from the library
 a4cacdc fix(rowtrack): text hugs unless its box is wider than its run, and alignment travels
 dc796cc feat(rowtrack): the builder's messages get a baseline of kinds, checked on both sides
-43e91cf Merge remote-tracking branch 'origin/main' into chore/sync-os-na-skillwijziging
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/CLAUDE.md
-  M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/LEARNINGS.md
-  A  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
+   M apps/rowtrack/CLAUDE.md
+   M apps/rowtrack/HANDOFF.md
+   M apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
+  M  apps/rowtrack/figma/builder.js
+   M apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/scripts/figma-sync-selftest.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)
