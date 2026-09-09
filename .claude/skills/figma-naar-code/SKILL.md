@@ -141,6 +141,30 @@ opgaat aan lagen die niets zeggen:
   INSTANCE-nodes vóór je een scherm terugleest — staat dat aantal hoog en je tekstteller laag,
   dan las je de omhulsels en niet de inhoud.
 
+**En een instance is geen inhoud — drie dingen die je niet ziet maar wel kunt toetsen.**
+Waar de schermen uit een gepubliceerde library komen, is dat het verschil tussen wat er staat
+en wat het betekent. GEMETEN 2026-09-09 (rowtrack, 24 schermframes, 135 instances):
+
+1. **De tekst kan van de library zijn.** Een instance draagt de story-data van het component
+   tenzij er een tekst-property op staat. 23 tekstnodes toonden zo de data van een ánder
+   scherm — "20 AUG 2026" waar het scherm 2 september rendert. Neem tekst uit een instance dus
+   nooit over zonder te toetsen of er een property aan hangt.
+2. **Een `FRAME` met een componentnaam is een teruggevallen kopie**, en die toont wél de
+   schermdata. Waar de generator de instance niet getrouw kreeg, verving hij hem door een
+   nagebouwde subboom: 37 van de 135. In één frame staan dus `Segmented` als INSTANCE en
+   `Segmented` als FRAME naast elkaar, met dezelfde naam en tegengestelde waarheden. Lees het
+   `type`, nooit de naam.
+3. **Een instance toont de GEPUBLICEERDE library, niet de werkversie.** Tussen een wijziging
+   in de library en de publicatie leest een schermframe de vórige component. Gemeten: na een
+   fix in library én schermen stonden twaalf frames nog exact op hun oude waarde tot na de
+   publicatie. Kijk naar de publicatiestatus vóór je een verschil als drift meldt.
+
+**Ga van de tekstnode naar de property, nooit van de naam naar de property.**
+`componentProperties` is een map met sleutels als `value#12:3` en `value2#12:9`. Wie op naam
+leest pakt de eerste, terwijl de zichtbare tekstnode aan de tweede kan hangen: de Figma-API
+hernoemt stil bij een naambotsing en laat de vorige property zonder node achter. Volg dus de
+`componentPropertyReferences` van de node die je las, en niet de sleutel die het beste klinkt.
+
 **Toets de volledigheid, tel niet op je gevoel.** De controle is goedkoop en exact: vraag via
 `figma_execute` hoeveel er werkelijk staat, en leg dat naast wat je binnenkreeg.
 
@@ -263,11 +287,29 @@ de design-snapshot (stap 4b). Vertaal die intentie, niet het getal:
 | `HUG` | niets — de inhoud bepaalt de maat |
 | `FIXED` | een expliciete maat, en alléén dan |
 
+**Een tekstbreedte is een uitkomst, geen maat.** Lees `textAutoResize`: `WIDTH_AND_HEIGHT`
+betekent dat de node zijn inhoud volgt, en die breedte is dan de tekstengine van Figma — die
+meet dezelfde tekst breder dan een browser of een app-runtime. Overnemen geeft een view die
+overal te breed is. Alleen `HEIGHT` (vaste breedte, vrije hoogte) is een echte maat. GEMETEN
+2026-09-09 (rowtrack): 495 van de 625 tekstnodes in de schermframes huggen, 130 zijn een blok.
+
+**En `FILL` plus een uitlijning binnenin is `alignSelf`, geen breedte.** Figma kent geen
+`align-self`; een rechts of gecentreerd kind staat er daarom als FILL met de uitlijning op de
+inhoud. Zie je een node die de volle breedte vult met `textAlignHorizontal: RIGHT`, schrijf dan
+`alignSelf: 'flex-end'` — geen `width: '100%'`. Dezelfde vorm, andere betekenis.
+
 Neem je de gemeten breedte over waar Figma `FILL` zegt, dan schrijf je een component dat op
 één plek klopt en overal elders te smal of te breed is — precies de fout in spiegelbeeld die
 `code-naar-figma` in rowtrack maakte: 390 breed met inhoud van 224, op elk scherm met een
 formulier. Een `FIXED` die uit een sizing-mode komt is een maat; een maat die je uit een `FILL`
 afleest is een momentopname.
+
+**En op een instance zegt de node niet of de maat van hém komt of van de library.** Een
+generator zet de gemeten layout van het scherm als override op de instance — padding, gap,
+maat, opacity. `paddingTop: 20` op een instance ziet er dus even exact uit als de 24 die in de
+library staat. Voor een component in zijn eigen pagina is Figma de bron; voor een instance in
+een scherm is dat de library, en het verschil is een override die iemand bedoeld heeft óf een
+meting die de generator meebracht. Toets dat vóór je hem overneemt.
 
 **States: eerst de `state`-variant-as, dan pas `reactions`.**
 Dit is de afspraak die deze skill met `code-naar-figma` deelt. Een component die door die skill
