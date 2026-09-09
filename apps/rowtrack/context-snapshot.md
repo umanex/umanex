@@ -73,24 +73,19 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+308a44c chore(rowtrack): spec, manifest, geometry and images after the text fix
 0f11ef0 feat(rowtrack): a pre-flight that counts the text an instance will show from the library
 a4cacdc fix(rowtrack): text hugs unless its box is wider than its run, and alignment travels
 dc796cc feat(rowtrack): the builder's messages get a baseline of kinds, checked on both sides
 43e91cf Merge remote-tracking branch 'origin/main' into chore/sync-os-na-skillwijziging
-ac9db56 docs(rowtrack): write down the sweep flakiness the previous commit claimed to have written down
 ```
 
 ## Uncommitted wijzigingen
-   M apps/rowtrack/BACKLOG.md
-   M apps/rowtrack/CLAUDE.md
-   M apps/rowtrack/HANDOFF.md
-   M apps/rowtrack/LEARNINGS.md
-  M  apps/rowtrack/figma/beeld-verschillen.json
-  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
-  M  apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
-  M  apps/rowtrack/figma/beelden/HistoryScreen__Een-Record.figma.png
-  M  apps/rowtrack/figma/beelden/HistoryScreen__Leeg.figma.png
-  M  apps/rowtrack/figma/beelden/HistoryScreen__Playground.figma.png
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/LEARNINGS.md
+  A  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
 
 ## Bestanden met TODO/FIXME
   (geen)

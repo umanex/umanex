@@ -393,6 +393,11 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   done
   ```
   Stand 2026-09-09: `figma:check` 2, `render:sweep` 0, `dev-sweep` 0. Elke nul is een gat.
+
+  **Bijgesteld 2026-09-09 (later): twee stappen erbij.** `figma:instance-tekst` (offline, geen
+  Storybook nodig — hoort bij de goedkope guards) en `node scripts/walker-blindvlekken.mjs`
+  (vraagt `storybook-static`, dus ná `build-storybook`). Beide telbaar met dezelfde lus:
+  `for s in … figma:instance-tekst walker-blindvlekken; do …`.
 - **Status:** open
 
 ## 2026-09-08 — Storybook-fixes voor vite 8 heroverwegen bij de volgende Storybook-bump · [infra]
@@ -483,6 +488,7 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
   | 3 | **Adverteert de Apollo XL FTMS in zijn advertisement-pakket?** Bepaalt of de kandidaat-filter op naam mag vertrouwen | `grep -c "is nog niet op het toestel" apps/rowtrack/lib/ble/rowerCandidate.ts` — 1 = onbeantwoord |
   | 4 | **Subtitle-action vuurt niet op synthetische taps; het a11y-frame van ALLE staat scheef** | Maestro-miniflow: `launchApp` → `tapOn: "(?i).*wijzig.*"` → opent de GoalSheet? |
   | 5 | **Niets is ooit op de simulator bekeken** — dev-active deep links (`?goal=distance`, `?goal=split`, `?summary=1`), duizendtal-punt, komma-decimaal, spatie vóór de eenheid; en de historiekschermen op echte data | met het oog, één ronde |
+  | 6 | **Storybook is de aangenomen waarheid van de Figma-keten, en niemand heeft hem naast het toestel gelegd** (toegevoegd 2026-09-09). De beeld-as vergelijkt Figma met react-native-web in Chromium; wijkt díe render zelf af van de app, dan repareren we Figma naar het verkeerde beeld toe. Vier tekstzware schermen volstaan: HistoryScreen, WorkoutDetailScreen, ProfileScreen, ActivePhase/Samenvatting | `xcrun simctl io booted screenshot` naast `pnpm --filter rowtrack render:shot <story-id>`, met het oog; afwijking = eerst de Storybook-kant fixen |
 
   Rijdt mee in dezelfde ronde, maar houdt zijn eigen HANDOFF-entry omdat hij vers is: `dataSet` is alleen op web gemeten (31 call-sites over 18 bestanden sinds `7209f3d`) — grep de Metro-log op `dataSet` tijdens de doorloop.
 - **Waarom niet nu:** vijf HANDOFF-items van 2026-08-10 en 2026-08-11, alle ouder dan 30 dagen bij de triage van 2026-09-09 (`sessie-reflectie` stap 1). Hun checks zijn gedraaid en zeggen alle vijf dat het gat leeft; het is dus geen sessie-context maar werk dat blijft liggen. Ze bij elkaar zetten is de winst: los waren het vijf redenen om de dev-client te booten en werd hij nooit geboot.
@@ -503,11 +509,60 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 - **Waarom niet nu:** de fix zit in hoe de builder `textAutoResize` en de breedte van een tekstnode kiest, en dat raakt alle 1 489 tekstnodes tegelijk. Dat is een eigen ronde met parity als rechter, niet iets om aan het einde van een lange sessie in te schuiven — en de beeld-as staat er nu, dus de bevinding kan niet meer wegzakken.
 - **Eerste zet:** Meet eerst de verdeling: hoeveel tekstnodes staan op `textAutoResize: 'WIDTH_AND_HEIGHT'` (hugt, kan niet afknippen) tegen `'HEIGHT'` (vaste breedte, knipt af als Figma breder meet)? `parity` rapporteert het eerste getal al — 1 212 van 3 516. Kijk daarna of de afkappende gevallen te herkennen zijn aan de bron: een tekst die in de browser niet breekt (`h ≈ lineHeight`) hoort in Figma te huggen, ongeacht de gemeten breedte.
 - **Check:** `cd apps/rowtrack && node scripts/beeld-parity.mjs | head -3` — staat `WorkoutDetailScreen__Zonder-Hartslag` nog boven de 5% grof, dan leeft dit.
-- **Status:** open
+- **Status:** gebouwd (2026-09-09, branch `docs/rowtrack-figma-verschil-oorzaken`) — de oorzaak bleek niet `textAutoResize` maar `rekt`: `align-self: stretch` is de RNW-default van elk View-kind en werd als FILL-intentie gelezen, wat de breedte pint; de walker meet nu ook de run (`inhoudBreedte`), de pruner beslist hug/blok (`t.blok`, drempel 4 px, gemeten op 5 295 tekstnodes) en de builder zet `textAlignHorizontal` (`t.al`). Gemeten na herbouw van library én 24 schermframes: titel "1 sep 2026" op één regel, terug-link terug, tabelkolommen "WATT 208 268" gescheiden, auth-titels gecentreerd, "Wachtwoord vergeten?" rechts. Beeld-as: 12 frames beter, 0 slechter, 12 gelijk (die twaalf zijn instance-only en wachten op de library-publicatie). De Check hierboven blijft rood (6,97 %), want het restant van dat frame is klasse C/D — de Segmented-instance met library-tekst, 30 px te hoog — niet meer de tekstbreedte; zie `briefings/2026-09-09-audit-figma-verschilklassen.md`.
 
 ## 2026-09-09 — De beeld-as draait nog niet in CI · [ci]
 - **Wat:** `scripts/beeld-parity.mjs` vergelijkt de gecommitte Figma-exports (`figma/beelden/`, 24 frames, ~900 KB) met een verse browser-render. De Figma-kant is dus CI-baar zoals `geometry.figma.json` dat is — maar de browser-kant vraagt een `build-storybook`, en dat is de dure stap (~1 min) die de zeven bestaande rowtrack-guards juist níet nodig hebben.
 - **Waarom niet nu:** het is een afweging over CI-tijd die Jeroen hoort te maken, geen technische. En de drempel is nog niet vast: zonder `--drempel` rapporteert het script alleen. Die drempel kan pas gekozen worden als de tekstnode-afkapping (het item hierboven) weg is — nu zou elk getal boven de vloer van **0,02%** meteen 24 frames rood maken.
 - **Eerste zet:** Eerst het tekstnode-item oplossen, dan de vloer opnieuw meten (`node scripts/beeld-parity.mjs` en het laagste getal aflezen), dan `--drempel` op ruim boven die vloer zetten en de stap toevoegen ná `build-storybook` in `ci.yml`.
 - **Check:** `grep -c 'beeld' .github/workflows/ci.yml` — 0 = de as draait nog niet in CI.
+- **Status:** open
+
+## 2026-09-09 — Slot-detectie op gelijkheid met story-args: 23 instances tonen stil library-data · [fix]
+- **Wat:** `markeerSlots` (`scripts/figma-build-spec.mjs`) markeert een tekstnode alleen als slot wanneer hij letterlijk gelijk is aan een string-arg van de story. Geformatteerde tekst — "27:00 min", "20 AUG 2026", de labels van een tab-rij — is dat nooit, dus de schermen-export plaatst instances die de story-data van de library tonen: de Historiek met vier ritten van "20 AUG 2026", WorkoutDetail met de tabs "Week Maand Jaar". Twee uitwegen: (a) slots afleiden uit de **prop-paden** die het component zelf declareert (`lib/variantData.ts` draagt al `data-variant`; een `data-slot` op de tekst-Views is dezelfde vorm), of (b) een diff tussen de story-render en de schermrender op hetzelfde componentpad — elke tekst die verschilt is per definitie een slot. (a) is expliciet en goedkoop per component; (b) is generiek maar rekent op de walker.
+- **Waarom niet nu:** de klasse is vandaag pas gemeten en telbaar gemaakt; de keuze tussen (a) en (b) raakt het componentcontract en hoort niet in dezelfde ronde als de tekst-fix.
+- **Eerste zet:** `pnpm --filter rowtrack figma:instance-tekst --lijst` — de 23 paden; WorkoutCard draagt er 16, dus daar begint (a) met de meeste winst per component.
+- **Check:** `pnpm --filter rowtrack figma:instance-tekst | grep stil` — 23 = de klasse leeft onverminderd; lager = er zijn slots bijgekomen (en de ratel in het script moet mee).
+- **Status:** open
+
+## 2026-09-09 — Geneste inline Text wordt frame plus los label · [fix]
+- **Wat:** "Nog geen account? *Registreer*" is één `<Text>` met een geneste `<Text>`. De walker geeft de eigen tekst en het kind apart door, de builder maakt er een frame zonder auto layout van met een `label`-kind (`figma/builder.js:575`), en beide landen op x = 0 — "Registreer" over "Nog geen account?" heen, op Login, Register en Forgot. Figma kent geen inline-stroom; de getrouwe vorm is een HORIZONTAL auto-layout met HUG, of één tekstnode met gemengde stijl per bereik (`setRangeFills`/`setRangeTextStyleId`).
+- **Waarom niet nu:** drie nodes, en de fix vraagt een keuze tussen twee vormen die elk een ander leesbaarheidscontract raken.
+- **Eerste zet:** de tweede vorm proberen op LoginScreen — één tekstnode, de link als bereik met `textLink`-stijl en accentkleur; dat is ook wat de app rendert.
+- **Check:** `node scripts/walker-blindvlekken.mjs | grep inline` — 3 = leeft.
+- **Status:** open
+
+## 2026-09-09 — Scroll-semantiek wordt niet getranscribeerd · [fix]
+- **Wat:** De walker meet geen `scrollTop` en de builder zet `clipsContent = false` (`figma/builder.js:457`), dus de WheelPicker in IdlePhase toont zijn lijst vanaf item 1 in plaats van rond de geselecteerde waarde, en de lijst loopt onder de Start-knop door. Fix in twee delen: `scrollTop` meten en als negatieve `y` op de scrollinhoud zetten, en `clipsContent = true` op elke node met `overflow: hidden|auto|scroll`.
+- **Waarom niet nu:** raakt de WheelPicker die sowieso terugvalt (BACKLOG 2026-09-09, instances), dus de winst is pas zichtbaar als die eerst een instance wordt.
+- **Eerste zet:** `clipsContent` uit `overflow` afleiden — dat is één regel in de builder en de kleinste helft.
+- **Check:** `node scripts/walker-blindvlekken.mjs | grep -E 'gescrold|overloop'` — 11 en 15–16 = leeft.
+- **Status:** open
+
+## 2026-09-09 — Input-placeholder is een attribuut, geen tekstnode · [fix]
+- **Wat:** De walker leest alleen `nodeType === 3` (`scripts/figma-build-spec.mjs:437`); een `<input placeholder="naam@voorbeeld.be">` zonder waarde heeft geen tekstnode en landt leeg in Figma — vier velden over Login, Register en Forgot. Fix: bij `INPUT`/`TEXTAREA` zonder waarde de `placeholder` als tekst meegeven, met de placeholder-kleur (`::placeholder` via `getComputedStyle(el, '::placeholder')`).
+- **Waarom niet nu:** vier nodes; hoort in dezelfde walker-ronde als de andere blindvlekken.
+- **Eerste zet:** de placeholder-tak in `lees()` naast `eigenTekst`.
+- **Check:** `node scripts/walker-blindvlekken.mjs | grep placeholder` — 4 = leeft.
+- **Status:** open
+
+## 2026-09-09 — Per-zijde randen worden samengevouwen · [fix]
+- **Wat:** De walker leest alleen `borderTopWidth`; de builder zet één `strokeWeight`. Een `1/0/1/0` (Segmented, tab-rij) wordt in Figma een volledige doos, een `0/0/1/0` (rij-divider) verdwijnt. 110 elementen over 42 schermstories. Figma kent `strokeTopWeight` … `strokeLeftWeight`; de walker moet vier breedtes meten en de builder ze apart zetten.
+- **Waarom niet nu:** de grootste groep, maar visueel klein per geval; hoort in dezelfde walker-ronde.
+- **Eerste zet:** `border: [t, r, b, l]` in de walker, `o.rand` in de pruner, `strokeTopWeight` e.a. in de builder — en `geometry-parity.mjs` leest `strokeWeight` als één getal, dus die as krijgt er vier velden bij.
+- **Check:** `node scripts/walker-blindvlekken.mjs | grep rand` — 110 = leeft.
+- **Status:** open
+
+## 2026-09-09 — De text-style-keuze negeert tracking · [fix]
+- **Wat:** `styleRef` (`scripts/figma-build-spec.mjs:829-834`) kiest de enige kandidaat op familie+grootte en kijkt pas naar `letterSpacing` bij meerdere kandidaten. "RESTERENDE TIJD" (SemiBold 16, tracking 3,2 px) krijgt zo `type/segmentActive` (−1,5 % = −0,24 px) en staat in Figma smaller dan in de app. 24 van 324 tekstnodes met style; twaalf `segmentActive`, twaalf `splitsRow`.
+- **Waarom niet nu:** de juiste uitkomst is niet "kies een andere style" maar "er is geen style met deze tracking" — dat is een tokenvraag voor Jeroen (`Theme/type/*`), niet een walker-fix.
+- **Eerste zet:** de kandidaat-toets altijd op tracking laten filteren, ook bij één kandidaat; wat dan zonder style valt komt in `ongebonden.json` en wordt een tokenkeuze.
+- **Check:** `node -e 'const m=require("./figma/build-spec.min.json"),f=require("./figma/manifest.json");const s=new Map(f.textStyles.map(t=>[t.name,t]));let n=0;for(const x of Object.values(m.schermen))for(const fr of x.frames)(function l(k){if(k.t?.style&&s.has(k.t.style)){const t=s.get(k.t.style);if(Math.abs(t.letterSpacing/100*t.fontSize-(k.t.ls??0))>0.1)n++}(k.k??[]).forEach(l)})(fr.boom);console.log(n)'` in `apps/rowtrack` — 24 = leeft.
+- **Status:** open
+
+## 2026-09-09 — De Segmented-instance in WorkoutDetail zit 30 px te hoog en krijgt de library-look · [fix]
+- **Wat:** Na de tekst-fix is het grootste restant op `WorkoutDetailScreen/Playground` (grof 6,31 %) de tab-rij: een `Segmented`-instance die op y = 85 landt waar de browser hem op 115 zet (over de header heen), met de library-look (volledige doos, "Week Maand Jaar") in plaats van de tab-rij van het scherm (alleen boven- en onderlijn, "Overzicht Splits Hartslag"). Drie klassen tegelijk: de slot-tekst (BACKLOG 2026-09-09, slot-detectie), de per-zijde rand (BACKLOG 2026-09-09, randen) en een positie-verschil dat in geen van beide zit — vermoedelijk de override-laag in `maakInstance` (`inst.resize` + padding op de node op diepte `diepte`) die voor dit component op de verkeerde node landt. Alles eronder schuift 30 px mee, wat het zicht-percentage van dat frame (32 %) grotendeels verklaart.
+- **Waarom niet nu:** de override-laag is het instance-mechanisme zelf (briefing 2026-09-08, fase 2); een positiefout daar hoort onderzocht met de bouwhash en `diepte` erbij, niet in de tekst-ronde.
+- **Eerste zet:** in RowTrack - Design de instance selecteren en `y`, `layoutPositioning` en de `diepte` van `Segmented` naast de spec-node leggen (`dy` in `figma/build-spec.json`); is de instance `ABSOLUTE` met een `dy` die vanaf de verkeerde ouder gemeten is, dan is dat de regel.
+- **Check:** `cd apps/rowtrack && node scripts/beeld-parity.mjs | grep WorkoutDetailScreen__Playground` — boven de 5 % grof = leeft.
 - **Status:** open

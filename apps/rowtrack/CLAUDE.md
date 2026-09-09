@@ -95,9 +95,25 @@ Naast het schermen-bestand `T1bGrvIzSNeLyh5CbarATZ` (zie *Figma mapping*) bestaa
 2026-09-07 **`QkRgMc7Quqtbow71DiYa1n` — "RowTrack — Design System"**: de spiegel van
 `components/` en van `tokens/tokens.json`.
 
-**De richting is éénzijdig: code is de bron, Figma de ontvanger.** Een variant bijbouwen doe
-je in de code; Figma volgt. `tokens/tokens.json` blijft het Tokens Studio sync-target en
-wordt door deze keten nooit geschreven.
+**Figma beslist, code bewaart — besluit Jeroen, 2026-09-09.** Tot die dag was de regel *code is
+de bron, Figma de ontvanger*, en dat blijft waar voor wat er op schijf staat: de app bouwt uit
+`components/`, en `tokens/tokens.json` blijft het Tokens Studio sync-target dat deze keten nooit
+schrijft. Maar een **wijziging** wordt in Figma gemaakt, en gaat zo rond:
+
+1. Wijzig in **de library-file** (`QkRgMc7Quqtbow71DiYa1n`), op de variant — nooit op een
+   scherm-instance in *Screens v2*: die is een gegenereerde kopie en een override erop bestaat
+   alleen daar.
+2. Ververs het manifest en draai `figma:check`: de **bouwhash-poort** van de builder meldt welke
+   nodes handwerk dragen. Dat is de wijzigingslijst, geen drift.
+3. Zet die om in code met de scoped `figma-naar-code` skill (`apps/rowtrack/.claude/skills/`).
+4. Herbouw met de builder — sinds 2026-09-09 een **update in place**, keys blijven — en eis
+   parity én beeld op nul: dat bewijst dat de rondgang klopt. Een verschil dat blijft staan is
+   een eigenschap die de keten nog niet kan dragen; de lijst daarvan staat in
+   `briefings/2026-09-09-audit-figma-verschilklassen.md`.
+5. Jeroen publiceert de library; de schermen volgen bij de eerstvolgende schermherbouw.
+
+Een bewerking die stap 3 en 4 overslaat, overleeft de volgende herbouw niet — dat is nu de
+tegenproef van de rondgang, geen risico.
 
 | | |
 |---|---|
@@ -107,7 +123,7 @@ wordt door deze keten nooit geschreven.
 | Componentpagina's | **21 COMPONENT_SETs met 172 variant-nodes plus 24 losse componenten = 45 pagina's** (stand 2026-09-09, geteld in `figma/manifest.json`) |
 | Schermpagina's | **geen** — de schermen staan sinds 2026-09-08 niet meer in dit bestand maar als 24 frames op *Screens v2* in `T1bGrvIzSNeLyh5CbarATZ`, opgebouwd uit instances van deze library |
 
-**Zeven eigenaardigheden, elk gemeten en niet af te leiden:**
+**Negen eigenaardigheden, elk gemeten en niet af te leiden:**
 
 1. `Core/fontFamily/sourceSerif` staat in de bron als `"Source Serif Pro"`, maar dat is de
    *opzoeksleutel* in de FONTS-tabel; de app rendert **Source Serif 4**. De Figma-variabele
@@ -148,6 +164,28 @@ wordt door deze keten nooit geschreven.
    een ÉCHTE icoonfont — Ionicons, met privégebruik-glyphs — heeft zonder dat font niets te
    tonen en verdient een zichtbaar placeholder-kader. Gemeten 2026-09-08: zonder dat
    onderscheid werden de 🏅 van PrBadge en de 🏆 van MotivationalToast gestippelde kaders.
+8. **`align-self: stretch` is voor tekst geen intentie, en een tekst heeft twee breedtes.**
+   react-native-web zet `alignItems: stretch` op élke View, dus élk tekst-kind van een kolom
+   "rekt" volgens de DOM. FILL op zo'n tekstnode pint de breedte, en Figma's engine meet
+   dezelfde tekst breder dan Chromium — "1 sep 2026" (doos = run = 159,03) brak in twee regels
+   over de terug-link heen, met dertien assen groen en parity op nul, want die sluit breedte
+   uit. De walker meet daarom sinds 2026-09-09 óók de **run** (`Range.selectNodeContents`),
+   de pruner beslist: doos > run + 4 px is een **blok** (`t.blok`, houdt zijn breedte, ook
+   zonder FILL — de labelkolom van StatsTable was anders "WATT208"), de rest **hugt**. En
+   `textAlign` reist mee als `t.al`; zonder dat landde elke gecentreerde blok-tekst links.
+   Gemeten over 5 295 tekstnodes: 5 065 op doos = run, 213 boven de 40 px, 17 ertussen.
+9. **Een vérse import uit een library met ongepubliceerde wijzigingen komt nooit terug.**
+   Gemeten 2026-09-09 in RowTrack - Design, direct na een library-herbouw (45 componenten op
+   `CHANGED`): `importStyleByKeyAsync` voor `type/activeProgress`, `shadow/buttonOutline` en
+   `type/labelGoalPrefix` hing zonder fout of timeout — de elf styles die het bestand al als
+   remote style droeg importeerden in 2 tot 9 ms, en de sleutels klopten exact met de library.
+   Het onderscheid is dus niet de sleutel maar of het bestand de style al kende. De builder
+   importeerde álle styles vooraf, dus één hangende import blokkeerde elke schermbouw, ook van
+   frames die de style niet gebruiken; de eerste bouw stond vier minuten stil op 61 ongewijzigde
+   nodes. Sinds die dag importeert hij alleen wat de spec noemt, met een wachttijd van 4 s per
+   import, en wordt een import die niet terugkomt een `niet te importeren`-melding — de tekst
+   valt terug op zijn losse fontwaarden. Wil je die styles gebonden hebben, dan is de volgorde:
+   Jeroen publiceert, dán de schermen herbouwen.
 
 **Twee dingen over de Bridge die je pas merkt als het misgaat.**
 
@@ -272,6 +310,8 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 | **Bouwspec verversen** | `pnpm --filter rowtrack figma:spec` — leest de variant-assen uit de gebouwde Storybook en meet elke variant in de browser. Draai dit ná elke component- of storywijziging, vóór `figma:check`. Weigert te schrijven zodra één component nul varianten oplevert (exit 2, spec ongewijzigd): een mislukte meting die tóch wegschrijft, vervangt een goede spec door een lege. |
 | **Figma ↔ browser (beeld)** | `pnpm --filter rowtrack beeld` — legt de gecommitte Figma-export (`figma/beelden/`, 24 frames, ~950 KB) naast een verse browser-render van dezelfde story, en diff't in Chromium's canvas (geen dependency). Dit is de as die `parity` per constructie NIET heeft: kleurwaarde, icoonvorm, `text-transform` en **breedte** — dat laatste staat op élke node buiten parity omdat twee tekstengines dezelfde tekst anders meten, en juist daar leefde de drift. Gemeten 2026-09-09: elke formulier-instance stond 390 breed met inhoud van 224, met dertien guard-assen groen. Maskeert de Ionicons-glyphs (die bestaan niet in Figma) identiek op beide beelden. **De vloer is gemeten**: `ResetPasswordScreen`, het enige scherm zonder instances, wijkt 0,02% af — dat is de renderer-ruis. Zonder `--drempel` rapporteert het script alleen; een tolerantie kies je pas als de echte verschillen weg zijn. `--schrijf` legt per frame een 3-luik in `figma/beeld-diff/` (gitignored). |
 | **Beeld-tegenproef** | `pnpm --filter rowtrack beeld:selftest` — hetzelfde beeld tegen zichzelf hoort 0,00% te geven, hetzelfde beeld met een vlak van 60×60 erover ver daarboven. Geven beide dezelfde uitkomst, dan meet de opstelling niets en is dát de enige geldige conclusie. |
+| **Instance-voorvlucht (welke tekst toont een instance)** | `pnpm --filter rowtrack figma:instance-tekst` (`--lijst` voor elk pad) — offline op de bouwspec, spiegelt `kiesVariant` en `toetsInstances` uit `figma/builder.js`, en telt per component wat de builder zal doen: instances · terugval (subboom nagebouwd, toont de schermdata) · tekst gelijk · slot gezet · **stil** (instance blijft staan en toont de story-data van de library). Bestaat omdat niets anders die laatste klasse ziet: de builder meldt alleen een slot dat er ís, parity ziet gelijke geometrie, `figma:check` toetst de library en niet de vulling. Stand 2026-09-09: 135 instances, 37 terugval, **23 stil** (WorkoutCard 16, Segmented 3, ActiveHeader 2, HeroPanel 2). Tweezijdige ratel op beide getallen. Tegenproef: `--selftest` — controle gelijk, een slot erbij in de library geeft één stil minder, een gebruikt slot eraf geeft er meer (een ongebruikt slot beweegt niets, gemeten op BleStatusBar). |
+| **Walker-blindvlekken (wat de spec niet kan dragen)** | `node scripts/walker-blindvlekken.mjs` (`--verbose` per story, `--alle` voor alle 257) — leest de DOM van `storybook-static` buiten de walker om en telt vijf eigenschappen die hij niet meet: asymmetrische randen (`1/0/1/0` wordt in Figma een volledige doos), `<input placeholder>` zonder waarde, gescrolde containers, overloop zonder clip, geneste inline tekst — plus tekst met `textAlign` center/right als referentie voor `t.al`. Positieve controle 2026-09-09 over 42 schermstories: rand 110 · placeholder 4 · gescrold 11 · overloop 15–16 · inline 3 · center/right 32. Een meting, geen guard: elk getal boven nul is een klasse die alleen het beeld vindt, en de `Check` van de bijbehorende backlog-items. |
 | **Beelden exporteren** | `figma/exporteer-beelden.js` via `figma_execute`, met `scripts/figma-serve.mjs` aan. Gebruikt `exportAsync` en niet `figma_capture_screenshot`: dat laatste legt het canvas vast, mét zoomniveau en selectie-randen. 43 ms en 24 KB voor een frame van 430×932. De bytes gaan base64 naar de lokale server — binair door een plugin-fetch is niet gegarandeerd, tekst wel. |
 | **Instrument-tegenproef (dieptekap)** | `node scripts/figma-build-spec.mjs --kap=N` — verzet de kap waarop de walker de DOM-boom afsnijdt, en rapporteert per run hoeveel nodes hij weggooide én hoeveel daarvan tekst droegen. Bestaat omdat de teller ernaast tot 2026-09-09 alléén weggegooide `[data-testid]`-grenzen telde — op die diepte per constructie nul — zodat elke run `0 weggegooid` meldde terwijl er bij kap 8 **3 018 nodes** verdwenen, 2 018 met tekst. Gemeten over 257 stories: 8 -> 3 018, 9 -> 1 998, 10 -> 0, 12 -> 0; de kap staat op 12. **Let op waar je meet:** een `--kap=N`-run SCHRIJFT `figma/build-spec.json`, dus draai er `figma:spec` achteraan vóór je iets anders meet — anders draait de volgende meting op de invoer van je vorige meting (gemeten, 2026-09-09). |
 | **Instrument-tegenproef (laagnamen)** | `node scripts/figma-build-spec.mjs --rnw-keys-uit` — zet de StyleSheet-sleutelkaart uit via `?rnwKeysUit=1`. Hoort **exit 2** te geven met "sleutelkaart uitgeschakeld" en de spec ongemoeid te laten. Zonder deze vlag is "elke node heet `wrapper`" niet te onderscheiden van "het instrument staat uit" — beide geven een gevulde spec zonder foutmelding. |
