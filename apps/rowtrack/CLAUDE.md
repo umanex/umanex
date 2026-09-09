@@ -186,7 +186,14 @@ tegenproef van de rondgang, geen risico.
    herlaadt, `code.js` loopt door); alleen de plugin sluiten en opnieuw starten. De builder
    importeert daarom alleen wat de spec noemt, met 4 s wachttijd per import, en een import die
    niet terugkomt is een `niet te importeren`-melding: het signaal om te herstarten, niet om
-   door te bouwen. Waar de eerste hangende import vandaan komt is niet gemeten.
+   door te bouwen. **De trigger is gemeten, twee keer op één dag:** een schermbouw die de
+   30 s-wachtlimiet van `figma_execute` overschrijdt wordt afgebroken terwijl een
+   `importComponentByKeyAsync` loopt, en díe halve import is de eerste hangende. Ná een
+   publicatie haalt elke verse import de nieuwe versie over het netwerk (seconden per
+   component), dus dan past niet eens één frame in de limiet. Daarom: eerst
+   `figma/voorverwarm-imports.js` draaien tot `resterend` 0 is (elke aanroep stopt zelf op
+   18 s), en `bouw-schermen.js` bouwt frame voor frame binnen een budget en geeft de rest terug
+   in `resterend`; `bouwvoortgang` op de root toont welk frame er loopt.
 10. **`addComponentProperty` met een bestaande naam werpt geen fout: Figma hernoemt stil naar
    `value2`, `value3`, …** en de vorige property blijft staan zonder node. Drie herbouwen
    lieten zo 73 "unused properties" achter over 22 sets, en Figma weigerde die 22 bij
@@ -608,11 +615,24 @@ de importwachtrij van de plugin wedged achter — daarna hangt élke verse impor
 volledig herstart is, en een UI-herlaad helpt niet omdat `code.js` doorloopt.
 
 ```js
-const SCHERMEN = ["ActivePhase"], FRAMES = ["Playground"], STAMP = "…";
+// 1. Voorverwarmen — herhalen tot resterend === 0 (elke aanroep stopt zelf op 18 s).
+const bron0 = await (await fetch("http://localhost:9229/voorverwarm-imports.js")).text();
+const F = Object.getPrototypeOf(async function () {}).constructor;
+return await (new F("BUDGET", "figma", bron0))(18000, figma);
+```
+
+```js
+// 2. Bouwen — een scherm per aanroep; staat er iets in `resterend`, roep dan opnieuw aan.
+const SCHERMEN = ["ActivePhase"], FRAMES = [], STAMP = "…", BUDGET = 18000;
 const bron = await (await fetch("http://localhost:9229/bouw-schermen.js")).text();
 const F = Object.getPrototypeOf(async function () {}).constructor;
-return await (new F("SCHERMEN", "FRAMES", "STAMP", "figma", bron))(SCHERMEN, FRAMES, STAMP, figma);
+return await (new F("SCHERMEN", "FRAMES", "STAMP", "BUDGET", "figma", bron))(SCHERMEN, FRAMES, STAMP, BUDGET, figma);
 ```
+
+Sinds 2026-09-09 bouwt `bouw-schermen.js` frame voor frame binnen een tijdbudget, want een
+aanroep die de wachtlimiet overschrijdt wordt midden in een import afgebroken en zet de
+import-wachtrij van de plugin vast (eigenaardigheid 9). Poll de voortgang met
+`figma.root.getPluginData('bouwvoortgang')`; een lege string mét een lege `bouwbezig` is klaar.
 
 Instances vragen een **gepubliceerde** library: een ongepubliceerde key geeft *"Could not find
 a published component with the key"*. De key overleeft de publicatie ongewijzigd (gemeten).

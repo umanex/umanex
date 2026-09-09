@@ -382,8 +382,15 @@ let rekGezet = 0, rekTeruggedraaid = 0, rekGeweigerd = 0;
  */
 function zetRek(f, kinderen, naamPad) {
   if (f.layoutMode === 'NONE') return;
-  for (const { kind, k, pad } of kinderen) {
-    if (k.abs) continue;
+  // UNIFORME EIGEN UITLIJNING GAAT OP DE OUDER. Delen alle stromende kinderen dezelfde
+  // `align-self`, dan is dat gewoon `counterAxisAlignItems` van de ouder — de enige plek waar
+  // Figma een kruis-as-uitlijning nog kent (12 van zulke ouders in de 24 schermframes).
+  const stromend = kinderen.filter(x => !x.k.abs);
+  const uniform = stromend.length && stromend.every(x => x.k.zelf && x.k.zelf === stromend[0].k.zelf) ? stromend[0].k.zelf : null;
+  if (uniform && uniform !== 'STRETCH') { try { f.counterAxisAlignItems = uniform; } catch (e) { meldingen.push(`${naamPad}: layoutAlign=${uniform} geweigerd — ${e.message}`); } }
+  for (const { kind, k: k0, pad } of kinderen) {
+    if (k0.abs) continue;
+    const k = uniform && uniform !== 'STRETCH' ? { ...k0, zelf: null } : k0;   // de ouder draagt hem al
     // De eigen kruis-as-uitlijning eerst. `layoutAlign` accepteert MIN/CENTER/MAX zonder fout
     // en NEGEERT ze — gemeten 2026-09-09 op LoginScreen: `forgot` kreeg MAX en las INHERIT
     // terug, dus "Wachtwoord vergeten?" stond links. Alleen STRETCH en INHERIT doen nog iets
@@ -395,19 +402,27 @@ function zetRek(f, kinderen, naamPad) {
       let ok = false;
       try { kind.layoutAlign = k.zelf; ok = kind.layoutAlign === k.zelf; } catch (e) { /* valt hieronder door */ }
       if (!ok) {
+        // Alleen een kind dat zijn INHOUD kan uitlijnen mag de kruis-as vullen: een tekst, of
+        // een auto-layout-frame met kinderen. Een blad (de knop van een toggle: 20×20, geen
+        // kinderen) kreeg hier tot 2026-09-09 óók FILL en werd zo 40 breed — de hele pil wit,
+        // gemeten op ProfileScreen. Een blad kan zijn eigen uitlijning niet dragen; die hoort
+        // op de ouder (uniform, hierboven) of is niet uit te drukken — en dan is dat een melding.
         const ouderRij = f.layoutMode === 'HORIZONTAL';
-        try {
+        const kanZelfUitlijnen = kind.type === 'TEXT' || (kind.layoutMode && kind.layoutMode !== 'NONE' && 'children' in kind && kind.children.length);
+        if (!kanZelfUitlijnen) {
+          if (k.zelf !== 'MIN') meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — Figma negeert hem stil en een blad kan zich niet zelf uitlijnen`);
+        } else try {
           kind[ouderRij ? 'layoutSizingVertical' : 'layoutSizingHorizontal'] = 'FILL';
           if (kind.type === 'TEXT') {
             if (!ouderRij) kind.textAlignHorizontal = { MIN: 'LEFT', CENTER: 'CENTER', MAX: 'RIGHT' }[k.zelf] ?? 'LEFT';
             else kind.textAlignVertical = { MIN: 'TOP', CENTER: 'CENTER', MAX: 'BOTTOM' }[k.zelf] ?? 'TOP';
-          } else if (kind.layoutMode && kind.layoutMode !== 'NONE') {
+          } else {
             // De kruis-as van de ouder (H onder een kolom, V onder een rij) is de hoofdas van
             // het kind als het kind de ándere richting heeft; anders zijn kruis-as. Gemeten:
             // een kolom in een kolom kreeg eerst `primaryAxisAlignItems` en zakte naar beneden.
             const kruisAsIsEigenHoofdas = (kind.layoutMode === 'HORIZONTAL') !== ouderRij;
             if (kruisAsIsEigenHoofdas) kind.primaryAxisAlignItems = k.zelf; else kind.counterAxisAlignItems = k.zelf;
-          } else meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — Figma negeert hem stil en het kind heeft geen auto layout om zelf uit te lijnen`);
+          }
         } catch (e) { meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — ${e.message}`); }
       }
     }
