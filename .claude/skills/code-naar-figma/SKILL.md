@@ -94,7 +94,35 @@ return sets.map(s => ({ naam: s.name, id: s.id, status: s.documentationLinks?.le
 
 Deze drie regels sturen elke stap hieronder. Bij twijfel onderweg vallen ze terug op deze principes.
 
-**1. Auto layout by default.** Elk frame en elke compositie wordt in auto layout gebouwd (`layoutMode` = `'HORIZONTAL'` of `'VERTICAL'`). Absolute positionering (vaste `x`/`y` op children) gebruik je *uitsluitend* waar auto layout structureel niet kan — en dat is zeldzaam. De default is altijd auto layout, niet de uitzondering.
+**1. Auto layout by default — en dat is méér dan `layoutMode`.** Elk frame en elke compositie wordt in auto layout gebouwd (`layoutMode` = `'HORIZONTAL'` of `'VERTICAL'`). Absolute positionering (vaste `x`/`y` op children) gebruik je *uitsluitend* waar auto layout structureel niet kan — en dat is zeldzaam.
+
+**De helft die hier tot 2026-09-09 ontbrak: de sizing-modes.** `layoutMode` zetten en daarna élk kind op `FIXED` pinnen levert auto layout dat niets doet — een transcriptie met een auto-layout-badge. Gemeten in rowtrack: de builder zette braaf `layoutMode` op elk composietframe en daarna `primaryAxisSizingMode = counterAxisSizingMode = 'FIXED'` op alles, en niemand merkte het, want dit principe vroeg er niet naar. Gevolg: een `FormField`-instance van 390 breed met een inhoud van 224, en `Button` 390 tegen 151 — elk scherm met een formulier zag er in Figma anders uit dan in de app, met dertien guard-assen groen en een geometrie-parity op nul verschillen.
+
+Dus: **elke node krijgt per as een sizing die uit de BRON komt** — `FILL` waar de code strekt (`flex-grow` op de hoofdas, `align-self: stretch` of `width: 100%` op de kruis-as), `HUG` waar de code zijn inhoud volgt, `FIXED` alleen waar de code een maat oplegt. Zonder dat kan een instance zijn inhoud niet strekken, en dan is de library een verzameling plaatjes in plaats van componenten.
+
+**En `FILL` is een belofte, geen maat — dus lees hem terug.** Figma rekent restruimte anders uit dan de browser zijn flex oplost: marges bestaan er niet, en een scroll-container meet in de bron zijn vénster en niet zijn inhoud. Zet `FILL`, lees de maat terug, en draai die as terug naar `FIXED` zodra hij afwijkt van wat de bron zegt. Gemeten over 45 componenten: 717 keer gezet, **111 keer teruggedraaid**, 0 geweigerd — zonder die terugleescontrole groeide één `scrollView` van 168 naar 192 en dat waren de enige twee parity-fouten van de ronde.
+
+**Let op twee stille no-ops in de Figma-API**, allebei nagemeten: `resize()` op een kind ín een instance doet niets (geen fout, geen effect), en `layoutMode` op een instance-wortel evenmin. Wie de maat van een instance-kind wil sturen, moet dat in de **library** doen — een wrapper zonder auto layout maakt elke instance eronder onrekbaar. Tweezijdig bewezen op een wegwerp-component: een resize van 224 naar 390 laat het kind op 224 staan zonder auto layout op de wrapper, en trekt kind én kleinkind mee naar 390 mét.
+
+**1b. Werk een component BIJ, vervang hem niet.** Een generator die zijn output elke ronde
+weggooit en opnieuw maakt is eenvoudig en idempotent, en hij kost elke ronde hetzelfde: een
+nieuwe node heeft een nieuwe key, dus élke instance die iemand eruit plaatste ontkoppelt, een
+publicatiepoort moet erlangs, en de library moet met de hand opnieuw gepubliceerd worden — ook
+wanneer er alleen een padding veranderde.
+
+Dat hoeft niet. Alleen de key van de **COMPONENT** (en van elke **VARIANT** in een set) telt
+voor een instance; de kinderen eronder mogen vrij vervangen worden en een instance spiegelt
+gewoon de nieuwe inhoud. Hergebruik dus de set en elke variant die je bij naam terugvindt — de
+variantnaam is de as-combinatie en daarmee een stabiele sleutel — leeg alleen hun kinderen, en
+maak alleen wat er nog niet was. Gemeten in rowtrack (2026-09-09), vóór en ná in één aanroep:
+set-key gelijk, variant-keys gelijk, status `CURRENT → CHANGED` in plaats van vervangen, en
+gebouwd zónder de force-vlag. Over 45 componenten hielden 194 nodes hun key.
+
+**En een publicatiepoort moet dat weten.** De regel *"een herbouw breekt elke instance"* geldt
+alleen waar de node écht vervangen wordt. Weigert je poort óók wanneer hij hem bijwerkt, dan
+dwing je elke ronde een force af en went iedereen aan de ontsnapping. De handwerk-bewaking is
+wél onvoorwaardelijk: de kinderen worden hoe dan ook opnieuw gemaakt, dus een bewerking van
+iemand anders gaat bij een update net zo goed verloren.
 
 **2. Tokens-first — nul hardcoded waarden.** Elke kleur, spacing, radius en effect bindt aan een Figma variable of style. Een ontbrekende variable is een **gap** die je oplost (`figma_import_library_variable` of `figma_create_variable`) of rapporteert aan de gebruiker — nooit een excuus om een raw hex- of getalwaarde te hardcoden.
 
@@ -351,6 +379,17 @@ Let op: **`scale` verhogen lost dit niet op.** Die cap staat ná je scale-parame
 Dit dubbelt stap 7 niet, het dekt wat stap 7 per definitie niet kan: **een structurele gate meet of properties bestaan en waaraan ze hangen, nooit wat er op het scherm staat.** Dezelfde export die dit opleverde gaf 672 nodes, nul ongebonden fills/strokes/fontSizes en nul frames zonder auto-layout — groen op elke as — terwijl de onverkleinde capture per scherm meteen drie dingen toonde die geen gate raakt: de actiebalk van het paneel viel buiten de 900px terwijl `SidePanel` hem als `footer` búiten het scrollgebied zet (dus altijd zichtbaar hoort te zijn) · elke `ZebraRij` zónder waarde kreeg een labelbreedte van 124px terwijl de code `width: value != null ? "124px" : undefined` zegt, waardoor "Geen geregistreerd" over twee regels brak · op het 880px-scherm kneep de PV-lijst tot ~250px en brak elk PV-nummer over twee regels.
 
 Controleer: uitlijning, spacing, proporties, visuele balans — en of elk element dat de code altijd zichtbaar houdt, ook werkelijk binnen het frame valt. Max 3 iteraties (execute → screenshot → fix). Bij structurele issues: ga terug naar stap 5.
+
+**Heeft het project een render-pad, dan is dit géén oogcontrole maar een meting.** Rendert de bron zelf (Storybook, een dev-server), leg dan de twee renders naast elkaar in plaats van naar één te kijken:
+
+1. **Exporteer de node, screenshot het canvas niet.** `node.exportAsync({format:'PNG', constraint:{type:'SCALE',value:1}})` levert de node zelf, deterministisch en zonder zoomniveau, selectie-randen of raster. Gemeten: 43 ms en 24 KB voor een frame van 430×932. De bytes overleven de tool-call niet, dus stuur ze base64 naar een lokale server (de plugin mag localhost op 9223–9232) in plaats van ze te returnen.
+2. **Render de bron op dezelfde maat** en diff de twee. Een canvas in een headless browser kan dat zonder extra bibliotheek.
+3. **Maskeer wat structureel verschilt, op BEIDE beelden identiek** — een icoonfont dat in Figma niet bestaat is een gegarandeerd verschil en zegt niets. Een masker dat op beide kanten valt kan nooit een verschil maken dat er niet is.
+4. **Kies de drempel als LAATSTE.** Eerst de echte verschillen wegwerken, dán de vloer meten, dán de drempel daarboven leggen. Een tolerantie vooraf verzinnen is de klassieke manier om een beeld-as onbruikbaar te maken. Gemeten in rowtrack: het enige scherm zónder instances wijkt **0,02%** af — dat is de renderer-ruis, en alles daarboven was een echte bug.
+
+**Dit is de as die de structurele gates per constructie niet hebben.** Stap 7 en 8 meten of properties bestaan en waaraan ze hangen; breedte staat in een geometrie-parity vaak buiten de vergelijking omdat tekstengines tekst anders meten, en juist daar leeft de drift. In rowtrack vond alleen het beeld dat elke formulier-instance te smal was.
+
+**En de referentie mag niet door het instrument lopen dat je toetst.** Dit is de valkuil waar *Check 0* hieronder op 2026-09-09 zelf in liep: hij vergelijkt de gebouwde node met "wat de story rendert", maar las die story via dezelfde walker die de bouwspec maakt. Toen die walker 3 018 nodes wegkapte, misten beide kanten dezelfde nodes en bevestigde de check. Noem in een volledigheidscheck dus expliciet wélke bron de referentie is, en toets dat die niet door het defecte instrument stroomt — een render uit de bron is zo'n onafhankelijke referentie, een afgeleide spec niet.
 
 **Niet `figma_take_screenshot`** — die leest via REST de laatst *opgeslagen* cloud-staat en toont dus het beeld van vóór je `figma_execute` uit stap 5, zonder foutmelding. Zie *Valideer je eigen edits op de runtime, niet op de cloud* in CLAUDE.md.
 
