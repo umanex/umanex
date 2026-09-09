@@ -73,19 +73,18 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+ce2eba0 feat(rowtrack): the screens are exported to RowTrack - Design as library instances
 db77523 feat(rowtrack): the screens export mechanism, and the variant as a fact
 dcef5b1 refactor(rowtrack): step 5 — the heuristic component boundary is gone
 62ad3be feat(rowtrack): 3b — dataSet names the Reanimated nodes, and Figma round D
 c86eab8 refactor(rowtrack): cuts 12 to 14 — DeviceSection, GoalHeader, StartCta
-e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md
   M  apps/rowtrack/figma/bouw-schermen.js
   M  apps/rowtrack/figma/builder.js
-  A  apps/rowtrack/figma/geometry.schermen.json
+  M  apps/rowtrack/figma/geometry.schermen.json
   M  apps/rowtrack/scripts/geometry-parity.mjs
 
 ## Bestanden met TODO/FIXME

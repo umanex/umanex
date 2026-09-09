@@ -358,33 +358,26 @@ if (fig.schema !== 2) {
 }
 
 /**
- * WAT EEN INSTANCE NIET MEENEEMT.
+ * DE SCHERMEN WORDEN GEWOON GEMETEN.
  *
- * Sinds de schermen-export van 2026-09-09 zijn de schermen opgebouwd uit library-instances. Een
- * instance draagt de LIBRARY-variant, en daarmee reist alleen mee wat als variant-as of als
- * tekst-slot is uitgedrukt. Alles daarbuiten — een numerieke layout-prop, een portal die in de
- * eigen story leeg meet, een Reanimated-opacity — houdt de waarde uit de story van dat
- * component, niet die van het scherm.
+ * Er stond hier tot 2026-09-09 een ratel `BEKENDE_SCHERMVERSCHILLEN = 42`: een instance draagt
+ * de library-variant, dus alles wat geen variant-as en geen tekst-slot is hield de waarde uit de
+ * story van dat component. Die 42 zijn opgelost bij de bron, niet weggeratelt —
+ * `figma/builder.js` zet de gemeten layout als override op de instance, toetst ná het aanhangen
+ * of elke instance getrouw is en vervangt de rest door de nagebouwde subboom, en importeert in
+ * een tweede bestand de remote stijlen en variabelen (daar is niets lokaal).
  *
- * Gemeten: 42 velden van 22 227, in drie soorten. `ActiveHeader` krijgt paddings 20 van het
- * scherm en 24 uit zijn story (`paddings` is een prop, geen as); de modal-componenten meten in
- * hun eigen story ~0 hoog omdat hun inhoud portaleert; en de geselecteerde rij van de
- * WheelPicker staat elders.
- *
- * Dat is geen defect van de builder maar een eigenschap van instantiëren — daarom een RATEL en
- * geen uitsluiting: stijgt het, dan is er iets anders aan de hand.
+ * Er is dus geen uitzondering meer nodig: een schermverschil is een verschil.
  */
-const BEKENDE_SCHERMVERSCHILLEN = 42;
-
 const r = meet(fig, spec);
 const isScherm = (pad) => Object.hasOwn(spec.schermen ?? {}, pad.split('[')[0]);
 const schermVerschillen = r.verschillen.filter((v) => isScherm(v));
-if (schermVerschillen.length && schermVerschillen.length <= BEKENDE_SCHERMVERSCHILLEN) {
-  r.verschillen = r.verschillen.filter((v) => !isScherm(v));
-  r.schermRatel = `${schermVerschillen.length} van ${BEKENDE_SCHERMVERSCHILLEN} bekende schermverschillen `
-    + '(een instance draagt de library-variant; wat geen as of slot is reist niet mee)';
-} else if (schermVerschillen.length > BEKENDE_SCHERMVERSCHILLEN) {
-  r.schermRatel = `${schermVerschillen.length} schermverschillen tegen ${BEKENDE_SCHERMVERSCHILLEN} bekend — GESTEGEN`;
+// --schermen drukt de bekende schermverschillen alsnog af. Zonder die vlag zijn ze alleen een
+// getal, en een ratel die je niet kunt inzien is een getal dat niemand ooit nakijkt.
+if (process.argv.includes('--schermen') && schermVerschillen.length) {
+  console.log(`${schermVerschillen.length} schermverschil(len):`);
+  for (const v of schermVerschillen) console.log('  ~~ ' + v);
+  console.log('');
 }
 console.log(`geometry-parity — ${r.gemeten.length} varianten, ${r.nodes} nodes, ${r.velden} velden vergeleken (tolerantie ${TOL}px)`);
 console.log(`Figma-kant gelezen op ${fig.gegenereerd}`
@@ -395,7 +388,6 @@ console.log(nietReproduceerbaar
   : 'GEEN figma/niet-reproduceerbaar.json — er wordt niets uitgesloten; draai `npm run instabiele-nodes`');
 console.log(`${r.tekstHoogte} tekstnode(s) waar Figma de hoogte bepaalt (textAutoResize WIDTH_AND_HEIGHT) — hoogte daar niet vergeleken\n`);
 if (r.overgeslagen.length) { console.log(`${r.overgeslagen.length} node(s) overgeslagen:`); for (const o of r.overgeslagen.slice(0, 10)) console.log('  -- ' + o); if (r.overgeslagen.length > 10) console.log(`  -- ... en ${r.overgeslagen.length - 10} andere`); console.log(''); }
-if (r.schermRatel) console.log(r.schermRatel + '\n');
 if (r.nieuw.length) { console.log(`${r.nieuw.length} nog niet in Figma (geen verschil, wel werk):`); for (const o of r.nieuw.slice(0, 15)) console.log('  ~~ ' + o); if (r.nieuw.length > 15) console.log(`  ~~ ... en ${r.nieuw.length - 15} andere`); console.log(''); }
 if (r.verschillen.length) {
   // --alles drukt élk verschil af. Een afgekapte lijst is precies de vorm waarin een tweede

@@ -17,6 +17,42 @@ for (const c of await figma.variables.getLocalVariableCollectionsAsync())
   }
 const TS = new Map((await figma.getLocalTextStylesAsync()).map(s => [s.name, s]));
 const ES = new Map((await figma.getLocalEffectStylesAsync()).map(s => [s.name, s]));
+/**
+ * IN EEN ANDER BESTAND ZIJN DE STIJLEN REMOTE.
+ *
+ * `getLocalTextStylesAsync` en de lokale variabelen-collecties leveren in `RowTrack - Design`
+ * NUL — dat bestand draait volledig op de library. Zonder deze import bindt de builder daar
+ * niets: gemeten 2026-09-09 verloren twee Buttons hun `shadow/buttonPrimary`, en elke
+ * kleur/radius die de spec noemt zou stil ongebonden zijn geworden.
+ *
+ * `SPEC.__bibliotheek` is `figma/library-keys.json`; de sleutels overleven een publicatie.
+ */
+if (SPEC.__bibliotheek) {
+  const B = SPEC.__bibliotheek;
+  for (const [naam, o] of Object.entries(B.textStyles ?? {}))
+    if (!TS.has(naam)) { try { TS.set(naam, await figma.importStyleByKeyAsync(o.key)); } catch (e) { meldingen.push(`text style ${naam} niet te importeren — ${e.message}`); } }
+  for (const [naam, o] of Object.entries(B.effectStyles ?? {}))
+    if (!ES.has(naam)) { try { ES.set(naam, await figma.importStyleByKeyAsync(o.key)); } catch (e) { meldingen.push(`effect style ${naam} niet te importeren — ${e.message}`); } }
+  // ALLEEN WAT DE SPEC NOEMT. Alle 250 variabelen importeren duurde langer dan de 30 s
+  // wachtlimiet van `figma_execute` (gemeten); de spec noemt er een fractie van.
+  const gevraagd = new Set();
+  (function zoek(x) {
+    if (!x || typeof x !== 'object') return;
+    for (const [k, v] of Object.entries(x)) {
+      if (typeof v === 'string' && /Var$/.test(k)) gevraagd.add(v);
+      else if (Array.isArray(v) && /Var$/.test(k)) for (const w of v) { if (typeof w === 'string') gevraagd.add(w); }
+      else if (k === 'kVar' && typeof v === 'string') gevraagd.add(v);
+      else if (v && typeof v === 'object') zoek(v);
+    }
+  })(SPEC);
+  for (const naam of gevraagd) {
+    if (V.has(naam)) continue;
+    const o = B.variabelen?.[naam.replace(':', '/')];
+    if (!o) { meldingen.push(`variabele ${naam} staat niet in de library-sleutels`); continue; }
+    try { V.set(naam, await figma.variables.importVariableByKeyAsync(o.key)); }
+    catch (e) { meldingen.push(`variabele ${naam} niet te importeren — ${e.message}`); }
+  }
+}
 const FAM = new Map();
 for (const f of await figma.listAvailableFontsAsync()) {
   const s = f.fontName.family.replace(/\s+/g, '');
@@ -140,6 +176,11 @@ function kiesVariant(n, def, naamPad) {
 /** Plaats een library-instance voor deze node, of geef null en laat de builder hem nabouwen. */
 async function maakInstance(n, naamPad) {
   const def = INST[n.component];
+  if (def.portaleert) {
+    meldingen.push(`${naamPad}: ${n.component} portaleert zijn inhoud — de library-component is daar een `
+      + 'lege wrapper met de inhoud ernaast, dus één instance dekt hem niet; subboom nagebouwd');
+    return null;
+  }
   const keuze = kiesVariant(n, def, naamPad);
   if (!keuze) return null;
   let main;
@@ -172,6 +213,36 @@ async function maakInstance(n, naamPad) {
   if (Object.keys(zetten).length) {
     try { inst.setProperties(zetten); }
     catch (e) { meldingen.push(`${naamPad}: slots van ${n.component} niet te zetten — ${e.message}`); }
+  }
+
+  /**
+   * DE GEMETEN LAYOUT OVERSCHRIJVEN.
+   *
+   * Een instance draagt de waarden van de library-variant, en die komen uit de story van dat
+   * component. Het scherm geeft andere props mee: `ActiveHeader` krijgt paddings 20 van het
+   * scherm en 24 uit zijn story, een `KpiRow` in landscape is 55,7 hoog in plaats van 56.
+   * Zulke props zijn geen variant-as en geen tekst-slot, dus ze reizen niet mee — en dat is
+   * precies wat een ontwerper met de hand zou overschrijven.
+   *
+   * De override landt op de node die de layout DRAAGT, niet op de instance-wortel: die wortel
+   * is de wrapper van de library, en bij een component met een story-decorator zit er nog een
+   * niveau tussen. Vandaar `diepte`.
+   */
+  let doel = inst;
+  for (let i = 0; i < 1 + (def.diepte ?? 0) && 'children' in doel && doel.children.length; i++) doel = doel.children[0];
+  try {
+    if (Math.abs(inst.width - n.w) > 0.5 || Math.abs(inst.height - n.h) > 0.5)
+      inst.resize(Math.max(0.01, n.w), Math.max(0.01, n.h));
+    if (doel !== inst && (Math.abs(doel.width - n.w) > 0.5 || Math.abs(doel.height - n.h) > 0.5))
+      doel.resize(Math.max(0.01, n.w), Math.max(0.01, n.h));
+    if (doel.layoutMode && doel.layoutMode !== 'NONE') {
+      const P = n.padding ?? [0, 0, 0, 0];
+      doel.paddingTop = P[0]; doel.paddingRight = P[1]; doel.paddingBottom = P[2]; doel.paddingLeft = P[3];
+      doel.itemSpacing = n.gap ?? 0;
+    }
+    if (n.opacity !== undefined && Math.abs((doel.opacity ?? 1) - n.opacity) > 0.001) doel.opacity = n.opacity;
+  } catch (e) {
+    meldingen.push(`${naamPad}: gemeten layout niet op ${n.component} te zetten — ${e.message}`);
   }
   return inst;
 }
@@ -508,8 +579,99 @@ let doelX = doelPagina
   ? doelPagina.children.reduce((m, c) => Math.max(m, c.x + c.width + 48), 0)
   : 0;
 
+/**
+ * NA HET BOUWEN: is elke instance getrouw?
+ *
+ * Een instance draagt de library-variant. Wat als variant-as of tekst-slot is uitgedrukt reist
+ * mee, en de gemeten layout zetten we er als override op — maar daarbuiten blijft er van alles
+ * over dat het scherm anders rendert dan de story: de `items` van een WheelPicker, het icoon van
+ * een Button, en bij een Modal-component zelfs de hele hostketen (die nest dan dubbel).
+ *
+ * De vraag "is deze instance getrouw" is niet vooraf te beantwoorden maar wél achteraf te METEN,
+ * en pas ná het aanhangen: in een auto-layout krijgt een node zijn definitieve maat van zijn
+ * ouder. Deze pas loopt de gebouwde boom naast de spec en vervangt elke instance die niet klopt
+ * door de letterlijk nagebouwde subboom — mét melding. Zo is een instance een BEWERING die
+ * getoetst is, en geen hoop.
+ *
+ * Dezelfde velden en dezelfde tolerantie als `scripts/geometry-parity.mjs`, zodat wat hier
+ * doorkomt daar per constructie groen is.
+ */
+const TOL = 0.5;
+async function toetsInstances(figNode, specNode, naamPad, wortelComp) {
+  if (figNode.type === 'INSTANCE') {
+    const def = INST[specNode.component];
+    let x = figNode;
+    for (let i = 0; i < 1 + (def?.diepte ?? 0) && 'children' in x && x.children.length; i++) x = x.children[0];
+    const P = specNode.padding ?? [0, 0, 0, 0];
+    const mis = [];
+    if (Math.abs(x.height - (specNode.h ?? 0)) > TOL) mis.push(`hoogte ${Math.round(x.height * 100) / 100} tegen ${specNode.h}`);
+    if (Math.abs((x.paddingLeft ?? 0) - P[3]) > TOL) mis.push(`paddingLeft ${x.paddingLeft ?? 0} tegen ${P[3]}`);
+    if (Math.abs((x.paddingRight ?? 0) - P[1]) > TOL) mis.push(`paddingRight ${x.paddingRight ?? 0} tegen ${P[1]}`);
+    if (Math.abs((x.itemSpacing ?? 0) - (specNode.gap ?? 0)) > TOL) mis.push(`gap ${x.itemSpacing ?? 0} tegen ${specNode.gap ?? 0}`);
+    const echte = (specNode.k ?? []).filter(k => !bedektIn(specNode)(k));
+    const figK = ('children' in x ? x.children.length : 0);
+    if (figK !== echte.length) mis.push(`kinderen ${figK} tegen ${echte.length}`);
+    // Óók naar binnen kijken. Een WheelPicker met een andere `items`-lijst heeft dezelfde
+    // wortelmaat maar een scrollinhoud van 2000 in plaats van 4400 — dat verschil zit drie
+    // niveaus diep en een wortelvergelijking ziet het niet.
+    if (!mis.length) { const d = diepVerschil(x, specNode, ''); if (d) mis.push(d); }
+    if (mis.length) {
+      meldingen.push(`${naamPad}: instance van ${specNode.component} wijkt af (${mis.join(', ')}) — subboom nagebouwd`);
+      const ouder = figNode.parent, idx = ouder.children.indexOf(figNode);
+      const abs = figNode.layoutPositioning, px = figNode.x, py = figNode.y;
+      const vervang = await maak({ ...specNode, component: null }, naamPad, wortelComp);
+      ouder.insertChild(idx, vervang);
+      figNode.remove();
+      try { if (abs === 'ABSOLUTE') { vervang.layoutPositioning = 'ABSOLUTE'; vervang.x = px; vervang.y = py; } } catch (e) { /* geen auto-layout */ }
+      // De VERVANGING is zelf weer gebouwd, dus er kunnen nieuwe instances in zitten die nog
+      // niemand getoetst heeft. Gemeten 2026-09-09: de Button in een nagebouwde
+      // MotivationalToast bleef zo als afwijkende instance staan.
+      return 1 + await toetsInstances(vervang, { ...specNode, component: null }, naamPad, wortelComp);
+    }
+    return 0;
+  }
+  if (!('children' in figNode)) return 0;
+  const echte = (specNode.k ?? []).filter(k => !bedektIn(specNode)(k));
+  let n = 0;
+  for (let i = 0; i < Math.min(figNode.children.length, echte.length); i++)
+    n += await toetsInstances(figNode.children[i], echte[i], `${naamPad}>${echte[i].naam ?? i}`, wortelComp);
+  return n;
+}
+/**
+ * Wijkt de subboom van een instance ergens af van de spec? Geeft de eerste treffer met zijn pad,
+ * of null. Dezelfde velden en tolerantie als de wortelvergelijking en als `geometry-parity.mjs`.
+ */
+function diepVerschil(fig, spec, pad) {
+  if (!('children' in fig)) return null;
+  const echte = (spec.k ?? []).filter(k => !bedektIn(spec)(k));
+  if (fig.children.length !== echte.length) return `${pad || 'wortel'}: kinderen ${fig.children.length} tegen ${echte.length}`;
+  for (let i = 0; i < echte.length; i++) {
+    const f = fig.children[i], sp = echte[i], p2 = `${pad}>${sp.naam ?? i}`;
+    // HOOGTE OP EEN TEKSTNODE alleen waar de builder hem zélf zette. Waar Figma hem bepaalt
+    // (`textAutoResize: WIDTH_AND_HEIGHT`, builder.js:148-153) meet vergelijken de twee
+    // tekstengines en niet de bouw — precies de uitsluiting die `geometry-parity.mjs` maakt.
+    // Zonder die uitsluiting verwierp deze toets 40 van de 88 instances op tekstruis.
+    const tekst = !!sp.t && !sp.k;
+    const hoogteGezet = !tekst || sp.h > (sp.t.lh ?? sp.t.px * 1.35) * 1.5;
+    if (hoogteGezet && Math.abs(f.height - (sp.h ?? 0)) > TOL) return `${p2}: hoogte ${Math.round(f.height * 100) / 100} tegen ${sp.h}`;
+    if (Math.abs((f.opacity ?? 1) - (sp.opacity ?? 1)) > 0.01) return `${p2}: opacity ${f.opacity} tegen ${sp.opacity}`;
+    const d = diepVerschil(f, sp, p2);
+    if (d) return d;
+  }
+  return null;
+}
+
+/** Dezelfde opvouwregel als `maak` gebruikt (builder.js, achtergrondkinderen). */
+function bedektIn(n) {
+  const rand = n.border ?? 0;
+  return (k) => k.abs && !k.k && !k.t && (k.grad || k.bg)
+    && Math.abs(k.dx ?? 0) <= rand + 0.5 && Math.abs(k.dy ?? 0) <= rand + 0.5
+    && k.w >= n.w - 2 * rand - 0.5 && k.h >= n.h - 2 * rand - 0.5;
+}
+
 const uit = [];
 const geweigerd = [];
+let vervangen = 0;
 for (const [comp, d] of Object.entries(SPEC)) {
   if (comp.startsWith('__')) continue;   // __force en andere vlaggen zijn geen component
   let page = doelPagina;
@@ -555,6 +717,12 @@ for (const [comp, d] of Object.entries(SPEC)) {
       const ov = await maak(o, comp, comp);
       c.appendChild(ov);
       ov.x = 0; ov.y = 0;
+    }
+    // Pas ná het aanhangen: in een auto-layout krijgt een node zijn maat van zijn ouder.
+    if (DOEL && INST) {
+      vervangen += await toetsInstances(c.children[0], v.boom, `${comp}[${v.naam}]`, comp);
+      for (const [j, o] of (v.overlays ?? []).entries())
+        if (c.children[j + 1]) vervangen += await toetsInstances(c.children[j + 1], o, `${comp}[${v.naam}]#overlay${j}`, comp);
     }
     x += Math.ceil(br) + 48;
     if (DOEL) doelX += Math.ceil(br) + 48;
@@ -623,4 +791,4 @@ for (const [comp, d] of Object.entries(SPEC)) {
              hashes,
              slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
-return { gebouwd: uit, geweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
+return { gebouwd: uit, geweigerd, vervangen, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
