@@ -99,6 +99,27 @@ Wees eerlijk over de grens van sub-agent replay: de sub-agent krijgt wél de CLA
 
 **Route B — verifieer de guard.** Geen replay nodig: lees de guard/code, of draai hem droog met de oorspronkelijke input, en bevestig dat hij nu weigert of waarschuwt zoals bedoeld.
 
+**De rail-aanwezigheidsmeting — voor een regel die al geland is.** Het meest voorkomende geval is dat de fix in dezelfde sessie als het werk geschreven werd, dus vóór deze ronde. Een replay is dan vaak te duur (een volledige Figma-bouw, een fysiek toestel) en de geldige verificatie luidt: *staat de rail in de tekst die laadt waar de fout ontstaat, op de branch die telt?* Dit recept is drie keer heruitgevonden (2026-09-08, twee keer 2026-09-09) en elke keer net anders — het staat hier zodat dat stopt.
+
+```bash
+R=~/Documents/umanex-os; F=.claude/skills/<naam>/SKILL.md; RAIL='<letterlijke zinsnede>'
+git -C $R fetch -q origin
+C=$(git -C $R log -1 --format=%h -S "$RAIL" -- $F)                  # wélke commit bracht hem
+git -C $R merge-base --is-ancestor $C origin/main && echo "op main" || echo "NIET op main"
+git -C $R merge-base --is-ancestor origin/main $C || echo "toets kan rood worden"   # omgekeerd: hoort te falen
+S=$(git -C $R show origin/main:$F)
+printf '%s
+' "$S" | grep -c "$RAIL"           # verwacht 1
+printf '%s
+' "$S" | grep -c 'ZZZ-sentinel'    # verwacht 0 — negatieve controle
+```
+
+De omgekeerde ancestor-toets is niet decoratief: draai je hem niet, dan geeft een opstelling waarin *alles* ancestor is twee keer JA, en dat is geen dubbele bevestiging maar de melding dat de toets niet kan discrimineren (gemeten 2026-09-09: mijn eerste controle-commit was óók ancestor, dus de controle bewees niets).
+
+En dan de meting die de andere drie pas betekenis geeft: **meet in de repo waar de fout ontstond**, niet alleen in umanex-os. De laag én de skills reizen via de sync, dus lees daar de gesyncte kopie op `origin/main` — `git -C <klant-repo> show origin/main:.claude/skills/<naam>/SKILL.md` — en noem de sync-commit in de `Fix`-regel. Staat de rail in umanex-os en niet daar, dan is er voor de volgende sessie in die repo niets gehard. Staat de klant-repo op een feature branch, lees dan hoe dan ook via `origin/main`: de uitgecheckte staat is geen canonieke bron (CLAUDE.md, *Cross-repo review*).
+
+**Grens — dit meet aanwezigheid, niet naleving.** Een rail kan er staan en niet vuren; dat zijn precies de dertien Route C-gevallen uit stap 1b. Schrijf in de `Fix`-regel dus expliciet *"niet blind afgespeeld"* mét de reden, in plaats van de aanwezigheidsmeting als replay te presenteren.
+
 Kun je de fout niet betrouwbaar repliceren (te breed, niet-deterministisch, te duur)? Zeg dat, **verzin geen bewijs**, en laat de status op `open` — of zet `verified` alleen met Jeroens expliciete akkoord.
 
 ### Stap 4 — Hard de fix (alleen als de fout nog optreedt)
