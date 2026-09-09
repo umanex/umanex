@@ -73,11 +73,11 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+a4cacdc fix(rowtrack): text hugs unless its box is wider than its run, and alignment travels
 dc796cc feat(rowtrack): the builder's messages get a baseline of kinds, checked on both sides
 43e91cf Merge remote-tracking branch 'origin/main' into chore/sync-os-na-skillwijziging
 ac9db56 docs(rowtrack): write down the sweep flakiness the previous commit claimed to have written down
 f0b404c fix(rowtrack): the render sweep was flaky at its tail, and it failed the last stories
-99ee19d docs(rowtrack): het parity-item sluit nu op bewijs dat rood had kunnen worden
 ```
 
 ## Uncommitted wijzigingen

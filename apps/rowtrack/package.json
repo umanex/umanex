@@ -16,6 +16,7 @@
     "figma:tokens": "node scripts/figma-tokens-payload.mjs",
     "figma:links": "node scripts/figma-links.mjs",
     "figma:check": "node scripts/figma-sync-check.mjs",
+    "figma:instance-tekst": "node scripts/instance-tekst.mjs",
     "figma:check:selftest": "node scripts/figma-sync-selftest.mjs",
     "parity": "node scripts/geometry-parity.mjs",
     "render:sweep": "node scripts/render-sweep.mjs",
