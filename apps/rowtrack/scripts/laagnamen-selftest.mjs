@@ -62,6 +62,21 @@ geval('de eigen sleutel wint van een vreemde met hogere dekking',
   }),
   { met: ['row', 'sleutel'], zonder: ['valueRow', 'sleutel'] });
 
+// 4. `data-bron` benoemt de node waar de GRENS al door een ander component geclaimd is.
+//    Dit is het geval waarvoor de heuristiek bestond: GoalSheet rendert een BottomSheet als zijn
+//    eigen wortel en geeft daar `testID="GoalSheet"` aan door, dus de zelf-nesting-poort slaat de
+//    testid-sport over. Zonder `bron` valt de node terug op zijn sleutel.
+geval('bron benoemt een node waarvan de grens al geclaimd is',
+  (metFeit) => ({
+    comp: 'GoalSheet',
+    bomen: [node({ kinderen: [node({
+      component: 'GoalSheet',
+      ...(metFeit ? { bron: 'BottomSheet' } : {}),
+      kandidaten: [kand('components/BottomSheet.tsx', 'root', 2, 2)],
+    })] })],
+  }),
+  { met: ['BottomSheet', 'bron'], zonder: ['root', 'sleutel'] });
+
 // 4. `data-laag` in de verkeerde vorm wordt GENEGEERD, niet gebruikt.
 geval('een data-laag met een spatie wordt genegeerd',
   (metFeit) => ({

@@ -110,17 +110,29 @@ const BEKENDE_VOORKOMENS = 2144;   // 1996 + 148: DeviceSection heeft 40 variant
  *  van 185 naar 47 en de ambiguïteit van 111 naar 97. */
 const LAAGNAAM_DEKKING = 90.1;
 /**
- * Hoe vaak de HEURISTISCHE componentgrens nog vuurt. Sinds de testID-ronde van 2026-09-08 staat
- * de grens als feit in de DOM, dus elke treffer hier is een node waar de code hem niet
- * declareert. Ratel: dalen is winst, stijgen is een regressie.
+ * Hoe vaak de HEURISTISCHE componentgrens nog vuurt — en dat is sinds 2026-09-09 NUL, want de
+ * tak bestaat niet meer.
  *
- * Hij staat op 1 en niet op 0, en die ene is gemeten en correct: `GoalSheet` rendert een
- * `BottomSheet` als zijn eigen wortel en geeft daar `testID="GoalSheet"` aan door. Die node
- * draagt dus de naam van het OMSLUITENDE component, en de zelf-nesting-poort in de ladder slaat
- * hem daarom over — waarna de heuristiek hem terecht `BottomSheet` noemt. Zakt dit naar 0, dan
- * mag de heuristische tak weg (samen met `bronnenInSubboom` en `naamBronId`).
+ * Hij stond op 1, en die ene was `GoalSheet`: dat component rendert een `BottomSheet` als zijn
+ * eigen wortel en geeft daar `testID="GoalSheet"` aan door, dus `component` was gelijk aan het
+ * omsluitende component en de zelf-nesting-poort sloeg de testid-sport over. Sinds `DeviceRow`
+ * en `BottomSheet` — de twee componenten die een `testID`-override accepteren — ook
+ * `dataSet={{ bron: … }}` schrijven, is dat een FEIT en geen gok meer.
+ *
+ * De ratel blijft staan op 0 in plaats van te verdwijnen: gaat hij ooit boven nul, dan is er een
+ * tak teruggekomen die raadt waar de code kan verklaren.
  */
-const BEKENDE_HEURISTIEK = 1;
+const BEKENDE_HEURISTIEK = 0;
+/**
+ * Hoeveel nodes hun naam uit een GEDECLAREERDE grens halen (`data-testid` of `data-bron`).
+ *
+ * Dit is de opbrengst van ingreep 1 en 3b, en tot 2026-09-09 bewaakte niets hem: raakt de
+ * walker de attributen kwijt, dan vallen die nodes netjes terug op een sleutelnaam en blijft
+ * élke as groen — een gevulde, plausibele, verkeerde uitkomst. De producent-tegenproef in
+ * `figma-sync-selftest.mjs` mikt precies hierop: hij strippt `component` van elke node en eist
+ * dat dit getal instort.
+ */
+const BEKENDE_GRENSNODES = 243;
 /** Posities die `stabiliseer()` moest gladstrijken. `instabiel` is ná die pas gemeten en dus
  *  per constructie leeg — dit is de enige onafhankelijke maat voor dezelfde eigenschap. */
 const BEKENDE_INSTABIELE_POSITIES = 2;
@@ -534,15 +546,41 @@ else {
     if (zonderCode.length) f.push(`${zonderCode.length} component(en) zonder testID="<bestandsnaam>" in de code: ${zonderCode.join(', ')}`);
     if (zonderDom.length) f.push(`${zonderDom.length} component(en) waarvan de testID de DOM niet haalde: ${zonderDom.join(', ')} `
       + '— de prop staat in de code maar bereikt geen element (een derde-partij component kan hem weggooien)');
-    // De VORM. PascalCase in `data-testid`, camelCase in `data-laag`: een verwisseling maakt de
-    // naam plausibel en de herkomst onnavolgbaar.
+    // Een component dat een `testID`-OVERRIDE accepteert, moet ook zijn eigen identiteit
+    // schrijven: `testID` zegt van wélk component dit de wortel is (overschrijfbaar),
+    // `data-bron` welke code hem rendert (nooit). Zonder dat tweede feit valt zo'n node terug
+    // op een sleutelgok zodra het omsluitende component zijn naam doorgeeft — precies de ene
+    // treffer die de heuristiek tot 2026-09-09 opving.
+    const gezienBron = new Set(minSpec.gezien?.bron ?? []);
+    const zonderBron = [];
+    for (const f2 of componentBestanden) {
+      const naam = f2.rel.replace(/\.tsx$/, '').split('/').pop();
+      const bron2 = readFileSync(f2.pad, 'utf8');
+      if (!/testID\??:\s*string/.test(bron2)) continue;          // accepteert geen override
+      if (!gezienBron.has(naam)) zonderBron.push(naam);
+    }
+    if (zonderBron.length) f.push(`${zonderBron.length} component(en) accepteren een testID-override zonder `
+      + `\`dataSet={{ bron: … }}\` te schrijven: ${zonderBron.join(', ')} — hun nodes vallen terug op een `
+      + 'sleutelgok zodra een omsluitend component zijn naam doorgeeft');
+
+    // De VORM. PascalCase in `data-testid` en `data-bron`, camelCase in `data-laag`: een
+    // verwisseling maakt de naam plausibel en de herkomst onnavolgbaar.
     const testidFout = [...gezien].filter(x => !/^[A-Z][A-Za-z0-9]*$/.test(x));
+    const bronFout = [...gezienBron].filter(x => !/^[A-Z][A-Za-z0-9]*$/.test(x));
     const laagFout = (minSpec.gezien?.laag ?? []).filter(x => !/^[a-z][A-Za-z0-9]*$/.test(x));
     if (testidFout.length) f.push(`testID moet PascalCase zijn (bestandsnaam), fout: ${testidFout.join(', ')}`);
+    if (bronFout.length) f.push(`data-bron moet PascalCase zijn (bestandsnaam), fout: ${bronFout.join(', ')}`);
     if (laagFout.length) f.push(`data-laag moet camelCase zijn (StyleSheet-sleutel), fout: ${laagFout.join(', ')}`);
     if (minSpec.weggelatenComponenten) f.push(`${minSpec.weggelatenComponenten} componentgrens(en) weggegooid door de `
       + 'dieptekap van de walker — die verdwijnen stil uit de naamgeving');
   }
+
+  const grensNodes = (laagnamen.perBron?.testid ?? 0) + (laagnamen.perBron?.bron ?? 0);
+  if (grensNodes < BEKENDE_GRENSNODES)
+    f.push(`${grensNodes} nodes halen hun naam uit een gedeclareerde grens, ${BEKENDE_GRENSNODES} bekend — `
+      + 'er zijn grenzen verdwenen; die nodes vallen stil terug op een sleutelgok');
+  else if (grensNodes > BEKENDE_GRENSNODES)
+    f.push(`${grensNodes} grensnodes tegen ${BEKENDE_GRENSNODES} bekend — winst; zet BEKENDE_GRENSNODES op ${grensNodes}.`);
 
   const hr = laagnamen.componentZonderTestID;
   if (hr === undefined) f.push('laagnamen.json draagt geen componentZonderTestID — draai `figma:spec`');
@@ -566,7 +604,8 @@ else {
     // die erbij komt. Wél in de ok-regel, want het is de enige plek waar een stille verschuiving
     // naar `rnw` (bv. een RNW-versie die `scroll` naar `auto` mapt) zichtbaar wordt.
     + ` · ${laagnamen.rnwNodes} rnw-nodes buiten de noemer (${laagnamen.echteNaamPctRuw}% over álle nodes)`
-    + ` · ${laagnamen.perBron.testid} nodes uit een gedeclareerde testID-grens, ${laagnamen.componentZonderTestID} nog uit de heuristiek`);
+    + ` · ${laagnamen.perBron.testid} nodes uit een gedeclareerde testID-grens, ${laagnamen.perBron.bron ?? 0} uit data-bron,`
+    + ` ${laagnamen.componentZonderTestID} uit een heuristiek (die tak bestaat niet meer)`);
   uitgesloten.push(`${laagnamen.rnwNodes} nodes zijn DOM die react-native-web zelf schrijft (spinner, modal-hostketen, scroll-wrappers) — herkend aan zijn eigen bron, buiten de noemer`);
   uitgesloten.push(`${laagnamen.perBron.terugval} nodes zonder StyleSheet-sleutel (inline of Reanimated gestyleerd) — die dragen een structurele naam, geen code-naam`);
   if (laagnamen.ambigu) uitgesloten.push(`${laagnamen.ambigu} nodes waar twee sleutels even goed passen — de eerst-gedeclareerde wint, deterministisch maar willekeurig`);

@@ -284,7 +284,7 @@ const WALKER = () => {
   // de code, en dít is de meting dat hij ook door react-native-web heen kwam en op een element
   // landde. Een prop die een derde-partij component stil weggooit (LinearGradient, Ionicons)
   // is anders niet te onderscheiden van een prop die er wél is.
-  const gezienTestid = new Set(), gezienLaag = new Set();
+  const gezienTestid = new Set(), gezienLaag = new Set(), gezienBron = new Set();
   // Nodes met een componentgrens die de dieptekap heeft weggegooid. Zonder deze telling
   // verdwijnt een grens stil, en leest "44 componenten zonder testID" als een code-probleem
   // terwijl het een meet-probleem is.
@@ -469,6 +469,10 @@ const WALKER = () => {
     if (tid) { o.component = tid; gezienTestid.add(tid); }
     const laag = el.getAttribute('data-laag');
     if (laag) { o.laag = laag; gezienLaag.add(laag); }
+    // `data-bron`: welke code deze node rendert, los van welke grens hij draagt. Zie de
+    // toelichting bij de `testID`-prop van DeviceRow.
+    const bron = el.getAttribute('data-bron');
+    if (bron) { o.bron = bron; gezienBron.add(bron); }
     const rnw = rnwRol(el, cs);
     if (rnw) { o.rnw = rnw.rol; if (rnw.gedeeld) o.rnwGedeeld = true; }
     o.kandidaten = [];
@@ -534,7 +538,7 @@ const WALKER = () => {
     o.positie = 'absolute'; o.dx = 0; o.dy = 0;
     return o;
   });
-  const gezien = { testid: [...gezienTestid], laag: [...gezienLaag] };
+  const gezien = { testid: [...gezienTestid], laag: [...gezienLaag], bron: [...gezienBron] };
   return overlayBomen.length
     ? { boom, overlays: overlayBomen, gezien, weggelatenComponenten }
     : { boom, gezien, weggelatenComponenten };
@@ -549,7 +553,7 @@ const WALKER = () => {
 // testID" terwijl de code ze wel draagt.
 const spec = { walkerVersie: 2, componenten: {}, schermen: {}, ongebonden: [], fouten: [],
                gezien: { testid: [], laag: [] }, weggelatenComponenten: 0, grenzen: {} };
-const gezienTestid = new Set(), gezienLaag = new Set();
+const gezienTestid = new Set(), gezienLaag = new Set(), gezienBron = new Set();
 
 /**
  * Waar staat de grens van dit component in zijn eigen boom, en wat staat eráboven?
@@ -756,6 +760,7 @@ function bind(node, pad, comp) {
 function onthoudGezien(r) {
   for (const t of r.gezien?.testid ?? []) gezienTestid.add(t);
   for (const l of r.gezien?.laag ?? []) gezienLaag.add(l);
+  for (const b of r.gezien?.bron ?? []) gezienBron.add(b);
   spec.weggelatenComponenten += r.weggelatenComponenten ?? 0;
 }
 
@@ -830,7 +835,7 @@ for (const [comp, storyNamen] of Object.entries(SCHERMEN)) {
 
 await browser.close(); server.close();
 
-spec.gezien = { testid: [...gezienTestid].sort(), laag: [...gezienLaag].sort() };
+spec.gezien = { testid: [...gezienTestid].sort(), laag: [...gezienLaag].sort(), bron: [...gezienBron].sort() };
 process.stderr.write(`grenzen: ${Object.keys(spec.grenzen).length} componenten met een gemeten testID-grens, `
   + `${spec.gezien.testid.length} unieke testid's in de DOM, ${spec.gezien.laag.length} data-laag, `
   + `${spec.weggelatenComponenten} grens(en) weggegooid door de dieptekap\n`);

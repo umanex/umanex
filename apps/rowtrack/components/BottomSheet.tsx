@@ -127,7 +127,7 @@ export const BottomSheet = memo(function BottomSheet({
       statusBarTranslucent
       onRequestClose={handleClose}
     >
-      <View testID={testID} style={styles.root}>
+      <View testID={testID} dataSet={{ bron: 'BottomSheet' }} style={styles.root}>
         <Animated.View style={[styles.scrim, { opacity: fade }]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         </Animated.View>

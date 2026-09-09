@@ -11,6 +11,10 @@ export type DeviceRowProps = {
   loading?: boolean;
   actionDisabled?: boolean;
   /**
+   * De OVERSCHRIJFBARE grens. Naast deze prop draagt de wortel ook `dataSet={{ bron:
+   * 'DeviceRow' }}` — dat is de niet-overschrijfbare identiteit: `testID` zegt van wélk
+   * component dit de wortel is, `data-bron` zegt welke code hem rendert.
+   *
    * De componentgrens in de DOM. react-native-web schrijft hem als `data-testid`
    * (createDOMProps/index.js:831) en `scripts/figma-build-spec.mjs` leest hem terug, zodat de
    * laagnaam-pas een FEIT gebruikt in plaats van een sleutel-heuristiek. Een component dat
@@ -38,7 +42,7 @@ export function DeviceRow({
   testID = 'DeviceRow',
 }: DeviceRowProps) {
   return (
-    <View testID={testID} style={styles.container}>
+    <View testID={testID} dataSet={{ bron: 'DeviceRow' }} style={styles.container}>
       <View style={styles.left}>
         <View style={styles.iconContainer}>
           {loading ? (
