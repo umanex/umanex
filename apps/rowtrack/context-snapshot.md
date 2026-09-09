@@ -73,21 +73,20 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+d84679f Merge remote-tracking branch 'origin/main' into fix/rowtrack-schermverschillen
 c195a96 chore(rowtrack): spec, manifest, geometry and ratchets after the screens round
 f681424 feat(rowtrack): a render path for the seven routes that had no story
 7209f3d feat(rowtrack): every component with variant axes now declares which variant it is
 3dbc9d9 fix(rowtrack): the depth cap counted a different unit than it cut
-7571740 fix(rowtrack): the 42 screen differences are gone, fixed at the source
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/context-snapshot.md
-  M  packages/ui/CLAUDE.md
-  A  packages/ui/components/ui/sheet.stories.tsx
-  A  packages/ui/components/ui/sheet.tsx
-  M  packages/ui/figma/geometry.code.json
-  M  packages/ui/figma/manifest.json
-  M  packages/ui/package.json
+  M  apps/rowtrack/BACKLOG.md
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/briefings/2026-09-08-feature-schermen-naar-rowtrack-design.tcebc.md
+  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

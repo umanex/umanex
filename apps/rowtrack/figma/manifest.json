@@ -1461,7 +1461,7 @@
         "name": "default",
         "id": "2032:17570",
         "type": "COMPONENT",
-        "publishStatus": "UNPUBLISHED",
+        "publishStatus": "CURRENT",
         "bouwhash": "1fghjo0:123",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1912,7 +1912,7 @@
         "name": "WorkoutCard",
         "id": "2034:17610",
         "type": "COMPONENT_SET",
-        "publishStatus": "UNPUBLISHED",
+        "publishStatus": "CURRENT",
         "bouwhash": "7nslmy:39",
         "componentProperties": [
           "index"

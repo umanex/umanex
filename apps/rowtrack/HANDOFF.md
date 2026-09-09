@@ -738,8 +738,8 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 ## 2026-09-08 — De twee schermpagina's worden overbodig zodra Screens v2 uit instances wordt opgebouwd · [next-step]
 - **Bevinding:** `ActivePhase` (5 frames, 105 teksten) en `IdlePhase` (4 frames, 188 teksten) staan als afgeplatte bomen in het design-system-bestand. Jeroen bouwt de schermen op de pagina *Screens v2* in `T1bGrvIzSNeLyh5CbarATZ`, uit de gepubliceerde library. Twee schermrepresentaties naast elkaar die niet aan elkaar gekoppeld zijn, is een tweede bron van waarheid — en de afgeplatte versie is de zwakste van de twee.
 - **Check:** `figma_execute` op `T1bGrvIzSNeLyh5CbarATZ`: staat er inhoud op de pagina *Screens v2*? Zo ja, dan hebben de twee schermpagina's in het design-system-bestand geen functie meer.
-- **Volgende zet:** Beslissen zodra Screens v2 staat: de twee pagina's uit het design-system-bestand halen (en de `SCHERMEN`-uitsluiting uit `figma-sync-check.mjs`), of ze expliciet als referentiebeeld benoemen. Nu weghalen is te vroeg — ze zijn het enige beeld van die schermen dat er is.
-- **Status:** open
+- **Volgende zet:** De eerste helft is gebeurd: de twee pagina's zijn op 2026-09-08 uit het design-system-bestand gehaald (33 → 31 pagina's, 786 nodes weg), en `Screens v2` draagt sinds 2026-09-09 **24 frames over 9 schermen** uit gepubliceerde instances — de Check is dus gevuurd en de premisse *"nu weghalen is te vroeg"* geldt niet meer. Wat overblijft is de tweede helft, en die is bewust blijven staan: de `SCHERMEN`-uitsluiting leeft nog in `scripts/schermen.mjs` en wordt op negen plekken in `figma-sync-check.mjs` gebruikt. Die is géén rest maar de bron die de schermen uit de library-assen houdt — hij hoort te blijven zolang schermen en componenten twee bestanden zijn.
+- **Status:** resolved (2026-09-09) — beide helften beantwoord: pagina's weg, uitsluiting bewust behouden.
 
 ## 2026-09-08 — Drie van de vier Storybook-rails zijn met het zwakke instrument getoetst · [onzekerheid]
 - **Bevinding:** De tegenproef van `e854daa` draaide per rail een probe van zes stories. Diezelfde
@@ -769,7 +769,7 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 - **Volgende zet:** `pnpm --filter rowtrack build-storybook` (staat al), dan `parity`. Wijkt er
   iets af: eerst nagaan of het verschil uit de babel-wijziging komt (vergelijk tegen `4bb9484`,
   de commit vóór de fix) vóór je de Figma-kant aanpast.
-- **Status:** open
+- **Status:** resolved (2026-09-09) — de eigen Check gedraaid: `parity` exit 0, *Geen verschil over 3 516 nodes* over 220 varianten en 27 480 velden. De geometrie is sindsdien meermaals hermeten, o.a. na de dieptekap-fix.
 
 ## 2026-09-08 — Babel ín de optimizer draaien is nooit als keuze voorgelegd · [aanname]
 - **Bevinding:** Drie van de vier ingrepen in `.storybook/main.ts` (optimizer-exclude,
@@ -788,7 +788,8 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
 
 ## 2026-09-09 — `dataSet` is alleen op web gemeten, niet op het toestel · [onzekerheid]
 - **Bevinding:** Ingreep 3b zet `dataSet={{ laag: … }}` op vier Reanimated-nodes in `WheelPicker` en `GoalSegments`. Dat het aankomt is gelezen in de geïnstalleerde bron (react-native-web 0.21.2 `createDOMProps/index.js:756-766` schrijft `data-laag`; react-native-reanimated 4.1.7 `PropsFilter.js` geeft onbekende props ongewijzigd door) en gemeten op web: 4 unieke `data-laag`-waarden bereiken de DOM, 172 nodes dragen er een naam van. Op **native** reist de prop mee naar de view manager, en iOS/Android negeren een onbekende prop normaal stil — maar dat is hier niet gemeten. Er is geen dev-client-run achter deze wijziging. `types/react-native-dataset.d.ts` draagt de reden.
-- **Check:** `pnpm dev:rowtrack` en de app op de simulator openen op het startscherm (de goal-wheel en de segmentenrij dragen de vier nodes); verschijnt er in de Metro-log of de dev-client een waarschuwing met `dataSet` erin, dan bijt het. Geen waarschuwing na één keer door de vier doeltypes scrollen = resolved.
+- **Check:** Draai de dev-client (`pnpm dev:rowtrack`, dan `expo run:ios --device`) en loop één keer door start → active workout → historiek → workout-detail → profiel. Grep de Metro-log op `dataSet`: geen regel = de prop wordt door de view manager genegeerd zoals bedoeld, een warning = hij bereikt native en dit item leeft nog.
+- **Bereik bijgesteld 2026-09-09:** de entry schreef *"vier Reanimated-nodes in WheelPicker en GoalSegments"*. Sinds `7209f3d` draagt élk component met variant-assen een `dataSet`; gemeten: `grep -rn "dataSet=" --include="*.tsx" components lib app | wc -l` → **31 voorkomens over 18 bestanden**, waaronder Button, DeviceRow, FormField, PrBadge, Segmented, EmptyState, BottomSheet en de vier workout-componenten. Het ongetoetste oppervlak is dus bijna acht keer zo groot als toen de entry geschreven werd, en de oude check (alleen het startscherm) kon dat per constructie niet zien.
 - **Volgende zet:** Bij de eerstvolgende toestel-run meenemen. Bijt het wél, dan is het alternatief `accessibilityLabel` of een `nativeID` — geen van beide is gratis, dus eerst meten.
 - **Status:** open
 
