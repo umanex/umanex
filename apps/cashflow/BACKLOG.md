@@ -41,6 +41,13 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 
 # Project — cashflow
 
+## 2026-09-09 — De PM2-app luistert op alle interfaces, niet op loopback · [security]
+- **Wat:** `ecosystem.config.js` geeft `next start --port 3000` mee zonder `--hostname`, dus Next bindt op de wildcard: `lsof -nP -iTCP:3000 -sTCP:LISTEN` toont `*:3000` en `curl http://192.168.68.54:3000/` antwoordt 200 vanaf het LAN (gemeten 2026-09-09). De uitgeserveerde HTML draagt wel het login-scherm, dus het is geen open boekhouding — maar op elk netwerk waar de laptop hangt (klant, café, coworking) staat de app aanspreekbaar voor iedereen die de poort scant. Het dashboard kreeg vandaag om die reden `--hostname 127.0.0.1` mee.
+- **Waarom niet nu:** Gemeten tijdens het opzetten van de dashboard-autostart; cashflow zelf was niet de opdracht, en `ecosystem.config.js` is een machine-lokaal bestand dat niet in de repo staat — de wijziging is dus niet reviewbaar in een PR en hoort bewust gezet te worden.
+- **Eerste zet:** `args: 'start --hostname 127.0.0.1 --port 3000'` in `apps/cashflow/ecosystem.config.js`, dan `pm2 delete cashflow && pnpm --filter cashflow pm2:start && pm2 save`. **Acceptatietest:** `lsof -nP -iTCP:3000 -sTCP:LISTEN` toont `127.0.0.1:3000` én `curl --max-time 3 http://<lan-ip>:3000/` geeft geen antwoord meer, terwijl `http://localhost:3000/` 200 blijft geven.
+- **Status:** open
+
+
 ## 2026-08-25 — Het Ctrl+C-venster dat PR #314 als gesloten rapporteert, staat nog open · [fix]
 - **Wat:** `scripts/flow-harness.mjs` registreert zijn SIGINT/SIGTERM-handler op r1102–1103, *ná* `const server = await startServer()` op r1088. Tijdens de spawn plus de readiness-lus (`detached: true` op r362, poll per 250 ms tot een deadline van 60 s op r369) bestaat er dus géén handler. Ctrl+C in dat venster laat de detached `next start` als wees op `:3100` achter — precies het geval dat de PR-body van #314 beschrijft als *"Gemeten ná: 0 listeners in beide vensters, exit 130 (INT) / 143 (TERM)"*. Het `gebouwd`-item hierboven neemt die claim over. Wat wél gemeten is en klopt, is het browser-venster (`chromium.launch()` binnen de `try`); het server-startvenster is een ander venster en is niet gedekt.
 - **Waarom niet nu:** Buiten de scope van "314 mergen". De bevinding komt uit een pre-merge risicopanel (drie lenzen + adversariële verificatie, 2026-08-25); de verifier probeerde hem op drie routes te weerleggen en alle drie vielen om. Niet merge-blokkerend: het raakt alleen de lokale harness, nooit `.next` of de PM2-app.
