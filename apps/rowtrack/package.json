@@ -25,7 +25,8 @@
     "instabiele-nodes": "node scripts/instabiele-nodes.mjs",
     "laagnamen:selftest": "node scripts/laagnamen-selftest.mjs",
     "spec-diff": "node scripts/spec-diff.mjs",
-    "spec-diff:selftest": "node scripts/spec-diff.mjs --selftest"
+    "spec-diff:selftest": "node scripts/spec-diff.mjs --selftest",
+    "render:shot": "node scripts/render-shot.mjs"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",

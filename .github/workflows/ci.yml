@@ -232,3 +232,42 @@ jobs:
       # Zonder die twee kanten weet je niet of de guard meet of alleen draait.
       - name: Guard — Storybook ↔ Figma in sync (met tegenproef)
         run: pnpm --filter @umanex/ui figma:check:selftest
+
+      # --- rowtrack --------------------------------------------------------------------
+      #
+      # Deze zeven lezen UITSLUITEND gecommitte artefacten: figma/build-spec.min.json,
+      # geometry.figma.json, geometry.schermen.json, manifest.json en laagnamen.json. Geen
+      # Figma-toegang, geen browser, geen Storybook-build — samen onder de tien seconden
+      # (gemeten 2026-09-09, zes ervan onder één seconde).
+      #
+      # Waarom ze hier pas komen: de hele meetketen — 13 guard-assen, recursieve parity over
+      # 3 516 nodes, vijf tegenproeven — is deze week gebouwd en draaide tot vandaag alleen
+      # wanneer iemand eraan dacht. Een guard die niemand aanroept, meet niets.
+      #
+      # Wat de selftest hier NIET kan: zijn producent-mutatie leunt op figma/build-spec.json
+      # en dat bestand is gitignored (11 MB, herbouwbaar). Hij meldt die dan als
+      # OVERGESLAGEN mét reden — nagemeten 2026-09-09 door het bestand weg te halen: exit 0,
+      # 42 van 44 mutaties, en de twee producent-mutaties expliciet overgeslagen in plaats
+      # van stil groen. Dat verschil is het punt: overgeslagen is geen ok.
+      - name: Guard — rowtrack Figma ↔ code (met tegenproef)
+        run: |
+          pnpm --filter rowtrack figma:check
+          pnpm --filter rowtrack figma:check:selftest
+
+      # Parity vergelijkt de gemeten browser-geometrie met de laatst gelezen Figma-staat, op
+      # boompad, per node. De selftest ernaast toetst de MACHINERIE: hij synthetiseert een
+      # Figma-kant uit de spec en eist rood op een wortel, een binnennode, een schermframe,
+      # een extra wrapper en een verdwenen node — plus groen zonder mutatie.
+      - name: Guard — rowtrack Figma ↔ browser (geometrie-parity, met tegenproef)
+        run: |
+          pnpm --filter rowtrack parity
+          pnpm --filter rowtrack parity:selftest
+
+      # Drie tegenproeven zonder eigen guard-stap: de builder-poort (weigert een gepubliceerde
+      # of met de hand gewijzigde pagina te legen), de laagnaam-ladder (elk feit verslaat de
+      # gok eronder) en spec-diff (de per-snede-poort die de gerenderde DOM tegen HEAD legt).
+      - name: Guard — rowtrack tegenproeven (poort, laagnamen, spec-diff)
+        run: |
+          pnpm --filter rowtrack figma:poort:selftest
+          pnpm --filter rowtrack laagnamen:selftest
+          pnpm --filter rowtrack spec-diff:selftest
