@@ -2,7 +2,7 @@
   "$comment": "Neergeslagen Figma-staat van het Component library-bestand. NIET met de hand bewerken: ververs via het figma_execute-commando in packages/ui/CLAUDE.md (## Verify-pad). scripts/figma-sync-check.mjs toetst dit bestand tegen de code.",
   "fileKey": "ko2OuasYxyY2YRD69MYhWX",
   "fileName": "Component library",
-  "gegenereerd": "2026-09-08",
+  "gegenereerd": "2026-09-09",
   "collections": {
     "Theme": {
       "modes": [
@@ -804,6 +804,41 @@
         "type": "COMPONENT",
         "variantProperties": null,
         "varianten": null
+      },
+      "extra": []
+    },
+    "Sheet": {
+      "pageId": "83:20",
+      "primary": {
+        "name": "SheetContent",
+        "id": "83:37",
+        "type": "COMPONENT_SET",
+        "variantProperties": {
+          "side": [
+            "right",
+            "left",
+            "top",
+            "bottom"
+          ]
+        },
+        "varianten": [
+          {
+            "name": "side=right",
+            "id": "83:21"
+          },
+          {
+            "name": "side=left",
+            "id": "83:25"
+          },
+          {
+            "name": "side=top",
+            "id": "83:29"
+          },
+          {
+            "name": "side=bottom",
+            "id": "83:33"
+          }
+        ]
       },
       "extra": []
     }

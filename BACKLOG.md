@@ -41,6 +41,12 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 
 # Globaal
 
+## 2026-09-09 — De token-guard leest commentaar als code · [tooling]
+- **Wat:** `packages/tokens/scripts/guard.mjs` scant platte tekst, dus een regel commentaar die uitlegt waaróm een mode-blinde kleur *niet* gebruikt wordt, telt zelf als overtreding. Gemeten bij het bouwen van `packages/ui/components/ui/sheet.tsx`: de guard vuurde op regel 18 — de zin die de juiste keuze motiveert — met `[absolute-white-black]`.
+- **Waarom niet nu:** Het raakt een gedeelde guard die in CI draait, en de fix vraagt zijn eigen tegenproef. Omzeild door de klassenaam in het commentaar niet uit te schrijven; dat maakt de uitleg slechter om het gereedschap te plezieren, dus het is een omweg en geen oplossing.
+- **Eerste zet:** Comment-regels overslaan vóór het scannen (`//`, `/* */`, en JSX-commentaar). De tegenproef die erbij hoort is de scherpe kant: een klasse die in een JSX-string staat mag níet wegvallen omdat er toevallig een `//` in dezelfde regel voorkomt — bouw dat geval expliciet, anders ruilt de fix een valse melding voor een gemiste.
+- **Status:** open
+
 ## 2026-08-25 — Spacing-, border- en shadow-schaal hebben geen token-bron · [refactor]
 - **Wat:** De Figma-collection `Base` draagt `spacing-*` (13 stappen), `border-1/2`, `icon-stroke` en de effect styles `shadow/sm|md`. Geen daarvan komt uit `tokens.json`: hun bron is de Tailwind-default, respectievelijk lucide-react. `roles.mjs` zegt zelf "later spacing, en type". Zolang dat er niet is, is de Figma-kant de enige plek waar deze schaal expliciet staat — en dus een tweede bron naast de tokens.
 - **Waarom niet nu:** De Storybook→Figma-export moest de waarden ergens vandaan halen; ze rauw laten zou principe 2 van `code-naar-figma` schenden (nul hardcoded waarden). Een `Spacing`-set in `tokens.json` toevoegen is een gecoördineerde token-restructurering die via Tokens Studio en een Pull hoort te lopen — een eigen taak, niet een bijproduct van deze.
