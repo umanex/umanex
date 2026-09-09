@@ -68,17 +68,19 @@ Harde rail: **max 3 iteraties**. Convergeert het niet → gecontroleerde stop: `
 
 *Een instrument dat draait is nog geen instrument dat meet.* Toon vooraf dat de uitkomst hád kunnen afwijken. Toets een **guard** op béide kanten; een **lege** uitkomst vraagt een positieve controle — leeg is net zo vaak wáár als kapot — een **groene** een negatieve, een **vervangen** instrument eerst het óngewijzigde. Twee instrumenten kunnen alléén bevestigen: een **rapportageformaat dat het antwoord inbakt** en een **zwarte lijst voor een positieve regel**. Beoordelaars op één afgeleide bron: één meting. Niet op te wekken: `[NIET TE VERIFIËREN — reden]`, geen proxy.
 
-*Een lus over een variabele draait in zsh één keer.* De tool-shell is zsh en splitst een ongequote variabele niet op whitespace: `for f in $VAR` itereert over één lange string in plaats van over de regels, en er faalt niets. Gebruik:
+*Draai een poort twee keer vóór zijn uitspraak bewijs is.* Eén run onderscheidt "meet" niet van "meet soms" — de herhaalbaarheids-as van de vorige rail. Een instrument dat over N items loopt kan met N degraderen, dus faalt een item aan het einde van een reeks, toets het eerst in isolatie: `for i in 1 2 3; do node <poort> 2>&1 | tail -1; done`.
+
+*Een lus over een variabele draait in zsh één keer.* De tool-shell is zsh en splitst een ongequote variabele niet: `for f in $VAR` itereert over één lange string, en er faalt niets. Gebruik:
 
 ```bash
 printf '%s\n' "$VAR" | while IFS= read -r f; do … ; done
 ```
 
-of geef de lijst aan `xargs`. Committed scripts met `#!/bin/bash` zijn wél correct; dit geldt alleen inline. Bij een lege uitkomst uit zo'n lus is de eerste vraag niet "is er niets" maar "heeft de lus gedraaid".
+of geef de lijst aan `xargs`. Committed scripts met `#!/bin/bash` zijn wél correct; dit geldt alleen inline. Bij een lege uitkomst uit zo'n lus is de eerste vraag niet "is er niets" maar "heeft de lus gedraaid". Dezelfde shell houdt zijn **cwd** vast tussen calls — anker met `git -C <repo>` of absolute paden.
 
 *De tegenproef draagt het defect zelf, en beweegt met het object mee.* Rood kúnnen worden volstaat niet: hij moet afgaan op precies het defect waarvoor de code bestaat. Drie vormen: **neem de fix weg** en eis dat de suite omvalt; **vind het object eerst** vóór je er een eigenschap van meet; **verander het object** en eis dat de check meebeweegt. Geven **beide kanten** dezelfde uitkomst, dan is dat geen dubbele bevestiging maar de melding dat je opstelling het defect niet kán opwekken; de enige geldige conclusie is dat de test ongeschikt is.
 
-*Een muterende stap is zelf een meting.* Opruimen, resetten, patchen, invalideren — een stap die de toestand verandert vóór je meet en die per constructie niet kán klagen, is geen handeling maar een aanname. `rm -rf` op een niet-bestaand pad geeft exit 0 en zwijgt; een patch die zijn doelregel niet meer vindt laat de goede configuratie staan en meldt groen. Eis een uitkomst: `[ -d "$PAD" ] || { echo "STOP — pad bestaat niet"; exit 1; }`, of `git diff --quiet -- "$M" && { echo "STOP — patch raakte niets"; exit 1; }`.
+*Een muterende stap is zelf een meting.* Opruimen, resetten, patchen, stashen, afkappen — een stap die de toestand verandert vóór je meet en die per constructie niet kán klagen, is geen handeling maar een aanname. `rm -rf` op een niet-bestaand pad geeft exit 0; een patch die zijn doelregel mist meldt groen; een kap met een teller die een andere eenheid telt dan hij snijdt staat altijd op 0. Eis een uitkomst op het effect: `[ -d "$PAD" ] || { echo "STOP — pad bestaat niet"; exit 1; }`, of `git diff --quiet -- "$M" && { echo "STOP — patch raakte niets"; exit 1; }`.
 
 *Een naam is een bewering over het ding, niet het ding.* Identificeer aan **inhoud**, niet aan label, tag of type — en tel eerst: `querySelectorAll(<selector>).length` hoort **1** te zijn vóór je er iets van afleest. Spreken twee onafhankelijke signalen elkaar tegen, dan is dat het **alarm**: verklaar het of meld beide, in dezelfde aanroep als de meting. Trek een onbevestigde gevolgtrekking nooit door naar zusters. Een rail beschermt wie hem leest, niet het script dat hij schreef: een procedure die je committeert telt zélf, of ze telt niet.
 
@@ -93,7 +95,7 @@ awk -v s=open '/^## [0-9]{4}-[0-9]{2}-[0-9]{2}/{h=$0; next}
 
 *Een verwachtingswaarde is geen meting.* Een vuistregel, typische waarde of logisch ogend aggregaat is een **hypothese**, nooit het bewijs dat een empirische vraag afsluit — een telling op de **invoer** evenmin, tot je de bewerking ertussen verrekent. Het schaadt het meest in een **keuzevraag**: een ongemeten getal, of een zin die uitlegt waaróm iets geen probleem is, wordt in een `AskUserQuestion`-optie de grond waarop de gebruiker beslist. Zet daar je meting, of markeer het als schatting — kantelt de aanname, bied de keuze opnieuw aan.
 
-*Je zekerheid moet dekken wat je werkelijk deed.* Een melding draagt impliciet dat er een tool-call onder zit: zeg "vermoedelijk" tot je het getoetst hebt, en vink een schrijfactie pas af ná de call die hem uitvoert. Herkenningsteken: een bewering die in dezelfde adem ontstaat én wordt afgevinkt. Is ze betwist, open dan de bron of vraag erom — "ik heb het nooit gezien" is een vraag, geen voetnoot. Een **identifier** (PR-nummer, node-id, project-ref) wordt *uitgegeven*: lees hem terug mét de naam van zijn bron, voorspel hem niet.
+*Je zekerheid moet dekken wat je werkelijk deed.* Een melding draagt impliciet dat er een tool-call onder zit: zeg "vermoedelijk" tot je het getoetst hebt, en vink een schrijfactie pas af ná de call die hem uitvoert. Herkenningsteken: een bewering die in dezelfde adem ontstaat én wordt afgevinkt. Is ze betwist, open dan de bron of vraag erom — "ik heb het nooit gezien" is een vraag, geen voetnoot. Een **identifier** (PR-nummer, node-id, project-ref) wordt *uitgegeven*: lees hem terug mét de naam van zijn bron, voorspel hem niet. Een getal zonder verwachte waarde bevestigt niets.
 
 **Het gemeten bewijs achter deze elf staat in de `verify` skill**, als genummerde rails met hun gevallen — welk instrument precies wat verzweeg, en op welk scherm. Die skill is de operationele kant; deze lijst is wat je altijd bij je hebt. Zoek je het waaróm van een rail, of ben je aan het verifiëren, lees hem daar — de invariant-as staat er nu ook.
 
@@ -230,6 +232,8 @@ een tweede losse installatie.
 3. Tokens of design system bestanden wijzigen
 4. Nieuwe dependencies installeren (`pnpm add ...`) of bestaande upgraden/downgraden
 5. Config bestanden wijzigen (`tsconfig.json`, `next.config.*`, `tailwind.config.*`, `turbo.json`, `package.json` non-trivial wijzigingen)
+
+**"Eerst bevestigen" is een vraag, geen gesloten deur.** Is zo'n actie de rechtstreekse fix, leg hem dan voor — bouw er geen bredere omweg omheen om de vraag te ontlopen. Drie compensaties in een Storybook-config waar één `pnpm add -D` volstond (rowtrack, 2026-09-08) zijn erger dan de vraag.
 
 Voor andere wijzigingen (nieuwe components, refactors binnen één file, bug fixes) hoeft geen toestemming gevraagd te worden — gewoon doen en in de samenvatting noemen wat er gebeurd is.
 
