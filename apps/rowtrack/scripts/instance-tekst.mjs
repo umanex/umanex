@@ -42,7 +42,13 @@ const SELFTEST = process.argv.includes('--selftest');
 // Laatste meting: 2026-09-09, 24 frames, 135 instances. Een eerdere telling zonder de
 // terugval-toets zei 119: daar zaten de 96 WheelPicker-items in, en die instance valt terug
 // (scrollinhoud 2000 tegen 4400) en toont dus wél de schermdata. Vandaar de toets vóór de telling.
-const BEKEND_ZONDER_SLOT = 23;
+//
+// NUL, en dat is een VLOER, geen toevallige stand. `markeerAfgeleideSlots` in de pruner leidt
+// een slot af uit tekst die tussen twee SCHERMVOORKOMENS van hetzelfde component verschilt;
+// dat sloot dezelfde dag 23 -> 0. Elke nieuwe stille tekst is dus een echte regressie: een
+// component waarvan de data-as niet meer als slot uitgedrukt wordt. De ratel blijft tweezijdig
+// zodat een verhoging even zichtbaar is als een verlaging.
+const BEKEND_ZONDER_SLOT = 0;
 const BEKEND_TERUGVAL = 37;
 const TOL = 0.5;
 
@@ -160,25 +166,46 @@ if (SELFTEST) {
   const a = analyse(min, keys), b = analyse(min, keys);
   const eis = (naam, ok, detail = '') => { console.log(`  ${ok ? 'ok ' : 'XX '} ${naam}${detail ? ' — ' + detail : ''}`); if (!ok) process.exitCode = 1; };
   eis('controle: twee runs, zelfde getal', a.zonderSlot === b.zonderSlot && a.terugvalTotaal === b.terugvalTotaal, `${a.zonderSlot}/${a.terugvalTotaal}`);
-  // mutatie 1: het eerste stille geval krijgt een slot op zijn library-pad → precies één minder
-  const m1 = structuredClone(min);
-  const eerste = a.stil[0];
-  eis('er is een stil geval om te muteren', !!eerste);
-  if (eerste) {
-    const [, scherm, frame, comp, pad] = eerste.match(/^(\S+)\/(.+?) (\S+) (\S*):/);
-    const n = m1.schermen[scherm].frames.find(f => f.naam === frame);
-    let plek = null; (function zoek(x) { if (plek) return; if (x.component === comp) { plek = x; return; } (x.k ?? []).forEach(zoek); })(n.boom);
-    const keuze = kiesVariant(plek, keys.componenten[comp], m1.componenten[comp]);
-    libNode(m1, comp, keuze.variant.naam, pad).slot = 'zelftest';
+  /**
+   * MUTATIE 1 — een slot erbij geeft één stille tekst minder.
+   *
+   * Deze kant ZOCHT tot 2026-09-09 een bestaand stil geval om te repareren, en dat werkte
+   * alleen zolang er stille gevallen waren. Sinds `markeerAfgeleideSlots` staat de teller op
+   * nul en had de zelftest niets meer om te muteren: hij meldde `XX er is een stil geval om
+   * te muteren` en de hele as was daarmee onbewijsbaar. Een tegenproef die afhangt van de
+   * aanwezigheid van het defect verdwijnt precies wanneer het defect verdwijnt.
+   *
+   * Hij MAAKT het defect nu zelf: neem een slot weg (dat levert stille teksten op), zet er
+   * daarna één terug, en eis dat het getal precies één zakt. Twee kanten uit dezelfde
+   * mutatie, en allebei op een toestand die altijd op te wekken is.
+   */
+  const weg1 = a.slotTreffers[0];
+  eis('er is een gebruikt slot om het defect mee te maken', !!weg1, weg1 ? `${weg1.naam}[${weg1.variant}] ${weg1.pad}` : '');
+  if (weg1) {
+    const kaal = structuredClone(min);
+    delete libNode(kaal, weg1.naam, weg1.variant, weg1.pad).slot;
+    const stil = analyse(kaal, keys);
+    eis('het defect is opgewekt', stil.zonderSlot > a.zonderSlot, `${a.zonderSlot} → ${stil.zonderSlot}`);
+    /**
+     * Terug naar de basislijn, EXACT. "Eén minder" was de oude eis en die klopte alleen zolang
+     * elk stil geval zijn eigen pad had; één library-node bedient 21 KpiRow-instances, dus
+     * hetzelfde slot terugzetten haalt er 21 tegelijk weg. Een exacte terugkeer is bovendien
+     * een scherpere claim dan "minder": hij sluit uit dat de as op iets anders reageert.
+     */
+    const m1 = structuredClone(kaal);
+    libNode(m1, weg1.naam, weg1.variant, weg1.pad).slot = 'zelftest';
     const c = analyse(m1, keys);
-    eis('slot erbij in de library → één stille tekst minder', c.zonderSlot === a.zonderSlot - 1, `${a.zonderSlot} → ${c.zonderSlot}`);
+    eis('hetzelfde slot terug → exact terug op de basislijn', c.zonderSlot === a.zonderSlot,
+      `${stil.zonderSlot} → ${c.zonderSlot}, basislijn ${a.zonderSlot}`);
   }
   // mutatie 2: een slot dat een BLIJVENDE instance ook echt gebruikt verdwijnt → meer stille
   // teksten. Niet zomaar het eerste slot in de library: dat kan van een component zijn dat in
   // geen enkel scherm als instance staat (BleStatusBar), en dan beweegt er niets — gemeten.
   const m2 = structuredClone(min);
-  const weg = a.slotTreffers[0];
-  eis('er is een gebruikt slot om weg te nemen', !!weg, weg ? `${weg.naam}[${weg.variant}] ${weg.pad}` : '');
+  // Bewust een slot van een ÁNDER component dan mutatie 1: twee keer aan dezelfde hendel
+  // trekken bewijst niets over de tweede.
+  const weg = a.slotTreffers.find(x => x.naam !== weg1?.naam) ?? a.slotTreffers[0];
+  eis('er is een gebruikt slot van een ander component om weg te nemen', !!weg, weg ? `${weg.naam}[${weg.variant}] ${weg.pad}` : '');
   if (weg) {
     delete libNode(m2, weg.naam, weg.variant, weg.pad).slot;
     const c = analyse(m2, keys);

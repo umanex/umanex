@@ -56,7 +56,9 @@
  *   --schrijf-fixture=<pad> een uit de spec gesynthetiseerde Figma-kant wegschrijven
  *   --zonder-uitsluiting    figma/niet-reproduceerbaar.json negeren (tegenproef van de lijst)
  */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bedektPredikaat, echteKinderen, heeftVulling, isIcoon, isTekstNode, kindPad } from './spec-boom.mjs';
@@ -103,9 +105,26 @@ const dichtbij = (a, b) => a === null || b === null || Math.abs(a - b) <= TOL;
 
 // De Figma-kant is compact gecodeerd: een node is een array. Het recept schrijft `velden`
 // mee in het bestand, zodat de codering zichzelf beschrijft; deze namen zijn de lezerskant.
-const F = { h: 0, paddingLeft: 1, paddingRight: 2, itemSpacing: 3, radius: 4, strokeWeight: 5, opacity: 6, vlaggen: 7, k: 8 };
-const VELDNAMEN = ['h', 'paddingLeft', 'paddingRight', 'itemSpacing', 'radius', 'strokeWeight', 'opacity', 'vlaggen'];
+const F = { h: 0, paddingLeft: 1, paddingRight: 2, itemSpacing: 3, radius: 4, strokeWeights: 5, opacity: 6, vlaggen: 7, k: 8 };
+const VELDNAMEN = ['h', 'paddingLeft', 'paddingRight', 'itemSpacing', 'radius', 'strokeWeights', 'opacity', 'vlaggen'];
 const VULLING = 1, RAND = 2, EFFECT = 4;
+/**
+ * SCHEMA 3 — index 5 draagt VIER breedtes, niet één.
+ *
+ * Schema 2 had daar `strokeWeight`, en bij verschillende zijden geeft Figma `figma.mixed`;
+ * het recept schreef dan `null` en `dichtbij()` laat null altijd door. Een scheidingslijn die
+ * als volle doos gebouwd werd, kwam er dus ongemerkt doorheen — de as zweeg precies op de
+ * nodes waar hij het hardst nodig was. 138 van de 333 nodes met rand zijn asymmetrisch.
+ */
+const SCHEMA = 3;
+/** De vier zijden van een spec-node: `borderZijden` als hij er is, anders vier keer `border`. */
+const specZijden = (n) => n.borderZijden ?? [n.border ?? 0, n.border ?? 0, n.border ?? 0, n.border ?? 0];
+/** De vier zijden van een Figma-node. Zonder rand-vlag zegt Figma's default-1 niets. */
+const figZijden = (fn, vlaggen) => {
+  if (!(vlaggen & RAND)) return [0, 0, 0, 0];
+  const w = fn[F.strokeWeights];
+  return Array.isArray(w) ? w.map(x => x ?? 0) : [w ?? 0, w ?? 0, w ?? 0, w ?? 0];
+};
 
 
 /**
@@ -148,18 +167,28 @@ function loop(specNode, figNode, pad, ctx) {
     ['paddingRight', specNode.padding?.[1] ?? 0, figNode[F.paddingRight] ?? 0],
     ['gap', specNode.gap ?? 0, figNode[F.itemSpacing] ?? 0],
     ['radius', specNode.radius?.[0] ?? 0, figNode[F.radius] ?? 0],
-    // Figma zet strokeWeight standaard op 1, ook op een frame ZONDER strokes. Die 1 zegt
-    // dus niets zolang er geen rand is; vergelijken zonder deze poort gaf 40 valse
-    // verschillen (gemeten 2026-09-07, o.a. elke ghost- en destructive-knop).
-    ['randbreedte', specNode.border ?? 0, (vlaggen & RAND) ? (figNode[F.strokeWeight] ?? 0) : 0],
     ['opacity', specNode.opacity ?? 1, figNode[F.opacity] ?? 1],
   ];
-  const FRAME_ALLEEN = new Set(['paddingLeft', 'paddingRight', 'gap', 'radius', 'randbreedte']);
+  // Figma zet strokeWeight standaard op 1, ook op een frame ZONDER strokes. Die 1 zegt
+  // dus niets zolang er geen rand is; vergelijken zonder die poort gaf 40 valse
+  // verschillen (gemeten 2026-09-07, o.a. elke ghost- en destructive-knop). `figZijden`
+  // draagt hem. De vier zijden tellen elk als veld — een scheidingslijn die als volle doos
+  // gebouwd wordt, wijkt op drie ervan af — maar melden doen ze samen, want los gelezen is
+  // "boven 0 tegen 1" niet te onderscheiden van ruis.
+  const bZijden = specZijden(specNode), fZijden = figZijden(figNode, vlaggen);
+  const NAMEN_ZIJDE = ['boven', 'rechts', 'onder', 'links'];
+  const FRAME_ALLEEN = new Set(['paddingLeft', 'paddingRight', 'gap', 'radius']);
   for (const [naam, browser, figma] of paar) {
     if (tekst && FRAME_ALLEEN.has(naam)) continue;
     if (naam === 'hoogte' && !hoogteGezet) continue;
     ctx.velden++;
     if (!dichtbij(browser, figma)) ctx.verschillen.push(`${pad} ${naam}: browser ${browser} tegen Figma ${figma}`);
+  }
+  if (!tekst) {
+    ctx.velden += 4;
+    const mis = bZijden.map((b, i) => dichtbij(b, fZijden[i]) ? null : NAMEN_ZIJDE[i]).filter(Boolean);
+    if (mis.length) ctx.verschillen.push(
+      `${pad} randbreedte (${mis.join(', ')}): browser ${bZijden.join('/')} tegen Figma ${fZijden.join('/')}`);
   }
   // Aanwezigheid, niet gelijkheid. Op een tekstnode zijn fills/strokes de glyph, geen doos.
   if (!tekst) {
@@ -229,13 +258,13 @@ function synthetiseer(spec) {
       tekst ? 0 : (n.padding?.[1] ?? 0),
       tekst ? 0 : (n.gap ?? 0),
       tekst ? 0 : (n.radius?.[0] ?? 0),
-      (vlaggen & RAND) ? (n.border ?? 0) : 1,   // Figma's default-1 zonder rand
+      (vlaggen & RAND) ? specZijden(n) : [1, 1, 1, 1],   // Figma's default-1 zonder rand
       n.opacity ?? 1,
       vlaggen,
     ];
-    if (isIcoon(n)) return [n.h, 0, 0, 0, 2, 1, 1, RAND];   // placeholder-frame, regel 3
+    if (isIcoon(n)) return [n.h, 0, 0, 0, 2, [1, 1, 1, 1], 1, RAND];   // placeholder-frame, regel 3
     const kinderen = (n.k ?? []).filter((k) => !bedektPredikaat(n)(k)).map(node);
-    if (n.t && n.k) kinderen.push([n.h, 0, 0, 0, 0, 1, 1, 0]);   // regel 2: `label` achteraan
+    if (n.t && n.k) kinderen.push([n.h, 0, 0, 0, 0, [1, 1, 1, 1], 1, 0]);   // regel 2: `label` achteraan
     if (kinderen.length) uit.push(kinderen);
     return uit;
   };
@@ -246,7 +275,7 @@ function synthetiseer(spec) {
       for (const v of uit(d)) varianten[v.naam] = [v.boom, ...(v.overlays ?? [])].map(node);
       paginas[comp] = { setId: `synth:${comp}`, varianten };
     }
-  return { schema: 2, gegenereerd: 'synthetisch', velden: VELDNAMEN, paginas };
+  return { schema: SCHEMA, gegenereerd: 'synthetisch', velden: VELDNAMEN, paginas };
 }
 
 // ── Zelftest ────────────────────────────────────────────────────────────────────────────
@@ -276,6 +305,29 @@ if (SELFTEST) {
   })();
   const eersteComp = Object.keys(spec.componenten)[0];
   const eersteVar = spec.componenten[eersteComp].varianten[0].naam;
+  /**
+   * Een node MET rand opzoeken. De randas is per constructie stil op een node zonder rand
+   * (Figma's default-1 zegt daar niets), dus een mutatie op een willekeurige node zou hier
+   * niet rood worden — en dat zou een uitspraak zijn over de opstelling, niet over de as.
+   * Vind eerst het object, meet er dan een eigenschap van.
+   */
+  const randPad = (() => {
+    for (const [comp, d] of Object.entries(spec.componenten))
+      for (const v of d.varianten) {
+        const zoek = (n, idx, naam) => {
+          if ((n.border ?? 0) > 0 && idx.length) return { comp, variant: v.naam, idx, naam };
+          const k = (n.k ?? []).filter((x) => !bedektPredikaat(n)(x));
+          for (let i = 0; i < k.length; i++) {
+            const r = zoek(k[i], [...idx, i], `${naam}>${i}:${k[i].naam ?? '?'}`);
+            if (r) return r;
+          }
+          return null;
+        };
+        const r = zoek(v.boom, [], `${comp}[${v.naam}]`);
+        if (r) return r;
+      }
+    return null;
+  })();
 
   // Een node op zijn pad opzoeken in de Figma-kant.
   const zoek = (f, doel) => { let n = f.paginas[doel.comp].varianten[doel.variant][0]; for (const i of doel.idx) n = n[F.k][i]; return n; };
@@ -291,6 +343,9 @@ if (SELFTEST) {
     { label: 'schermframe', doel: schermPad, veld: F.itemSpacing },
     { label: 'extra wrapper', doel: diepPad, structuur: 'toevoegen' },
     { label: 'node verdwenen', doel: schermPad, structuur: 'weghalen' },
+    // Eén zijde, niet alle vier: een volle doos tegen een scheidingslijn is precies het
+    // verschil dat schema 2 als `null` doorliet.
+    { label: 'randbreedte op één zijde', doel: randPad, structuur: 'randzijde' },
   ];
   let stuk = 0;
   for (const { label, doel, veld, structuur } of gevallen) {
@@ -300,11 +355,15 @@ if (SELFTEST) {
     if (doel && structuur === 'toevoegen') {
       // Een extra kind in Figma dat de spec niet heeft: de OUDER telt dan één kind te veel.
       const n = zoek(f, doel);
-      (n[F.k] ??= []).push([1, 0, 0, 0, 0, 1, 1, 0]);
+      (n[F.k] ??= []).push([1, 0, 0, 0, 0, [1, 1, 1, 1], 1, 0]);
     } else if (doel && structuur === 'weghalen') {
       const ouder = zoek(f, { ...doel, idx: doel.idx.slice(0, -1) });
       ouder[F.k].splice(doel.idx.at(-1), 1);
       verwacht = doel.naam.slice(0, doel.naam.lastIndexOf('>'));   // de bevinding zit op de OUDER
+    } else if (doel && structuur === 'randzijde') {
+      const n = zoek(f, doel);
+      n[F.strokeWeights] = [...figZijden(n, n[F.vlaggen] ?? 0)];
+      n[F.strokeWeights][2] += 3;                     // alleen ONDER
     } else if (doel) {
       zoek(f, doel)[veld] += 5;
     }
@@ -318,9 +377,38 @@ if (SELFTEST) {
       stuk++;
     } else console.log(`  ok   ${label}: ${raak[0]}`);
   }
+  /**
+   * DE SCHEMA-POORT, OP BEIDE KANTEN — en op het bestand dat hem tot vandaag niet had.
+   *
+   * `geometry.schermen.json` werd ingevouwen zonder dat zijn `schema` ooit gelezen werd, dus
+   * een schermbestand van een ouder schema reisde stil mee met de codering van een nieuwer.
+   * Eén kant volstaat hier niet: een poort die altijd weigert is niet te onderscheiden van een
+   * poort die weigert om de juiste reden. Beide kanten draaien in een apart proces, want een
+   * poort die klaagt doet dat met `process.exit`.
+   */
+  const tmp = mkdtempSync(join(tmpdir(), 'parity-schema-'));
+  const bibPad = join(tmp, 'bib.json'), schPad = join(tmp, 'sch.json');
+  writeFileSync(bibPad, JSON.stringify(basis));
+  const draai = (schermSchema) => {
+    writeFileSync(schPad, JSON.stringify({ ...basis, schema: schermSchema }));
+    const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url),
+      `--figma=${bibPad}`, `--schermgeometrie=${schPad}`], { encoding: 'utf8' });
+    return { code: r.status, uit: (r.stdout ?? '') + (r.stderr ?? '') };
+  };
+  const oudSchema = draai(SCHEMA - 1), goedSchema = draai(SCHEMA);
+  if (oudSchema.code !== 2 || !oudSchema.uit.includes(`staat op schema ${SCHEMA - 1}`)) {
+    console.log(`  FAAL schermschema (verkeerde kant): exit ${oudSchema.code}, verwacht 2 met een klacht over het SCHERMbestand`);
+    stuk++;
+  } else console.log('  ok   schermschema: een schermbestand op het vorige schema wordt geweigerd (exit 2)');
+  if (goedSchema.code === 2 && goedSchema.uit.includes('staat op schema')) {
+    console.log(`  FAAL schermschema (goede kant): een schermbestand op schema ${SCHEMA} wordt óók geweigerd — de poort weigert alles`);
+    stuk++;
+  } else console.log(`  ok   schermschema: een schermbestand op schema ${SCHEMA} komt door de poort`);
+  rmSync(tmp, { recursive: true, force: true });
+
   console.log(stuk
     ? `\nzelftest: ${stuk} geval(len) stuk — de vergelijking meet niet wat hij beweert.`
-    : '\nzelftest: de recursie daalt af en wordt rood op een wortel, een binnennode, een schermframe,\neen extra wrapper en een verdwenen node — en blijft groen zonder mutatie.\nDit toetst de MACHINERIE, niet de builder: de Figma-kant is hier gesynthetiseerd uit de spec.');
+    : '\nzelftest: de recursie daalt af en wordt rood op een wortel, een binnennode, een schermframe,\neen extra wrapper, een verdwenen node en één randzijde — en blijft groen zonder mutatie.\nDe schema-poort weigert een verouderd SCHERMbestand en laat een actueel door.\nDit toetst de MACHINERIE, niet de builder: de Figma-kant is hier gesynthetiseerd uit de spec.');
   process.exit(stuk ? 1 : 0);
 }
 
@@ -343,18 +431,32 @@ const fig = JSON.parse(readFileSync(figmaPad, 'utf8'));
  * komt daarom uit een tweede lezing; ontbreekt die, dan blijven ze `~~ nieuw, nog niet gebouwd`
  * in plaats van stil ongemeten.
  */
-const schermPad = join(APP, 'figma/geometry.schermen.json');
+/**
+ * DE POORT GELDT VOOR BEIDE BESTANDEN.
+ *
+ * Tot 2026-09-09 werd alleen `fig.schema` gelezen, en het schermbestand werd er daarvóór al
+ * ingevouwen — een verouderd `geometry.schermen.json` reisde dus mee met de codering van een
+ * ander schema, zonder één woord. Dat is precies de vorm die deze as hoort te betrappen: twee
+ * bronnen, één controle. De poort staat nu vóór het samenvoegen en toetst wat hij samenvoegt.
+ */
+function toetsSchema(pad, gelezen) {
+  if (gelezen === SCHEMA) return;
+  console.error(`${pad} staat op schema ${gelezen ?? 1}, deze as vraagt ${SCHEMA}.`);
+  console.error('Schema 3 draagt de randbreedte per ZIJDE; schema 2 had er één getal voor en schreef');
+  console.error('`null` zodra de zijden verschilden — waar null altijd door de vergelijking heen komt.');
+  console.error('Schema 1 las alleen wortelnodes. Lees het bestand opnieuw uit met het recept in');
+  console.error('apps/rowtrack/CLAUDE.md → Verify-pad (Desktop Bridge nodig).');
+  process.exit(2);
+}
+toetsSchema(figmaPad, fig.schema);
+// Overschrijfbaar zodat de zelftest de poort op een wegwerpbestand kan toetsen zonder de
+// laatste echte lezing aan te raken — dezelfde reden als `--figma=` hierboven.
+const schermPad = vlag('schermgeometrie') ?? join(APP, 'figma/geometry.schermen.json');
 if (existsSync(schermPad)) {
   const sch = JSON.parse(readFileSync(schermPad, 'utf8'));
+  toetsSchema(schermPad, sch.schema);
   fig.paginas = { ...(fig.paginas ?? {}), ...(sch.paginas ?? {}) };
   fig.schermenBron = { bestand: sch.bron, pagina: sch.pagina, gegenereerd: sch.gegenereerd };
-}
-if (fig.schema !== 2) {
-  console.error(`${figmaPad} staat op schema ${fig.schema ?? 1} (alleen wortelnodes).`);
-  console.error('Deze as is sinds 2026-09-08 recursief en meet ook de schermen; een schema-1-bestand');
-  console.error('zou stil 95% van de nodes overslaan. Lees hem opnieuw uit met het recursieve recept');
-  console.error('in apps/rowtrack/CLAUDE.md → Verify-pad (Desktop Bridge nodig).');
-  process.exit(2);
 }
 
 /**

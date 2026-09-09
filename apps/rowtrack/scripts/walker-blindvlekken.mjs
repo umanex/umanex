@@ -10,9 +10,18 @@
  * probleem". Dit script leest de DOM rechtstreeks, buiten de walker om, en is daarmee de
  * positieve controle: staat hier een getal, dan is het gat echt.
  *
- *   rand         — randen met verschillende breedtes per zijde; de walker leest alleen
- *                  `borderTopWidth`, de builder zet één `strokeWeight` (1/0/1/0 wordt een
- *                  volledige doos, 0/0/1/0 verdwijnt)
+ *   randkleur    — een node met VERSCHILLENDE KLEUREN op zijn gezette zijden. Figma's
+ *                  `strokes` is één verfarray voor de hele node, dus dat is er niet in uit te
+ *                  drukken; de builder zet de eerste kleur en meldt het.
+ *                  Hier stond tot 2026-09-09 `rand` — randen met verschillende BREEDTES per
+ *                  zijde — met 110 treffers. Die zijn geen blinde vlek meer: de walker meet
+ *                  sinds die dag alle vier de zijden en de builder zet `strokeTopWeight` c.s.
+ *                  Een teller die een gedicht gat blijft tellen, is een vals alarm; wat er
+ *                  van dat gat OVER is, is de kleur. Gemeten over alle 257 stories: 333 nodes
+ *                  met rand, 138 asymmetrisch in twee vormen (99x `0/0/1/0`, 39x `1/0/1/0`),
+ *                  en **0** met meer dan één kleur. Dit is dus een wachtpost op nul, en dat
+ *                  hoort erbij te staan — anders is "nul" straks niet te onderscheiden van
+ *                  een teller die niets meet.
  *   placeholder  — `<input placeholder>` zonder waarde; een attribuut, geen tekstnode, dus
  *                  het veld staat leeg in Figma
  *   gescrold     — containers met `scrollTop > 0`; de walker meet geen scrollpositie, dus de
@@ -29,8 +38,9 @@
  *                  in Figma op y=84 staat en in de browser op y=112. Zonder Figma erbij te
  *                  halen: 84+54+682+84 = 904 tegen een frame van 932
  *
- * Positieve controle (2026-09-09, 42 schermstories): rand 110 · placeholder 4 · gescrold 11 ·
- * overloop 15 · inline 3 · center/right 32 · marge 40. Over alle 257 stories: marge 57 van
+ * Positieve controle (2026-09-09, 42 schermstories): randkleur 0 · placeholder 4 · gescrold 11 ·
+ * overloop 15 · inline 3 · center/right 32 · marge 40. De `randkleur`-nul is gemeten en geen
+ * aanname: dezelfde run telde 333 nodes MET rand, dus de selectie raakt wel degelijk nodes. Over alle 257 stories: marge 57 van
  * 13 237 nodes, verspreid over 38 stories, twaalf unieke waarden. LoginScreen/Playground
  * alleen: placeholder 1, inline 1, center/right 4.
  *
@@ -71,7 +81,7 @@ await new Promise(r => server.listen(0, r));
 const poort = server.address().port;
 const browser = await chromium.launch();
 const page = await browser.newPage();
-const SLEUTELS = ['rand', 'placeholder', 'gescrold', 'overloop', 'inline', 'centerRight', 'marge'];
+const SLEUTELS = ['randkleur', 'metRand', 'placeholder', 'gescrold', 'overloop', 'inline', 'centerRight', 'marge'];
 const tot = Object.fromEntries(SLEUTELS.map(k => [k, 0]));
 const voorbeelden = [];
 let geteld = 0, leeg = 0;
@@ -86,11 +96,20 @@ for (const s of stories) {
     const root = document.getElementById('storybook-root');
     if (!root || !root.children.length) return null;
     const px = v => parseFloat(v) || 0;
-    const uit = { rand: 0, placeholder: 0, gescrold: 0, overloop: 0, inline: 0, centerRight: 0, marge: 0, vb: [] };
+    const uit = { randkleur: 0, metRand: 0, placeholder: 0, gescrold: 0, overloop: 0, inline: 0, centerRight: 0, marge: 0, vb: [] };
     for (const el of root.querySelectorAll('*')) {
       const cs = getComputedStyle(el);
       const b = [px(cs.borderTopWidth), px(cs.borderRightWidth), px(cs.borderBottomWidth), px(cs.borderLeftWidth)];
-      if (Math.max(...b) > 0 && new Set(b).size > 1) { uit.rand++; if (uit.vb.length < 2) uit.vb.push(`rand ${b.join('/')}`); }
+      // `metRand` is de POSITIEVE CONTROLE bij `randkleur`: zonder hem is nul niet te
+      // onderscheiden van een selectie die niets raakt.
+      if (Math.max(...b) > 0) {
+        uit.metRand++;
+        const k = [cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor];
+        if (new Set(k.filter((_, i) => b[i] > 0)).size > 1) {
+          uit.randkleur++;
+          if (uit.vb.length < 2) uit.vb.push(`randkleur ${b.join('/')} ${k.join(' ')}`);
+        }
+      }
       if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.placeholder && !el.value) uit.placeholder++;
       if (el.scrollTop > 0 || el.scrollLeft > 0) uit.gescrold++;
       if (el.scrollHeight > el.clientHeight + 1 && !/hidden|auto|scroll/.test(cs.overflowY)) uit.overloop++;
@@ -107,7 +126,7 @@ for (const s of stories) {
   geteld++;
   for (const k of SLEUTELS) tot[k] += r[k];
   for (const v of r.vb) if (voorbeelden.length < 8) voorbeelden.push(`${naam}: ${v}`);
-  if (VERBOSE) console.log(`  ${naam}: rand=${r.rand} placeholder=${r.placeholder} gescrold=${r.gescrold} overloop=${r.overloop} inline=${r.inline} center/right=${r.centerRight} marge=${r.marge}`);
+  if (VERBOSE) console.log(`  ${naam}: randkleur=${r.randkleur}/${r.metRand} placeholder=${r.placeholder} gescrold=${r.gescrold} overloop=${r.overloop} inline=${r.inline} center/right=${r.centerRight} marge=${r.marge}`);
 }
 await browser.close(); server.close();
 

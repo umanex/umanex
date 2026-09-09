@@ -134,13 +134,30 @@ function snoei(node, diepte, pad, comp) {
   if (node.naamAmbigu) o.naamAmbigu = true;
   if (node.naamGestabiliseerd) o.naamGestabiliseerd = true;
   if (node.slot) o.slot = node.slot;      // deze tekstnode hangt aan een component property
-  if (node.richting && node.display?.includes('flex')) o.rij = node.richting.startsWith('row');
+  /**
+   * KNIPPEN. De builder zette `clipsContent = false` op élk frame, dus wat in de browser
+   * onder de rand verdween liep in Figma gewoon door. `walker-blindvlekken` telt dat als
+   * `overloop`. `visible` knipt niet; `hidden`, `scroll`, `auto` en `clip` wel — en de
+   * shorthand kan twee assen dragen (`hidden auto`), dus de toets staat op de héle waarde.
+   */
+  if (/hidden|scroll|auto|clip/.test(node.overflow ?? '')) o.knipt = true;
+  /**
+   * EEN GEROLDE CONTAINER WORDT ABSOLUUT. De kinderen dragen hun gemeten `dx`/`dy` al
+   * mét de rolling erin verrekend (`getBoundingClientRect` is viewport-gebaseerd), dus de
+   * enige reden dat Figma item 1 toont is dat auto-layout die meting weggooit en opnieuw
+   * vanaf boven stapelt. Zonder auto-layout klopt de plaatsing vanzelf — en dat scheelt een
+   * extra wrapper, die `kinderparen()` in de parity-as als vierde syntheseregel zou moeten
+   * kennen. `gap` en `padding` vallen weg omdat er geen stroom meer is die ze kan uitdrukken.
+   */
+  const gerold = (node.scrollTop ?? 0) > 0.5 || (node.scrollLeft ?? 0) > 0.5;
+  if (gerold) o.gerold = [r2(node.scrollTop ?? 0), r2(node.scrollLeft ?? 0)];
+  if (!gerold && node.richting && node.display?.includes('flex')) o.rij = node.richting.startsWith('row');
   // De marge van de KINDEREN wordt hier bij de gap en de padding van de OUDER opgeteld; de rest
   // gaat als spacer de kinderlijst in (zie `o.k` verderop). Een opgetelde waarde is geen
   // tokenwaarde meer, dus de binding valt op die as weg — anders zet Figma hem stil terug.
-  const M = vouwMarges(node);
-  if (node.gap || M.gap) { o.gap = r2(node.gap + M.gap); if (node.gapVar && !M.gap) o.gapVar = node.gapVar; }
-  if (node.padding.some(p => p) || M.padding.some(p => p)) {
+  const M = gerold ? { gap: 0, padding: [0, 0, 0, 0], voor: new Map(), rest: [] } : vouwMarges(node);
+  if (!gerold && (node.gap || M.gap)) { o.gap = r2(node.gap + M.gap); if (node.gapVar && !M.gap) o.gapVar = node.gapVar; }
+  if (!gerold && (node.padding.some(p => p) || M.padding.some(p => p))) {
     o.padding = node.padding.map((p, i) => r2(p + M.padding[i]));
     if (node.paddingVar?.some(Boolean)) o.paddingVar = node.paddingVar.map((v, i) => (M.padding[i] ? null : v));
   }
@@ -157,6 +174,14 @@ function snoei(node, diepte, pad, comp) {
     o.border = r2(node.borderWidth); o.borderKleur = node.borderColor;
     if (node.borderColorVar) o.borderKleurVar = node.borderColorVar;
     if (node.borderWidthVar) o.borderVar = node.borderWidthVar;
+    // `borderZijden` reist alleen mee als de zijden ECHT verschillen — 138 van 333 nodes.
+    // Voor de andere 195 is `border` het volledige verhaal en zou een array van vier
+    // identieke getallen de spec alleen dikker maken.
+    const z = node.borderWidths ?? [node.borderWidth, node.borderWidth, node.borderWidth, node.borderWidth];
+    if (new Set(z).size > 1) o.borderZijden = z.map(r2);
+    // Figma's `strokes` is één verfarray voor de hele node: een kleur per zijde bestaat er
+    // niet. Vandaag 0 van 333 nodes, dus dit is een wachtpost, geen open wond.
+    if (node.borderKleurenVerschillen) o.randKleurRest = true;
   }
   if (node.opacity < 1) o.opacity = r2(node.opacity);
   if (node.boxShadow) {
@@ -249,7 +274,12 @@ function snoei(node, diepte, pad, comp) {
     for (const k of houden) {
       const extra = M.voor.get(k);
       if (extra) o.k.push({ w: r2(spacerRij ? extra : 1), h: r2(spacerRij ? 1 : extra), naam: 'spacer', naamBron: 'marge' });
-      o.k.push(snoei(k, volgende, `${pad}>${o.k.length}`, comp));
+      const kind = snoei(k, volgende, `${pad}>${o.k.length}`, comp);
+      // In een gerolde container is er geen stroom: elk kind draagt zijn eigen gemeten plek,
+      // rolling inbegrepen. Een weggerold kind heeft een NEGATIEVE dy, en dat is precies wat
+      // het `clipsContent` van de ouder hoort weg te snijden.
+      if (gerold) { kind.abs = true; kind.dx = r2(k.dx); kind.dy = r2(k.dy); }
+      o.k.push(kind);
     }
   } else if (kids.length) {
     o.dieperWeggelaten = kids.length;
@@ -293,6 +323,159 @@ for (const [comp, d] of Object.entries(spec.schermen)) {
     })),
   };
 }
+/**
+ * AFGELEIDE SLOTS — de tekst die per VOORKOMEN verschilt.
+ *
+ * `markeerSlots` in de walker koppelt een story-prop aan een tekstnode: onmisbaar, maar het
+ * dekt alleen wat als losse string in de args staat. WorkoutCard krijgt een `workout`-object,
+ * Segmented een `options`-array — nul slots, terwijl juist die componenten hun tekst per
+ * scherm veranderen. `figma:instance-tekst` telde daar 23 nodes die "stil" zijn: de instance
+ * blijft staan en toont de data van een ánder scherm.
+ *
+ * De voor de hand liggende afleiding — diff over de STORY-VARIANTEN van het component —
+ * dekt daar nul van. Een variant is een stijl-as (`size=sm`, `state=loading`); de tekst is er
+ * juist constant. Wat wél varieert is het VOORKOMEN: dezelfde WorkoutCard, zestien keer in de
+ * schermen, met zestien keer andere data. Een pad waar twee voorkomens verschillende tekst
+ * tonen, is dus data en hoort een slot te zijn.
+ *
+ * Twee dingen die niet vrij zijn:
+ *
+ * - **Stoppen op de componentgrens.** Zowel bij het verzamelen als bij het aflopen: telde de
+ *   tekst van een genest component mee bij de ouder, dan kreeg de ouder een slot op een pad
+ *   BÍNNEN een andere instance, en dat is niet te zetten.
+ * - **Geen naam die op een cijfer eindigt.** De `[eigenschappen]`-as van `figma:check` telt
+ *   properties per stam met `k.split('#')[0].replace(/\d+$/, '')`, dus `label1` en `label2`
+ *   zouden als naamclash gelezen worden — een rode as op een verschil dat er niet is. Bij een
+ *   botsing gaat het pad er daarom als LETTERS achter (`0>1>2` -> `_abc`).
+ */
+function markeerAfgeleideSlots(uit) {
+  const wortel = (boom, naam) => {
+    let w = null;
+    (function zoek(n) { if (w) return; if (n.component === naam) { w = n; return; } (n.k ?? []).forEach(zoek); })(boom);
+    return w;
+  };
+  /**
+   * Tekst per pad, DWARS DOOR geneste componentgrenzen heen.
+   *
+   * Dat lijkt fout — een slot binnen een andere instance is niet te zetten — maar in de
+   * LIBRARY is een genest component geen instance: `builder.js` instantieert alleen wanneer
+   * `SPEC.__instanties` gevuld is, en dat vult alleen `bouw-schermen.js`. Binnen een
+   * library-component staat GoalPill dus als gewone frames, en ActiveHeader kan er een
+   * property op hebben. Stopte de afdaling op de grens, dan bleven precies de vier nodes
+   * stil die `figma:instance-tekst` overhield: ActiveHeader `0>2>0`/`0>2>1` en HeroPanel
+   * `1>1>0`/`1>1>2` — allemaal tekst in een genest component.
+   *
+   * Het genest component krijgt zijn eigen slots daarnaast, uit zijn eigen voorkomens; die
+   * twee bijten elkaar niet, het zijn twee verschillende Figma-componenten.
+   */
+  const teksten = (wortelNode) => {
+    const m = new Map();
+    (function loop(n, pad) {
+      if (n.t) m.set(pad, String(n.t.s));
+      for (const [i, k] of (n.k ?? []).entries()) loop(k, pad === '' ? String(i) : pad + '>' + i);
+    })(wortelNode, '');
+    return m;
+  };
+  /** pad "0>1>2" -> "_abc"; deterministisch en cijfervrij. */
+  const letters = (pad) => '_' + pad.split('>').map(i => {
+    let n = Number(i), s = '';
+    do { s = String.fromCharCode(97 + (n % 26)) + s; n = Math.floor(n / 26) - 1; } while (n >= 0);
+    return s;
+  }).join('');
+
+  /**
+   * ALLEEN SCHERMVOORKOMENS TELLEN ALS VARIATIE — de varianten juist niet.
+   *
+   * Een variant is een STIJL-as (`size=sm`, `state=loading`); zijn tekst is er per ontwerp
+   * constant. Namen ze wél mee, dan wordt elke lijst een slotfabriek: gemeten met varianten
+   * erbij kreeg WheelPicker 32 slots, één per wielrij, terwijl dat component in de schermen
+   * portaleert en dus nul instances heeft. Wat een slot rechtvaardigt is dat DEZELFDE plek in
+   * TWEE SCHERMEN andere data toont.
+   */
+  const voorkomens = new Map();
+  const zet = (comp, m) => { if (!voorkomens.has(comp)) voorkomens.set(comp, []); voorkomens.get(comp).push(m); };
+  for (const [scherm, sc] of Object.entries(uit.schermen))
+    for (const fr of sc.frames)
+      (function loop(n) {
+        const naam = n.component;
+        if (naam && naam !== scherm && uit.componenten[naam]) zet(naam, teksten(n));
+        (n.k ?? []).forEach(loop);                       // dieper: geneste voorkomens tellen ook
+      })(fr.boom);
+
+  const toegevoegd = [];
+  for (const [comp, lijst] of voorkomens) {
+    if (lijst.length < 2) continue;                      // één voorkomen zegt niets over variatie
+    const d = uit.componenten[comp];
+    if (!d) continue;
+    const bestaand = new Set(d.slots ?? []);
+    const dataPaden = [];
+    for (const pad of new Set(lijst.flatMap(m => [...m.keys()])))
+      if (new Set(lijst.map(m => m.get(pad)).filter(x => x !== undefined)).size > 1) dataPaden.push(pad);
+    if (!dataPaden.length) continue;
+    /**
+     * Het pad komt uit ÉÉN voorkomen; een andere variant kan een andere vorm hebben (een
+     * spinner waar de ander een waarde toont), dus de afdaling kan halverwege doodlopen.
+     * Dat is geen fout maar een variant zonder dat veld.
+     */
+    const daal = (w, pad) => {
+      let n = w;
+      for (const i of (pad === '' ? [] : pad.split('>'))) { n = (n?.k ?? [])[Number(i)]; if (!n) break; }
+      return n;
+    };
+    /**
+     * DE NAAM HOORT BIJ HET PAD, NIET BIJ DE VARIANT. Werd hij per variant bepaald, dan kreeg
+     * hetzelfde pad in variant twee een tweede naam omdat de eerste al bezet was — gemeten:
+     * `BleStatusBar.label` én `BleStatusBar.label_ab` voor pad `0>1`, wat in Figma twee
+     * properties op één node zou zijn.
+     */
+    const naamPerPad = new Map();
+    for (const pad of dataPaden) {
+      /**
+       * Alleen een pad waar nog GEEN slot staat. `markeerSlots` in de walker heeft de
+       * story-props al gekoppeld; een naam reserveren voor een node die al bezet is, levert
+       * een property zonder node op — precies de "unused property" waarop Figma de component
+       * bij publicatie als invalid asset weigert, en waar de `[eigenschappen]`-as voor bestaat.
+       * Gemeten vóór deze poort: 68 afgeleide slots, waarvan `Chip.value_aa` en `Button.text`
+       * op nodes die de walker al had.
+       */
+      let laagnaam = null;
+      for (const v of d.varianten) {
+        const n = daal(wortel(v.boom, comp), pad);
+        if (n?.t && !n.slot) { laagnaam = n.naam ?? null; break; }
+      }
+      if (laagnaam === null) continue;
+      const stam = String(laagnaam).replace(/\d+$/, '').replace(/[^A-Za-z_]/g, '') || 'veld';
+      const naam = bestaand.has(stam) ? stam + letters(pad) : stam;
+      if (bestaand.has(naam)) continue;              // twee paden, dezelfde laagnaam én dezelfde letters kan niet
+      bestaand.add(naam);
+      naamPerPad.set(pad, naam);
+      toegevoegd.push(`${comp}.${naam} (pad ${pad || 'wortel'})`);
+    }
+    /**
+     * BOVENGRENS. Twintig tekst-properties op één component betekent dat het geen component
+     * met velden is maar een LIJST, en dan is een slot per rij het verkeerde model — die
+     * hoort per rij een eigen instance te zijn. Liever luid niets doen dan stil een
+     * onbruikbare library bouwen.
+     */
+    if (naamPerPad.size > 12) {
+      for (const naam of naamPerPad.values()) bestaand.delete(naam);
+      toegevoegd.push(`${comp}: ${naamPerPad.size} afgeleide slots — OVERGESLAGEN, dit is een lijst, geen veldencomponent`);
+      naamPerPad.clear();
+    }
+    for (const v of d.varianten) {
+      const w = wortel(v.boom, comp);
+      if (!w) continue;
+      for (const [pad, naam] of naamPerPad) {
+        const n = daal(w, pad);
+        if (n?.t && !n.slot) n.slot = naam;
+      }
+    }
+    d.slots = [...bestaand];
+  }
+  return toegevoegd;
+}
+const afgeleideSlots = markeerAfgeleideSlots(uit);
+
 writeFileSync(join(APP, 'figma/build-spec.min.json'), JSON.stringify(uit));
 
 // De gaten-inventaris apart, klein en leesbaar. `build-spec.json` is 6 MB (WheelPicker
@@ -386,6 +569,9 @@ const kb = o => Math.round(JSON.stringify(o).length / 1024);
 console.log(`gesnoeid: ${kb(uit)} KB (was ${Math.round(JSON.stringify(spec).length/1024)} KB)`);
 console.log(`afgekapte nodes: ${afgekaptTotaal} over ${afkappingen.length} plekken`);
 console.log(`ongebonden: ${uniekeGaten.length} uniek over ${spec.ongebonden.length} voorkomens -> figma/ongebonden.json`);
+console.log(afgeleideSlots.length
+  ? `afgeleide slots: ${afgeleideSlots.length} — ${afgeleideSlots.slice(0, 6).join(', ')}${afgeleideSlots.length > 6 ? ', …' : ''}`
+  : 'afgeleide slots: 0 — geen enkel pad verschilt tussen twee voorkomens van hetzelfde component');
 const perComp = {};
 for (const a of afkappingen) { const c = a.split('[')[0]; perComp[c] = (perComp[c] || 0) + 1; }
 for (const [c, n] of Object.entries(perComp).sort((a,b)=>b[1]-a[1])) console.log(`   ${String(n).padStart(4)}x  ${c}`);

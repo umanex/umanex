@@ -404,7 +404,11 @@ const WALKER = () => {
     const bg = rgba(cs.backgroundColor);
     if (bg && bg.a > 0) return false;
     if (cs.backgroundImage !== 'none') return false;
-    if (px(cs.borderTopWidth) > 0) return false;
+    // ELKE zijde, niet alleen boven: een node met enkel `border-bottom` is een
+    // scheidingslijn, geen doorvoer-wrapper. Met de oude toets viel hij weg en nam hij
+    // zijn rand mee — de stille helft van dezelfde blinde vlek.
+    if (px(cs.borderTopWidth) > 0 || px(cs.borderRightWidth) > 0
+        || px(cs.borderBottomWidth) > 0 || px(cs.borderLeftWidth) > 0) return false;
     if (cs.boxShadow !== 'none') return false;
     if (px(cs.borderTopLeftRadius) > 0) return false;
     if (parseFloat(cs.opacity) < 1) return false;
@@ -558,11 +562,50 @@ const WALKER = () => {
                px(cs.borderBottomRightRadius), px(cs.borderBottomLeftRadius)],
       bg: rgba(cs.backgroundColor),
       backgroundImage: cs.backgroundImage !== 'none' ? cs.backgroundImage.slice(0, 260) : null,
-      borderWidth: px(cs.borderTopWidth),
-      borderColor: px(cs.borderTopWidth) > 0 ? rgba(cs.borderTopColor) : null,
+      /**
+       * VIER ZIJDEN, niet één. Tot 2026-09-09 las deze walker alleen `borderTopWidth`, en dat
+       * is in beide richtingen fout: een scheidingslijn (`0/0/1/0`) kwam als NUL binnen en
+       * verdween, en een lijn boven en onder (`1/0/1/0`) werd in Figma een volledige doos.
+       * Gemeten over alle 257 stories: 333 nodes met rand, waarvan 138 asymmetrisch in maar
+       * twee vormen — 99x `0/0/1/0` en 39x `1/0/1/0`. `borderWidth` blijft staan als de
+       * REPRESENTATIEVE breedte (de grootste zijde) omdat de tokenbinding en de rand-vlag
+       * eraan hangen; `borderWidths` draagt de vorm.
+       *
+       * De KLEUR blijft er één. Figma's `strokes` is één verfarray voor de hele node, dus een
+       * kleur per zijde is er niet uit te drukken. Diezelfde meting telde 0 van 333 nodes met
+       * meer dan één kleur op hun gezette zijden — maar dat is een meting van vandaag, geen
+       * eigenschap, dus het verschil wordt hier vastgesteld en verderop gemeld in plaats van
+       * stil de eerste kleur te nemen.
+       */
+      borderWidths: [px(cs.borderTopWidth), px(cs.borderRightWidth),
+                     px(cs.borderBottomWidth), px(cs.borderLeftWidth)],
+      borderWidth: Math.max(px(cs.borderTopWidth), px(cs.borderRightWidth),
+                            px(cs.borderBottomWidth), px(cs.borderLeftWidth)),
+      borderColor: (() => {
+        const w = [px(cs.borderTopWidth), px(cs.borderRightWidth),
+                   px(cs.borderBottomWidth), px(cs.borderLeftWidth)];
+        const k = [cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor];
+        const i = w.findIndex(x => x > 0);
+        return i < 0 ? null : rgba(k[i]);
+      })(),
+      borderKleurenVerschillen: (() => {
+        const w = [px(cs.borderTopWidth), px(cs.borderRightWidth),
+                   px(cs.borderBottomWidth), px(cs.borderLeftWidth)];
+        const k = [cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor];
+        return new Set(k.filter((_, i) => w[i] > 0)).size > 1;
+      })(),
       opacity: parseFloat(cs.opacity),
       boxShadow: cs.boxShadow !== 'none' ? cs.boxShadow : null,
       overflow: cs.overflow,
+      /**
+       * DE SCROLLPOSITIE. Een WheelPicker staat op zijn geselecteerde waarde, een lijst is
+       * half doorgerold — en `getBoundingClientRect` van de KINDEREN draagt dat al: een
+       * weggerold kind meet een kleinere `top`. Figma's auto-layout gooit die meting weg en
+       * stapelt vanaf boven, dus zonder dit veld toont het design system altijd item 1.
+       * `scrollLeft` reist mee omdat dezelfde redenering horizontaal geldt.
+       */
+      scrollTop: Math.round((el.scrollTop || 0) * 100) / 100,
+      scrollLeft: Math.round((el.scrollLeft || 0) * 100) / 100,
       positie: cs.position,
       // Offset t.o.v. de ouder. Nodig voor een absoluut gepositioneerd kind: dat valt
       // buiten de auto-layout-stroom en moet in Figma op zijn eigen plek gezet worden.

@@ -133,6 +133,9 @@ const MELDING_SOORTEN = [
   ['tekst-zonder-text-style',      /: tekst zonder text style/],
   ['tekstkleur-ongebonden',        /: tekstkleur ongebonden$/],
   ['flex-mapping-onbekend',        /kent deze mapping niet$/],
+  ['rand-per-zijde-geweigerd',     /: rand per zijde .* geweigerd/],
+  ['randbreedte-niet-te-binden',   /: randbreedte niet te binden/],
+  ['randkleur-per-zijde',          /: randkleuren verschillen per zijde/],
   ['flex-niet-gemapt',             /wordt niet gemapt/],
   ['achtergrond-ongebonden',       /: achtergrond ongebonden$/],
   ['gradient-niet-ontleed',        /: gradient niet ontleed/],
@@ -565,7 +568,11 @@ async function maak(n, naamPad, wortelComp) {
 
   const f = figma.createFrame();
   f.name = n.naam || 'wrapper';        // het besluit komt uit scripts/laagnamen.mjs
-  f.clipsContent = false;
+  // KNIPPEN volgt de browser. Tot 2026-09-09 stond dit hard op `false`, dus wat in de browser
+  // onder de rand verdween liep in Figma door — de `overloop`-teller van
+  // `walker-blindvlekken` stond daarom op 15 zonder dat één as er rood van werd. Een gerolde
+  // container knipt altijd: hij toont per definitie minder dan hij bevat.
+  f.clipsContent = !!n.knipt || !!n.gerold;
   if (n.k && n.rij !== undefined) {
     f.layoutMode = n.rij ? 'HORIZONTAL' : 'VERTICAL';
     f.primaryAxisSizingMode = 'FIXED';
@@ -656,9 +663,41 @@ async function maak(n, naamPad, wortelComp) {
     const p = { type: 'SOLID', color: rgb(n.borderKleur), opacity: n.borderKleur.a };
     f.strokes = n.borderKleurVar && V.get(n.borderKleurVar)
       ? [figma.variables.setBoundVariableForPaint(p, 'color', V.get(n.borderKleurVar))] : [p];
-    f.strokeWeight = n.border; f.strokeAlign = 'INSIDE';
-    if (n.borderVar && V.get(n.borderVar)) f.setBoundVariable('strokeWeight', V.get(n.borderVar));
+    f.strokeAlign = 'INSIDE';
+    /**
+     * RANDEN PER ZIJDE. `strokeWeight` is één getal voor de hele node; een scheidingslijn
+     * (`0/0/1/0`) en een lijn boven en onder (`1/0/1/0`) vragen de vier losse velden.
+     * Volgorde is niet vrij: `strokeWeight` schrijven ZET DE VIER TERUG, dus de losse velden
+     * gaan er altijd achteraan. Wat de losse velden bindbaar maakt is `strokeAlign = INSIDE`
+     * — die staat hierboven, vóór de toewijzing, met opzet.
+     */
+    const zijVelden = ['strokeTopWeight', 'strokeRightWeight', 'strokeBottomWeight', 'strokeLeftWeight'];
+    f.strokeWeight = n.border;
+    let perZijde = false;
+    if (n.borderZijden) {
+      try {
+        n.borderZijden.forEach((w, i) => { f[zijVelden[i]] = w; });
+        perZijde = true;
+      } catch (e) {
+        // Een halve toewijzing is erger dan geen: `strokeWeight` terug, zodat de node de
+        // toestand heeft die de melding beschrijft.
+        f.strokeWeight = n.border;
+        meldingen.push(`${naamPad}: rand per zijde ${JSON.stringify(n.borderZijden)} geweigerd (${e.message}) — volle doos gezet`);
+      }
+    }
+    if (n.borderVar && V.get(n.borderVar)) {
+      // Binden ná het zetten, en per gezette zijde: één binding op `strokeWeight` zou de
+      // vier losse breedtes opnieuw gelijktrekken.
+      try {
+        if (perZijde) n.borderZijden.forEach((w, i) => { if (w > 0) f.setBoundVariable(zijVelden[i], V.get(n.borderVar)); });
+        else f.setBoundVariable('strokeWeight', V.get(n.borderVar));
+      } catch (e) { meldingen.push(`${naamPad}: randbreedte niet te binden (${e.message})`); }
+    }
     if (!n.borderKleurVar) meldingen.push(`${naamPad}: randkleur ongebonden`);
+    // Figma's `strokes` is één verfarray voor de hele node. Gemeten 2026-09-09: 0 van 333
+    // nodes met meer dan één kleur op hun gezette zijden — de melding is de wachtpost die
+    // voorkomt dat de eerste kleur er stil voor doorgaat als dat verandert.
+    if (n.randKleurRest) meldingen.push(`${naamPad}: randkleuren verschillen per zijde — Figma kent maar één strokes-array, de eerste kleur is gezet`);
   }
   if (n.radius) {
     const [tl, tr, br, bl] = n.radius;
