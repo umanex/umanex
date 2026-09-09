@@ -119,8 +119,10 @@ van de keten zelf, allebei in `CLAUDE.md` als eigenaardigheid 9 en in de skill:
 ⁱ = de tekst zit in een library-instance: het scherm toont de **gepubliceerde** library, dus dit
 verandert pas na Jeroens publicatie en een tweede schermherbouw (HANDOFF 2026-09-09).
 
-Totaal over 24 frames: **12 beter, 0 slechter, 12 gelijk**; som grof 77,82 → 75,28, som
-zichtbaar 172,9 → 168,1. De winst is klein in procenten omdat de resterende klassen (C, D, J,
+Totaal over 24 frames vóór de publicatie: **12 beter, 0 slechter, 12 gelijk**; som grof 77,82 →
+75,28, som zichtbaar 172,9 → 168,1. Ná de publicatie en de tweede schermherbouw (de instance-
+frames volgen dan de nieuwe library): **16 beter, 7 gelijk, 1 slechter** (Doel Bereikt, confetti);
+som grof 74,10. De winst is klein in procenten omdat de resterende klassen (C, D, J,
 H en de 30 px-verschuiving van de Segmented-instance in WorkoutDetail, zie BACKLOG) het
 grootste oppervlak dragen; de fix raakt precies de vier dingen die hij beloofde: titel op één
 regel, terug-link terug, tabelkolommen gescheiden, uitlijning mee.
@@ -171,7 +173,8 @@ herbouwd (1,4 tot 5,5 s per scherm), schermgeometrie vers, `parity` 0, 24 beelde
       (WorkoutDetail Niet Gevonden, ruis)
 - [x] Alle selftests groen — bewijs: `figma:poort:selftest` 30/30, `figma:check:selftest` 44/44,
       `parity:selftest` groen, `instance-tekst --selftest` 5/5
-- [ ] De twaalf instance-frames dalen — wacht op de publicatie (HANDOFF 2026-09-09)
+- [x] De twaalf instance-frames dalen na de publicatie — bewijs: `beeld-verschillen.json` na de herbouw van 2026-09-09 (avond): ActivePhase Landscape 3,36 → 2,96, Samenvatting 2,00 → 1,66, Playground 3,04 → 2,82, Zonder Hartslagband 2,96 → 2,74, Doel Afstand 2,91 → 2,86, IdlePhase ×3 −0,02 tot −0,04; ResetPassword ×2 al op de vloer; Doel Bereikt +0,12 door de gerandomiseerde confetti. Tegen het origineel: 16 beter, 7 gelijk, 1 slechter; som grof 77,82 → 74,10
+- [x] Geen wees-property in de library — bewijs: `figma:check` `[eigenschappen]` 36 tekst-properties over 22 componenten, elk met een node; 73 verwijderd door de herbouw, nameting in Figma 0 zonder node, 0 dubbele stammen; alle 45 op `CURRENT`
 
 ## Een component bijwerken — Figma beslist, code bewaart
 
