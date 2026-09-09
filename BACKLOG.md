@@ -41,6 +41,12 @@ Elke entry staat onder een laag-header (`# Globaal`, `# Klant — {naam}`, `# Pr
 
 # Globaal
 
+## 2026-09-09 — Sheet valt buiten de geometrie-parity, en die capture is nergens beschreven · [test]
+- **Wat:** `pnpm --filter @umanex/ui parity` vergelijkt 64 varianten tussen Figma en browser, maar `Sheet` zit er niet bij: `figma/geometry.figma.json` dateert van 2026-09-07 en kent hem niet. De guard is dus groen over de nieuwe component omdat hij er niet naar kijkt. Twee dingen ontbreken: een `STORY`-entry in `geometry-parity.mjs` die de `side`-as als prop aanbiedt, en een verse Figma-capture in dat bestand.
+- **Waarom niet nu:** De capture van `geometry.figma.json` staat — anders dan die van `manifest.json` — **nergens beschreven** in `packages/ui/CLAUDE.md`. Hem reconstrueren is een tweede ongedocumenteerd Figma-recept schrijven, en dat verdient een eigen ronde in plaats van een bijproduct van deze PR. CI blokkeert er niet op; `geometry` (de browser-kant) dekt Sheet sinds vandaag wél.
+- **Eerste zet:** Het recept voor `geometry.figma.json` opschrijven in `packages/ui/CLAUDE.md`, naast dat van het manifest — met dezelfde les erbij die dat manifest-recept opleverde: schrijf de helpers uit en toets dat het recept zijn eigen bestand reproduceert. Daarna Sheet toevoegen aan `STORY` en opnieuw capturen.
+- **Status:** open
+
 ## 2026-09-09 — De token-guard leest commentaar als code · [tooling]
 - **Wat:** `packages/tokens/scripts/guard.mjs` scant platte tekst, dus een regel commentaar die uitlegt waaróm een mode-blinde kleur *niet* gebruikt wordt, telt zelf als overtreding. Gemeten bij het bouwen van `packages/ui/components/ui/sheet.tsx`: de guard vuurde op regel 18 — de zin die de juiste keuze motiveert — met `[absolute-white-black]`.
 - **Waarom niet nu:** Het raakt een gedeelde guard die in CI draait, en de fix vraagt zijn eigen tegenproef. Omzeild door de klassenaam in het commentaar niet uit te schrijven; dat maakt de uitleg slechter om het gereedschap te plezieren, dus het is een omweg en geen oplossing.
