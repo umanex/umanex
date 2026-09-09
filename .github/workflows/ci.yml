@@ -167,7 +167,17 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Playwright Chromium
-        run: pnpm --filter cashflow exec playwright install --with-deps chromium
+        # De runner-image draagt een apt-bron voor Google Chrome die af en toe een "Hash Sum
+        # mismatch" geeft (gemeten 2026-09-09: drie reruns op rij rood, terwijl dezelfde stap
+        # een half uur eerder groen was). `--with-deps` draait apt-get update en valt daar
+        # dan op om, terwijl Playwright zijn eigen Chromium downloadt en dl.google.com hier
+        # niets bijdraagt. Dus: die bron weg vóór apt loopt — op inhoud, niet op bestandsnaam:
+        # `google-chrome*.list` bestond niet op de runner (gemeten, 4b66544) en apt haalde
+        # dl.google.com gewoon op; het bestand heet daar anders (deb822 `.sources`).
+        run: |
+          sudo grep -rl 'dl.google.com' /etc/apt/sources.list.d/ 2>/dev/null | xargs -r sudo rm -f
+          if sudo grep -rl 'dl.google.com' /etc/apt/ >/dev/null 2>&1; then echo "let op: dl.google.com staat nog in /etc/apt"; sudo grep -rl 'dl.google.com' /etc/apt/; fi
+          pnpm --filter cashflow exec playwright install --with-deps chromium
 
       # `verify:visual` rendert de harness uit de build hierboven en sweept hem daarna.
       # De sweep draait zijn eigen zelftest mee — een guard die niet kán falen meldt

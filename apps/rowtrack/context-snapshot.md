@@ -73,19 +73,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
-308a44c chore(rowtrack): spec, manifest, geometry and images after the text fix
-0f11ef0 feat(rowtrack): a pre-flight that counts the text an instance will show from the library
-a4cacdc fix(rowtrack): text hugs unless its box is wider than its run, and alignment travels
-dc796cc feat(rowtrack): the builder's messages get a baseline of kinds, checked on both sides
-43e91cf Merge remote-tracking branch 'origin/main' into chore/sync-os-na-skillwijziging
+6a79010 chore(rowtrack): manifest, screen geometry and images after the publication
+fd95441 fix(rowtrack): a time budget for the screen build, a warm-up for imports, and a leaf keeps its size
+56fb806 docs(rowtrack): the import hypothesis is withdrawn; peculiarities 9 and 10
+8cd3842 chore(rowtrack): manifest with property references after the property repair
+763315e fix(rowtrack): reuse a component property instead of re-adding it, and a guard axis for orphans
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/BACKLOG.md
-  M  apps/rowtrack/CLAUDE.md
   M  apps/rowtrack/HANDOFF.md
-  M  apps/rowtrack/LEARNINGS.md
-  A  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
+  M  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
 
 ## Bestanden met TODO/FIXME
   (geen)

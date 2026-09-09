@@ -78,11 +78,16 @@ per schakel. Daarom is de eerste stap toewijzen, niet fixen.
 Twee dingen die pas tijdens het bouwen bovenkwamen en die geen klasse van het beeld zijn maar
 van de keten zelf, allebei in `CLAUDE.md` als eigenaardigheid 9 en in de skill:
 
-- **Een vérse import uit een library met ongepubliceerde wijzigingen komt nooit terug.** Direct
-  na de library-herbouw hing `importStyleByKeyAsync` voor drie styles die het Design-bestand
-  nog nooit had geïmporteerd; de elf die het al kende landden in 2 tot 9 ms. De builder
-  importeerde álles vooraf, dus de eerste schermbouw stond vier minuten stil. Nu: alleen wat
-  de spec noemt, 4 s wachttijd per import, en een hangende import is een melding.
+- **De import-wachtrij van de plugin-runtime kan vastlopen.** Direct na de library-herbouw
+  hing `importStyleByKeyAsync` voor drie styles; de eerste hypothese (een verse import uit een
+  library met ongepubliceerde wijzigingen) is dezelfde dag verworpen: na een volledige herstart
+  van de plugin importeerde alles in 4 tot 410 ms, óók de 22 nog ongepubliceerde componenten.
+  De builder importeert nu alleen wat de spec noemt, met 4 s wachttijd, en een hangende import
+  is een melding: het signaal om de plugin te herstarten.
+- **`addComponentProperty` met een bestaande naam hernoemt stil** (`value2`, `value3`) en laat
+  de vorige property zonder node achter; Figma weigert de component dan bij publicatie als
+  invalid asset — 22 van de 45. De builder hergebruikt nu de property zonder suffix, verwijdert
+  de wezen, en `figma:check` heeft er een as voor (`[eigenschappen]`).
 - **`layoutAlign = MIN | CENTER | MAX` is een stille no-op** (de derde, naast `resize()` op een
   instance-kind en `layoutMode` op een instance-wortel). De builder leest nu terug en vervangt
   hem door FILL op de kruis-as plus uitlijning op het kind zelf.
@@ -114,8 +119,10 @@ van de keten zelf, allebei in `CLAUDE.md` als eigenaardigheid 9 en in de skill:
 ⁱ = de tekst zit in een library-instance: het scherm toont de **gepubliceerde** library, dus dit
 verandert pas na Jeroens publicatie en een tweede schermherbouw (HANDOFF 2026-09-09).
 
-Totaal over 24 frames: **12 beter, 0 slechter, 12 gelijk**; som grof 77,82 → 75,28, som
-zichtbaar 172,9 → 168,1. De winst is klein in procenten omdat de resterende klassen (C, D, J,
+Totaal over 24 frames vóór de publicatie: **12 beter, 0 slechter, 12 gelijk**; som grof 77,82 →
+75,28, som zichtbaar 172,9 → 168,1. Ná de publicatie en de tweede schermherbouw (de instance-
+frames volgen dan de nieuwe library): **16 beter, 7 gelijk, 1 slechter** (Doel Bereikt, confetti);
+som grof 74,10. De winst is klein in procenten omdat de resterende klassen (C, D, J,
 H en de 30 px-verschuiving van de Segmented-instance in WorkoutDetail, zie BACKLOG) het
 grootste oppervlak dragen; de fix raakt precies de vier dingen die hij beloofde: titel op één
 regel, terug-link terug, tabelkolommen gescheiden, uitlijning mee.
@@ -166,7 +173,8 @@ herbouwd (1,4 tot 5,5 s per scherm), schermgeometrie vers, `parity` 0, 24 beelde
       (WorkoutDetail Niet Gevonden, ruis)
 - [x] Alle selftests groen — bewijs: `figma:poort:selftest` 30/30, `figma:check:selftest` 44/44,
       `parity:selftest` groen, `instance-tekst --selftest` 5/5
-- [ ] De twaalf instance-frames dalen — wacht op de publicatie (HANDOFF 2026-09-09)
+- [x] De twaalf instance-frames dalen na de publicatie — bewijs: `beeld-verschillen.json` na de herbouw van 2026-09-09 (avond): ActivePhase Landscape 3,36 → 2,96, Samenvatting 2,00 → 1,66, Playground 3,04 → 2,82, Zonder Hartslagband 2,96 → 2,74, Doel Afstand 2,91 → 2,86, IdlePhase ×3 −0,02 tot −0,04; ResetPassword ×2 al op de vloer; Doel Bereikt +0,12 door de gerandomiseerde confetti. Tegen het origineel: 16 beter, 7 gelijk, 1 slechter; som grof 77,82 → 74,10
+- [x] Geen wees-property in de library — bewijs: `figma:check` `[eigenschappen]` 36 tekst-properties over 22 componenten, elk met een node; 73 verwijderd door de herbouw, nameting in Figma 0 zonder node, 0 dubbele stammen; alle 45 op `CURRENT`
 
 ## Een component bijwerken — Figma beslist, code bewaart
 
@@ -194,7 +202,7 @@ HANDOFF 2026-09-08; het is nu de tegenproef.
 | Stretch is geen intentie voor tekst; twee breedtes; uitlijning reist mee; drie stille no-ops | `code-naar-figma/SKILL.md` principe 1 en 1c (umanex-os) · `LEARNINGS.md` umanex-os `# Skill` |
 | Een slot is elke tekst die per gebruiksplek verschilt; tel het vóór de bouw, ná de terugval-toets | `code-naar-figma/SKILL.md` Doel-poort · `LEARNINGS.md` umanex-os `# Skill` · `scripts/instance-tekst.mjs` |
 | Vijf DOM-eigenschappen buiten bereik van de walker | `apps/rowtrack/LEARNINGS.md` · `scripts/walker-blindvlekken.mjs` · zes BACKLOG-items |
-| Verse import hangt bij ongepubliceerde library; `layoutAlign`-no-op | `apps/rowtrack/CLAUDE.md` eigenaardigheid 8 en 9 · builder |
+| Import-wachtrij kan vastlopen; `layoutAlign`-no-op; `addComponentProperty` hernoemt stil | `apps/rowtrack/CLAUDE.md` eigenaardigheid 8, 9 en 10 · builder · `[eigenschappen]`-as |
 | Storybook is de aangenomen waarheid | toestel-ronde-item, rij 6 |
 | De keten hoort ooit hoger, op de trigger | `BACKLOG.md` (root), extractie-item |
 | Stories zijn het variantmodel (D) | kandidaat-promotie naar `nieuw-component`, niet gedaan |

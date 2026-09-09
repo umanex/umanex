@@ -240,6 +240,25 @@ const MUTATIES = [
   { as: 'controle-setvulling', zwijgt: true, wat: 'alle sets houden hun eigen vulling', doe: m => {
       metVulling(m, { varianten: 0, los: 0 }); } },
 
+  // --- eigenschappen: wijst er naar elke property een node? ----------------
+  // Figma's publicatiedialoog was op 2026-09-09 het eerste instrument dat dit zag (73
+  // "unused properties" over 22 sets); deze as hoort het vóór de publicatie te zien.
+  { as: 'eigenschappen', wat: 'laat een tekst-property zonder node achter', doe: m => {
+      const x = lees(m, 'figma/manifest.json');
+      const p = Object.values(x.pages).find(q => q.primary && Object.values(q.primary.eigenschappen ?? {}).some(d => d.type !== 'VARIANT'));
+      const k = Object.keys(p.primary.eigenschappen).find(k => p.primary.eigenschappen[k].type !== 'VARIANT');
+      p.primary.eigenschappen[k].refs = 0; schrijf(m, 'figma/manifest.json', x); } },
+  { as: 'eigenschappen', wat: 'voeg een hernoemde kopie (label2) toe naast label', doe: m => {
+      const x = lees(m, 'figma/manifest.json');
+      const p = Object.values(x.pages).find(q => q.primary && Object.values(q.primary.eigenschappen ?? {}).some(d => d.type !== 'VARIANT'));
+      const k = Object.keys(p.primary.eigenschappen).find(k => p.primary.eigenschappen[k].type !== 'VARIANT');
+      p.primary.eigenschappen[`${k.split('#')[0]}2#999:1`] = { type: 'TEXT', refs: 3 }; schrijf(m, 'figma/manifest.json', x); } },
+  // Een VARIANT-property heeft per definitie geen node die ernaar wijst; die mag de as niet raken.
+  { as: 'controle-variantprop', zwijgt: true, wat: 'een variant-as zonder node blijft stil', doe: m => {
+      const x = lees(m, 'figma/manifest.json');
+      const p = Object.values(x.pages).find(q => q.primary && q.primary.type === 'COMPONENT_SET');
+      p.primary.eigenschappen['zelftestAs'] = { type: 'VARIANT', refs: 0 }; schrijf(m, 'figma/manifest.json', x); } },
+
   // --- onvolledige meting: exit 2, niet exit 0 ----------------------------
   // `sla()` schrijft alleen een ~~-regel. Tot 2026-09-08 bepaalde alléén `fails` de
   // exit-code, dus tien overgeslagen assen gaven exit 0 mét een slotregel die alle dertien

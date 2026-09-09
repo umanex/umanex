@@ -94,23 +94,50 @@ try {
     };
   }
 
-  const SPEC = Object.fromEntries(SCHERMEN.map(n => [n, kies(min.schermen[n])]));
-  SPEC.__stamp = STAMP;
-  SPEC.__doelPagina = 'Screens v2';
-  SPEC.__instanties = instanties;
-  SPEC.__bibliotheek = bib;
-
+  /**
+   * EEN TIJDBUDGET, WANT DE WACHTLIMIET IS DODELIJK MIDDEN IN EEN IMPORT.
+   *
+   * Gemeten 2026-09-09, twee keer: een schermbouw die de 30 s van `figma_execute` overschreed
+   * werd afgebroken terwijl `importComponentByKeyAsync` liep, en die halve import hield daarna
+   * élke import in deze plugin-runtime vast — tot de plugin gesloten en opnieuw gestart was.
+   * Direct na een publicatie haalt elke verse import de nieuwe versie over het netwerk (seconden
+   * per component), dus dan past niet eens één frame in de limiet. Daarom: eerst
+   * `voorverwarm-imports.js` tot `resterend` leeg is, en hier frame voor frame bouwen met een
+   * budget — een frame dat niet meer in het budget past komt in `resterend` en de aanroeper
+   * roept opnieuw aan. `bouwvoortgang` toont van buiten welk frame er loopt.
+   */
+  const BUDGET_MS = typeof BUDGET !== 'undefined' ? BUDGET : 18000;
+  const t0 = Date.now();
   const bron = await (await fetch(`http://localhost:${POORT}/builder.js`)).text();
   const F = Object.getPrototypeOf(async function () {}).constructor;
-  const r = await (new F('SPEC', 'figma', bron))(SPEC, figma);
+  const gebouwd = [], meldingen = [], geweigerd = [], resterend = [];
+  let vervangen = 0, aantalMeldingen = 0;
+  for (const naam of SCHERMEN) {
+    const d = kies(min.schermen[naam]);
+    for (const f of d.frames) {
+      if (Date.now() - t0 > BUDGET_MS) { resterend.push(`${naam}/${f.naam}`); continue; }
+      figma.root.setPluginData('bouwvoortgang', `${naam}/${f.naam}`);
+      const SPEC = { [naam]: { ...d, frames: [f] } };
+      SPEC.__stamp = STAMP;
+      SPEC.__doelPagina = 'Screens v2';
+      SPEC.__instanties = instanties;
+      SPEC.__bibliotheek = bib;
+      const r = await (new F('SPEC', 'figma', bron))(SPEC, figma);
+      geweigerd.push(...(r.geweigerd ?? [])); vervangen += r.vervangen ?? 0; aantalMeldingen += r.aantalMeldingen ?? 0;
+      meldingen.push(...(r.meldingen ?? []));
+      gebouwd.push(...(r.gebouwd ?? []).map(g => ({ component: g.component, frame: f.naam, type: g.type, nodes: g.nodes })));
+    }
+  }
+  figma.root.setPluginData('bouwvoortgang', '');
   uitkomst = {
-    schermen: SCHERMEN, fout: null,
+    schermen: SCHERMEN, fout: null, ms: Date.now() - t0, resterend,
     bibliotheek: { totaal: Object.keys(keys.componenten).length, bruikbaar: Object.keys(instanties).length },
-    geweigerd: r.geweigerd, vervangen: r.vervangen, aantalMeldingen: r.aantalMeldingen,
-    meldingen: (r.meldingen ?? []).slice(0, 12),
-    gebouwd: (r.gebouwd ?? []).map(g => ({ component: g.component, type: g.type, nodes: g.nodes })),
+    geweigerd, vervangen, aantalMeldingen,
+    meldingen: meldingen.slice(0, 12),
+    gebouwd,
   };
 } catch (e) {
+  figma.root.setPluginData('bouwvoortgang', '');
   uitkomst = { schermen: SCHERMEN, fout: e.message, gebouwd: [] };
 }
 figma.root.setPluginData('bouwresultaat', JSON.stringify(uitkomst));

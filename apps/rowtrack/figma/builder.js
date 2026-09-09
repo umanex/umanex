@@ -29,14 +29,18 @@ const ES = new Map((await figma.getLocalEffectStylesAsync()).map(s => [s.name, s
  */
 /**
  * EEN IMPORT DIE HANGT IS EEN MELDING, GEEN BLOKKADE. Gemeten 2026-09-09 in RowTrack - Design:
- * `importStyleByKeyAsync` voor `type/activeProgress` en `shadow/buttonOutline` kwam nooit
- * terug — geen fout, geen timeout, terwijl de andere achttien styles in 2 tot 9 ms landden en
- * de sleutels in de library exact klopten (CURRENT, zelfde key). Omdat de builder álle styles
- * vooraf importeerde, blokkeerde die ene hangende import elke schermbouw, ook van frames die
- * de style niet gebruiken. Dus: alleen importeren wat de spec noemt, elke import met een
- * wachttijd, en een import die de wachttijd niet haalt wordt `niet te importeren` — de tekst
- * valt dan terug op zijn losse fontwaarden (`tekst zonder text style`), zichtbaar in de
- * meldingen, in plaats van een bouw die stil blijft staan.
+ * `importStyleByKeyAsync` voor `type/activeProgress` kwam nooit terug — geen fout, geen
+ * timeout — terwijl elf andere styles in 2 tot 9 ms landden. Omdat de builder álle styles
+ * vooraf importeerde, stond de eerste schermbouw daardoor vier minuten stil. De oorzaak was
+ * NIET de publicatiestatus van de library (die hypothese is dezelfde dag verworpen: na een
+ * volledige herstart van de plugin importeerden dezelfde sleutels in 4 tot 410 ms, óók de 22
+ * componenten die nog op CHANGED stonden) maar de import-wachtrij van de plugin-runtime, die
+ * na één hangende import élke volgende import vasthoudt — eerst de verse, uiteindelijk ook de
+ * gecachete. Alleen het sluiten en opnieuw starten van de Desktop Bridge-plugin in dat bestand
+ * maakt hem los; een UI-herlaad niet. Dus: alleen importeren wat de spec noemt, elke import
+ * met een wachttijd, en een import die de wachttijd niet haalt wordt `niet te importeren` —
+ * zichtbaar in de meldingen, en het signaal om de plugin te herstarten in plaats van door
+ * te bouwen op losse fontwaarden.
  */
 const meldingen = [];   // vóór de imports: een gefaalde import is de eerste melding die er kan zijn
 const WACHT_IMPORT_MS = 4000;
@@ -137,6 +141,7 @@ const MELDING_SOORTEN = [
   ['instance-wijkt-af',            /: instance van .* wijkt af \(.*\) — subboom nagebouwd/],
   ['component-property-mislukt',   /: component property ".*" mislukt/],
   ['tekst-uitlijning-geweigerd',   /: tekst-uitlijning .* geweigerd/],
+  ['eigenschap-zonder-node-verwijderd', /: eigenschap ".*" zonder node verwijderd/],
 ];
 function soortVan(m) {
   const s = String(m);
@@ -377,8 +382,15 @@ let rekGezet = 0, rekTeruggedraaid = 0, rekGeweigerd = 0;
  */
 function zetRek(f, kinderen, naamPad) {
   if (f.layoutMode === 'NONE') return;
-  for (const { kind, k, pad } of kinderen) {
-    if (k.abs) continue;
+  // UNIFORME EIGEN UITLIJNING GAAT OP DE OUDER. Delen alle stromende kinderen dezelfde
+  // `align-self`, dan is dat gewoon `counterAxisAlignItems` van de ouder — de enige plek waar
+  // Figma een kruis-as-uitlijning nog kent (12 van zulke ouders in de 24 schermframes).
+  const stromend = kinderen.filter(x => !x.k.abs);
+  const uniform = stromend.length && stromend.every(x => x.k.zelf && x.k.zelf === stromend[0].k.zelf) ? stromend[0].k.zelf : null;
+  if (uniform && uniform !== 'STRETCH') { try { f.counterAxisAlignItems = uniform; } catch (e) { meldingen.push(`${naamPad}: layoutAlign=${uniform} geweigerd — ${e.message}`); } }
+  for (const { kind, k: k0, pad } of kinderen) {
+    if (k0.abs) continue;
+    const k = uniform && uniform !== 'STRETCH' ? { ...k0, zelf: null } : k0;   // de ouder draagt hem al
     // De eigen kruis-as-uitlijning eerst. `layoutAlign` accepteert MIN/CENTER/MAX zonder fout
     // en NEGEERT ze — gemeten 2026-09-09 op LoginScreen: `forgot` kreeg MAX en las INHERIT
     // terug, dus "Wachtwoord vergeten?" stond links. Alleen STRETCH en INHERIT doen nog iets
@@ -390,19 +402,27 @@ function zetRek(f, kinderen, naamPad) {
       let ok = false;
       try { kind.layoutAlign = k.zelf; ok = kind.layoutAlign === k.zelf; } catch (e) { /* valt hieronder door */ }
       if (!ok) {
+        // Alleen een kind dat zijn INHOUD kan uitlijnen mag de kruis-as vullen: een tekst, of
+        // een auto-layout-frame met kinderen. Een blad (de knop van een toggle: 20×20, geen
+        // kinderen) kreeg hier tot 2026-09-09 óók FILL en werd zo 40 breed — de hele pil wit,
+        // gemeten op ProfileScreen. Een blad kan zijn eigen uitlijning niet dragen; die hoort
+        // op de ouder (uniform, hierboven) of is niet uit te drukken — en dan is dat een melding.
         const ouderRij = f.layoutMode === 'HORIZONTAL';
-        try {
+        const kanZelfUitlijnen = kind.type === 'TEXT' || (kind.layoutMode && kind.layoutMode !== 'NONE' && 'children' in kind && kind.children.length);
+        if (!kanZelfUitlijnen) {
+          if (k.zelf !== 'MIN') meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — Figma negeert hem stil en een blad kan zich niet zelf uitlijnen`);
+        } else try {
           kind[ouderRij ? 'layoutSizingVertical' : 'layoutSizingHorizontal'] = 'FILL';
           if (kind.type === 'TEXT') {
             if (!ouderRij) kind.textAlignHorizontal = { MIN: 'LEFT', CENTER: 'CENTER', MAX: 'RIGHT' }[k.zelf] ?? 'LEFT';
             else kind.textAlignVertical = { MIN: 'TOP', CENTER: 'CENTER', MAX: 'BOTTOM' }[k.zelf] ?? 'TOP';
-          } else if (kind.layoutMode && kind.layoutMode !== 'NONE') {
+          } else {
             // De kruis-as van de ouder (H onder een kolom, V onder een rij) is de hoofdas van
             // het kind als het kind de ándere richting heeft; anders zijn kruis-as. Gemeten:
             // een kolom in een kolom kreeg eerst `primaryAxisAlignItems` en zakte naar beneden.
             const kruisAsIsEigenHoofdas = (kind.layoutMode === 'HORIZONTAL') !== ouderRij;
             if (kruisAsIsEigenHoofdas) kind.primaryAxisAlignItems = k.zelf; else kind.counterAxisAlignItems = k.zelf;
-          } else meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — Figma negeert hem stil en het kind heeft geen auto layout om zelf uit te lijnen`);
+          }
         } catch (e) { meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — ${e.message}`); }
       }
     }
@@ -1076,12 +1096,40 @@ for (const [comp, d] of Object.entries(SPEC)) {
       if (!perSlot.has(v.slot)) perSlot.set(v.slot, []);
       perSlot.get(v.slot).push(v);
     }
+    /**
+     * HERGEBRUIK DE PROPERTY, MAAK HEM NIET OPNIEUW. `addComponentProperty` met een naam die al
+     * bestaat werpt geen fout: Figma hernoemt stil naar `value2`, `value3`, … en de vorige
+     * property blijft staan met nul nodes. Gemeten 2026-09-09 na drie herbouwen: 109
+     * tekst-properties over 22 sets, 73 zonder node, allemaal met een cijfer-suffix. Figma
+     * noemt zo'n property bij publicatie een "unused property" en weigert de component als
+     * invalid asset — 22 van de 45 bleven ongepubliceerd. En de scherm-instances zetten hun
+     * override op de EERSTE sleutel met die naam (`value#…`), dus na de publicatie zou elke
+     * KPI-rij de library-default tonen. De sleutel zonder suffix is daarom de identiteit:
+     * bind de nieuwe nodes daaraan, ververs de default, en verwijder daarna elke
+     * tekst-property waar geen node meer naar wijst — luid, want dat is de reparatie.
+     */
+    const basisNaam = k => k.split('#')[0];
     for (const [slot, lijst] of perSlot) {
       try {
-        const propId = hoofd.addComponentProperty(slot, 'TEXT', lijst[0].standaard);
+        const defs = hoofd.componentPropertyDefinitions ?? {};
+        let propId = Object.keys(defs).find(k => defs[k].type === 'TEXT' && basisNaam(k) === slot) ?? null;
+        if (propId) {
+          if (defs[propId].defaultValue !== lijst[0].standaard) propId = hoofd.editComponentProperty(propId, { defaultValue: lijst[0].standaard });
+        } else propId = hoofd.addComponentProperty(slot, 'TEXT', lijst[0].standaard);
         for (const v of lijst) v.node.componentPropertyReferences = { characters: propId };
         slotsGezet[slot] = { propId, nodes: lijst.length };
       } catch (e) { meldingen.push(`${comp}: component property "${slot}" mislukt — ${e.message}`); }
+    }
+  }
+  // Wezen opruimen: een niet-VARIANT-property waar na de bouw geen node naar wijst.
+  if (!isScherm && hoofd.componentPropertyDefinitions) {
+    const defs = hoofd.componentPropertyDefinitions;
+    const refs = {}; for (const k of Object.keys(defs)) if (defs[k].type !== 'VARIANT') refs[k] = 0;
+    for (const n of hoofd.findAll(x => x.componentPropertyReferences))
+      for (const id of Object.values(n.componentPropertyReferences)) if (id in refs) refs[id]++;
+    for (const [k, n] of Object.entries(refs)) if (n === 0) {
+      try { hoofd.deleteComponentProperty(k); meldingen.push(`${comp}: eigenschap "${k}" zonder node verwijderd`); }
+      catch (e) { meldingen.push(`${comp}: component property "${k}" mislukt — verwijderen: ${e.message}`); }
     }
   }
 

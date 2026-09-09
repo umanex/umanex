@@ -123,7 +123,7 @@ tegenproef van de rondgang, geen risico.
 | Componentpagina's | **21 COMPONENT_SETs met 172 variant-nodes plus 24 losse componenten = 45 pagina's** (stand 2026-09-09, geteld in `figma/manifest.json`) |
 | Schermpagina's | **geen** — de schermen staan sinds 2026-09-08 niet meer in dit bestand maar als 24 frames op *Screens v2* in `T1bGrvIzSNeLyh5CbarATZ`, opgebouwd uit instances van deze library |
 
-**Negen eigenaardigheden, elk gemeten en niet af te leiden:**
+**Tien eigenaardigheden, elk gemeten en niet af te leiden:**
 
 1. `Core/fontFamily/sourceSerif` staat in de bron als `"Source Serif Pro"`, maar dat is de
    *opzoeksleutel* in de FONTS-tabel; de app rendert **Source Serif 4**. De Figma-variabele
@@ -174,18 +174,34 @@ tegenproef van de rondgang, geen risico.
    zonder FILL — de labelkolom van StatsTable was anders "WATT208"), de rest **hugt**. En
    `textAlign` reist mee als `t.al`; zonder dat landde elke gecentreerde blok-tekst links.
    Gemeten over 5 295 tekstnodes: 5 065 op doos = run, 213 boven de 40 px, 17 ertussen.
-9. **Een vérse import uit een library met ongepubliceerde wijzigingen komt nooit terug.**
-   Gemeten 2026-09-09 in RowTrack - Design, direct na een library-herbouw (45 componenten op
-   `CHANGED`): `importStyleByKeyAsync` voor `type/activeProgress`, `shadow/buttonOutline` en
-   `type/labelGoalPrefix` hing zonder fout of timeout — de elf styles die het bestand al als
-   remote style droeg importeerden in 2 tot 9 ms, en de sleutels klopten exact met de library.
-   Het onderscheid is dus niet de sleutel maar of het bestand de style al kende. De builder
-   importeerde álle styles vooraf, dus één hangende import blokkeerde elke schermbouw, ook van
-   frames die de style niet gebruiken; de eerste bouw stond vier minuten stil op 61 ongewijzigde
-   nodes. Sinds die dag importeert hij alleen wat de spec noemt, met een wachttijd van 4 s per
-   import, en wordt een import die niet terugkomt een `niet te importeren`-melding — de tekst
-   valt terug op zijn losse fontwaarden. Wil je die styles gebonden hebben, dan is de volgorde:
-   Jeroen publiceert, dán de schermen herbouwen.
+9. **De import-wachtrij van de plugin-runtime kan vastlopen, en daarna hangt élke import.**
+   Gemeten 2026-09-09 in RowTrack - Design: `importStyleByKeyAsync` voor `type/activeProgress`
+   kwam nooit terug, zonder fout of timeout, terwijl elf andere styles in 2 tot 9 ms landden;
+   later die middag hing ook `Dot`, dat een uur eerder in 5 ms importeerde. De eerste hypothese
+   — een verse import uit een library met ongepubliceerde wijzigingen — is dezelfde dag
+   **verworpen**: na het sluiten en opnieuw starten van de Desktop Bridge-plugin in dat bestand
+   importeerden dezelfde sleutels in 4 tot 410 ms, óók de 22 componenten die nog op `CHANGED`
+   stonden. Het is de runtime: één hangende import houdt de wachtrij vast, eerst voor verse
+   sleutels, uiteindelijk voor alles. `figma_reload_plugin` helpt niet (alleen de UI-iframe
+   herlaadt, `code.js` loopt door); alleen de plugin sluiten en opnieuw starten. De builder
+   importeert daarom alleen wat de spec noemt, met 4 s wachttijd per import, en een import die
+   niet terugkomt is een `niet te importeren`-melding: het signaal om te herstarten, niet om
+   door te bouwen. **De trigger is gemeten, twee keer op één dag:** een schermbouw die de
+   30 s-wachtlimiet van `figma_execute` overschrijdt wordt afgebroken terwijl een
+   `importComponentByKeyAsync` loopt, en díe halve import is de eerste hangende. Ná een
+   publicatie haalt elke verse import de nieuwe versie over het netwerk (seconden per
+   component), dus dan past niet eens één frame in de limiet. Daarom: eerst
+   `figma/voorverwarm-imports.js` draaien tot `resterend` 0 is (elke aanroep stopt zelf op
+   18 s), en `bouw-schermen.js` bouwt frame voor frame binnen een budget en geeft de rest terug
+   in `resterend`; `bouwvoortgang` op de root toont welk frame er loopt.
+10. **`addComponentProperty` met een bestaande naam werpt geen fout: Figma hernoemt stil naar
+   `value2`, `value3`, …** en de vorige property blijft staan zonder node. Drie herbouwen
+   lieten zo 73 "unused properties" achter over 22 sets, en Figma weigerde die 22 bij
+   publicatie als invalid asset. Een scherm-instance zet bovendien zijn override op de éérste
+   sleutel met die naam (`value#…`), dus na zo'n publicatie toont elke instance de
+   library-default. De builder hergebruikt sinds die dag de property zonder suffix als
+   identiteit, bindt de nieuwe nodes eraan en verwijdert wat zonder node achterblijft (luid);
+   de `[eigenschappen]`-as van `figma:check` maakt het rood vóór de publicatiedialoog dat doet.
 
 **Twee dingen over de Bridge die je pas merkt als het misgaat.**
 
@@ -300,7 +316,7 @@ het af te leiden. Staat er "geen", dan is dat een gat dat gebouwd moet worden �
 |---|---|
 | **Componenten vastleggen (build-pad)** | `pnpm --filter rowtrack build-storybook` + `pnpm --filter rowtrack render:sweep` — rendert álle stories in Chromium (257 op 2026-09-09, over 54 componenten) en telt console-fouten én lege renders. Dit is het enige render-pad dat zonder simulator werkt. Een geslaagde build zegt hier niets: gemeten 2026-09-07 gaf `storybook build` exit 0 terwijl 26 stories leeg renderden. **En de sweep zelf was tot 2026-09-09 flaky aan de staart:** vijf runs op dezelfde build gaven 16, 0, 0, 5 en 2 problemen, telkens op de LAATSTE stories (255-257, `ProfileScreen`) met 404's en een ontbrekende `#storybook-root` — terwijl diezelfde stories in isolatie drie keer foutloos renderden. Oorzaak: één Chromium-pagina voor alle 257 navigaties. De pagina wordt nu elke 50 stories ververst; daarna drie groene runs op rij. De fout gaf **valse alarmen, geen gemiste fouten** — een groene run was dus altijd betrouwbaar, een rode vroeg om een herhaling. **Dit pad meet dev niet.** Gemeten 2026-09-08: 197/197 groen terwijl `storybook dev` in dezelfde commit niet eens startte (het aantal groeit; het punt niet). Gebruik hiernaast de dev-sweep. |
 | **Componenten vastleggen (dev-pad)** | `pnpm --filter rowtrack storybook` in de ene terminal, `node scripts/dev-sweep.mjs` in de andere (optioneel `--poort`, `--verbose`). Zelfde criterium als `render:sweep`, maar tegen de draaiende dev-server. Nodig omdat dev en build langs twee assen uiteenlopen: `__DEV__` staat in dev op true (bibliotheken doen dan zelfcontroles die de build nooit uitvoert) en de dependency-optimizer bestaat alleen in dev — die bundelt met rolldown zónder babel, en zonder `shimMissingExports` dat het build-pad wél zet. Beide assen zijn op 2026-09-08 opgemeten. Draai hem koud (`rm -rf apps/rowtrack/node_modules/.cache/storybook`) wanneer je een optimizer-wijziging toetst — **let op de map: de dep-cache staat onder `apps/rowtrack/node_modules`, niet in de root**; de verkeerde map wissen levert een warme cache en daarmee een onbetrouwbare meting. Het script hertest een story één keer na een reload tijdens het laden en meldt hoe vaak. |
-| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — dertien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster, herkomst van de laagnamen, instancevulling). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
+| **Figma ↔ code toetsen** | `pnpm --filter rowtrack figma:check` — veertien assen (dekking, pagina's, variant-assen, variant-nodes, tokennamen, tokenwaarden, typografie, deep-links, hardcoded waarden, aantal ongebonden waarden, publicatievenster, herkomst van de laagnamen, instancevulling, eigenschappen — elke tekst-property heeft een node en geen stam komt dubbel voor). Vereist een verse `figma/manifest.json`; zie *Figma-manifest verversen* hieronder. |
 | **Guard tegenproef** | `pnpm --filter rowtrack figma:check:selftest` — muteert per as een wegwerpkopie en eist dat díe as omvalt, plus de controle-mutaties waarop hij hoort te zwijgen. Stand 2026-09-09: 44/44. |
 | **Builder-poort tegenproef** | `pnpm --filter rowtrack figma:poort:selftest` — haalt `poort` en `bouwhash` letterlijk uit `figma/builder.js` en draait ze tegen stub-nodes: weigert op publicatie en op handwerk, zwijgt op positie en subpixel-ruis. De poort draait in de plugin en is dus niet vanaf de commandoregel aan te roepen; dit is de enige manier om hem groen én rood te zien. Sinds 2026-09-09 toetst dezelfde run ook de **meldingen-basislijn** (`MELDING_SOORTEN` in `builder.js`), statisch op de brontekst en twee kanten op: elke `meldingen.push`-plek heeft een soort, elke soort dekt een plek — een nieuwe sóórt melding kan zo niet meer stil achter `slice(0, 8)` verdwijnen, en `bouwresultaat` draagt `perSoort` en `onbekend`. |
 | **Figma ↔ browser (maten)** | `pnpm --filter rowtrack parity` — **recursief sinds 2026-09-08**: elke node van elke variant én van elk schermframe, op boompad. Stand 2026-09-09: 220 varianten, **3 516 nodes en 27 480 velden**, tegen 1 066 velden op ~110 wortels vóór de recursie. Per node hoogte, horizontale padding, gap, radius, randbreedte, opacity, het aantal kinderen en de aanwezigheid van vulling/rand/effect. **Breedte zit er bewust NIET in**, op geen enkele diepte: die is tekstgedreven en Figma's tekstengine meet dezelfde tekst anders dan Chromium (gemeten 2026-09-07: SectionHeader 162,78 tegen 136). Een acceptatie-item over breedte mag dus nooit op `parity exit 0` leunen. Een component of scherm dat nog niet in Figma staat is `~~ nieuw, nog niet gebouwd` — geteld, niet rood, zodat de as tijdens een sneden-batch bruikbaar blijft. **Hoogte op een tekstnode** wordt alleen vergeleken waar de builder hem zélf zette (`builder.js:148-153`, bij een browser-afbreking); waar Figma hem met `textAutoResize: WIDTH_AND_HEIGHT` bepaalt, meet vergelijken de twee tekstengines en niet de bouw — 1 212 van de 3 516 nodes op 2026-09-09 — een derde van het oppervlak; gemeten met verschillen tot 63 tegen 48 op een emoji-glyph. Vereist `figma/geometry.figma.json` op **schema 2**; schema 1 wordt geweigerd (exit 2), recept hieronder. |
@@ -412,6 +428,16 @@ for (const p of figma.root.children) {
       eigenVulling: Array.isArray(hoofd.fills) ? hoofd.fills.length : 0,
       variantenMetVulling: hoofd.type === "COMPONENT_SET"
         ? hoofd.children.filter(v => Array.isArray(v.fills) && v.fills.length).length : null,
+      // Voeding voor de [eigenschappen]-as: per property het aantal nodes dat ernaar wijst.
+      // Een TEXT-property zonder node is voor Figma een "unused property" en maakt de
+      // component bij publicatie een invalid asset (gemeten 2026-09-09: 73 over 22 sets).
+      eigenschappen: (() => {
+        const e = {};
+        for (const [k, d] of Object.entries(hoofd.componentPropertyDefinitions ?? {})) e[k] = { type: d.type, refs: 0 };
+        for (const n of hoofd.findAll(x => x.componentPropertyReferences))
+          for (const id of Object.values(n.componentPropertyReferences)) if (id in e) e[id].refs++;
+        return e;
+      })(),
       variantProperties: hoofd.type === "COMPONENT_SET" ? hoofd.variantGroupProperties : null,
       varianten: hoofd.type === "COMPONENT_SET" ? hoofd.children.map(v => ({ name: v.name, id: v.id })) : null,
     } : null,
@@ -589,11 +615,24 @@ de importwachtrij van de plugin wedged achter — daarna hangt élke verse impor
 volledig herstart is, en een UI-herlaad helpt niet omdat `code.js` doorloopt.
 
 ```js
-const SCHERMEN = ["ActivePhase"], FRAMES = ["Playground"], STAMP = "…";
+// 1. Voorverwarmen — herhalen tot resterend === 0 (elke aanroep stopt zelf op 18 s).
+const bron0 = await (await fetch("http://localhost:9229/voorverwarm-imports.js")).text();
+const F = Object.getPrototypeOf(async function () {}).constructor;
+return await (new F("BUDGET", "figma", bron0))(18000, figma);
+```
+
+```js
+// 2. Bouwen — een scherm per aanroep; staat er iets in `resterend`, roep dan opnieuw aan.
+const SCHERMEN = ["ActivePhase"], FRAMES = [], STAMP = "…", BUDGET = 18000;
 const bron = await (await fetch("http://localhost:9229/bouw-schermen.js")).text();
 const F = Object.getPrototypeOf(async function () {}).constructor;
-return await (new F("SCHERMEN", "FRAMES", "STAMP", "figma", bron))(SCHERMEN, FRAMES, STAMP, figma);
+return await (new F("SCHERMEN", "FRAMES", "STAMP", "BUDGET", "figma", bron))(SCHERMEN, FRAMES, STAMP, BUDGET, figma);
 ```
+
+Sinds 2026-09-09 bouwt `bouw-schermen.js` frame voor frame binnen een tijdbudget, want een
+aanroep die de wachtlimiet overschrijdt wordt midden in een import afgebroken en zet de
+import-wachtrij van de plugin vast (eigenaardigheid 9). Poll de voortgang met
+`figma.root.getPluginData('bouwvoortgang')`; een lege string mét een lege `bouwbezig` is klaar.
 
 Instances vragen een **gepubliceerde** library: een ongepubliceerde key geeft *"Could not find
 a published component with the key"*. De key overleeft de publicatie ongewijzigd (gemeten).

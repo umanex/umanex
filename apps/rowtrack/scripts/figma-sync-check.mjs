@@ -151,7 +151,7 @@ const BEKENDE_INSTABIELE_POSITIES = 2;
 /** De dertien assen, in volgorde. Enige bron voor de slotregel — een hardgecodeerde
  *  opsomming raakt los van wat er werkelijk gedraaid heeft. */
 const ASSEN = ['dekking', 'pagina', 'variant', 'varianten', 'token', 'tokenwaarde', 'typografie',
-               'link', 'hardcoded', 'binding', 'publicatie', 'laagnaam', 'instancevulling'];
+               'link', 'hardcoded', 'binding', 'publicatie', 'laagnaam', 'instancevulling', 'eigenschappen'];
 // Verdeling op 2026-09-08: 18 typografie-combinaties zonder Theme/type-token · 8 icoonmaten
 // (Ionicons als glyph, geen Figma-font) · 5 achtergrondkleuren · 3 paddings (3, 50, 100) ·
 // 3 radii (2, 12, 24) · 3 emoji/systeemfont (bedoeld — een emoji hoort de systeem-emojifont
@@ -652,6 +652,37 @@ else {
     ok('instancevulling', `${sets.length} sets en ${Object.values(manifest.pages).length - sets.length} losse componenten: `
       + 'geen enkele variant of losse component draagt een eigen vulling, dus een instance komt transparant mee');
   }
+}
+
+// ---- 12. Eigenschappen: wijst er naar elke property een node? -------------------
+// Een TEXT-property zonder node is voor Figma een "unused property": de component wordt bij
+// publicatie als invalid asset geweigerd. De builder liet er zo 73 achter over 22 sets
+// (gemeten 2026-09-09) — `addComponentProperty` met een bestaande naam werpt geen fout maar
+// hernoemt stil naar `value2`, `value3`, en de vorige blijft zonder node staan. Erger: een
+// scherm-instance zet zijn override op de EERSTE sleutel met die naam, dus zodra zo'n set
+// gepubliceerd wordt toont elke instance de library-default. Dit zag geen enkele as; de
+// publicatiedialoog van Figma was het eerste instrument dat rood werd.
+if (!manifest) sla('eigenschappen', 'geen manifest');
+else if (Object.values(manifest.pages).some(p => p.primary && p.primary.eigenschappen === undefined))
+  sla('eigenschappen', `${Object.values(manifest.pages).filter(p => p.primary && p.primary.eigenschappen === undefined).length} `
+    + 'van de pagina\'s dragen geen eigenschappen-veld — ververs met het schema-3-recept');
+else {
+  const fout = []; let props = 0, sets = 0;
+  const basis = k => k.split('#')[0].replace(/\d+$/, '');
+  for (const [naam, p] of Object.entries(manifest.pages)) {
+    if (!p.primary) continue;
+    const e = p.primary.eigenschappen;
+    const tekst = Object.entries(e).filter(([, d]) => d.type !== 'VARIANT');
+    if (!tekst.length) continue;
+    sets++; props += tekst.length;
+    for (const [k, d] of tekst) if (!d.refs) fout.push(`${naam}: property "${k}" wijst naar geen enkele node — Figma weigert de component bij publicatie als invalid asset`);
+    const perBasis = {};
+    for (const [k] of tekst) (perBasis[basis(k)] ??= []).push(k);
+    for (const [b, ks] of Object.entries(perBasis)) if (ks.length > 1)
+      fout.push(`${naam}: ${ks.length} properties op de stam "${b}" (${ks.map(k => k.split('#')[0]).join(', ')}) — een naamclash bij de bouw, de builder hoort de bestaande te hergebruiken`);
+  }
+  if (fout.length) for (const f of fout) fail('eigenschappen', f);
+  else ok('eigenschappen', `${props} tekst-properties over ${sets} componenten: elke property heeft minstens één node, en geen stam komt dubbel voor`);
 }
 
 // ---- Rapport ----------------------------------------------------------------
