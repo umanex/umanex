@@ -785,3 +785,9 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   het BACKLOG-item over `vite-plugin-rnw@0.0.12`). Leg de keuze dan expliciet voor: één
   babel-plugin in de optimizer tegenover drie losse compensaties, met de extra dependency als prijs.
 - **Status:** open
+
+## 2026-09-09 — `dataSet` is alleen op web gemeten, niet op het toestel · [onzekerheid]
+- **Bevinding:** Ingreep 3b zet `dataSet={{ laag: … }}` op vier Reanimated-nodes in `WheelPicker` en `GoalSegments`. Dat het aankomt is gelezen in de geïnstalleerde bron (react-native-web 0.21.2 `createDOMProps/index.js:756-766` schrijft `data-laag`; react-native-reanimated 4.1.7 `PropsFilter.js` geeft onbekende props ongewijzigd door) en gemeten op web: 4 unieke `data-laag`-waarden bereiken de DOM, 172 nodes dragen er een naam van. Op **native** reist de prop mee naar de view manager, en iOS/Android negeren een onbekende prop normaal stil — maar dat is hier niet gemeten. Er is geen dev-client-run achter deze wijziging. `types/react-native-dataset.d.ts` draagt de reden.
+- **Check:** `pnpm dev:rowtrack` en de app op de simulator openen op het startscherm (de goal-wheel en de segmentenrij dragen de vier nodes); verschijnt er in de Metro-log of de dev-client een waarschuwing met `dataSet` erin, dan bijt het. Geen waarschuwing na één keer door de vier doeltypes scrollen = resolved.
+- **Volgende zet:** Bij de eerstvolgende toestel-run meenemen. Bijt het wél, dan is het alternatief `accessibilityLabel` of een `nativeID` — geen van beide is gratis, dus eerst meten.
+- **Status:** open

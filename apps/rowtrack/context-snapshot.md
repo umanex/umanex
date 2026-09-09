@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c86eab8 refactor(rowtrack): cuts 12 to 14 — DeviceSection, GoalHeader, StartCta
 e363e90 Merge remote-tracking branch 'origin/main' into refactor/rowtrack-summary-sneden
 e81fb62 chore(rowtrack): Figma round C — the four summary components in the library
 681dfd6 refactor(rowtrack): cuts 10 and 11 — SummaryKpiBand and StatsTable, and the clock
 5f19171 refactor(rowtrack): cuts 8 and 9 — SummaryTitle and PrBanner
-7d11bb1 Merge remote-tracking branch 'origin/main' into feature/jobradar-csv-prospectbron
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/app/(tabs)/workout.tsx
-  M  apps/rowtrack/components/workout/IdlePhase.stories.tsx
-  M  apps/rowtrack/components/workout/IdlePhase.tsx
-  A  apps/rowtrack/components/workout/idle/DeviceSection.stories.tsx
-  A  apps/rowtrack/components/workout/idle/DeviceSection.tsx
-  A  apps/rowtrack/components/workout/idle/GoalHeader.stories.tsx
-  A  apps/rowtrack/components/workout/idle/GoalHeader.tsx
-  A  apps/rowtrack/components/workout/idle/StartCta.stories.tsx
-  A  apps/rowtrack/components/workout/idle/StartCta.tsx
+  M  apps/rowtrack/HANDOFF.md
+  M  apps/rowtrack/components/GoalSegments.stories.tsx
+  M  apps/rowtrack/components/GoalSegments.tsx
+  M  apps/rowtrack/components/WheelPicker.stories.tsx
+  M  apps/rowtrack/components/WheelPicker.tsx
+  M  apps/rowtrack/components/workout/idle/DeviceSection.stories.tsx
+  M  apps/rowtrack/components/workout/idle/GoalHeader.stories.tsx
+  M  apps/rowtrack/components/workout/idle/StartCta.stories.tsx
   M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/geometry.figma.json
 
 ## Bestanden met TODO/FIXME
   (geen)

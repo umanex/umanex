@@ -84,7 +84,7 @@ const NIET_VISUEEL = {
 const BEKENDE_GATEN = 49;
 /** Voorkomens, niet alleen unieke waarden. De deduplicatie is app-breed, dus een nieuw gat dat
  *  een bekende waarde hergebruikt is in `aantalUniek` onzichtbaar. */
-const BEKENDE_VOORKOMENS = 1996;   // 1990 + 6 uit de vier samenvattingscomponenten, die elk een eigen story kregen
+const BEKENDE_VOORKOMENS = 2144;   // 1996 + 148: DeviceSection heeft 40 variantcombinaties (bleStatus x hrStatus), dus elke ongebonden waarde in een toestelrij wordt nu 40 keer geteld in plaats van een handvol keer in het scherm
 /** Aandeel laagnamen dat uit de code komt (sleutel + gefold + componentnaam), in procent.
  *  Een ratel zoals BEKENDE_GATEN: dalen is een regressie, stijgen vraagt om bijstellen.
  *  Sinds 2026-09-08 over de APP-noemer: de 250 nodes die react-native-web zelf schrijft
@@ -101,8 +101,14 @@ const BEKENDE_VOORKOMENS = 1996;   // 1990 + 6 uit de vier samenvattingscomponen
  *
  *  83,4 -> 84,4 na de zeven sneden van ingreep 2: elke uitgesneden component draagt zijn eigen
  *  StyleSheet, dus zijn nodes winnen nu een sleutel uit hun eigen bestand in plaats van terug te
- *  vallen. `activeStyles` bestaat niet meer. */
-const LAAGNAAM_DEKKING = 84.7;
+ *  vallen. `activeStyles` bestaat niet meer.
+ *
+ *  84,4 -> 90,1 door ingreep 3b: `dataSet={{ laag: … }}` op de vier Reanimated-nodes in
+ *  WheelPicker en GoalSegments. Die nodes hebben geen StyleSheet-sleutel om op te matchen —
+ *  Reanimated plat de style-array tot een inline attribuut — dus ze vielen terug op een
+ *  structurele naam. 172 nodes dragen nu een naam uit de code; de structurele terugval zakte
+ *  van 185 naar 47 en de ambiguïteit van 111 naar 97. */
+const LAAGNAAM_DEKKING = 90.1;
 /**
  * Hoe vaak de HEURISTISCHE componentgrens nog vuurt. Sinds de testID-ronde van 2026-09-08 staat
  * de grens als feit in de DOM, dus elke treffer hier is een node waar de code hem niet

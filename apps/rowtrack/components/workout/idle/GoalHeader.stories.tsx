@@ -20,6 +20,9 @@ const meta = {
     onChange: { control: false },
   },
   args: { selectedSegment: 'duration', screenWidth: 430, onChange: () => {} },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2028-17058' },
+  },
 } satisfies Meta<typeof GoalHeader>;
 
 export default meta;

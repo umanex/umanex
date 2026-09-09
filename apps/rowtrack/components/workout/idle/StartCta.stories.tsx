@@ -12,6 +12,9 @@ const meta = {
   decorators: [(Story) => <View style={{ width: 430 }}><Story /></View>],
   argTypes: { onStart: { control: false } },
   args: { onStart: () => {} },
+  parameters: {
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2028-17065' },
+  },
 } satisfies Meta<typeof StartCta>;
 
 export default meta;

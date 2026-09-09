@@ -2096,10 +2096,10 @@
    "pageId": "2001:558",
    "primary": {
     "name": "WheelPicker",
-    "id": "2026:15610",
+    "id": "2028:17447",
     "type": "COMPONENT_SET",
     "publishStatus": "UNPUBLISHED",
-    "bouwhash": "1vmyz0l:315",
+    "bouwhash": "10ws8d5:315",
     "componentProperties": [
      "showPill",
      "surface"
@@ -2123,19 +2123,19 @@
     "varianten": [
      {
       "name": "showPill=true, surface=base",
-      "id": "2026:15374"
+      "id": "2028:17211"
      },
      {
       "name": "showPill=true, surface=raised",
-      "id": "2026:15453"
+      "id": "2028:17290"
      },
      {
       "name": "showPill=false, surface=base",
-      "id": "2026:15531"
+      "id": "2028:17368"
      },
      {
       "name": "showPill=false, surface=raised",
-      "id": "2026:15609"
+      "id": "2028:17446"
      }
     ]
    },
@@ -2284,10 +2284,10 @@
    "pageId": "2001:898",
    "primary": {
     "name": "GoalSegments",
-    "id": "2026:14746",
+    "id": "2028:17132",
     "type": "COMPONENT_SET",
     "publishStatus": "UNPUBLISHED",
-    "bouwhash": "1jjl620:66",
+    "bouwhash": "1u0pqex:66",
     "componentProperties": [
      "selected"
     ],
@@ -2307,23 +2307,23 @@
     "varianten": [
      {
       "name": "selected=none",
-      "id": "2026:14693"
+      "id": "2028:17079"
      },
      {
       "name": "selected=duration",
-      "id": "2026:14706"
+      "id": "2028:17092"
      },
      {
       "name": "selected=distance",
-      "id": "2026:14719"
+      "id": "2028:17105"
      },
      {
       "name": "selected=split",
-      "id": "2026:14732"
+      "id": "2028:17118"
      },
      {
       "name": "selected=watts",
-      "id": "2026:14745"
+      "id": "2028:17131"
      }
     ]
    },
@@ -3043,6 +3043,281 @@
     {
      "name": "achtergrond",
      "id": "2027:15965",
+     "type": "RECTANGLE"
+    }
+   ]
+  },
+  "DeviceSection": {
+   "pageId": "2028:15966",
+   "primary": {
+    "name": "DeviceSection",
+    "id": "2028:16971",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "1q8j99z:1005",
+    "componentProperties": [
+     "hrDeviceName#2028:524",
+     "deviceName#2028:565",
+     "bleStatus",
+     "hrStatus"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "bleStatus": {
+      "values": [
+       "idle",
+       "scanning",
+       "connecting",
+       "discovering",
+       "connected",
+       "disconnecting",
+       "reconnecting",
+       "error"
+      ]
+     },
+     "hrStatus": {
+      "values": [
+       "idle",
+       "scanning",
+       "waiting",
+       "connected",
+       "error"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "bleStatus=idle, hrStatus=idle",
+      "id": "2028:15988"
+     },
+     {
+      "name": "bleStatus=idle, hrStatus=scanning",
+      "id": "2028:16014"
+     },
+     {
+      "name": "bleStatus=idle, hrStatus=waiting",
+      "id": "2028:16040"
+     },
+     {
+      "name": "bleStatus=idle, hrStatus=connected",
+      "id": "2028:16062"
+     },
+     {
+      "name": "bleStatus=idle, hrStatus=error",
+      "id": "2028:16084"
+     },
+     {
+      "name": "bleStatus=scanning, hrStatus=idle",
+      "id": "2028:16110"
+     },
+     {
+      "name": "bleStatus=scanning, hrStatus=scanning",
+      "id": "2028:16140"
+     },
+     {
+      "name": "bleStatus=scanning, hrStatus=waiting",
+      "id": "2028:16170"
+     },
+     {
+      "name": "bleStatus=scanning, hrStatus=connected",
+      "id": "2028:16196"
+     },
+     {
+      "name": "bleStatus=scanning, hrStatus=error",
+      "id": "2028:16222"
+     },
+     {
+      "name": "bleStatus=connecting, hrStatus=idle",
+      "id": "2028:16248"
+     },
+     {
+      "name": "bleStatus=connecting, hrStatus=scanning",
+      "id": "2028:16278"
+     },
+     {
+      "name": "bleStatus=connecting, hrStatus=waiting",
+      "id": "2028:16308"
+     },
+     {
+      "name": "bleStatus=connecting, hrStatus=connected",
+      "id": "2028:16334"
+     },
+     {
+      "name": "bleStatus=connecting, hrStatus=error",
+      "id": "2028:16360"
+     },
+     {
+      "name": "bleStatus=discovering, hrStatus=idle",
+      "id": "2028:16386"
+     },
+     {
+      "name": "bleStatus=discovering, hrStatus=scanning",
+      "id": "2028:16416"
+     },
+     {
+      "name": "bleStatus=discovering, hrStatus=waiting",
+      "id": "2028:16446"
+     },
+     {
+      "name": "bleStatus=discovering, hrStatus=connected",
+      "id": "2028:16472"
+     },
+     {
+      "name": "bleStatus=discovering, hrStatus=error",
+      "id": "2028:16498"
+     },
+     {
+      "name": "bleStatus=connected, hrStatus=idle",
+      "id": "2028:16520"
+     },
+     {
+      "name": "bleStatus=connected, hrStatus=scanning",
+      "id": "2028:16546"
+     },
+     {
+      "name": "bleStatus=connected, hrStatus=waiting",
+      "id": "2028:16572"
+     },
+     {
+      "name": "bleStatus=connected, hrStatus=connected",
+      "id": "2028:16594"
+     },
+     {
+      "name": "bleStatus=connected, hrStatus=error",
+      "id": "2028:16616"
+     },
+     {
+      "name": "bleStatus=disconnecting, hrStatus=idle",
+      "id": "2028:16638"
+     },
+     {
+      "name": "bleStatus=disconnecting, hrStatus=scanning",
+      "id": "2028:16664"
+     },
+     {
+      "name": "bleStatus=disconnecting, hrStatus=waiting",
+      "id": "2028:16690"
+     },
+     {
+      "name": "bleStatus=disconnecting, hrStatus=connected",
+      "id": "2028:16712"
+     },
+     {
+      "name": "bleStatus=disconnecting, hrStatus=error",
+      "id": "2028:16734"
+     },
+     {
+      "name": "bleStatus=reconnecting, hrStatus=idle",
+      "id": "2028:16756"
+     },
+     {
+      "name": "bleStatus=reconnecting, hrStatus=scanning",
+      "id": "2028:16782"
+     },
+     {
+      "name": "bleStatus=reconnecting, hrStatus=waiting",
+      "id": "2028:16808"
+     },
+     {
+      "name": "bleStatus=reconnecting, hrStatus=connected",
+      "id": "2028:16830"
+     },
+     {
+      "name": "bleStatus=reconnecting, hrStatus=error",
+      "id": "2028:16852"
+     },
+     {
+      "name": "bleStatus=error, hrStatus=idle",
+      "id": "2028:16874"
+     },
+     {
+      "name": "bleStatus=error, hrStatus=scanning",
+      "id": "2028:16900"
+     },
+     {
+      "name": "bleStatus=error, hrStatus=waiting",
+      "id": "2028:16926"
+     },
+     {
+      "name": "bleStatus=error, hrStatus=connected",
+      "id": "2028:16948"
+     },
+     {
+      "name": "bleStatus=error, hrStatus=error",
+      "id": "2028:16970"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "GoalHeader": {
+   "pageId": "2028:16972",
+   "primary": {
+    "name": "GoalHeader",
+    "id": "2028:17058",
+    "type": "COMPONENT_SET",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "yhurkm:86",
+    "componentProperties": [
+     "selectedSegment"
+    ],
+    "eigenVulling": 1,
+    "variantenMetVulling": 0,
+    "variantProperties": {
+     "selectedSegment": {
+      "values": [
+       "none",
+       "duration",
+       "distance",
+       "split",
+       "watts"
+      ]
+     }
+    },
+    "varianten": [
+     {
+      "name": "selectedSegment=none",
+      "id": "2028:16989"
+     },
+     {
+      "name": "selectedSegment=duration",
+      "id": "2028:17006"
+     },
+     {
+      "name": "selectedSegment=distance",
+      "id": "2028:17023"
+     },
+     {
+      "name": "selectedSegment=split",
+      "id": "2028:17040"
+     },
+     {
+      "name": "selectedSegment=watts",
+      "id": "2028:17057"
+     }
+    ]
+   },
+   "extra": []
+  },
+  "StartCta": {
+   "pageId": "2028:17059",
+   "primary": {
+    "name": "default",
+    "id": "2028:17065",
+    "type": "COMPONENT",
+    "publishStatus": "UNPUBLISHED",
+    "bouwhash": "jmymjc:6",
+    "componentProperties": [],
+    "eigenVulling": 0,
+    "variantenMetVulling": null,
+    "variantProperties": null,
+    "varianten": null
+   },
+   "extra": [
+    {
+     "name": "achtergrond",
+     "id": "2028:17066",
      "type": "RECTANGLE"
     }
    ]

@@ -67,13 +67,13 @@ function WheelRow({ item, index, scrollY }: WheelRowProps) {
 
   return (
     <View style={styles.item}>
-      <Animated.View style={[styles.layer, smallStyle]}>
+      <Animated.View dataSet={{ laag: 'smallLayer' }} style={[styles.layer, smallStyle]}>
         <View style={styles.valueRow}>
           <Text style={styles.smallValue}>{value}</Text>
           {unit ? <Text style={styles.smallUnit}>{unit}</Text> : null}
         </View>
       </Animated.View>
-      <Animated.View style={[styles.layer, bigStyle]}>
+      <Animated.View dataSet={{ laag: 'bigLayer' }} style={[styles.layer, bigStyle]}>
         <View style={styles.valueRow}>
           <Text style={styles.bigValue}>{value}</Text>
           {unit ? <Text style={styles.bigUnit}>{unit}</Text> : null}
