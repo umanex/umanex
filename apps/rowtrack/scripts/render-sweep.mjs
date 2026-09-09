@@ -40,10 +40,37 @@ await new Promise(r => server.listen(0, r));
 const poort = server.address().port;
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+
+/**
+ * ÉÉN PAGINA VOOR 257 STORIES HOUDT HET NIET, en het faalt aan de staart.
+ *
+ * Gemeten 2026-09-09, vijf achtereenvolgende runs op dezelfde build: 16, 0, 0, 5 en 2
+ * "problemen" — hetzelfde instrument, dezelfde invoer, vijf uitkomsten. De gemelde stories
+ * waren telkens de LAATSTE: 255, 256 en 257 van 257 (`ProfileScreen`), met 404's op resources
+ * en een ontbrekende `#storybook-root`. Diezelfde drie stories renderen in isolatie drie keer
+ * op rij foutloos, zonder één 404. Het is dus geen kapotte story maar ophoping op de
+ * hergebruikte pagina: na een paar honderd navigaties begint Chromium requests te laten vallen.
+ *
+ * De richting van de fout is belangrijk: dit levert VALSE ALARMEN op, geen gemiste fouten —
+ * een groene run blijft dus betrouwbaar, een rode vroeg om een herhaling. Dat is precies de
+ * verkeerde kant om op te vertrouwen, want de gate wordt gelezen als "alles rendert".
+ *
+ * De remedie is de pagina periodiek verversen. 50 is ruim onder de grens waar het misging en
+ * kost vijf herstarts over de hele sweep.
+ */
+const PER_PAGINA = 50;
+let page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+let sindsVers = 0;
+let ververst = 0;
 
 const resultaten = [];
 for (const s of stories) {
+  if (sindsVers >= PER_PAGINA) {
+    await page.close();
+    page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    sindsVers = 0; ververst++;
+  }
+  sindsVers++;
   const fouten = [];
   const onConsole = m => { if (m.type() === 'error') fouten.push(m.text()); };
   const onError = e => fouten.push('pageerror: ' + e.message);
@@ -70,6 +97,7 @@ for (const s of stories) {
   page.off('console', onConsole); page.off('pageerror', onError);
 }
 await browser.close(); server.close();
+if (VERBOSE) console.log(`pagina ${ververst}x ververst (elke ${PER_PAGINA} stories)`);
 
 const metFout = resultaten.filter(r => r.fouten.length);
 // "Leeg" = geen enkele afstammeling. De preview-decorator levert er altijd minstens één,
