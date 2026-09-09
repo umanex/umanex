@@ -73,16 +73,15 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+6b0a3b1 fix(rowtrack): the publication axis counted as green while saying it measured nothing
 380cf2d fix(rowtrack): measure the background fold per side, and close the round's paperwork
 053de55 feat(rowtrack): carry per-side borders, derived slots and scroll into Figma
 ce0b54b feat(rowtrack): carry margins, input fields and inline text into the build spec
 9563112 chore(rowtrack): Figma artefacts after the type-style fix, and the image axis has a blind spot
-99b0234 fix(rowtrack): three of the four type gaps close at the source, not in the ratchet
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/briefings/2026-09-09-audit-figma-verschilklassen.md
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/scripts/walker-blindvlekken.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

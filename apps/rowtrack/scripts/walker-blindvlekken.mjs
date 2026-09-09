@@ -38,9 +38,18 @@
  *                  in Figma op y=84 staat en in de browser op y=112. Zonder Figma erbij te
  *                  halen: 84+54+682+84 = 904 tegen een frame van 932
  *
- * Positieve controle (2026-09-09, 42 schermstories): randkleur 0 · placeholder 4 · gescrold 11 ·
- * overloop 15 · inline 3 · center/right 32 · marge 40. De `randkleur`-nul is gemeten en geen
- * aanname: dezelfde run telde 333 nodes MET rand, dus de selectie raakt wel degelijk nodes. Over alle 257 stories: marge 57 van
+ * Positieve controle, gemeten 2026-09-09 mét dit script (niet afgeleid):
+ *
+ *   42 schermstories : randkleur 0 (metRand 226) · placeholder 4 · gescrold 11 · overloop 16
+ *                      · inline 3 · center/right 32 · marge 40
+ *   alle 257 stories : randkleur 0 (metRand 333) · placeholder 7 · gescrold 18 · overloop 93
+ *                      · inline 3 · center/right 64 · marge 57
+ *
+ * `metRand` staat er als de positieve controle bij `randkleur`: zonder hem is nul niet te
+ * onderscheiden van een selectie die niets raakt. Die 333 komt bovendien onafhankelijk uit een
+ * tweede telling tijdens de bouw van klasse J — twee scripts, hetzelfde getal.
+ * `overloop` schommelt (15-16 op de schermstories): een node die precies één pixel overloopt
+ * valt aan beide kanten van de `+1`-drempel, afhankelijk van de fontrendering van die run. Over alle 257 stories: marge 57 van
  * 13 237 nodes, verspreid over 38 stories, twaalf unieke waarden. LoginScreen/Playground
  * alleen: placeholder 1, inline 1, center/right 4.
  *
