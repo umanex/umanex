@@ -770,6 +770,25 @@ De check wordt bij sessiestart mee getoond, en `sessie-reflectie` draait hem bij
   iets af: eerst nagaan of het verschil uit de babel-wijziging komt (vergelijk tegen `4bb9484`,
   de commit vóór de fix) vóór je de Figma-kant aanpast.
 - **Status:** resolved (2026-09-09) — de eigen Check gedraaid: `parity` exit 0, *Geen verschil over 3 516 nodes* over 220 varianten en 27 480 velden. De geometrie is sindsdien meermaals hermeten, o.a. na de dieptekap-fix.
+  **Aanvulling 2026-09-09, ándere sessie — de conclusie klopt, de Check droeg hem niet.** `parity`
+  exit 0 kán deze wijziging per constructie niet vinden: de refactor merged om 14:06 (`63b425e`) en
+  `figma/geometry.figma.json` is om 14:23 opnieuw gecommit (`df1e0fe`), dus de Figma-kant is
+  herbouwd vanaf een build mét de nieuwe config. Was er geometrie verschoven, dan zat die
+  verschuiving in béide kanten en bleef parity groen. Een parity-baseline die ná de wijziging
+  ververst is, meet de wijziging niet — dat is een eigenschap van elke guard met een meebewegende
+  referentie, niet iets eenmaligs.
+  De isolatie is daarom apart gemeten, zonder Figma ertussen: per story de bounding boxes van alle
+  DOM-nodes onder `#storybook-root`, uit twee builds die uitsluitend in `.storybook/main.ts`
+  verschillen (`9e2a7b8` tegen de huidige). 13 508 nodes over 257 stories aan beide kanten, en
+  **nul verschillen buiten de ruisvloer**. Die ruisvloer is zelf gemeten in plaats van aangenomen:
+  dezelfde build twee keer bemonsterd geeft 18 afwijkende stories, precies de spinner-stories die
+  `scripts/instabiele-nodes.mjs` al als niet-reproduceerbaar kent; de 17 afwijkingen tussen de twee
+  builds vallen alle 17 binnen die 18. De conclusie *geometrie ongewijzigd* staat dus, nu op bewijs
+  dat rood had kunnen worden.
+  Eén valse treffer onderweg, vermeld omdat hij bijna als P0 gerapporteerd werd: de eerste meting
+  gaf voor de vijf SplitsList-stories 1 node in plaats van 18/2/9/36/12 — een lege render. Een
+  tweede meting op dezelfde config gaf de volle aantallen en `render:sweep` gaf 257/257. De
+  momentopname wachtte te kort op een lijst die zijn layout nog moest doen.
 
 ## 2026-09-08 — Babel ín de optimizer draaien is nooit als keuze voorgelegd · [aanname]
 - **Bevinding:** Drie van de vier ingrepen in `.storybook/main.ts` (optimizer-exclude,
