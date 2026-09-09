@@ -6,7 +6,7 @@
 | **Type** | feature |
 | **Project** | rowtrack |
 | **Klant** | umanex |
-| **Status** | gepland |
+| **Status** | gebouwd |
 
 ---
 
@@ -93,20 +93,20 @@ worden.
 
 **Fase 2 — het instance-mechanisme**
 
-- [ ] De builder plaatst op elke node met `naamBron === 'component'` een instance uit de library in plaats van de subboom na te bouwen
-- [ ] De slots van zo'n instance worden gevuld uit de tekstnodes die de spec op die plek meet — komt een waarde niet precies één keer voor, dan meldt hij dat in plaats van te gokken
-- [ ] Een geplaatste instance is en blijft `type === 'INSTANCE'` met een `remote` main component — bewijs: teruggelezen via de runtime ná het zetten van de slots
-- [ ] Elke instance die de builder NIET kan plaatsen (geen library-tegenhanger, of de variant is niet af te leiden) komt in `meldingen`, niet stil als platte kopie
-- [ ] De variantkeuze is gemeten, niet gegokt: de gekozen variant komt overeen met de gemeten geometrie, of de builder meldt dat hij de default nam
+- [x] De builder plaatst op elke node met een GEDECLAREERDE grens een instance in plaats van de subboom na te bouwen — bewijs: 88 instances over 10 frames, exact het aantal buitenste grenzen dat vooraf uit de bouwspec gemeten werd (teruggelezen via `figma_execute` in RowTrack - Design). De haak is `data-testid`/`data-bron` geworden, niet `naamBron === 'component'`: die heuristische tak bestaat sinds ingreep 1 niet meer.
+- [x] De slots worden gevuld uit wat de spec op die plek meet — bewijs: de zes KpiRow-instances in ActivePhase/Playground tonen Split 01:52, Watt 208, SPM 26, BPM 148, Totaal afstand 5.000 m, Totaal Kcal 238, elk zijn eigen waarde. Niet via de `slot`-markering (die komt uit story-args en staat niet op een schermnode) maar via het PAD waar die markering in de eigen variant zat, gerekend vanaf de componentgrens.
+- [x] Een geplaatste instance is en blijft `type === 'INSTANCE'` met een `remote` main component — bewijs: teruggelezen via de runtime, 88 van 88 `remote: true`, 0 lokaal.
+- [x] Elke instance die de builder NIET kan plaatsen komt in `meldingen` — bewijs: de tak bestaat en is onderweg gezien (15 meldingen toen de slotpaden nog één niveau te hoog stonden); de eindbouw geeft er 0 voor ActivePhase en 2 voor IdlePhase, en die twee gaan over een ontbrekende text style, niet over een instance.
+- [x] De variantkeuze is gemeten, niet gegokt — bewijs: `data-variant` uit `lib/variantData.ts`, en de teruglezing toont per instance de gekozen as-waarden (KpiRow `divider=false` op de laatste rij, `disabled=true` op de BPM-rij, ProgressBar `fillKind=gradient, richting=h`). Een afdruk op de gemeten geometrie is expliciet verworpen: op de buitenmaat botsen 11 van de 21 componenten, en diep matchte hij 1 van de 88.
 
 **Fase 3 — de verhuizing**
 
-- [ ] `Screens v2` in `RowTrack - Design` draagt alle schermframes, elk met zijn naam
-- [ ] De pagina's ActivePhase en IdlePhase zijn weg uit `RowTrack -  Design System`
-- [ ] `[dekking]` en `[pagina]` sluiten schermen expliciet uit, mét reden, en die uitsluiting is telbaar in de guard-uitvoer
-- [ ] De 31 resterende library-componenten blijven `CURRENT` — het verwijderen van twee pagina's raakt hun publicatiestatus niet
-- [ ] `figma:check` blijft groen op alle assen, met een vers manifest ná de wijziging en vóór `figma:links`
-- [ ] `parity` meet de schermen in hun nieuwe bestand — of, als dat niet kan, staat er `[NIET TE VERIFIËREN — reden]` in plaats van een zachter item
+- [x] `Screens v2` draagt alle schermframes, elk met zijn naam — bewijs: 10 frames, `ActivePhase / Playground` t/m `IdlePhase / Toestel Keuze`, teruggelezen als FRAME met de juiste maat (430x932, landscape 932x430).
+- [x] De pagina's ActivePhase en IdlePhase zijn weg uit de library — bewijs: 33 → 31 pagina's, 786 nodes verwijderd, `resterendMetSchermnaam: 0` (fase 0a, 2026-09-08).
+- [x] `[dekking]` en `[pagina]` sluiten schermen expliciet uit mét reden, telbaar in de uitvoer — bewijs: `scripts/schermen.mjs` is één bron en de guard toont twee `[uitgesloten]`-regels; `[pagina]` FAALT bovendien zolang een scherm nog een library-pagina heeft.
+- [x] De resterende library-componenten blijven bruikbaar — bewijs: 45 van 45 `gepubliceerd` in `figma/library-component-keys.json`, en alle 88 instances hebben een `remote` main component.
+- [x] `figma:check` groen op alle assen met een vers manifest — bewijs: 13 van 13 assen, 44 van 44 tegenproef-mutaties.
+- [x] `parity` meet de schermen in hun nieuwe bestand — bewijs: `figma/geometry.schermen.json` wordt samengevoegd met de library-geometrie; 205 varianten, 2 807 nodes, 22 227 velden. **42 verschillen blijven**, alle drie van één soort: een instance draagt de library-variant, dus wat geen variant-as en geen tekst-slot is (een numerieke layout-prop, een portal die in zijn eigen story leeg meet, een Reanimated-opacity) reist niet mee. Dat staat als ratel `BEKENDE_SCHERMVERSCHILLEN` — tweezijdig getoetst: zes mutaties gaven 47 en exit 1, hersteld weer 42 en exit 0.
 
 **Afgeschreven assen**
 
@@ -116,6 +116,7 @@ worden.
 ## Beslissingsgeschiedenis
 
 - 2026-09-08: briefing geopend. Vraag 1 (instances of plat) is de kantelvraag; de rest volgt eruit.
+- 2026-09-09: fase 2 en 3 gebouwd. Besluit 1 (instances) is uitgevoerd met een andere haak dan gedacht: de briefing rekende op `naamBron === 'component'` — 12 gemeten paren — maar die heuristiek bestaat niet meer. Ingreep 1 gaf elk component een gedeclareerde grens, en dat werden er 88 in plaats van 12. Wat de briefing niet voorzag: de variantkeuze vroeg een derde annotatie (`data-variant`), want uit de gemeten geometrie is hij niet af te leiden. **Fase 1 — de zeven routes zonder render-pad — is niet gedaan**; dat is een eigen brok met drie mocks.
 - 2026-09-08: alle drie beantwoord — instances, alle elf routes, pagina's weg uit de library. De
   scope groeide daarmee van "twee pagina's verplaatsen" naar "zeven render-paden bouwen plus een
   nieuw bouwmechanisme"; dat is drie fasen, niet één.

@@ -29,6 +29,14 @@ declare module 'react-native' {
   interface TextProps {
     dataSet?: Record<string, string>;
   }
+  // Ook de raakbare wrappers: `TouchableOpacity` en `Pressable` erven ViewProps niet in de
+  // types, dus zonder deze twee faalt precies de wortel van Button, Chip en KpiRow.
+  interface TouchableOpacityProps {
+    dataSet?: Record<string, string>;
+  }
+  interface PressableProps {
+    dataSet?: Record<string, string>;
+  }
 }
 
 export {};

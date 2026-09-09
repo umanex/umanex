@@ -4,6 +4,7 @@ import { BleStatusBar } from '@/components/BleStatusBar';
 import { HrStatusBar } from '@/components/HrStatusBar';
 import { t } from '@/i18n';
 import { bg, border, fg, fontFamily, fontSize, radii, space, status, typeStyles } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 export type DeviceSectionProps = {
   bleStatus: ConnectionStatus;
@@ -36,7 +37,7 @@ export function DeviceSection({
   hrStatus, hrDeviceName, hrError, onHRConnect, onHRDisconnect,
 }: DeviceSectionProps) {
   return (
-    <View testID="DeviceSection" style={styles.toestelSection}>
+    <View testID="DeviceSection" dataSet={variantData({ bleStatus, hrStatus })} style={styles.toestelSection}>
       <Text style={styles.sectionLabel}>{t.workout.idle.devicesLabel}</Text>
       <View style={styles.deviceCard}>
         <BleStatusBar

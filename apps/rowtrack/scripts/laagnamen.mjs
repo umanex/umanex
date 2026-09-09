@@ -195,7 +195,6 @@ function terugval(n, ouder) {
  * @param {object[]} bomen     de boom van elke variant
  */
 export function benoem(comp, bomen) {
-  const heuristiekTreffers = [];
   // Universeel = de sleutel komt in ELKE variant ergens boven de drempel voor. Een
   // universele sleutel is de identiteit van het element, een conditionele de modifier —
   // en de modifier is precies wat de variant-as al uitdrukt.
@@ -253,18 +252,6 @@ export function benoem(comp, bomen) {
   const vouw = vouwAlternatieven(bomen, meta);
   const universeel = universaliteit(vouw);
 
-  /** Hoe vaak wint elke bron in de subboom van `n`? Gebruikt de rauwe winnaars uit pas 1. */
-  const subboomCache = new Map();
-  const bronnenInSubboom = (n) => {
-    if (subboomCache.has(n)) return subboomCache.get(n);
-    const tel = new Map();
-    for (const x of plat(n)) {
-      const w = x.ruw ? meta.get(x.ruw) : null;
-      if (w) tel.set(w.b, (tel.get(w.b) ?? 0) + 1);
-    }
-    subboomCache.set(n, tel);
-    return tel;
-  };
 
   // PAS 2 — opnieuw kiezen, nu mét de gevouwen namen, en daarna stabiliseren.
   for (const boom of bomen) loop(boom, null, true);
@@ -289,6 +276,11 @@ export function benoem(comp, bomen) {
     // Idem voor `dataSet={{ laag: '…' }}` op een node die Reanimated inline stylet — daar
     // bestaat geen StyleSheet-sleutel om op te matchen. Alleen camelCase telt; een andere vorm
     // is een typfout en wordt gemeld in plaats van gebruikt.
+    // Welke CODE deze node rendert, als de grens erboven al door een ander component geclaimd is.
+    // Dat is precies het geval waarvoor de heuristiek bestond: GoalSheet rendert een BottomSheet
+    // als zijn eigen wortel en geeft daar zijn naam aan door, dus `component` is gelijk aan het
+    // omsluitende component en de zelf-nesting-poort slaat hem over. `data-bron` is daar het feit.
+    else if (n.bron && n.bron !== ouder?.omsluit) { n.naam = n.bron; n.naamBron = 'bron'; }
     else if (n.laag && /^[a-z][A-Za-z0-9]*$/.test(n.laag)) { n.naam = n.laag; n.naamBron = 'laag'; }
     // DOM die react-native-web zelf schrijft, herkend aan zijn eigen bron (zie `rnwRol` in
     // figma-build-spec.mjs). Dit is een FEIT over de node, geen sleutelgok — en het staat
@@ -299,35 +291,7 @@ export function benoem(comp, bomen) {
     // maar draagt de app-`style` — daar wint een sleutel terecht, en de rnw-naam is de
     // terugval. Zie de tak onder `else if (w)`.
     else if (n.rnw && !n.rnwGedeeld) { n.naam = n.rnw; n.naamBron = 'rnw'; }
-    // Een genest component is pas een genest component als MEER DAN ÉÉN node in zijn subboom
-    // uit dezelfde bron wint. Eén node die toevallig een stijl deelt is geen component.
-    //
-    // Atomaire klassen zijn globaal gedeeld over álle StyleSheet.create-aanroepen in de
-    // preview-iframe, dus een generieke wrapper haalt moeiteloos volledige dekking op een
-    // sleutel uit een wildvreemd bestand. Gemeten 2026-09-08: MotivationalToast kreeg de
-    // keten `WheelPicker > wrapper > fadeTop > GoalSegments > overlay > BottomFade`, waarvan
-    // het component er geen enkele gebruikt — `WheelPicker` won op `fadeTop 1/1` en
-    // `GoalSegments` op `segmentInactive 1/1`. Een écht genest component (ErrorState > Button)
-    // wint op `base 5/5` én heeft een kind dat óók uit Button.tsx wint.
-    // De ruil, gemeten 2026-09-08: van 27 comp->vreemde-naam-paren naar 12, en alle twaalf
-    // zijn tegen de broncode getoetst (het genoemde component komt letterlijk in het bestand
-    // van de ouder voor). De kost is één groeperingslabel: `IdlePhase > WheelPicker` valt weg
-    // omdat de wortel van die subboom op `pickerCenter` (1 klasse) wint. De subboom draagt
-    // daar nog wél WheelPickers eigen sleutelnamen, dus het pad blijft eerlijk.
-    //
-    // `w.d >= 2`: één gedeelde atomaire klasse is geen bewijs. `fadeTop` is `{position:absolute}`
-    // en verklaart daarmee élke absoluut gepositioneerde wrapper voor 100% — twee zulke nodes
-    // in een subboom halen de telling hierboven zonder dat er iets van dat component staat.
-    else if (w && w.d >= 2 && w.b !== ouder?.naamBronId && componentVan(w.bron) && componentVan(w.bron) !== comp
-             && bronnenInSubboom(n).get(w.b) >= 2) {
-      // EEN GOK, en sinds 2026-09-08 een telbare. Vóór de testID-ronde was dit de enige manier
-      // om een geneste componentgrens te vinden; nu staat de grens als feit in de DOM en is elke
-      // keer dat deze tak vuurt een node waar de code hem niet declareert. Het getal gaat naar
-      // `componentZonderTestID` en ratelt naar 0; op 0 mag de tak weg (met `bronnenInSubboom`
-      // en `naamBronId` erbij).
-      n.naam = componentVan(w.bron); n.naamBron = 'heuristiek';
-      heuristiekTreffers.push(`${comp}:${n.naam}`);
-    } else if (w) {
+    else if (w) {
       n.naam = w.naam; n.naamBron = vouw.has(w.id) ? 'gefold' : 'sleutel';
     } else if (n.rnw) {
       n.naam = n.rnw; n.naamBron = 'rnw';
@@ -335,17 +299,19 @@ export function benoem(comp, bomen) {
       const [naam, bron] = terugval(n, ouder);
       n.naam = naam; n.naamBron = bron;
     }
-    n.naamBronId = w?.b ?? ouder?.naamBronId ?? null;
     for (const kind of n.kinderen ?? []) loop(kind, n, false);
   }
 
   return { component: comp, gestabiliseerd: stab.verschoven, instabielePosities: stab.posities,
-           heuristiek: heuristiekTreffers.length, heuristiekTreffers };
+           // De heuristische componentgrens BESTAAT NIET MEER (2026-09-09). Het veld blijft nul
+           // zodat de ratel in figma-sync-check.mjs zijn tegenproef houdt: gaat hij ooit boven
+           // nul, dan is er een tak teruggekomen die raadt waar de code kan verklaren.
+           heuristiek: 0, heuristiekTreffers: [] };
 }
 
 /** Meet de dekking en de variant-stabiliteit over een verzameling benoemde bomen. */
 export function meet(perComponent) {
-  const perBron = { sleutel: 0, gefold: 0, component: 0, testid: 0, laag: 0, heuristiek: 0, rnw: 0, rol: 0, terugval: 0 };
+  const perBron = { sleutel: 0, gefold: 0, component: 0, testid: 0, bron: 0, laag: 0, heuristiek: 0, rnw: 0, rol: 0, terugval: 0 };
   let nodes = 0, doorvoer = 0, ambigu = 0, indexNamen = 0, copyNamen = 0, gestabiliseerd = 0, rnwNodes = 0;
   const hist = new Array(11).fill(0);
   const instabiel = [];
@@ -381,7 +347,7 @@ export function meet(perComponent) {
         if (x.namen !== g[0].namen) instabiel.push({ comp, varianten: [g[0].i, x.i] });
   }
 
-  const echt = perBron.sleutel + perBron.gefold + perBron.component + perBron.testid + perBron.laag + perBron.heuristiek;
+  const echt = perBron.sleutel + perBron.gefold + perBron.component + perBron.testid + perBron.bron + perBron.laag + perBron.heuristiek;
   // De EERLIJKE noemer: nodes die de app zelf schrijft. Tot 2026-09-08 stond `echteNaamPct`
   // over álle niet-doorvoer-nodes, dus 125-plus nodes die nooit een code-naam kúnnen krijgen
   // drukten het percentage permanent omlaag — een plafond dat als tekortkoming las.

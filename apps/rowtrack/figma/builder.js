@@ -86,7 +86,103 @@ function gradientPaint(grad, naamPad) {
   return { type: 'GRADIENT_LINEAR', gradientTransform: gradientTransform(grad.hoek), gradientStops: stops };
 }
 
-async function maak(n, naamPad) {
+/**
+ * INSTANCES UIT DE LIBRARY.
+ *
+ * `SPEC.__instanties` is een tabel component -> { key, varianten, slots, vingerafdruk }, in Node
+ * samengesteld uit figma/library-component-keys.json en figma/geometry.figma.json. Staat hij er,
+ * dan plaatst de builder op elke node met een GEDECLAREERDE grens (`data-testid`/`data-bron`,
+ * zie scripts/laagnamen.mjs) een echte instance in plaats van de subboom na te bouwen.
+ *
+ * Waarom dit pas nu kan: een grens was tot ingreep 1 een heuristiek over gedeelde atomaire
+ * klassen — 2 van de 45 nodes in ActivePhase waren als instance herkenbaar. Nu zijn het er 20
+ * van de 113, en elke daarvan heeft een library-pagina.
+ *
+ * Een instance vraagt een GEPUBLICEERDE component: `importComponentByKeyAsync` gaf op
+ * 2026-09-09 met een ongepubliceerde key letterlijk "Could not find a published component with
+ * the key". Dezelfde key wérkte direct ná de publicatie, en veranderde daar niet door.
+ */
+const INST = SPEC.__instanties ?? null;
+
+/**
+ * Welke variant van een set is dit? GELEZEN uit `data-variant`, niet afgeleid.
+ *
+ * De vorige poging matchte op een vingerafdruk van de gemeten geometrie. Twee metingen van
+ * 2026-09-09 sloopten dat idee: op de buitenmaat alleen hebben 11 van de 21 componenten
+ * varianten die IDENTIEK meten (`disabled` verandert alleen de aanraking), en met tekst en
+ * kleur erbij matchte hij nog maar 1 van de 88 grenzen — want een component ín een scherm toont
+ * andere data dan in zijn eigen story. De informatie zit niet in de spec.
+ *
+ * Het component kent zijn eigen props wél, en zegt ze nu (`lib/variantData.ts`). De match is
+ * volgorde-onafhankelijk en tolerant naar boven: élk paar uit de Figma-variantnaam moet in
+ * `data-variant` voorkomen, extra assen worden genegeerd — `DeviceSelectionModal` draagt een
+ * `visible`-mount-schakelaar die Figma bewust niet als as heeft.
+ */
+const paren = (str) => new Map(String(str).split(/[;,]\s*/).filter(Boolean)
+  .map(p => { const i = p.indexOf('='); return [p.slice(0, i).trim(), p.slice(i + 1).trim()]; }));
+
+function kiesVariant(n, def, naamPad) {
+  if (!def.varianten) return { key: def.key, naam: null, slotPaden: def.slotPaden ?? {} };
+  if (!n.variant) {
+    meldingen.push(`${naamPad}: ${n.component} heeft variant-assen maar geen data-variant — `
+      + 'geen keuze mogelijk, subboom nagebouwd in plaats van geïnstantieerd');
+    return null;
+  }
+  const gemeten = paren(n.variant);
+  const treffers = Object.entries(def.varianten)
+    .filter(([naam]) => [...paren(naam)].every(([as, w]) => gemeten.get(as) === w));
+  if (treffers.length === 1) return { key: treffers[0][1].key, naam: treffers[0][0], slotPaden: treffers[0][1].slotPaden };
+  meldingen.push(`${naamPad}: ${treffers.length} variant(en) van ${n.component} passen op `
+    + `"${n.variant}" — geen keuze, subboom nagebouwd in plaats van geïnstantieerd`);
+  return null;
+}
+
+/** Plaats een library-instance voor deze node, of geef null en laat de builder hem nabouwen. */
+async function maakInstance(n, naamPad) {
+  const def = INST[n.component];
+  const keuze = kiesVariant(n, def, naamPad);
+  if (!keuze) return null;
+  let main;
+  try { main = await figma.importComponentByKeyAsync(keuze.key); }
+  catch (e) {
+    meldingen.push(`${naamPad}: ${n.component} niet te importeren (${e.message}) — subboom nagebouwd`);
+    return null;
+  }
+  const inst = main.createInstance();
+  inst.name = n.component;
+
+  // Slots vullen uit wat de spec OP DEZE PLEK meet. Niet via de `slot`-markering: die komt uit
+  // de story-args van het component zelf en staat dus niet op een schermnode. Wel via het PAD
+  // waar die markering in de eigen variant zat — dezelfde code rendert dezelfde boomvorm met
+  // andere data (zie `slotPaden` in bouw-schermen.js).
+  const waarden = {};
+  for (const [slot, pad] of Object.entries(keuze.slotPaden ?? {})) {
+    let x = n;
+    for (const i of String(pad).split('>').filter(s2 => s2 !== '')) x = (x?.k ?? [])[Number(i)];
+    if (x?.t) waarden[slot] = String(x.t.s);
+    else meldingen.push(`${naamPad}: slot "${slot}" van ${n.component} niet op pad ${pad} — waarde niet gezet`);
+  }
+  const props = inst.componentProperties ?? {};
+  const zetten = {};
+  for (const [slot, waarde] of Object.entries(waarden)) {
+    const volledig = Object.keys(props).find(p => p === slot || p.startsWith(slot + '#'));
+    if (volledig) zetten[volledig] = waarde;
+    else meldingen.push(`${naamPad}: slot "${slot}" bestaat niet op ${n.component} — waarde niet gezet`);
+  }
+  if (Object.keys(zetten).length) {
+    try { inst.setProperties(zetten); }
+    catch (e) { meldingen.push(`${naamPad}: slots van ${n.component} niet te zetten — ${e.message}`); }
+  }
+  return inst;
+}
+
+async function maak(n, naamPad, wortelComp) {
+  // Een gedeclareerde grens die de library kent wordt een INSTANCE, en dan stopt de afdaling:
+  // wat eronder zit hoort bij dat component en komt met de instance mee.
+  if (INST && n.component && n.component !== wortelComp && INST[n.component]) {
+    const inst = await maakInstance(n, naamPad);
+    if (inst) return inst;
+  }
   if (n.t && !n.k) {
     const stijl = n.t.style ? TS.get(n.t.style) : null;
     let font = stijl ? null : fontVan(n.t.f);
@@ -246,7 +342,7 @@ async function maak(n, naamPad) {
   if (n.opacity !== undefined) f.opacity = n.opacity;
   if (n.schaduwStyle && ES.get(n.schaduwStyle)) await f.setEffectStyleIdAsync(ES.get(n.schaduwStyle).id);
   for (const [i, k] of echteKinderen.entries()) {
-    const kind = await maak(k, `${naamPad}>${k.naam ?? i}`);   // meldingen lezen als Chip>row>value
+    const kind = await maak(k, `${naamPad}>${k.naam ?? i}`, wortelComp);   // meldingen lezen als Chip>row>value
     f.appendChild(kind);
     // Een absoluut kind dat de ouder NIET volledig bedekt blijft een echte node, maar valt
     // buiten de stroom — anders duwt hij de auto-layout uit elkaar.
@@ -256,7 +352,7 @@ async function maak(n, naamPad) {
       kind.y = k.dy ?? 0;
     }
   }
-  if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`));
+  if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`, wortelComp));
   return f;
 }
 
@@ -281,6 +377,16 @@ function wrapper(naam, w, h) {
   c.resize(Math.max(0.01, w), Math.max(0.01, h));
   c.fills = [];
   return c;
+}
+
+/** Zelfde als `wrapper`, maar een FRAME — voor schermen, die niets instantieerbaars zijn. */
+function frameWrapper(naam, w, h) {
+  const f = figma.createFrame();
+  f.name = naam;
+  f.resize(Math.max(0.01, w), Math.max(0.01, h));
+  f.fills = [bgPaint()];   // een scherm heeft wél zijn eigen achtergrond: hij staat los
+  f.clipsContent = true;
+  return f;
 }
 
 /** Een gebonden paint met de app-achtergrond. */
@@ -379,15 +485,50 @@ async function poort(page, comp, force) {
   return null;
 }
 
+/**
+ * SCHERM-MODUS. `SPEC.__doelPagina` zet alle entries op ÉÉN pagina, als gewone FRAMEs.
+ *
+ * Een scherm is geen herbruikbaar ding: er hoeft niets van geïnstantieerd te worden, dus het
+ * wordt geen COMPONENT en geen COMPONENT_SET. Dat heeft een tweede gevolg dat de poort merkt —
+ * een FRAME heeft geen `getPublishStatusAsync`, dus een schermherbouw kan per constructie geen
+ * gepubliceerde node vervangen en kost niets.
+ */
+const DOEL = SPEC.__doelPagina ?? null;
+let doelPagina = null;
+if (DOEL) {
+  doelPagina = figma.root.children.find(p => p.name === DOEL);
+  if (!doelPagina) { doelPagina = figma.createPage(); doelPagina.name = DOEL; }
+}
+// Beginnen waar de pagina al eindigt: de schermen worden PER FRAME gebouwd (elke bouw moet
+// binnen de 30 s wachtlimiet van figma_execute afgerond zijn, want een netwerk-import
+// overleeft dat venster niet — gemeten 2026-09-09: fire-and-forget bleef hangen op de eerste
+// `importComponentByKeyAsync`, dezelfde aanroep awaited duurde 39 ms). Zonder deze offset
+// stapelt elke aanroep zijn frame op x=0.
+let doelX = doelPagina
+  ? doelPagina.children.reduce((m, c) => Math.max(m, c.x + c.width + 48), 0)
+  : 0;
+
 const uit = [];
 const geweigerd = [];
 for (const [comp, d] of Object.entries(SPEC)) {
   if (comp.startsWith('__')) continue;   // __force en andere vlaggen zijn geen component
-  let page = figma.root.children.find(p => p.name === comp);
-  if (!page) { page = figma.createPage(); page.name = comp; }
+  let page = doelPagina;
+  if (!page) {
+    page = figma.root.children.find(p => p.name === comp);
+    if (!page) { page = figma.createPage(); page.name = comp; }
+  }
   const bezwaren = await poort(page, comp, SPEC.__force === true);
   if (bezwaren) { geweigerd.push(...bezwaren); continue; }
-  for (const kind of [...page.children]) kind.remove();
+  // In scherm-modus staan er meerdere schermen op één pagina: alleen de eigen frames weg,
+  // niet de buren. Buiten die modus is de pagina van dit component alleen.
+  // In scherm-modus staan er meerdere schermen én meerdere frames op één pagina, en wordt er
+  // PER FRAME gebouwd. Alleen de frames weghalen die deze aanroep opnieuw maakt — niet de buren
+  // en niet de frames van een vorige aanroep van hetzelfde scherm.
+  const teBouwen = new Set((d.frames ?? d.varianten ?? []).map(v => v.naam));
+  for (const kind of [...page.children]) {
+    if (DOEL && !(kind.getPluginData('scherm') === comp && teBouwen.has(kind.getPluginData('frame')))) continue;
+    kind.remove();
+  }
 
   slotVangst = [];
   const isScherm = !!d.frames;
@@ -395,13 +536,14 @@ for (const [comp, d] of Object.entries(SPEC)) {
   const comps = [];
   let x = 0;
   for (const v of items) {
-    const node = await maak(v.boom, comp);
+    const node = await maak(v.boom, comp, comp);
     // De wrapper is zo groot als de grootste van hoofdboom en overlays: een modal bedekt het
     // hele viewport en is dus vaak hoger dan het scherm eronder.
     const br = Math.max(v.boom.w, ...(v.overlays ?? []).map(o => o.w));
     const ho = Math.max(v.boom.h, ...(v.overlays ?? []).map(o => o.h));
-    const c = wrapper(v.naam, br, ho);
-    c.x = x; c.y = 0;
+    const c = DOEL ? frameWrapper(`${comp} / ${v.naam}`, br, ho) : wrapper(v.naam, br, ho);
+    if (DOEL) { c.setPluginData('scherm', comp); c.setPluginData('frame', v.naam); }
+    c.x = DOEL ? doelX : x; c.y = 0;
     page.appendChild(c);
     c.appendChild(node);
     node.x = 0; node.y = 0;
@@ -410,15 +552,19 @@ for (const [comp, d] of Object.entries(SPEC)) {
     // bestond hij voor de walker niet — drie ActivePhase-frames waren daardoor
     // dubbelgangers en de hele summary had nul meting.
     for (const o of v.overlays ?? []) {
-      const ov = await maak(o, comp);
+      const ov = await maak(o, comp, comp);
       c.appendChild(ov);
       ov.x = 0; ov.y = 0;
     }
     x += Math.ceil(br) + 48;
+    if (DOEL) doelX += Math.ceil(br) + 48;
     comps.push(c);
   }
   let hoofd = comps[0];
-  if (!isScherm && Object.keys(d.assen ?? {}).length) {
+  if (DOEL) {
+    // Geen set, geen slots, geen achtergrondvlak: elk frame staat op zichzelf op de
+    // gedeelde pagina en draagt zijn eigen naam.
+  } else if (!isScherm && Object.keys(d.assen ?? {}).length) {
     hoofd = figma.combineAsVariants(comps, page);
     hoofd.name = comp;
     // De SET houdt zijn gebonden vulling: die schildert achter de varianten in dit bestand
@@ -451,7 +597,7 @@ for (const [comp, d] of Object.entries(SPEC)) {
     ? `→ apps/rowtrack/components/${comp === 'ActivePhase' || comp === 'IdlePhase' ? 'workout/' : ''}${comp}.tsx\nScherm: representatieve frames, geen component set. Assen bewust afgeschreven — statusenums zijn in beeld niet orthogonaal.`
     : `→ apps/rowtrack/components/${comp}.tsx\nGegenereerd uit de Storybook-render; niet met de hand bewerken.`;
   // Geen set op deze pagina? Dan is er geen ouder-frame dat de app-achtergrond schildert.
-  if (hoofd.type !== 'COMPONENT_SET') achtergrondVlak(page, page.children.filter(c => c.type === 'COMPONENT'));
+  if (!DOEL && hoofd.type !== 'COMPONENT_SET') achtergrondVlak(page, page.children.filter(c => c.type === 'COMPONENT'));
 
   // Vingerafdruk vastleggen op elke pagina-kind, zodat de poort bij de volgende run
   // handwerk kan onderscheiden van "nog precies zoals ik hem achterliet".
@@ -460,6 +606,7 @@ for (const [comp, d] of Object.entries(SPEC)) {
   // op naam laat er dan stil één vallen.
   const hashes = [];
   for (const kind of page.children) {
+    if (DOEL && !(kind.getPluginData('scherm') === comp && teBouwen.has(kind.getPluginData('frame')))) continue;
     if (kind.name === 'achtergrond' && kind.type === 'RECTANGLE') continue;
     const h = bouwhash(kind);
     kind.setPluginData('bouwhash', h);
@@ -469,7 +616,11 @@ for (const [comp, d] of Object.entries(SPEC)) {
 
   uit.push({ component: comp, type: hoofd.type, id: hoofd.id, nodes: comps.length,
              assen: hoofd.type === 'COMPONENT_SET' ? hoofd.variantGroupProperties : null,
-             publishStatus: await hoofd.getPublishStatusAsync(), hashes,
+             // Een FRAME heeft geen `getPublishStatusAsync` — dat is precies waarom een scherm
+             // de publicatiepoort niet raakt, en het bijt hier in de rapportage.
+             publishStatus: typeof hoofd.getPublishStatusAsync === 'function'
+               ? await hoofd.getPublishStatusAsync() : null,
+             hashes,
              slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
 return { gebouwd: uit, geweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };

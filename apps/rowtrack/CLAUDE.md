@@ -429,6 +429,85 @@ return {
 };
 ```
 
+### Schermgeometrie uitlezen (de schermen staan in een ánder bestand)
+
+Sinds de export van 2026-09-09 staan de schermen als FRAMEs op *Screens v2* in **RowTrack -
+Design** (T1bGrvIzSNeLyh5CbarATZ), opgebouwd uit library-instances. `parity` voegt
+`figma/geometry.schermen.json` samen met `figma/geometry.figma.json`; ontbreekt het bestand,
+dan blijven de schermen `~~ nieuw, nog niet gebouwd` in plaats van stil ongemeten.
+
+**Twee niveaus ontwikkelen, niet één.** Een instance is de WRAPPER van de library-component
+(`COMPONENT(wrapper) > node`), en een component met een story-decorator heeft er nog één
+tussen (`wrapper > decoratorView > node`). De bouwspec kent geen van beide. Hoe diep de
+componentgrens in zijn eigen gemeten boom zit, staat in de spec zelf — de node met
+`component === <naam>` — en dat getal plus één is het aantal stappen. Gemeten 2026-09-09:
+zonder deze correctie 426 verschillen, met één vast niveau nog altijd 426, met de gemeten
+diepte 42.
+
+```js
+// figma_execute in RowTrack - Design — levert figma/geometry.schermen.json
+if (figma.fileKey !== "T1bGrvIzSNeLyh5CbarATZ") return { fout: "verkeerde file: " + figma.fileKey };
+await figma.loadAllPagesAsync();
+const min = await (await fetch("http://localhost:9229/build-spec.min.json")).json();
+const diepte = {};
+for (const [naam, d] of Object.entries(min.componenten)) {
+  const zoek = (n, k) => { if (n.component === naam) return k;
+    for (const c of n.k ?? []) { const r = zoek(c, k + 1); if (r !== null) return r; } return null; };
+  const v = zoek(d.varianten[0].boom, 0);
+  if (v !== null) diepte[naam] = v;
+}
+const p = figma.root.children.find(x => x.name === "Screens v2");
+const VULLING = 1, RAND = 2, EFFECT = 4;
+async function lees(n) {
+  if (n.type === "INSTANCE") {
+    const m = await n.getMainComponentAsync();
+    const comp = m?.parent?.type === "COMPONENT_SET" ? m.parent.name : n.name;
+    let x = n;
+    for (let i = 0; i < 1 + (diepte[comp] ?? 0) && "children" in x && x.children.length; i++) x = x.children[0];
+    return lees(x);
+  }
+  const vlaggen = (Array.isArray(n.fills) && n.fills.length > 0 ? VULLING : 0)
+    | (Array.isArray(n.strokes) && n.strokes.length > 0 ? RAND : 0)
+    | (((Array.isArray(n.effects) && n.effects.length > 0) || n.effectStyleId) ? EFFECT : 0);
+  const uit = [Math.round(n.height * 100) / 100, n.paddingLeft ?? 0, n.paddingRight ?? 0, n.itemSpacing ?? 0,
+    n.cornerRadius === figma.mixed ? (n.topLeftRadius ?? 0) : (n.cornerRadius ?? 0),
+    n.strokeWeight === figma.mixed ? null : (n.strokeWeight ?? 0), n.opacity ?? 1, vlaggen];
+  if ("children" in n && n.children.length) { const k = []; for (const c of n.children) k.push(await lees(c)); uit.push(k); }
+  return uit;
+}
+const paginas = {};
+for (const f of p.children) {
+  const comp = f.getPluginData("scherm"), naam = f.getPluginData("frame");
+  if (!comp || !naam) continue;
+  const k = []; for (const c of f.children) k.push(await lees(c));
+  (paginas[comp] ??= { setId: p.id, varianten: {} }).varianten[naam] = k;
+}
+return await (await fetch("http://localhost:9229/geometry.schermen.json", { method: "POST", body: JSON.stringify({
+  schema: 2, bron: figma.fileKey, pagina: p.name, gegenereerd: new Date().toISOString().slice(0, 10),
+  velden: ["h", "paddingLeft", "paddingRight", "itemSpacing", "radius", "strokeWeight", "opacity", "vlaggen"],
+  paginas })})).ok;
+```
+
+### Schermen bouwen (instances uit de library)
+
+`figma/bouw-schermen.js`, gedraaid in **RowTrack - Design**, met `scripts/figma-serve.mjs` aan.
+
+**Eén frame per aanroep, en AFWACHTEN.** Een netwerk-import overleeft het venster van
+`figma_execute` niet: fire-and-forget bleef hangen op de eerste `importComponentByKeyAsync`,
+dezelfde aanroep awaited duurde 39 ms (gemeten 2026-09-09). Een afgebroken bouw laat bovendien
+de importwachtrij van de plugin wedged achter — daarna hangt élke verse import tot de plugin
+volledig herstart is, en een UI-herlaad helpt niet omdat `code.js` doorloopt.
+
+```js
+const SCHERMEN = ["ActivePhase"], FRAMES = ["Playground"], STAMP = "…";
+const bron = await (await fetch("http://localhost:9229/bouw-schermen.js")).text();
+const F = Object.getPrototypeOf(async function () {}).constructor;
+return await (new F("SCHERMEN", "FRAMES", "STAMP", "figma", bron))(SCHERMEN, FRAMES, STAMP, figma);
+```
+
+Instances vragen een **gepubliceerde** library: een ongepubliceerde key geeft *"Could not find
+a published component with the key"*. De key overleeft de publicatie ongewijzigd (gemeten).
+
 **Migratiestaat: toets het schema, niet het ledger.** Migraties worden hier met de hand in de SQL
 Editor gedraaid, dus `list_migrations` kent er 6 van de 11 in `supabase/migrations/`. Alle elf zijn
 toegepast — het ledger is stil onvolledig, niet het schema. Een briefing die schrijft "de migratie is

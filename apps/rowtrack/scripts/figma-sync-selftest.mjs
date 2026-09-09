@@ -201,6 +201,18 @@ const MUTATIES = [
   { as: 'laagnaam', wat: 'de heuristische grens vuurt vaker', doe: m => {
       const x = lees(m, 'figma/laagnamen.json'); x.componentZonderTestID = 7;
       x.heuristiekPerComponent = ['ActivePhase:4', 'IdlePhase:3']; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'laagnaam', wat: 'een component accepteert een testID-override zonder data-bron', doe: m => {
+      const x = lees(m, 'figma/build-spec.min.json');
+      x.gezien.bron = x.gezien.bron.filter(b => b !== 'DeviceRow'); schrijf(m, 'figma/build-spec.min.json', x); } },
+  { as: 'laagnaam', wat: 'een data-bron in camelCase in plaats van PascalCase', doe: m => {
+      const x = lees(m, 'figma/build-spec.min.json'); x.gezien.bron.push('deviceRow'); schrijf(m, 'figma/build-spec.min.json', x); } },
+  { as: 'laagnaam', wat: 'de heuristische tak komt terug', doe: m => {
+      const x = lees(m, 'figma/laagnamen.json'); x.componentZonderTestID = 3;
+      x.heuristiekPerComponent = ['GoalSheet:2', 'IdlePhase:1']; schrijf(m, 'figma/laagnamen.json', x); } },
+  { as: 'controle-bronElders', verwachtCode: 0, wat: 'zet data-bron op een component dat geen override accepteert',
+    doe: m => { const x = lees(m, 'figma/build-spec.min.json');
+      x.gezien.bron.push('Chip'); schrijf(m, 'figma/build-spec.min.json', x); } },
+
   { as: 'controle-testidElders', verwachtCode: 0, wat: 'zet een testID in een NIET-componentbestand',
     doe: m => { const f = join(m, 'components/PaceZone.tsx');
       writeFileSync(f, readFileSync(f, 'utf8') + '\n// testID="Verzonnen"\n'); } },
@@ -307,7 +319,10 @@ if (!existsSync(SPEC)) {
   };
   for (const [naam, muteer, hoort] of [
     ['producent-controle', null, 0],
-    ['producent-grensweg', (x) => { (function loop(n) { delete n.component; for (const k of n.kinderen ?? []) loop(k); })(x); }, 1],
+    // Strip élke gedeclareerde grens. De heuristische tak bestaat sinds 2026-09-09 niet meer, dus
+    // `componentZonderTestID` blijft 0 en de guard zou groen blijven — de mutatie mikt daarom op
+    // `BEKENDE_GRENSNODES`: die nodes vallen terug op een sleutelgok en het getal stort in.
+    ['producent-grensweg', (x) => { (function loop(n) { delete n.component; delete n.bron; for (const k of n.kinderen ?? []) loop(k); })(x); }, 1],
   ]) {
     const map = kopie();
     try {
@@ -320,9 +335,9 @@ if (!existsSync(SPEC)) {
       passen(map);
       const r = draai(map);
       const geslaagd = r.code === hoort;
-      const hr = JSON.parse(readFileSync(join(map, 'figma/laagnamen.json'), 'utf8')).componentZonderTestID;
+      const ln = JSON.parse(readFileSync(join(map, 'figma/laagnamen.json'), 'utf8'));
       console.log(`  ${geslaagd ? 'ok' : 'XX'} ${naam.padEnd(20)} echte hernoem+snoei → exit ${r.code} (hoort ${hoort}), `
-        + `componentZonderTestID=${hr}`);
+        + `grensnodes=${(ln.perBron?.testid ?? 0) + (ln.perBron?.bron ?? 0)}`);
       geslaagd ? goed++ : fout++;
       totaal++;
     } catch (e) {

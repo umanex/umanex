@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { buttonTokens, progressBar } from '@/constants';
+import { variantData } from '@/lib/variantData';
 
 /**
  * Hoe de fill getekend wordt. Duur- en afstandsdoelen vullen geleidelijk (gradient); split- en
@@ -31,7 +32,7 @@ export function ProgressBar({ fillPct, fillKind, richting }: ProgressBarProps) {
   const zichtbaar = fillKind !== 'none' && fillPct > 0;
   const maat = `${Math.min(fillPct * 100, 100)}%` as const;
   return (
-    <View testID="ProgressBar" style={vertical ? styles.barTrackV : styles.barTrackH}>
+    <View testID="ProgressBar" dataSet={variantData({ fillKind, richting })} style={vertical ? styles.barTrackV : styles.barTrackH}>
       {zichtbaar && (
         <View style={[vertical ? styles.barFillV : styles.barFillH, vertical ? { height: maat } : { width: maat }]}>
           {fillKind === 'gradient' ? (
