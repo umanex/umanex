@@ -43,6 +43,13 @@ try {
   uitkomst = {
     batch: BATCH, fout: null,
     geweigerd: r.geweigerd, aantalMeldingen: r.aantalMeldingen, meldingen: (r.meldingen ?? []).slice(0, 8),
+    // De sizing-telling hoort in de uitkomst: `rekTeruggedraaid` is de enige plek waar
+    // zichtbaar wordt dat een FILL de gemeten maat NIET reproduceerde. Zonder dit getal is
+    // 'auto-layout aan' een bewering in plaats van een meting.
+    rek: { gezet: r.rekGezet, teruggedraaid: r.rekTeruggedraaid, geweigerd: r.rekGeweigerd },
+    // Hoeveel component-/variant-nodes hun key hielden. 0 = elke instance is ontkoppeld en
+    // de library moet opnieuw gepubliceerd worden; dat was tot 2026-09-09 elke ronde zo.
+    hergebruikt: r.hergebruikt,
     gebouwd: (r.gebouwd ?? []).map(g => ({ component: g.component, type: g.type, nodes: g.nodes,
       slots: g.slots ? Object.keys(g.slots) : null, publishStatus: g.publishStatus })),
   };

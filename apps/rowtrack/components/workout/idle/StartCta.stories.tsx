@@ -13,7 +13,7 @@ const meta = {
   argTypes: { onStart: { control: false } },
   args: { onStart: () => {} },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2028-17065' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-23339' },
   },
 } satisfies Meta<typeof StartCta>;
 

@@ -35,7 +35,7 @@ const meta = {
     onStop: () => {},
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-15885' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-22166' },
   },
 } satisfies Meta<typeof ConnectionOverlay>;
 

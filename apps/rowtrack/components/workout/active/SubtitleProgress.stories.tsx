@@ -17,7 +17,7 @@ const meta = {
   },
   args: { left: '18:44', pct: 0.62 },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-15626' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-21912' },
   },
 } satisfies Meta<typeof SubtitleProgress>;
 

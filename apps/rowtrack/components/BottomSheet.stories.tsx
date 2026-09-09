@@ -55,7 +55,7 @@ const meta = {
     children: inhoud,
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-14860' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-20598' },
   },
 } satisfies Meta<typeof BottomSheet>;
 

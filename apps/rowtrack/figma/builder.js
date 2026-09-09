@@ -247,6 +247,78 @@ async function maakInstance(n, naamPad) {
   return inst;
 }
 
+/**
+ * DE SIZING-INTENTIE OP DE NODE ZETTEN — pas NA het aanhangen, want `layoutSizing*` bestaat
+ * alleen voor een kind van een auto-layout frame.
+ *
+ * Waarom dit bestaat. De builder zette elke auto-layout op `FIXED`/`FIXED`, dus elke node
+ * stond star op zijn gemeten maat. Dat is als transcriptie correct en als DESIGN fout: een
+ * instance kan zijn inhoud dan niet strekken, en dat is geen randgeval maar de regel —
+ * gemeten 2026-09-09 op LoginScreen: een `FormField`-instance 390 breed met inhoud van 224,
+ * en hetzelfde voor Button (390 tegen 151). Geen enkele guard-as zag het: parity sluit
+ * breedte uit, de vlaggen matchten, en `resize()` op een instance-kind doet niets — geen
+ * fout, geen effect (nagemeten, twee keer, net als `layoutMode` op een instance-wortel).
+ *
+ * De browser-layout ÍS flexbox en Figma's auto-layout is hetzelfde model, dus dit is een
+ * mapping en geen nabouw. `rekt` komt uit de DOM (`flex-grow` op de hoofdas, `stretch` op de
+ * kruis-as) en zegt per as of de node meerekt. Alles zonder intentie blijft FIXED: dat is de
+ * gemeten maat, en die is per definitie getrouw.
+ *
+ * FILL kan mislukken — een ouder zonder auto-layout weigert hem. Dat wordt geteld en gemeld
+ * in plaats van stil geslikt; een sizing die niet plakt is precies het soort stille no-op
+ * waar deze hele ronde over gaat.
+ */
+let rekGezet = 0, rekTeruggedraaid = 0, rekGeweigerd = 0;
+
+/**
+ * DE SIZING-INTENTIE OP DE KINDEREN ZETTEN — en meteen nakijken of ze klopt.
+ *
+ * Waarom dit bestaat. De builder zette elke auto-layout op `FIXED`/`FIXED`, dus elke node
+ * stond star op zijn gemeten maat. Correct als transcriptie, fout als DESIGN: een instance
+ * kan zijn inhoud dan niet strekken. Gemeten 2026-09-09 op LoginScreen: een `FormField`-
+ * instance 390 breed met inhoud van 224, en Button 390 tegen 151. Geen enkele as zag het —
+ * parity sluit breedte uit, de vlaggen matchten, en `resize()` op een instance-kind doet
+ * niets (geen fout, geen effect; `layoutMode` op een instance-wortel evenmin).
+ *
+ * WAAROM DE TERUGLEESCONTROLE. FILL is een BELOFTE over de layout, geen maat. Figma rekent
+ * de restruimte anders uit dan de browser zijn flex oplost — marges bestaan in Figma niet, en
+ * een scroll-container meet in de browser zijn venster en niet zijn inhoud. Gemeten: de
+ * `scrollView` in DeviceSelectionModal werd 192 waar de browser 168 zegt; dat waren de enige
+ * twee parity-fouten van de hele ronde. Een eerdere poging leidde dat af uit "knipt de node
+ * af?" — dat was de verkeerde diagnose (er werd niets afgeknipt) en bovendien een gok.
+ *
+ * Dus: zet FILL, LEES TERUG, en draai terug zodra de maat afwijkt. Een mutatie die niet kan
+ * klagen is een aanname; deze klaagt, en telt zichzelf.
+ *
+ * Pas ná álle kinderen, want een latere broer verandert de restruimte van een eerdere.
+ */
+function zetRek(f, kinderen, naamPad) {
+  if (f.layoutMode === 'NONE') return;
+  for (const { kind, k, pad } of kinderen) {
+    if (k.abs) continue;
+    // De eigen kruis-as-uitlijning eerst: `layoutAlign` is de enige per-kind-uitlijning die
+    // Figma kent, en zonder haar landt een `align-self: flex-end` links.
+    if (k.zelf) { try { kind.layoutAlign = k.zelf; } catch (e) { meldingen.push(`${pad}: layoutAlign=${k.zelf} geweigerd — ${e.message}`); } }
+    if (!k.rekt) continue;
+    for (const [as, veld, maat, doel] of [
+      ['H', 'layoutSizingHorizontal', 'width', k.w],
+      ['V', 'layoutSizingVertical', 'height', k.h],
+    ]) {
+      if (!k.rekt.includes(as)) continue;
+      let voor;
+      try { voor = kind[veld]; kind[veld] = 'FILL'; } catch (e) {
+        rekGeweigerd++; meldingen.push(`${pad}: ${veld}=FILL geweigerd — ${e.message}`); continue;
+      }
+      if (kind[veld] !== 'FILL') { rekGeweigerd++; meldingen.push(`${pad}: ${veld}=FILL stil genegeerd`); continue; }
+      if (Math.abs(kind[maat] - doel) > 0.5) {
+        // FILL geeft hier een andere maat dan gemeten: intentie klopt niet met deze layout.
+        try { kind[veld] = voor === 'FILL' ? 'FIXED' : voor; kind.resize(as === 'H' ? doel : kind.width, as === 'H' ? kind.height : doel); } catch { /* laat staan */ }
+        rekTeruggedraaid++;
+      } else rekGezet++;
+    }
+  }
+}
+
 async function maak(n, naamPad, wortelComp) {
   // Een gedeclareerde grens die de library kent wordt een INSTANCE, en dan stopt de afdaling:
   // wat eronder zit hoort bij dat component en komt met de instance mee.
@@ -335,11 +407,33 @@ async function maak(n, naamPad, wortelComp) {
     f.layoutMode = n.rij ? 'HORIZONTAL' : 'VERTICAL';
     f.primaryAxisSizingMode = 'FIXED';
     f.counterAxisSizingMode = 'FIXED';
-    if (n.justify === 'center') f.primaryAxisAlignItems = 'CENTER';
-    if (n.justify === 'space-between') f.primaryAxisAlignItems = 'SPACE_BETWEEN';
-    if (n.justify === 'flex-end') f.primaryAxisAlignItems = 'MAX';
-    if (n.align === 'center') f.counterAxisAlignItems = 'CENTER';
-    if (n.align === 'flex-end') f.counterAxisAlignItems = 'MAX';
+    /**
+     * DE UITLIJN-FAMILIE. Gemeten over 7 259 flex-containers (2026-09-09):
+     * `align-items` center 5 112 · stretch 2 095 · baseline 29 · flex-start 13 · flex-end 10;
+     * `justify-content` normal 4 573 · center 2 462 · space-between 213 · flex-end 11;
+     * `align-content` 7 259x flex-start en `flex-wrap` 7 259x nowrap — de app wrapt nergens.
+     *
+     * Daarom worden die laatste twee NIET gemapt: dat zou dode code zijn. Ze worden wél
+     * gemeten, en een waarde die deze mapping niet kent komt in `meldingen` terecht. Dat is
+     * het verschil tussen een gat dat je kent en een gat dat stil is — voegt iemand ooit
+     * `flex-wrap: wrap` toe, dan zegt de bouw het in plaats van het beeld pas veel later.
+     *
+     * `stretch` staat er niet bij en dat is juist: dat is geen uitlijning van de ouder maar
+     * FILL op het kind, en dat regelt `zetRek()` uit de gemeten intentie.
+     */
+    const J = { center: 'CENTER', 'space-between': 'SPACE_BETWEEN', 'flex-end': 'MAX', 'flex-start': 'MIN', normal: 'MIN' };
+    const A = { center: 'CENTER', 'flex-end': 'MAX', 'flex-start': 'MIN', baseline: 'BASELINE', normal: 'MIN', stretch: null };
+    if (n.justify) {
+      if (J[n.justify]) f.primaryAxisAlignItems = J[n.justify];
+      else if (!(n.justify in J)) meldingen.push(`${naamPad}: justify-content '${n.justify}' kent deze mapping niet`);
+    }
+    if (n.align) {
+      if (A[n.align]) f.counterAxisAlignItems = A[n.align];
+      else if (!(n.align in A)) meldingen.push(`${naamPad}: align-items '${n.align}' kent deze mapping niet`);
+    }
+    if (n.wrap && n.wrap !== 'nowrap') meldingen.push(`${naamPad}: flex-wrap '${n.wrap}' wordt niet gemapt — Figma kent layoutWrap, de mapping bestaat nog niet`);
+    if (n.alignContent && n.alignContent !== 'flex-start' && n.alignContent !== 'normal')
+      meldingen.push(`${naamPad}: align-content '${n.alignContent}' wordt niet gemapt — telt alleen bij wrap`);
     const P = n.padding ?? [0, 0, 0, 0], PV = n.paddingVar ?? [];
     f.paddingTop = P[0]; f.paddingRight = P[1]; f.paddingBottom = P[2]; f.paddingLeft = P[3];
     ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'].forEach((veld, i) => {
@@ -412,6 +506,7 @@ async function maak(n, naamPad, wortelComp) {
   }
   if (n.opacity !== undefined) f.opacity = n.opacity;
   if (n.schaduwStyle && ES.get(n.schaduwStyle)) await f.setEffectStyleIdAsync(ES.get(n.schaduwStyle).id);
+  const aangehangen = [];
   for (const [i, k] of echteKinderen.entries()) {
     const kind = await maak(k, `${naamPad}>${k.naam ?? i}`, wortelComp);   // meldingen lezen als Chip>row>value
     f.appendChild(kind);
@@ -422,7 +517,9 @@ async function maak(n, naamPad, wortelComp) {
       kind.x = k.dx ?? 0;
       kind.y = k.dy ?? 0;
     }
+    aangehangen.push({ kind, k, pad: `${naamPad}>${k.naam ?? i}` });
   }
+  zetRek(f, aangehangen, naamPad);
   if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`, wortelComp));
   return f;
 }
@@ -538,12 +635,23 @@ function bouwhash(node) {
  * `SPEC.__force === true` is de enige ontsnapping, en die hoort zichtbaar in de aanroep te
  * staan — nooit stil gezet.
  */
-async function poort(page, comp, force) {
+/**
+ * De poort kreeg op 2026-09-09 een tweede vraag. Tot dan was hij eenvoudig: is een kind
+ * gepubliceerd, dan breekt een herbouw elke instance eruit — dus weigeren. Sinds de builder
+ * de COMPONENT- en VARIANT-nodes HERGEBRUIKT en alleen hun inhoud vervangt, klopt die
+ * premisse niet meer: de key blijft, dus de instances blijven gekoppeld en er is niets te
+ * beschermen. De poort weigert daarom alleen nog wanneer de node ECHT vervangen wordt — als
+ * er geen bruikbare set/variant staat om te hergebruiken.
+ *
+ * De handwerk-bewaking blijft onvoorwaardelijk: een bewerking van iemand anders gaat ook bij
+ * hergebruik verloren, want de kinderen worden hoe dan ook opnieuw gemaakt.
+ */
+async function poort(page, comp, force, hergebruikMogelijk) {
   const bezwaren = [];
   for (const kind of page.children) {
-    if (typeof kind.getPublishStatusAsync === 'function') {
+    if (typeof kind.getPublishStatusAsync === 'function' && !hergebruikMogelijk) {
       const status = await kind.getPublishStatusAsync();
-      if (status !== 'UNPUBLISHED') bezwaren.push(`${comp}/${kind.name}: ${status} — herbouwen breekt elke instance die eruit geplaatst is`);
+      if (status !== 'UNPUBLISHED') bezwaren.push(`${comp}/${kind.name}: ${status} — deze node wordt VERVANGEN (geen bruikbare variant om te hergebruiken), dus elke instance eruit ontkoppelt`);
     }
     const vorige = typeof kind.getPluginData === 'function' ? kind.getPluginData('bouwhash') : '';
     if (vorige) {
@@ -672,6 +780,8 @@ function bedektIn(n) {
 const uit = [];
 const geweigerd = [];
 let vervangen = 0;
+// Hoeveel component-/variant-nodes hun key hielden. 0 betekent: elke instance is ontkoppeld.
+let hergebruikt = 0;
 for (const [comp, d] of Object.entries(SPEC)) {
   if (comp.startsWith('__')) continue;   // __force en andere vlaggen zijn geen component
   let page = doelPagina;
@@ -679,7 +789,16 @@ for (const [comp, d] of Object.entries(SPEC)) {
     page = figma.root.children.find(p => p.name === comp);
     if (!page) { page = figma.createPage(); page.name = comp; }
   }
-  const bezwaren = await poort(page, comp, SPEC.__force === true);
+  // Hergebruik-detectie MOET vóór de poort: zijn set en varianten terug te vinden, dan
+  // vervangt deze bouw geen enkele gepubliceerde node en heeft de poort niets te weigeren.
+  const namenNu = (d.frames ?? d.varianten ?? []).map(v => v.naam);
+  const bestaandeSet = DOEL ? null : (page.children.find(c => c.type === 'COMPONENT_SET')
+    ?? (page.children.filter(c => c.type === 'COMPONENT').length === 1 ? page.children.find(c => c.type === 'COMPONENT') : null));
+  const bestaandeNamen = bestaandeSet
+    ? (bestaandeSet.type === 'COMPONENT_SET' ? bestaandeSet.children.map(v => v.name) : [bestaandeSet.name]) : [];
+  const kanHergebruiken = !!bestaandeSet && namenNu.every(n => bestaandeNamen.includes(n))
+    && bestaandeNamen.every(n => namenNu.includes(n));
+  const bezwaren = await poort(page, comp, SPEC.__force === true, kanHergebruiken);
   if (bezwaren) { geweigerd.push(...bezwaren); continue; }
   // In scherm-modus staan er meerdere schermen op één pagina: alleen de eigen frames weg,
   // niet de buren. Buiten die modus is de pagina van dit component alleen.
@@ -687,10 +806,48 @@ for (const [comp, d] of Object.entries(SPEC)) {
   // PER FRAME gebouwd. Alleen de frames weghalen die deze aanroep opnieuw maakt — niet de buren
   // en niet de frames van een vorige aanroep van hetzelfde scherm.
   const teBouwen = new Set((d.frames ?? d.varianten ?? []).map(v => v.naam));
+
+  /**
+   * BEHOUD DE COMPONENT-NODE, VERVANG ZIJN INHOUD.
+   *
+   * Tot 2026-09-09 gooide deze stap de hele pagina leeg en maakte alles opnieuw. Dat is
+   * eenvoudig en idempotent, en het kostte elke ronde hetzelfde: een nieuwe node heeft een
+   * nieuwe key, dus élke instance ontkoppelt, de publicatiepoort gaat af, `__force` is nodig
+   * en de library moet met de hand opnieuw gepubliceerd worden — ook wanneer er alleen een
+   * padding veranderde.
+   *
+   * Dat hoeft niet, want alleen de key van de COMPONENT (en van elke VARIANT in een set)
+   * telt voor een instance. De kinderen eronder mogen vrij vervangen worden; een instance
+   * spiegelt gewoon de nieuwe inhoud. Dus: hergebruik de set en elke variant die we bij naam
+   * terugvinden — dat is de variant-as-combinatie, dus een stabiele sleutel — leeg alleen
+   * hun kinderen, en maak alleen wat er nog niet was.
+   *
+   * Wat WEL nieuw moet: een variant die er niet was (die heeft per definitie geen key om te
+   * behouden) en een pagina zonder component. Wat weg moet: een variant die de spec niet
+   * meer kent.
+   */
+  let hergebruikSet = null;
+  const hergebruikVariant = new Map();
+  if (!DOEL) {
+    hergebruikSet = page.children.find(c => c.type === 'COMPONENT_SET')
+      ?? (page.children.filter(c => c.type === 'COMPONENT').length === 1
+            ? page.children.find(c => c.type === 'COMPONENT') : null);
+    if (hergebruikSet) {
+      const knopen = hergebruikSet.type === 'COMPONENT_SET' ? [...hergebruikSet.children] : [hergebruikSet];
+      for (const v of knopen) {
+        if (teBouwen.has(v.name) || (knopen.length === 1 && teBouwen.size === 1)) hergebruikVariant.set(
+          teBouwen.has(v.name) ? v.name : [...teBouwen][0], v);
+        else v.remove();
+      }
+      if (!hergebruikVariant.size) hergebruikSet = null;
+    }
+  }
   for (const kind of [...page.children]) {
     if (DOEL && !(kind.getPluginData('scherm') === comp && teBouwen.has(kind.getPluginData('frame')))) continue;
+    if (kind === hergebruikSet || [...hergebruikVariant.values()].includes(kind)) continue;
     kind.remove();
   }
+  for (const v of hergebruikVariant.values()) { for (const k of [...v.children]) k.remove(); hergebruikt++; }
 
   slotVangst = [];
   const isScherm = !!d.frames;
@@ -703,12 +860,46 @@ for (const [comp, d] of Object.entries(SPEC)) {
     // hele viewport en is dus vaak hoger dan het scherm eronder.
     const br = Math.max(v.boom.w, ...(v.overlays ?? []).map(o => o.w));
     const ho = Math.max(v.boom.h, ...(v.overlays ?? []).map(o => o.h));
-    const c = DOEL ? frameWrapper(`${comp} / ${v.naam}`, br, ho) : wrapper(v.naam, br, ho);
+    // Bestaat deze variant al, dan hergebruiken we hem — zijn key blijft dan geldig en elke
+    // instance blijft gekoppeld. Hij is hierboven al leeggemaakt.
+    const bestaand = hergebruikVariant.get(v.naam);
+    let c;
+    if (bestaand) {
+      c = bestaand;
+      c.name = v.naam;
+      c.resize(Math.max(0.01, br), Math.max(0.01, ho));
+      c.fills = [];
+      c.layoutMode = 'NONE';   // schoon vertrekpunt; de auto-layout wordt hieronder gezet
+    } else {
+      c = DOEL ? frameWrapper(`${comp} / ${v.naam}`, br, ho) : wrapper(v.naam, br, ho);
+    }
     if (DOEL) { c.setPluginData('scherm', comp); c.setPluginData('frame', v.naam); }
-    c.x = DOEL ? doelX : x; c.y = 0;
-    page.appendChild(c);
+    if (!bestaand) { c.x = DOEL ? doelX : x; c.y = 0; page.appendChild(c); }
     c.appendChild(node);
     node.x = 0; node.y = 0;
+    /**
+     * DE WRAPPER KRIJGT AUTO-LAYOUT EN ZIJN KIND FILL — anders is alle sizing eronder voor
+     * niets. Bewezen op een wegwerp-component (2026-09-09), tweezijdig: een instance van 224
+     * naar 390 laat zijn kind op 224 staan zónder auto-layout op de wrapper, en trekt hem mee
+     * naar 390 mét. `resize()` op dat kind doet niets, en `layoutMode` op een instance-wortel
+     * evenmin — allebei stil, geen fout. De maat MOET dus uit de library komen.
+     *
+     * Alleen wanneer de wrapper even groot is als het kind. Is hij groter — dat gebeurt zodra
+     * een overlay breder of hoger is dan de hoofdboom, want de wrapper is het maximum van
+     * beide — dan zou FILL het kind uitrekken tot de overlay-maat en is de bouw niet langer
+     * getrouw. Daar blijft het kind FIXED op zijn gemeten maat.
+     */
+    const past = Math.abs(node.width - br) < 0.5 && Math.abs(node.height - ho) < 0.5;
+    if (past) {
+      try {
+        c.layoutMode = 'VERTICAL';
+        c.primaryAxisSizingMode = 'FIXED';
+        c.counterAxisSizingMode = 'FIXED';
+        node.layoutSizingHorizontal = 'FILL';
+        node.layoutSizingVertical = 'FILL';
+        if (node.layoutSizingHorizontal !== 'FILL') meldingen.push(`${comp}[${v.naam}]: wrapper-FILL stil genegeerd`);
+      } catch (e) { meldingen.push(`${comp}[${v.naam}]: wrapper-FILL geweigerd — ${e.message}`); }
+    }
     // Een <Modal> portaleert in de DOM naar `body` en ligt dus OVER het scherm, niet erin.
     // Zo bouwen we hem ook: een los kind van de wrapper, absoluut op (0,0). Tot 2026-09-08
     // bestond hij voor de walker niet — drie ActivePhase-frames waren daardoor
@@ -716,6 +907,9 @@ for (const [comp, d] of Object.entries(SPEC)) {
     for (const o of v.overlays ?? []) {
       const ov = await maak(o, comp, comp);
       c.appendChild(ov);
+      // Absoluut, want een portal ligt OVER het scherm en niet erin. Zonder dit zou de
+      // auto-layout van de wrapper hem eronder stapelen.
+      try { if (c.layoutMode !== 'NONE') ov.layoutPositioning = 'ABSOLUTE'; } catch (e) { /* geen auto-layout */ }
       ov.x = 0; ov.y = 0;
     }
     // Pas ná het aanhangen: in een auto-layout krijgt een node zijn maat van zijn ouder.
@@ -733,7 +927,13 @@ for (const [comp, d] of Object.entries(SPEC)) {
     // Geen set, geen slots, geen achtergrondvlak: elk frame staat op zichzelf op de
     // gedeelde pagina en draagt zijn eigen naam.
   } else if (!isScherm && Object.keys(d.assen ?? {}).length) {
-    hoofd = figma.combineAsVariants(comps, page);
+    if (hergebruikSet && hergebruikSet.type === 'COMPONENT_SET') {
+      // De set blijft staan (zijn key telt), nieuwe varianten schuiven erin.
+      hoofd = hergebruikSet;
+      for (const c of comps) if (c.parent !== hoofd) hoofd.appendChild(c);
+    } else {
+      hoofd = figma.combineAsVariants(comps, page);
+    }
     hoofd.name = comp;
     // De SET houdt zijn gebonden vulling: die schildert achter de varianten in dit bestand
     // en reist NIET mee naar een instance — alleen de vulling van de variant zelf doet dat.
@@ -791,4 +991,4 @@ for (const [comp, d] of Object.entries(SPEC)) {
              hashes,
              slots: Object.keys(slotsGezet).length ? slotsGezet : null });
 }
-return { gebouwd: uit, geweigerd, vervangen, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };
+return { gebouwd: uit, geweigerd, vervangen, hergebruikt, rekGezet, rekTeruggedraaid, rekGeweigerd, aantalMeldingen: meldingen.length, meldingen: meldingen.slice(0, 12) };

@@ -39,7 +39,7 @@ const meta = {
     onIndexChange: () => {},
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2028-17447' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-21400' },
   },
 } satisfies Meta<typeof WheelPicker>;
 

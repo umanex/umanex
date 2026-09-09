@@ -442,6 +442,56 @@ const WALKER = () => {
       display: cs.display,
       richting: cs.flexDirection, gap: px(cs.gap) || px(cs.columnGap) || 0,
       justify: cs.justifyContent, align: cs.alignItems,
+      // `align-content` en `flex-wrap` horen bij dezelfde familie als `align-items` en
+      // `align-self`, en werden tot 2026-09-09 helemaal niet gemeten. Figma kent ze wél:
+      // `layoutWrap: 'WRAP'` en `counterAxisAlignContent`. Een container die in de browser
+      // afbreekt en in Figma niet, is een layoutverschil dat geen enkele as opmerkt zolang
+      // de gemeten maten per node toevallig kloppen.
+      alignContent: cs.alignContent, wrap: cs.flexWrap,
+      // DE SIZING-INTENTIE, per as, uit de OUDER-richting gelezen.
+      //
+      // Waarom dit er niet was en waarom het moest: de builder zette elke auto-layout op
+      // `primaryAxisSizingMode = counterAxisSizingMode = 'FIXED'`, dus élke node stond star op
+      // zijn gemeten maat. Gevolg, gemeten 2026-09-09 op LoginScreen: een `FormField`-instance
+      // van 390 breed met een inhoud van 224, want een instance kan zijn kinderen niet
+      // strekken als niets in de library FILL is. `resize()` op zo'n kind doet niets — geen
+      // fout, geen effect (nagemeten), en `layoutMode` op een instance-wortel evenmin. De maat
+      // moet dus uit de library komen, en dat vraagt de intentie in plaats van het getal.
+      //
+      // FILL = de node rekt mee met zijn ouder. Drie bronnen, alle drie uit de DOM:
+      // `flex-grow > 0` op de hoofdas, `align-self`/`align-items: stretch` op de kruis-as, en
+      // een expliciete `width: 100%`. HUG en FIXED worden hier NIET geraden — dat doet de
+      // builder op de gemeten boom, waar hij ouder én kinderen tegelijk ziet.
+      rekt: (() => {
+        const o = el.parentElement;
+        if (!o) return null;
+        const oc = getComputedStyle(o);
+        const rij = (oc.flexDirection || '').startsWith('row');
+        const groei = parseFloat(cs.flexGrow) > 0;
+        const zelf = cs.alignSelf && cs.alignSelf !== 'auto' ? cs.alignSelf : oc.alignItems;
+        const strek = zelf === 'stretch';
+        // `width: 100%` overleeft in de computed style als een px-waarde, dus lees de
+        // opgegeven stijl. RNW schrijft hem als inline style of atomaire klasse; beide komen
+        // hier terug als de *gebruikte* waarde, dus dit is een aanvulling, geen hoofdbron.
+        const h = rij ? groei : strek;
+        const v = rij ? strek : groei;
+        return (h ? 'H' : '') + (v ? 'V' : '') || null;
+      })(),
+      // De EIGEN uitlijning op de kruis-as, als die van de ouder afwijkt. Figma kent geen
+      // per-kind `align-self` als zodanig, maar wél `layoutAlign` ('MIN' | 'CENTER' | 'MAX' |
+      // 'STRETCH'), en dat is precies deze as. Zonder deze mapping landt een rechts
+      // uitgelijnd element links: gemeten 2026-09-09 op LoginScreen, waar "Wachtwoord
+      // vergeten?" in Figma links stond én daardoor over twee regels brak, terwijl de browser
+      // hem rechts tegen de rand zet.
+      zelf: (() => {
+        const o = el.parentElement;
+        if (!o) return null;
+        const oc = getComputedStyle(o);
+        if (!(oc.display || '').includes('flex')) return null;
+        const eigen = cs.alignSelf && cs.alignSelf !== 'auto' ? cs.alignSelf : null;
+        if (!eigen || eigen === oc.alignItems) return null;
+        return { 'flex-start': 'MIN', center: 'CENTER', 'flex-end': 'MAX', stretch: 'STRETCH' }[eigen] ?? null;
+      })(),
       padding: [px(cs.paddingTop), px(cs.paddingRight), px(cs.paddingBottom), px(cs.paddingLeft)],
       radius: [px(cs.borderTopLeftRadius), px(cs.borderTopRightRadius),
                px(cs.borderBottomRightRadius), px(cs.borderBottomLeftRadius)],

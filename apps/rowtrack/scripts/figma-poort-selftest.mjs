@@ -132,6 +132,33 @@ for (const [naam, muteer] of Object.entries(mutaties)) {
 eis('bouwhash is deterministisch', bouwhash(boom()) === bouwhash(boom()));
 eis('bouwhash draagt het knooppunt-aantal', bouwhash(boom()).split(':')[1] === '4');
 
+// --- 5. de hergebruik-tak: publicatie weegt alleen wanneer de node VERVANGEN wordt --------
+//
+// Sinds 2026-09-09 hergebruikt de builder de COMPONENT- en VARIANT-nodes en vervangt hij
+// alleen hun inhoud. Dan blijft de key geldig, blijven de instances gekoppeld en heeft de
+// poort niets te beschermen — de premisse "herbouwen breekt elke instance" geldt alleen nog
+// voor het geval dát er geen bruikbare variant is om te hergebruiken. Beide kanten hier,
+// want een poort die na deze wijziging nooit meer weigert is even stuk als een die altijd
+// weigert.
+{
+  const r = await poort(pagina(boom(), { status: 'PUBLISHED' }), 'Button', false, true);
+  eis('gepubliceerd MET hergebruik: geen bezwaar (de key blijft, instances blijven gekoppeld)',
+    r === null, JSON.stringify(r));
+}
+{
+  const r = await poort(pagina(boom(), { status: 'PUBLISHED' }), 'Button', false, false);
+  eis('gepubliceerd ZONDER hergebruik: nog steeds geweigerd', Array.isArray(r) && r.length === 1, JSON.stringify(r));
+  eis('en de weigering zegt dat de node VERVANGEN wordt', !!r && /VERVANGEN/.test(r[0]), r?.[0]);
+}
+{
+  // De handwerk-bewaking is NIET voorwaardelijk: ook bij hergebruik worden de kinderen
+  // opnieuw gemaakt, dus een bewerking van iemand anders gaat hoe dan ook verloren.
+  const b = boom();
+  const r = await poort(pagina(b, { status: 'PUBLISHED', hash: 'iets-anders:9' }), 'Button', false, true);
+  eis('handwerk weegt óók bij hergebruik', Array.isArray(r) && r.some((x) => /met de hand gewijzigd/.test(x)),
+    JSON.stringify(r));
+}
+
 // --- verslag ------------------------------------------------------------------------------
 const stuk = gevallen.filter((g) => !g.ok);
 for (const g of gevallen) console.log(`${g.ok ? '  ok' : 'FOUT'}  ${g.naam}${g.ok ? '' : `\n        ${g.detail}`}`);

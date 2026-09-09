@@ -29,7 +29,7 @@ const meta = {
     onEdit: () => {},
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-14679' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-21013' },
   },
 } satisfies Meta<typeof GoalProgressCard>;
 

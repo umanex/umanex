@@ -41,7 +41,7 @@ const meta = {
     onCancel: () => {},
   },
   parameters: {
-    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2026-15037' },
+    figma: { url: 'https://www.figma.com/design/QkRgMc7Quqtbow71DiYa1n/RowTrack%20-%20%20Design%20System?node-id=2036-20889' },
   },
 } satisfies Meta<typeof DeviceSelectionModal>;
 

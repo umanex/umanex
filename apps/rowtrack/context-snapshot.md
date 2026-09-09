@@ -73,24 +73,18 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+224430f docs(rowtrack): the node ids survive a rebuild now, so the deep links do too
+df1e0fe feat(rowtrack): update components instead of replacing them, and complete the alignment family
+267bd8e feat(rowtrack): auto-layout is now the default, and an image axis to prove it
 2a96b4f docs: session reflection — triage ten stale handoff items, and correct a number I got wrong
 c99a7ad chore(rowtrack): remove two scripts nothing calls
-bd03cef ci: run the rowtrack guards, and make render-shot discoverable
-62eab07 docs(rowtrack): close what the screens round left open, and correct a false status message
-d84679f Merge remote-tracking branch 'origin/main' into fix/rowtrack-schermverschillen
 ```
 
 ## Uncommitted wijzigingen
   M  apps/rowtrack/.storybook/main.ts
   M  apps/rowtrack/BACKLOG.md
   M  apps/rowtrack/HANDOFF.md
-   M apps/rowtrack/figma/build-spec.min.json
-   M apps/rowtrack/figma/geometry.figma.json
-   M apps/rowtrack/figma/library-component-keys.json
-   M apps/rowtrack/figma/ongebonden.json
-  M  apps/rowtrack/package.json
-  ?? apps/rowtrack/figma/beeld-verschillen.json
-  ?? apps/rowtrack/figma/beelden/
+  M  apps/rowtrack/context-snapshot.md
 
 ## Bestanden met TODO/FIXME
   (geen)
