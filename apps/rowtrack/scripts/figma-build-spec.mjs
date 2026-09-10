@@ -491,6 +491,18 @@ const WALKER = () => {
     const eigenTekst = tekstKinderen.some(n => n.textContent.trim())
       ? tekstKinderen.filter(n => n.textContent.trim() || scheider(n)).map(n => n.textContent).join('')
       : '';
+    /**
+     * STAAT DE EIGEN RUN VÓÓR HET EERSTE ELEMENTKIND?
+     *
+     * Figma kent geen inline-stroom, dus de builder maakt van zo'n node een rij met de run als
+     * eigen tekstnode ernaast. Dan moet de VOLGORDE kloppen: "Nog geen account? *Registreer*"
+     * is iets anders dan "*Registreer* Nog geen account?". Meet het in plaats van het aan te
+     * nemen — alle drie de gevallen in deze codebase hebben de run vooraan, maar dat is een
+     * meting van vandaag, geen eigenschap van de constructie.
+     */
+    const eersteElement = [...el.childNodes].findIndex(n => n.nodeType === 1);
+    const eersteTekst = [...el.childNodes].findIndex(n => n.nodeType === 3 && (n.textContent.trim() || scheider(n)));
+    const tekstVoorop = eersteTekst >= 0 && (eersteElement < 0 || eersteTekst < eersteElement);
     const o = {
       tag: el.tagName.toLowerCase(),
       w: Math.round(r.width * 100) / 100, h: Math.round(r.height * 100) / 100,
@@ -622,6 +634,7 @@ const WALKER = () => {
       o.tekst = {
         inhoud: veld ? (el.value || el.placeholder || '') : eigenTekst,
         veld: veld || undefined,
+        voorop: (!veld && eigenTekst && el.children.length > 0) ? tekstVoorop : undefined,
         family: cs.fontFamily.replace(/["']/g, '').split(',')[0].trim(),
         size: px(cs.fontSize),
         lineHeight: cs.lineHeight === 'normal' ? null : px(cs.lineHeight),

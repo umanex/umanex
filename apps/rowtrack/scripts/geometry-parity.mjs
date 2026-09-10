@@ -134,10 +134,16 @@ const figZijden = (fn, vlaggen) => {
 function kinderparen(specNode, figNode) {
   const echte = echteKinderen(specNode);
   let fig = figNode[F.k] ?? [];
-  // Regel 2: tekst EN kinderen -> de builder hangt er achteraan een `label`-tekstkind aan.
+  // Regel 2: tekst EN kinderen -> de builder zet er een `label`-tekstkind bij. VOORAAN wanneer
+  // de eigen run in de DOM vóór het eerste elementkind staat (`t.voor`, sinds 2026-09-10),
+  // anders achteraan. Die volgorde is niet cosmetisch: in een auto-layout ís de kindvolgorde
+  // de leesvolgorde, en snijden aan de verkeerde kant zou elk kind één plek verschuiven.
   const labelVerwacht = !!specNode.t && !!specNode.k;
   let labelGevonden = false;
-  if (labelVerwacht && fig.length > echte.length) { fig = fig.slice(0, -1); labelGevonden = true; }
+  if (labelVerwacht && fig.length > echte.length) {
+    fig = specNode.t.voor ? fig.slice(1) : fig.slice(0, -1);
+    labelGevonden = true;
+  }
   return { echte, fig, labelVerwacht, labelGevonden };
 }
 
@@ -264,7 +270,10 @@ function synthetiseer(spec) {
     ];
     if (isIcoon(n)) return [n.h, 0, 0, 0, 2, [1, 1, 1, 1], 1, RAND];   // placeholder-frame, regel 3
     const kinderen = (n.k ?? []).filter((k) => !bedektPredikaat(n)(k)).map(node);
-    if (n.t && n.k) kinderen.push([n.h, 0, 0, 0, 0, [1, 1, 1, 1], 1, 0]);   // regel 2: `label` achteraan
+    if (n.t && n.k) {
+      const label = [n.h, 0, 0, 0, 0, [1, 1, 1, 1], 1, 0];   // regel 2
+      if (n.t.voor) kinderen.unshift(label); else kinderen.push(label);
+    }
     if (kinderen.length) uit.push(kinderen);
     return uit;
   };

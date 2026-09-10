@@ -135,6 +135,8 @@ const MELDING_SOORTEN = [
   ['flex-mapping-onbekend',        /kent deze mapping niet$/],
   ['rand-per-zijde-geweigerd',     /: rand per zijde .* geweigerd/],
   ['randbreedte-niet-te-binden',   /: randbreedte niet te binden/],
+  ['inline-baseline-geweigerd',    /: inline BASELINE geweigerd/],
+  ['inline-rij-niet-te-zetten',    /: inline rij niet te zetten/],
   ['randkleur-per-zijde',          /: randkleuren verschillen per zijde/],
   ['flex-niet-gemapt',             /wordt niet gemapt/],
   ['achtergrond-ongebonden',       /: achtergrond ongebonden$/],
@@ -731,7 +733,46 @@ async function maak(n, naamPad, wortelComp) {
     aangehangen.push({ kind, k, pad: `${naamPad}>${k.naam ?? i}` });
   }
   zetRek(f, aangehangen, naamPad);
-  if (n.t) f.appendChild(await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`, wortelComp));
+  /**
+   * EIGEN TEKST NAAST KINDEREN — EEN RIJ, GEEN STAPEL OP ELKAAR.
+   *
+   * "Nog geen account? *Registreer*" is één `<Text>` met een genest `<Text>`. Figma kent geen
+   * inline-stroom, dus de run wordt een eigen tekstnode náást het kind. Tot 2026-09-10 hing hij
+   * er los achteraan in een frame zónder auto-layout: beide landden op x = 0 en schoven over
+   * elkaar heen. Gemeten op LoginScreen: `linkText` een frame van 208x18 met twee kinderen op
+   * dezelfde plek — en `parity` zag het niet, want de hoogte klopte en `kinderparen()` snijdt
+   * dit label er per regel af.
+   *
+   * Dus: een HORIZONTALE rij die zijn inhoud hugt, met de run op de plek waar de DOM hem heeft
+   * (`t.voor`, gemeten in de walker). BASELINE is de uitlijning die inline-tekst nabootst; valt
+   * hij niet te zetten, dan is CENTER de terugval en dat wordt gemeld.
+   */
+  if (n.t && n.k) {
+    try {
+      f.layoutMode = 'HORIZONTAL';
+      f.primaryAxisSizingMode = 'AUTO';
+      f.counterAxisSizingMode = 'AUTO';
+      f.itemSpacing = 0;
+      try { f.counterAxisAlignItems = 'BASELINE'; }
+      catch (e) { f.counterAxisAlignItems = 'CENTER'; meldingen.push(`${naamPad}: inline BASELINE geweigerd (${e.message}) — CENTER gezet`); }
+    } catch (e) {
+      meldingen.push(`${naamPad}: inline rij niet te zetten (${e.message}) — eigen tekst en kind overlappen`);
+    }
+  }
+  if (n.t) {
+    const label = await maak({ ...n, k: null, naam: 'label' }, `${naamPad}>label`, wortelComp);
+    if (n.k && n.t.voor) f.insertChild(0, label);
+    else f.appendChild(label);
+    // In een inline rij hugt élk deel per definitie: `zetRek` draaide hierboven nog op een
+    // frame zonder auto-layout en kan een kind op FILL hebben gezet, wat het onder HORIZONTAL
+    // alsnog zou uitrekken. Hier is dat nooit de bedoeling — de run en het kind staan naast
+    // elkaar zo breed als hun glyphs.
+    if (n.k && f.layoutMode === 'HORIZONTAL') {
+      for (const kind of f.children) {
+        try { kind.layoutGrow = 0; kind.layoutAlign = 'INHERIT'; } catch (e) { /* niet elk type accepteert dit */ }
+      }
+    }
+  }
   return f;
 }
 

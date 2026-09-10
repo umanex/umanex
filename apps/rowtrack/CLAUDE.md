@@ -217,30 +217,42 @@ tegenproef van de rondgang, geen risico.
    de Bridge stond uit toen dit geschreven werd; de builder meldt een weigering luid
    (`rand-per-zijde-geweigerd`) in plaats van stil een volle doos te zetten.
 
-12. **Een consumerend bestand houdt zijn eigen library-spiegel, en die loopt achter.** Publiceren
-   in `RowTrack -  Design System` is niet genoeg: `RowTrack - Design` blijft de vorige versie
-   zien tot de update daar binnengehaald is (Assets-paneel). `importComponentByKeyAsync` geeft
-   die achterstallige spiegel terug — géén fout, géén waarschuwing. Gemeten 2026-09-10, ná een
-   bevestigde publicatie (alle 45 op `CURRENT` in de library, nagelezen via de runtime):
-   `HeroPanel` importeerde met drie van zijn vijf properties, `ActiveHeader` en `GoalPill` met
-   nul. De schermbouw liep gewoon door, meldde 36× `slot "..." bestaat niet` over zes frames,
-   en die teksten tonen daarna stil de library-data — precies de klasse die
-   `figma:instance-tekst` op nul had gezet, teruggekomen langs een andere weg.
+12. **De plugin-runtime cachet library-imports vanaf het moment dat hij verbindt, en een
+   publicatie erna is voor hem onzichtbaar.** Publiceren in `RowTrack -  Design System` is
+   niet genoeg: zolang de Desktop Bridge-plugin in `RowTrack - Design` al draaide vóór de
+   publicatie, geeft `importComponentByKeyAsync` daar de versie van bij het verbinden terug —
+   zonder fout, zonder waarschuwing. Gemeten 2026-09-10, ná een publicatie die in de library
+   bevestigd was (alle 45 op `CURRENT`, teruggelezen via de runtime): `HeroPanel` importeerde
+   met drie van zijn vijf properties, `ActiveHeader` en `GoalPill` met nul. De schermbouw liep
+   door, bouwde zes frames en meldde 36× `slot "…" bestaat niet`; die teksten tonen daarna stil
+   de library-data — precies de klasse die `figma:instance-tekst` op nul had gezet.
 
-   Er is **geen plugin-API** om die spiegel te verversen: `figma.teamLibrary` draagt geen
-   enkele methode in deze runtime (gemeten met `getOwnPropertyNames`), en de remote componenten
-   staan niet als node in het document, dus er valt ook niets weg te gooien. Daarom toetst
-   `figma/bouw-schermen.js` het sinds die dag vóór de eerste write: per component wordt de
-   geïmporteerde `componentPropertyDefinitions` gelegd naast de slots die de spec verwacht, en
-   bij een gat weigert hij te bouwen met de lijst erbij. De volgorde is dus: **library
-   publiceren → in het schermenbestand de update binnenhalen → dan pas schermen bouwen.**
+   **De tegenproef is scherp en kostte één handeling:** dezelfde imports, hetzelfde bestand,
+   dezelfde publicatie, alleen de plugin opnieuw gestart → `HeroPanel` 5/5, `ActiveHeader` 2/2,
+   `GoalPill` 2/2, `WorkoutCard` 5/5, `Segmented` 4/4, en de schermbouw ging van 36 naar **0**
+   slot-meldingen. Het is dus de runtime, niet het bestand.
+
+   *Mijn eerste diagnose was fout en stond hier al opgeschreven.* Ik schreef dat het
+   consumerende bestand een achterstallige library-spiegel houdt en dat de update in het
+   Assets-paneel binnengehaald moest worden. Het Assets-paneel had niets te melden — en dat
+   was het signaal dat ik als ruis behandelde in plaats van als tegenspraak. Twee onafhankelijke
+   waarnemingen (de API zegt "oud", Figma's eigen UI zegt "bij") horen elkaar niet tegen te
+   spreken; dat ze het wél deden, wees de verkeerde helft van mijn verklaring aan.
+
+   Dit is dezelfde runtime als in eigenaardigheid 9, en dezelfde remedie: **de plugin sluiten en
+   opnieuw starten**, niet `figma_reload_plugin` (dat herlaadt alleen de UI-iframe). De volgorde
+   is dus: library publiceren → **Desktop Bridge in het schermenbestand herstarten** → schermen
+   bouwen. `figma/bouw-schermen.js` toetst het sinds die dag vóór de eerste write — de
+   geïmporteerde `componentPropertyDefinitions` naast de slots die de spec verwacht — en weigert
+   met de lijst erbij in plaats van te bouwen en te melden.
 
    *En de voorverwarming ziet dit niet.* `figma/voorverwarm-imports.js` markeert wat hij
-   geïmporteerd heeft in `pluginData`, en die markering overleeft een publicatie. Direct ná het
-   publiceren meldde hij `ms: 8, dezeRonde: 0, resterend: 0` — hij deed niets en dat las als
-   succes. Ná het wissen van de marker: `ms: 3623, dezeRonde: 315`, met styles tot 381 ms. Hij
-   draagt nu een `VERS`-vlag (zet hem ná elke publicatie) en zegt het hardop in `letOp` wanneer
-   een ronde nul imports deed terwijl er markeringen stonden.
+   geïmporteerd heeft in `pluginData`, en die markering overleeft zowel een publicatie als een
+   plugin-herstart. Direct ná het publiceren meldde hij `ms: 8, dezeRonde: 0, resterend: 0` — hij
+   deed niets en dat las als succes. Ná het wissen van de marker: `ms: 3623, dezeRonde: 315`, met
+   styles tot 381 ms. Hij draagt nu een `VERS`-vlag (zet hem ná elke publicatie én na een
+   plugin-herstart) en zegt het hardop in `letOp` wanneer een ronde nul imports deed terwijl er
+   markeringen stonden.
 
 **Twee dingen over de Bridge die je pas merkt als het misgaat.**
 

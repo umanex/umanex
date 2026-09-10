@@ -116,7 +116,29 @@ function vouwMarges(node) {
   const gaten = kids.slice(1).map((k, i) => Math.max(0, m(kids[i])[eind]) + Math.max(0, m(k)[start]));
   if (!gaten.length) return uit;
   uit.gap = Math.min(...gaten);
-  gaten.forEach((g, i) => { if (g - uit.gap > 0) uit.voor.set(kids[i + 1], g - uit.gap); });
+  /**
+   * EEN SPACER KOST EEN EXTRA GAP, EN DAT WERD HIER NIET VERREKEND.
+   *
+   * Auto-layout zet een gap aan BEIDE zijden van een ingevoegde node: waar de browser
+   * `gap + marge` ruimte maakt, maakt Figma `gap + spacer + gap`. Gemeten 2026-09-10 op
+   * LoginScreen (gap 16, marge 8): browser 24 px tussen subtitle en het eerste veld, Figma 40.
+   * Twee zulke naden plus een weggevallen negatieve marge maakten het blok 40 px hoger, en
+   * omdat de container centreert schoof alles ±20 px uit elkaar — met `parity` op nul, want
+   * die vergelijkt hoogtes en gaps, niet de posities van stromende kinderen.
+   *
+   * De juiste hoogte is dus `overschot − gap`. Is die niet positief, dan is de naad met een
+   * spacer NIET uit te drukken: invoegen zou `gap − marge` te veel ruimte maken in plaats van
+   * te weinig. Dan gaat hij naar `rest` — Figma staat daar `marge` te krap, en dat staat
+   * gemeld in plaats van dat het als winst wordt gevierd.
+   */
+  const gapEff = (node.gap ?? 0) + uit.gap;
+  gaten.forEach((g, i) => {
+    const overschot = g - uit.gap;
+    if (overschot <= 0) return;
+    const hoogte = overschot - gapEff;
+    if (hoogte > 0.01) uit.voor.set(kids[i + 1], hoogte);
+    else uit.rest.push([kids[i + 1].naam ?? 'wrapper', `marge ${overschot} kleiner dan gap ${gapEff} — een spacer zou ruimte TOEVOEGEN`]);
+  });
   return uit;
 }
 
@@ -237,6 +259,7 @@ function snoei(node, diepte, pad, comp) {
     // doos, 12 px hoger dan in de browser, en `parity` ziet daar niets van — die vergelijkt de
     // hoogte (46 = 46), niet de plaats van de glyphs erbinnen.
     if (node.tekst.veld) o.t.veld = true;
+  if (node.tekst.voorop !== undefined) o.t.voor = node.tekst.voorop;
   }
   // Wat geen auto-layout-vorm heeft reist als FEIT mee, niet als correctie: de builder maakt er
   // een melding van, zodat een breakout niet stil op nul wordt gezet.
