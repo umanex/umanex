@@ -73,17 +73,16 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+c1ec8e5 feat(rowtrack): rebuild the library from the new spec, and drop a slot that has no node
 61f2488 fix(rowtrack): separate "uncommitted" from "no git history" in the publication axis
 69f56c5 docs(rowtrack): make the closed items' checks test the fix, not the class
 5766879 docs(rowtrack): put the measured numbers in the blind-spot meter
 6b0a3b1 fix(rowtrack): the publication axis counted as green while saying it measured nothing
-380cf2d fix(rowtrack): measure the background fold per side, and close the round's paperwork
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/figma/build-spec.min.json
-  M  apps/rowtrack/figma/manifest.json
-  M  apps/rowtrack/scripts/figma-build-prune.mjs
+  M  apps/rowtrack/figma/geometry.figma.json
+  M  apps/rowtrack/figma/library-component-keys.json
 
 ## Bestanden met TODO/FIXME
   (geen)

@@ -1,15 +1,14 @@
 {
-  "$comment": "GEGENEREERD uit RowTrack -  Design System via figma_execute; recept in apps/rowtrack/CLAUDE.md. NIET met de hand bewerken.",
   "fileKey": "QkRgMc7Quqtbow71DiYa1n",
   "fileName": "RowTrack -  Design System",
-  "gegenereerd": "2026-09-09",
+  "gegenereerd": "2026-09-10",
   "gepubliceerd": 45,
   "totaal": 45,
   "componenten": {
     "Chip": {
       "type": "COMPONENT_SET",
       "key": "95e9ab5d5a4de60573c2d049d90ea36cec1488ad",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "active=true": "98572212415bbb0b0df70096140c5e81b84dc99b",
         "active=false": "dc519c5c9e010973ec538f68c178afdefae4f289"
@@ -23,7 +22,7 @@
     "BottomSheet": {
       "type": "COMPONENT",
       "key": "72f5c49637509abc35068fb44e82b73f97a2add1",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "title#2036:874"
@@ -32,42 +31,42 @@
     "GoalSheet": {
       "type": "COMPONENT",
       "key": "0d261bdfb67ec202ff5ea33d67fd7500b19567e9",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "HealthConsentScreen": {
       "type": "COMPONENT",
       "key": "551fb2adc6c7af9ff5ed35852c9f7133a3f7dd7b",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "BottomFade": {
       "type": "COMPONENT",
       "key": "c561eeb364c5219b642e7d85c3620baee47d0314",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "Dot": {
       "type": "COMPONENT",
       "key": "fd537a43d290624576c3b892b548229ea4c80729",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "Icon": {
       "type": "COMPONENT",
       "key": "1275f68ecd3eabaed9b342cc01c378b689ec9ca6",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "SectionHeader": {
       "type": "COMPONENT",
       "key": "66cb3a37d1e706f6325020163b005abdb7961049",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "title#2036:875"
@@ -76,7 +75,7 @@
     "Subtitle": {
       "type": "COMPONENT",
       "key": "f209ad4660a5a3509ae1496516088149c7eb6e93",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "label#2036:876"
@@ -85,14 +84,14 @@
     "Skeleton": {
       "type": "COMPONENT",
       "key": "a8472e19689b6c20e388e4b6d6bf81d3ae4fb877",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "TabLabel": {
       "type": "COMPONENT_SET",
       "key": "09de92e072dfc718bbb1c2949f021003bd16ddcb",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "focused=true": "b57122158e240d077f65d19bcec6b53f5c815f54",
         "focused=false": "d8a1b921c8f48daed070c8a8f33ffb4c51d48941"
@@ -105,7 +104,7 @@
     "KpiSingle": {
       "type": "COMPONENT",
       "key": "52ef1b6427d6a8083ef443eb1f1fd539784089dc",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "value#2036:880",
@@ -116,7 +115,7 @@
     "ErrorMessage": {
       "type": "COMPONENT",
       "key": "0b6b260b47ce98e14bed183167ab3db96c32e85c",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "message#2036:883"
@@ -125,14 +124,14 @@
     "GoalCardSkeleton": {
       "type": "COMPONENT",
       "key": "853441470c6d646c2b1e2845a1c1d8f82eea3c03",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "MotivationalToast": {
       "type": "COMPONENT",
       "key": "c8a3f0172439175e91dea7964dcb3a3bd8084b6f",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "message#2036:884"
@@ -141,7 +140,7 @@
     "DeviceSelectionModal": {
       "type": "COMPONENT_SET",
       "key": "a676b6f254d557034d94cf1e2a61e3bbb7315414",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "kind=rower": "edb884258e9aeb6c916fbce9ae846b82739bfc27",
         "kind=hr": "09ce23a0fc0297868b4dc1b44ac7840cfcdb839b"
@@ -153,7 +152,7 @@
     "EmptyState": {
       "type": "COMPONENT_SET",
       "key": "170f40970d467f7bfe4cc8e80ce2b6b4a4c452d8",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "size=sm": "0fa88b33a0aedf12008da09bbdd34834aa1b3c61",
         "size=lg": "7306da136446eced6782a385875212ecbb3b8a30"
@@ -167,7 +166,7 @@
     "PrBadge": {
       "type": "COMPONENT_SET",
       "key": "61f3a203077905a45e202ebf470fb202f79d83c4",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "size=sm": "ff65d8dc42df977e39774636680ee16acd928361",
         "size=md": "ba7745b8c582e4a39cfe5a5b064176513225773d"
@@ -180,32 +179,37 @@
     "FormField": {
       "type": "COMPONENT_SET",
       "key": "43756965d059b09cc8ed6ca5ed7d345257efc681",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "secureTextEntry=true": "cb1a0c71663262500564cb19ee2d5398f6088708",
         "secureTextEntry=false": "3fbb9bfa13434a4f89e135096f5dc490952153fa"
       },
       "slots": [
         "label#2036:894",
+        "placeholder#2049:1687",
         "secureTextEntry"
       ]
     },
     "WorkoutCard": {
       "type": "COMPONENT_SET",
       "key": "5218e131a50f25620d29706d868c126fa35a199b",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "index=0": "df5acd564860b98d87b330085469a865a88fa0af",
         "index=1": "3a948ce282aca9a110b8b944cba7f0486862940b"
       },
       "slots": [
+        "date#2049:1711",
+        "value#2049:1714",
+        "value_abca#2049:1717",
+        "distValue#2049:1720",
         "index"
       ]
     },
     "ErrorState": {
       "type": "COMPONENT_SET",
       "key": "23a7a8c297e518bfc80060db9d9c1e1c532a70fc",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "size=sm": "cf1c1d35ad246b8396240ef6782a39c07a63bc0c",
         "size=lg": "c4ddfcecb77c6f145c42ef99cf9ec7d9327960a4"
@@ -220,33 +224,36 @@
     "SplitsList": {
       "type": "COMPONENT",
       "key": "76b8dd09974c856925c125bc3df9c3530a2541b0",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "GoalProgressCard": {
       "type": "COMPONENT",
       "key": "b04cacc56e55999266efecf4c8ca5cfa6ac05758",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "Segmented": {
       "type": "COMPONENT_SET",
       "key": "be6f3af9d2116d69c2548fe68be48f209d88e323",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "variant=filled": "780b84b80b39990d5a512a8025d8773e435c94ce",
         "variant=band": "e5dc45af5d69852d66df513fdd8580aa866f6c13"
       },
       "slots": [
+        "btnTextActive#2049:1702",
+        "btnText#2049:1705",
+        "btnText_ca#2049:1708",
         "variant"
       ]
     },
     "HrStatusBar": {
       "type": "COMPONENT_SET",
       "key": "e15772b4ac59cce2c741f51c23d27127f96dbd9f",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "hrStatus=idle": "e238a711a7d9e3921f5a3c6b35eedb7e9dcfec96",
         "hrStatus=scanning": "7ec1dd44b9450d0fce7ccff319e00fb2590a3084",
@@ -255,13 +262,15 @@
         "hrStatus=error": "9aad83e2b511816946ad06ae2e3e428785063186"
       },
       "slots": [
+        "label#2049:1690",
+        "actionText#2049:1696",
         "hrStatus"
       ]
     },
     "WheelPicker": {
       "type": "COMPONENT_SET",
       "key": "7b1763b70da74ccde2c5971ebe82eee0a0e19caa",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "showPill=true, surface=base": "4bee6bf501c3e1e2934cda11cf8311d8c9262ba8",
         "showPill=true, surface=raised": "3c14547c1865376c756ef9cf75f5b0a22e4b6890",
@@ -276,7 +285,7 @@
     "BleStatusBar": {
       "type": "COMPONENT_SET",
       "key": "9cf83f34d225184146d5895bcc285d9be0f2dbf6",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "bleStatus=idle": "c304d70f7aa1bef66be8ef1dd51d76eab6254e67",
         "bleStatus=scanning": "6fdcfef332f0d25c668597ac09dae12d04c09add",
@@ -289,13 +298,15 @@
       },
       "slots": [
         "deviceName#2036:906",
+        "label#2049:1669",
+        "actionText#2049:1678",
         "bleStatus"
       ]
     },
     "DeviceRow": {
       "type": "COMPONENT_SET",
       "key": "7f7acb3259c2a710c4bf09f255b6e1ca140668dd",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "icon=dot, loading=true, actionDisabled=true": "c238b37bf4ef38f8aaf624cd87c46df54f6af25c",
         "icon=dot, loading=true, actionDisabled=false": "173fe0d3b2dac0a9611b28bbbe554b9a69b761a9",
@@ -317,7 +328,7 @@
     "GoalSegments": {
       "type": "COMPONENT_SET",
       "key": "32cb388f3812072dac606ddf00e78dea7fab193a",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "selected=none": "12c9e47900208ef398911de68f963cfa3d8f57ec",
         "selected=duration": "7c7d1cc2c2a411bb600a29d3bb3b318364897540",
@@ -332,7 +343,7 @@
     "KPI": {
       "type": "COMPONENT_SET",
       "key": "ef024e8703415e823531ce46a2bdde51b3925491",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "highlighted=true, compact=true, fill=true, loading=true": "f59fa532187f27325ede8b4b38edb76168db8f0a",
         "highlighted=true, compact=true, fill=true, loading=false": "b48bf14b50df69a40301a4ae8499690829e12aa2",
@@ -363,7 +374,7 @@
     "Button": {
       "type": "COMPONENT_SET",
       "key": "d91787c7df124ad5b1bc36a2af1afa62b83ec412",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "variant=primary, size=md, loading=true, disabled=true": "9db313ebcf766e1aa6b699b1833eecc59941d768",
         "variant=primary, size=md, loading=true, disabled=false": "001f09ace5e088bcef8ab3ed0a00aa87c598469b",
@@ -409,41 +420,50 @@
     "GoalPill": {
       "type": "COMPONENT",
       "key": "1ff8cc32cd37c36d130b4a04b1062cb17af49507",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
-      "slots": []
+      "slots": [
+        "doelPillValue#2049:1725",
+        "doelPillUnit#2049:1726"
+      ]
     },
     "SubtitleProgress": {
       "type": "COMPONENT",
       "key": "86d00f0aaa01ae304cee6d61433f4272c44a64eb",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
-        "left#2036:1000"
+        "left#2036:1000",
+        "subtitleText#2049:1729"
       ]
     },
     "HeroPanel": {
       "type": "COMPONENT",
       "key": "b321ac6a27cf617e345388764ada1d4f51885437",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "heroLabel#2036:1001",
         "heroText#2036:1002",
-        "subLabel#2036:1003"
+        "subLabel#2036:1003",
+        "subtitleText#2049:1727",
+        "subtitleText_bbc#2049:1728"
       ]
     },
     "ActiveHeader": {
       "type": "COMPONENT",
       "key": "be959e2c1a93987840c7e9fe2e61389da11c80c5",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
-      "slots": []
+      "slots": [
+        "doelPillValue#2049:1723",
+        "doelPillUnit#2049:1724"
+      ]
     },
     "ProgressBar": {
       "type": "COMPONENT_SET",
       "key": "521d7ba52cee20754519e767829eeaabe77cb863",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "fillKind=none, richting=h": "0d95ccff56604927d4108c7d6d91774181be0e7c",
         "fillKind=none, richting=v": "c92f6cf156841aaad9025aab36d4dcd2ba1935dd",
@@ -462,7 +482,7 @@
     "KpiRow": {
       "type": "COMPONENT_SET",
       "key": "bda284921ca7b0713321f570404e31cfd223e86f",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "fill=true, divider=true, disabled=true, loading=true": "6fe8d339baa770bafefc31141d91957b4ba3b547",
         "fill=true, divider=true, disabled=true, loading=false": "2fe1433203829f5e735ce8d3afdb8cb4d95c69a5",
@@ -493,7 +513,7 @@
     "ConnectionOverlay": {
       "type": "COMPONENT_SET",
       "key": "fdafe3129463a38ca904d97cf1833c3a410a0399",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "bleStatus=idle": "79214244c65627bff175bd5c48673f18b616cb31",
         "bleStatus=scanning": "45c4776417b15b91be4fc16bdd580b77f9e33f4f",
@@ -510,7 +530,7 @@
     "SummaryTitle": {
       "type": "COMPONENT",
       "key": "53e26220f9b944499c5ada5cb2f2e12e72177944",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "title#2036:1038",
@@ -520,21 +540,21 @@
     "PrBanner": {
       "type": "COMPONENT",
       "key": "4c0c0664af53cb771fe657b146bc218452a58c79",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "SummaryKpiBand": {
       "type": "COMPONENT",
       "key": "ec1e5c4fec1f8da14b6845c4cc9d13226c8ed4ae",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     },
     "StatsTable": {
       "type": "COMPONENT",
       "key": "fa9c797ed66f9cc1360b8d3ddcd54cd09e0ea9da",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": [
         "colAvg#2036:1040",
@@ -544,7 +564,7 @@
     "DeviceSection": {
       "type": "COMPONENT_SET",
       "key": "3229c399e005451a49481b5b900b7ede45f7c537",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "bleStatus=idle, hrStatus=idle": "73ba0a240eb04eaf7634cf219c382ca83d706ad1",
         "bleStatus=idle, hrStatus=scanning": "b672ac1f69137454d3f71950fc4c395f61874539",
@@ -590,6 +610,10 @@
       "slots": [
         "hrDeviceName#2036:1042",
         "deviceName#2036:1083",
+        "label#2049:1730",
+        "actionText#2049:1771",
+        "label_bcab#2049:1812",
+        "actionText_bcba#2049:1853",
         "bleStatus",
         "hrStatus"
       ]
@@ -597,7 +621,7 @@
     "GoalHeader": {
       "type": "COMPONENT_SET",
       "key": "99105eec5c6f0b005f47a9d4a348cdaddc8170c8",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": {
         "selectedSegment=none": "143d66ffa7d829f0de645e43a73f8c52d179c64d",
         "selectedSegment=duration": "2aa88e7aa7abb76702ddd714400a635f9aa77f06",
@@ -612,7 +636,7 @@
     "StartCta": {
       "type": "COMPONENT",
       "key": "4f2a2ad320e71f083c047abee4d42e79aee1bbd4",
-      "status": "CURRENT",
+      "status": "CHANGED",
       "varianten": null,
       "slots": []
     }
