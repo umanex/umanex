@@ -73,24 +73,24 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+9708fd0 fix(rowtrack): a spacer costs a gap, and the inline run needs a row
 d3d3753 fix(rowtrack): refuse to build screens against a stale library mirror
 adb0cf7 test(rowtrack): library geometry on schema 3, and parity at zero over 2022 nodes
 c1ec8e5 feat(rowtrack): rebuild the library from the new spec, and drop a slot that has no node
 61f2488 fix(rowtrack): separate "uncommitted" from "no git history" in the publication axis
-69f56c5 docs(rowtrack): make the closed items' checks test the fix, not the class
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/CLAUDE.md
-   M apps/rowtrack/figma/beeld-verschillen.json
-   M apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
-   M apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
-   M apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
-   M apps/rowtrack/figma/beelden/HistoryScreen__Een-Record.figma.png
+  M  apps/rowtrack/figma/beeld-verschillen.json
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Afstand.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Doel-Bereikt.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Landscape.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Playground.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Samenvatting.figma.png
+  M  apps/rowtrack/figma/beelden/ActivePhase__Zonder-Hartslagband.figma.png
+  M  apps/rowtrack/figma/beelden/ForgotPasswordScreen__Playground.figma.png
+  M  apps/rowtrack/figma/beelden/HistoryScreen__Een-Record.figma.png
+  M  apps/rowtrack/figma/beelden/HistoryScreen__Leeg.figma.png
 
 ## Bestanden met TODO/FIXME
   (geen)
