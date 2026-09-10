@@ -1,82 +1,25 @@
 {
  "$comment": "GEGENEREERD door scripts/beeld-parity.mjs. De browser naast de Figma-export, per frame.",
- "gegenereerd": "2026-09-09",
+ "gegenereerd": "2026-09-10",
  "schaal": 1,
  "drempel": null,
  "rijen": [
-  {
-   "bestand": "WorkoutDetailScreen__Zonder-Hartslag.figma.png",
-   "story": "componenten-workoutdetailscreen--zonder-hartslag",
-   "W": 430,
-   "H": 932,
-   "zicht": 33.32,
-   "grof": 6.97,
-   "heet": 419,
-   "blokken": 1034,
-   "plaatsen": [
-    "40,40",
-    "60,40",
-    "120,40",
-    "160,40",
-    "60,60",
-    "0,80"
-   ],
-   "iconenGemaskeerd": 1
-  },
-  {
-   "bestand": "HistoryScreen__Playground.figma.png",
-   "story": "componenten-historyscreen--playground",
-   "W": 430,
-   "H": 932,
-   "zicht": 11.43,
-   "grof": 6.62,
-   "heet": 181,
-   "blokken": 1034,
-   "plaatsen": [
-    "0,20",
-    "20,20",
-    "40,20",
-    "80,20",
-    "100,20",
-    "0,40"
-   ],
-   "iconenGemaskeerd": 5
-  },
-  {
-   "bestand": "WorkoutDetailScreen__Playground.figma.png",
-   "story": "componenten-workoutdetailscreen--playground",
-   "W": 430,
-   "H": 932,
-   "zicht": 32.14,
-   "grof": 6.32,
-   "heet": 400,
-   "blokken": 1034,
-   "plaatsen": [
-    "40,40",
-    "60,40",
-    "120,40",
-    "160,40",
-    "360,40",
-    "380,40"
-   ],
-   "iconenGemaskeerd": 1
-  },
   {
    "bestand": "ActivePhase__Doel-Bereikt.figma.png",
    "story": "componenten-activephase--doel-bereikt",
    "W": 430,
    "H": 932,
-   "zicht": 9.44,
-   "grof": 6.11,
-   "heet": 132,
+   "zicht": 9.14,
+   "grof": 6.04,
+   "heet": 129,
    "blokken": 1034,
    "plaatsen": [
-    "200,0",
-    "240,0",
+    "0,0",
+    "40,20",
+    "80,20",
     "100,40",
     "120,40",
-    "240,80",
-    "120,200"
+    "140,40"
    ],
    "iconenGemaskeerd": 2
   },
@@ -85,9 +28,9 @@
    "story": "componenten-forgotpasswordscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 5.49,
-   "grof": 4.75,
-   "heet": 102,
+   "zicht": 5.55,
+   "grof": 4.77,
+   "heet": 104,
    "blokken": 1034,
    "plaatsen": [
     "40,320",
@@ -100,32 +43,13 @@
    "iconenGemaskeerd": 0
   },
   {
-   "bestand": "HistoryScreen__Een-Record.figma.png",
-   "story": "componenten-historyscreen--een-record",
-   "W": 430,
-   "H": 932,
-   "zicht": 8.97,
-   "grof": 4.67,
-   "heet": 143,
-   "blokken": 1034,
-   "plaatsen": [
-    "0,20",
-    "20,20",
-    "40,20",
-    "80,20",
-    "100,20",
-    "0,40"
-   ],
-   "iconenGemaskeerd": 1
-  },
-  {
    "bestand": "RegisterScreen__Playground.figma.png",
    "story": "componenten-registerscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 5.35,
-   "grof": 4.53,
-   "heet": 104,
+   "zicht": 5.45,
+   "grof": 4.51,
+   "heet": 106,
    "blokken": 1034,
    "plaatsen": [
     "40,240",
@@ -138,21 +62,40 @@
    "iconenGemaskeerd": 2
   },
   {
-   "bestand": "HistoryScreen__Leeg.figma.png",
-   "story": "componenten-historyscreen--leeg",
+   "bestand": "WorkoutDetailScreen__Playground.figma.png",
+   "story": "componenten-workoutdetailscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 8.22,
-   "grof": 3.97,
-   "heet": 125,
+   "zicht": 9.62,
+   "grof": 3.54,
+   "heet": 148,
    "blokken": 1034,
    "plaatsen": [
-    "0,20",
-    "20,20",
-    "40,20",
-    "80,20",
-    "100,20",
-    "0,40"
+    "40,40",
+    "60,40",
+    "120,40",
+    "160,40",
+    "360,40",
+    "380,40"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "WorkoutDetailScreen__Zonder-Hartslag.figma.png",
+   "story": "componenten-workoutdetailscreen--zonder-hartslag",
+   "W": 430,
+   "H": 932,
+   "zicht": 9.49,
+   "grof": 3.32,
+   "heet": 141,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,40",
+    "60,40",
+    "120,40",
+    "160,40",
+    "60,60",
+    "0,160"
    ],
    "iconenGemaskeerd": 1
   },
@@ -161,9 +104,9 @@
    "story": "componenten-loginscreen--playground",
    "W": 430,
    "H": 932,
-   "zicht": 4.59,
-   "grof": 3,
-   "heet": 48,
+   "zicht": 4.73,
+   "grof": 3.1,
+   "heet": 53,
    "blokken": 1034,
    "plaatsen": [
     "120,260",
@@ -176,13 +119,32 @@
    "iconenGemaskeerd": 1
   },
   {
+   "bestand": "HistoryScreen__Playground.figma.png",
+   "story": "componenten-historyscreen--playground",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.35,
+   "grof": 2.76,
+   "heet": 53,
+   "blokken": 1034,
+   "plaatsen": [
+    "0,20",
+    "20,20",
+    "40,20",
+    "80,20",
+    "100,20",
+    "0,40"
+   ],
+   "iconenGemaskeerd": 5
+  },
+  {
    "bestand": "ActivePhase__Landscape.figma.png",
    "story": "componenten-activephase--landscape",
    "W": 932,
    "H": 430,
-   "zicht": 4.45,
-   "grof": 2.96,
-   "heet": 52,
+   "zicht": 4.41,
+   "grof": 2.66,
+   "heet": 48,
    "blokken": 1034,
    "plaatsen": [
     "100,40",
@@ -195,32 +157,13 @@
    "iconenGemaskeerd": 1
   },
   {
-   "bestand": "ActivePhase__Doel-Afstand.figma.png",
-   "story": "componenten-activephase--doel-afstand",
-   "W": 430,
-   "H": 932,
-   "zicht": 4.35,
-   "grof": 2.86,
-   "heet": 49,
-   "blokken": 1034,
-   "plaatsen": [
-    "100,40",
-    "120,40",
-    "320,40",
-    "100,200",
-    "120,200",
-    "140,200"
-   ],
-   "iconenGemaskeerd": 1
-  },
-  {
    "bestand": "ActivePhase__Playground.figma.png",
    "story": "componenten-activephase--playground",
    "W": 430,
    "H": 932,
-   "zicht": 4.32,
-   "grof": 2.82,
-   "heet": 46,
+   "zicht": 3.58,
+   "grof": 2.63,
+   "heet": 40,
    "blokken": 1034,
    "plaatsen": [
     "100,40",
@@ -237,9 +180,9 @@
    "story": "componenten-activephase--zonder-hartslagband",
    "W": 430,
    "H": 932,
-   "zicht": 4.22,
-   "grof": 2.74,
-   "heet": 45,
+   "zicht": 3.49,
+   "grof": 2.54,
+   "heet": 39,
    "blokken": 1034,
    "plaatsen": [
     "100,40",
@@ -252,13 +195,32 @@
    "iconenGemaskeerd": 1
   },
   {
-   "bestand": "IdlePhase__Playground.figma.png",
-   "story": "componenten-idlephase--playground",
+   "bestand": "ActivePhase__Doel-Afstand.figma.png",
+   "story": "componenten-activephase--doel-afstand",
    "W": 430,
    "H": 932,
-   "zicht": 4.52,
-   "grof": 2.29,
-   "heet": 38,
+   "zicht": 3.41,
+   "grof": 2.46,
+   "heet": 42,
+   "blokken": 1034,
+   "plaatsen": [
+    "100,40",
+    "120,40",
+    "320,40",
+    "100,200",
+    "120,200",
+    "140,200"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "IdlePhase__Doel-Afstand.figma.png",
+   "story": "componenten-idlephase--doel-afstand",
+   "W": 430,
+   "H": 932,
+   "zicht": 4.1,
+   "grof": 2.07,
+   "heet": 37,
    "blokken": 1034,
    "plaatsen": [
     "40,80",
@@ -271,13 +233,13 @@
    "iconenGemaskeerd": 9
   },
   {
-   "bestand": "IdlePhase__Doel-Afstand.figma.png",
-   "story": "componenten-idlephase--doel-afstand",
+   "bestand": "IdlePhase__Playground.figma.png",
+   "story": "componenten-idlephase--playground",
    "W": 430,
    "H": 932,
-   "zicht": 4.43,
-   "grof": 2.23,
-   "heet": 38,
+   "zicht": 4.06,
+   "grof": 1.96,
+   "heet": 33,
    "blokken": 1034,
    "plaatsen": [
     "40,80",
@@ -294,9 +256,9 @@
    "story": "componenten-idlephase--niet-verbonden",
    "W": 430,
    "H": 932,
-   "zicht": 4.42,
-   "grof": 2.23,
-   "heet": 39,
+   "zicht": 3.96,
+   "grof": 1.89,
+   "heet": 34,
    "blokken": 1034,
    "plaatsen": [
     "40,80",
@@ -307,25 +269,6 @@
     "120,180"
    ],
    "iconenGemaskeerd": 9
-  },
-  {
-   "bestand": "IdlePhase__Toestel-Keuze.figma.png",
-   "story": "componenten-idlephase--toestel-keuze",
-   "W": 430,
-   "H": 932,
-   "zicht": 3.92,
-   "grof": 1.89,
-   "heet": 58,
-   "blokken": 1034,
-   "plaatsen": [
-    "60,180",
-    "80,180",
-    "100,180",
-    "120,180",
-    "140,180",
-    "40,240"
-   ],
-   "iconenGemaskeerd": 11
   },
   {
    "bestand": "ProfileScreen__Playground.figma.png",
@@ -402,6 +345,63 @@
     "160,40"
    ],
    "iconenGemaskeerd": 2
+  },
+  {
+   "bestand": "IdlePhase__Toestel-Keuze.figma.png",
+   "story": "componenten-idlephase--toestel-keuze",
+   "W": 430,
+   "H": 932,
+   "zicht": 3.65,
+   "grof": 1.63,
+   "heet": 36,
+   "blokken": 1034,
+   "plaatsen": [
+    "40,240",
+    "80,260",
+    "100,260",
+    "120,260",
+    "180,260",
+    "200,260"
+   ],
+   "iconenGemaskeerd": 11
+  },
+  {
+   "bestand": "HistoryScreen__Een-Record.figma.png",
+   "story": "componenten-historyscreen--een-record",
+   "W": 430,
+   "H": 932,
+   "zicht": 2.57,
+   "grof": 1.58,
+   "heet": 35,
+   "blokken": 1034,
+   "plaatsen": [
+    "0,20",
+    "20,20",
+    "40,20",
+    "80,20",
+    "100,20",
+    "0,40"
+   ],
+   "iconenGemaskeerd": 1
+  },
+  {
+   "bestand": "HistoryScreen__Leeg.figma.png",
+   "story": "componenten-historyscreen--leeg",
+   "W": 430,
+   "H": 932,
+   "zicht": 2.24,
+   "grof": 1.32,
+   "heet": 21,
+   "blokken": 1034,
+   "plaatsen": [
+    "0,20",
+    "20,20",
+    "40,20",
+    "80,20",
+    "100,20",
+    "0,40"
+   ],
+   "iconenGemaskeerd": 1
   },
   {
    "bestand": "WorkoutDetailScreen__Niet-Gevonden.figma.png",

@@ -3,7 +3,7 @@
   "schemaVersie": 3,
   "fileKey": "QkRgMc7Quqtbow71DiYa1n",
   "fileName": "RowTrack -  Design System",
-  "gegenereerd": "2026-09-09",
+  "gegenereerd": "2026-09-10",
   "collections": {
     "Core": {
       "modes": [
@@ -1451,7 +1451,7 @@
         "name": "default",
         "id": "2036:20598",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "zfsaxs:23",
         "componentProperties": [
           "title#2036:874"
@@ -1470,7 +1470,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:28624",
+          "id": "2050:32913",
           "type": "RECTANGLE"
         }
       ]
@@ -1481,7 +1481,7 @@
         "name": "default",
         "id": "2036:20722",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1ki31nk:123",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1493,7 +1493,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26596",
+          "id": "2050:33374",
           "type": "RECTANGLE"
         }
       ]
@@ -1504,7 +1504,7 @@
         "name": "default",
         "id": "2036:20755",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "c6caln:32",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1516,7 +1516,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26628",
+          "id": "2050:33406",
           "type": "RECTANGLE"
         }
       ]
@@ -1527,7 +1527,7 @@
         "name": "default",
         "id": "2036:20758",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "24w3jg:2",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1539,7 +1539,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26112",
+          "id": "2050:32890",
           "type": "RECTANGLE"
         }
       ]
@@ -1550,7 +1550,7 @@
         "name": "default",
         "id": "2036:20761",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "u5mmge:2",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1562,7 +1562,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26353",
+          "id": "2050:33131",
           "type": "RECTANGLE"
         }
       ]
@@ -1573,7 +1573,7 @@
         "name": "default",
         "id": "2036:20764",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "13d2wiu:2",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1585,7 +1585,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26678",
+          "id": "2050:33456",
           "type": "RECTANGLE"
         }
       ]
@@ -1596,7 +1596,7 @@
         "name": "default",
         "id": "2036:20767",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1pdmpb2:2",
         "componentProperties": [
           "title#2036:875"
@@ -1615,7 +1615,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:28626",
+          "id": "2050:33569",
           "type": "RECTANGLE"
         }
       ]
@@ -1626,7 +1626,7 @@
         "name": "default",
         "id": "2036:20771",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1ozpnph:3",
         "componentProperties": [
           "label#2036:876"
@@ -1645,7 +1645,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:28629",
+          "id": "2050:33607",
           "type": "RECTANGLE"
         }
       ]
@@ -1656,7 +1656,7 @@
         "name": "default",
         "id": "2036:20776",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "lrydiv:4",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1668,7 +1668,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26809",
+          "id": "2050:33587",
           "type": "RECTANGLE"
         }
       ]
@@ -1679,7 +1679,7 @@
         "name": "TabLabel",
         "id": "2036:20782",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1mcke8a:5",
         "componentProperties": [
           "label#2036:877",
@@ -1724,7 +1724,7 @@
         "name": "default",
         "id": "2036:20788",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1tdtfwl:6",
         "componentProperties": [
           "value#2036:880",
@@ -1753,7 +1753,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:28637",
+          "id": "2050:33542",
           "type": "RECTANGLE"
         }
       ]
@@ -1764,7 +1764,7 @@
         "name": "default",
         "id": "2036:20793",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "pgu0w8:4",
         "componentProperties": [
           "message#2036:883"
@@ -1783,7 +1783,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:28641",
+          "id": "2050:33143",
           "type": "RECTANGLE"
         }
       ]
@@ -1794,7 +1794,7 @@
         "name": "default",
         "id": "2036:20801",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1sfhnhn:7",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -1806,7 +1806,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26394",
+          "id": "2050:33172",
           "type": "RECTANGLE"
         }
       ]
@@ -1818,7 +1818,7 @@
         "id": "2036:20821",
         "type": "COMPONENT",
         "publishStatus": "CHANGED",
-        "bouwhash": "1hom4rs:19",
+        "bouwhash": "2a2zk0:19",
         "componentProperties": [
           "message#2036:884"
         ],
@@ -1836,7 +1836,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2046:30240",
+          "id": "2050:33561",
           "type": "RECTANGLE"
         }
       ]
@@ -1847,7 +1847,7 @@
         "name": "DeviceSelectionModal",
         "id": "2036:20889",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "rusr6l:67",
         "componentProperties": [
           "kind"
@@ -1887,7 +1887,7 @@
         "name": "EmptyState",
         "id": "2036:20900",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1sat3cd:11",
         "componentProperties": [
           "title#2036:885",
@@ -1937,7 +1937,7 @@
         "name": "PrBadge",
         "id": "2036:20909",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "yxzq0v:9",
         "componentProperties": [
           "label#2036:891",
@@ -1982,16 +1982,21 @@
         "name": "FormField",
         "id": "2036:20922",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "18b7gt:13",
+        "publishStatus": "CHANGED",
+        "bouwhash": "vh5mc9:13",
         "componentProperties": [
           "label#2036:894",
+          "placeholder#2049:1687",
           "secureTextEntry"
         ],
         "eigenVulling": 1,
         "variantenMetVulling": 0,
         "eigenschappen": {
           "label#2036:894": {
+            "type": "TEXT",
+            "refs": 2
+          },
+          "placeholder#2049:1687": {
             "type": "TEXT",
             "refs": 2
           },
@@ -2027,14 +2032,34 @@
         "name": "WorkoutCard",
         "id": "2036:20961",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "7nslmy:39",
         "componentProperties": [
+          "date#2049:1711",
+          "value#2049:1714",
+          "value_abca#2049:1717",
+          "distValue#2049:1720",
           "index"
         ],
         "eigenVulling": 1,
         "variantenMetVulling": 0,
         "eigenschappen": {
+          "date#2049:1711": {
+            "type": "TEXT",
+            "refs": 2
+          },
+          "value#2049:1714": {
+            "type": "TEXT",
+            "refs": 2
+          },
+          "value_abca#2049:1717": {
+            "type": "TEXT",
+            "refs": 2
+          },
+          "distValue#2049:1720": {
+            "type": "TEXT",
+            "refs": 2
+          },
           "index": {
             "type": "VARIANT",
             "refs": 0
@@ -2067,7 +2092,7 @@
         "name": "ErrorState",
         "id": "2036:20976",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "tf9vvg:15",
         "componentProperties": [
           "title#2036:897",
@@ -2122,7 +2147,7 @@
         "name": "default",
         "id": "2036:20993",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "rkd5mv:17",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -2134,7 +2159,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26826",
+          "id": "2050:33604",
           "type": "RECTANGLE"
         }
       ]
@@ -2145,7 +2170,7 @@
         "name": "default",
         "id": "2036:21013",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1jh3vte:19",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -2157,7 +2182,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:26413",
+          "id": "2050:33191",
           "type": "RECTANGLE"
         }
       ]
@@ -2168,14 +2193,29 @@
         "name": "Segmented",
         "id": "2036:21031",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "3est61:17",
         "componentProperties": [
+          "btnTextActive#2049:1702",
+          "btnText#2049:1705",
+          "btnText_ca#2049:1708",
           "variant"
         ],
         "eigenVulling": 1,
         "variantenMetVulling": 0,
         "eigenschappen": {
+          "btnTextActive#2049:1702": {
+            "type": "TEXT",
+            "refs": 2
+          },
+          "btnText#2049:1705": {
+            "type": "TEXT",
+            "refs": 2
+          },
+          "btnText_ca#2049:1708": {
+            "type": "TEXT",
+            "refs": 2
+          },
           "variant": {
             "type": "VARIANT",
             "refs": 0
@@ -2208,14 +2248,24 @@
         "name": "HrStatusBar",
         "id": "2036:21085",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1uq3v95:54",
+        "publishStatus": "CHANGED",
+        "bouwhash": "1f53f34:54",
         "componentProperties": [
+          "label#2049:1690",
+          "actionText#2049:1696",
           "hrStatus"
         ],
         "eigenVulling": 1,
         "variantenMetVulling": 0,
         "eigenschappen": {
+          "label#2049:1690": {
+            "type": "TEXT",
+            "refs": 5
+          },
+          "actionText#2049:1696": {
+            "type": "TEXT",
+            "refs": 5
+          },
           "hrStatus": {
             "type": "VARIANT",
             "refs": 0
@@ -2263,7 +2313,7 @@
         "name": "WheelPicker",
         "id": "2036:21400",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "10ws8d5:315",
         "componentProperties": [
           "showPill",
@@ -2322,10 +2372,12 @@
         "name": "BleStatusBar",
         "id": "2036:21485",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "d755zn:85",
+        "publishStatus": "CHANGED",
+        "bouwhash": "nuhcm3:85",
         "componentProperties": [
           "deviceName#2036:906",
+          "label#2049:1669",
+          "actionText#2049:1678",
           "bleStatus"
         ],
         "eigenVulling": 1,
@@ -2334,6 +2386,14 @@
           "deviceName#2036:906": {
             "type": "TEXT",
             "refs": 1
+          },
+          "label#2049:1669": {
+            "type": "TEXT",
+            "refs": 7
+          },
+          "actionText#2049:1678": {
+            "type": "TEXT",
+            "refs": 8
           },
           "bleStatus": {
             "type": "VARIANT",
@@ -2397,8 +2457,8 @@
         "name": "DeviceRow",
         "id": "2036:21574",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1v51njp:89",
+        "publishStatus": "CHANGED",
+        "bouwhash": "1f2tkgl:89",
         "componentProperties": [
           "label#2036:915",
           "action#2036:924",
@@ -2493,7 +2553,7 @@
         "name": "GoalSegments",
         "id": "2036:21640",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1u0pqex:66",
         "componentProperties": [
           "selected"
@@ -2548,8 +2608,8 @@
         "name": "KPI",
         "id": "2036:21737",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1tjc1j:97",
+        "publishStatus": "CHANGED",
+        "bouwhash": "18u8zqz:97",
         "componentProperties": [
           "label#2036:933",
           "value#2036:950",
@@ -2687,8 +2747,8 @@
         "name": "Button",
         "id": "2036:21898",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "17athyw:161",
+        "publishStatus": "CHANGED",
+        "bouwhash": "cswsy0:161",
         "componentProperties": [
           "title#2036:967",
           "variant",
@@ -2887,38 +2947,20 @@
         "name": "default",
         "id": "2036:21905",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1g2s7y9:7",
-        "componentProperties": [],
-        "eigenVulling": 0,
-        "variantenMetVulling": null,
-        "eigenschappen": {},
-        "variantProperties": null,
-        "varianten": null
-      },
-      "extra": [
-        {
-          "name": "achtergrond",
-          "id": "2040:27335",
-          "type": "RECTANGLE"
-        }
-      ]
-    },
-    "SubtitleProgress": {
-      "pageId": "2026:15620",
-      "primary": {
-        "name": "default",
-        "id": "2036:21912",
-        "type": "COMPONENT",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1ghkmo2:6",
         "componentProperties": [
-          "left#2036:1000"
+          "doelPillValue#2049:1725",
+          "doelPillUnit#2049:1726"
         ],
         "eigenVulling": 0,
         "variantenMetVulling": null,
         "eigenschappen": {
-          "left#2036:1000": {
+          "doelPillValue#2049:1725": {
+            "type": "TEXT",
+            "refs": 1
+          },
+          "doelPillUnit#2049:1726": {
             "type": "TEXT",
             "refs": 1
           }
@@ -2929,7 +2971,42 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:29066",
+          "id": "2050:34113",
+          "type": "RECTANGLE"
+        }
+      ]
+    },
+    "SubtitleProgress": {
+      "pageId": "2026:15620",
+      "primary": {
+        "name": "default",
+        "id": "2036:21912",
+        "type": "COMPONENT",
+        "publishStatus": "CHANGED",
+        "bouwhash": "1ghkmo2:6",
+        "componentProperties": [
+          "left#2036:1000",
+          "subtitleText#2049:1729"
+        ],
+        "eigenVulling": 0,
+        "variantenMetVulling": null,
+        "eigenschappen": {
+          "left#2036:1000": {
+            "type": "TEXT",
+            "refs": 1
+          },
+          "subtitleText#2049:1729": {
+            "type": "TEXT",
+            "refs": 1
+          }
+        },
+        "variantProperties": null,
+        "varianten": null
+      },
+      "extra": [
+        {
+          "name": "achtergrond",
+          "id": "2050:34292",
           "type": "RECTANGLE"
         }
       ]
@@ -2945,7 +3022,9 @@
         "componentProperties": [
           "heroLabel#2036:1001",
           "heroText#2036:1002",
-          "subLabel#2036:1003"
+          "subLabel#2036:1003",
+          "subtitleText#2049:1727",
+          "subtitleText_bbc#2049:1728"
         ],
         "eigenVulling": 0,
         "variantenMetVulling": null,
@@ -2961,6 +3040,14 @@
           "subLabel#2036:1003": {
             "type": "TEXT",
             "refs": 1
+          },
+          "subtitleText#2049:1727": {
+            "type": "TEXT",
+            "refs": 1
+          },
+          "subtitleText_bbc#2049:1728": {
+            "type": "TEXT",
+            "refs": 1
           }
         },
         "variantProperties": null,
@@ -2969,7 +3056,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2045:30213",
+          "id": "2050:34125",
           "type": "RECTANGLE"
         }
       ]
@@ -2980,19 +3067,31 @@
         "name": "default",
         "id": "2036:21938",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "9rbw81:12",
-        "componentProperties": [],
+        "componentProperties": [
+          "doelPillValue#2049:1723",
+          "doelPillUnit#2049:1724"
+        ],
         "eigenVulling": 0,
         "variantenMetVulling": null,
-        "eigenschappen": {},
+        "eigenschappen": {
+          "doelPillValue#2049:1723": {
+            "type": "TEXT",
+            "refs": 1
+          },
+          "doelPillUnit#2049:1724": {
+            "type": "TEXT",
+            "refs": 1
+          }
+        },
         "variantProperties": null,
         "varianten": null
       },
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:27253",
+          "id": "2050:34031",
           "type": "RECTANGLE"
         }
       ]
@@ -3003,7 +3102,7 @@
         "name": "ProgressBar",
         "id": "2036:21970",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "w3d562:31",
         "componentProperties": [
           "fillKind",
@@ -3080,8 +3179,8 @@
         "name": "KpiRow",
         "id": "2036:22083",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1sdmfnt:113",
+        "publishStatus": "CHANGED",
+        "bouwhash": "6js8px:113",
         "componentProperties": [
           "label#2036:1004",
           "value#2036:1021",
@@ -3219,8 +3318,8 @@
         "name": "ConnectionOverlay",
         "id": "2036:22166",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "ncvpvg:83",
+        "publishStatus": "CHANGED",
+        "bouwhash": "pqdhio:83",
         "componentProperties": [
           "bleStatus"
         ],
@@ -3284,7 +3383,7 @@
         "name": "default",
         "id": "2036:22171",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "kk2us8:5",
         "componentProperties": [
           "title#2036:1038",
@@ -3308,7 +3407,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:29179",
+          "id": "2050:34321",
           "type": "RECTANGLE"
         }
       ]
@@ -3319,7 +3418,7 @@
         "name": "default",
         "id": "2036:22184",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "1jt7k1o:12",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -3331,7 +3430,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:27455",
+          "id": "2050:34233",
           "type": "RECTANGLE"
         }
       ]
@@ -3342,7 +3441,7 @@
         "name": "default",
         "id": "2036:22209",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "hqrr7w:24",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -3354,7 +3453,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:27538",
+          "id": "2050:34316",
           "type": "RECTANGLE"
         }
       ]
@@ -3365,7 +3464,7 @@
         "name": "default",
         "id": "2036:22241",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "efh7qu:31",
         "componentProperties": [
           "colAvg#2036:1040",
@@ -3389,7 +3488,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2043:29210",
+          "id": "2050:34286",
           "type": "RECTANGLE"
         }
       ]
@@ -3400,11 +3499,15 @@
         "name": "DeviceSection",
         "id": "2036:23247",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
-        "bouwhash": "1wnjkan:1005",
+        "publishStatus": "CHANGED",
+        "bouwhash": "8z24t9:1005",
         "componentProperties": [
           "hrDeviceName#2036:1042",
           "deviceName#2036:1083",
+          "label#2049:1730",
+          "actionText#2049:1771",
+          "label_bcab#2049:1812",
+          "actionText_bcba#2049:1853",
           "bleStatus",
           "hrStatus"
         ],
@@ -3418,6 +3521,22 @@
           "deviceName#2036:1083": {
             "type": "TEXT",
             "refs": 5
+          },
+          "label#2049:1730": {
+            "type": "TEXT",
+            "refs": 35
+          },
+          "actionText#2049:1771": {
+            "type": "TEXT",
+            "refs": 40
+          },
+          "label_bcab#2049:1812": {
+            "type": "TEXT",
+            "refs": 24
+          },
+          "actionText_bcba#2049:1853": {
+            "type": "TEXT",
+            "refs": 40
           },
           "bleStatus": {
             "type": "VARIANT",
@@ -3622,7 +3741,7 @@
         "name": "GoalHeader",
         "id": "2036:23333",
         "type": "COMPONENT_SET",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "ptmufy:86",
         "componentProperties": [
           "selectedSegment"
@@ -3677,7 +3796,7 @@
         "name": "default",
         "id": "2036:23339",
         "type": "COMPONENT",
-        "publishStatus": "CURRENT",
+        "publishStatus": "CHANGED",
         "bouwhash": "jmymjc:6",
         "componentProperties": [],
         "eigenVulling": 0,
@@ -3689,7 +3808,7 @@
       "extra": [
         {
           "name": "achtergrond",
-          "id": "2040:28593",
+          "id": "2050:35371",
           "type": "RECTANGLE"
         }
       ]

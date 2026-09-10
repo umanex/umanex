@@ -18,10 +18,19 @@
  * gradient 151,05x42 op dx=dy=1, precies twee keer de randbreedte kleiner).
  */
 export function bedektPredikaat(n) {
-  const rand = n.border ?? 0;
+  // TOLERANTIE PER ZIJDE. `n.border` is sinds 2026-09-09 het MAXIMUM van vier zijden, en die
+  // waarde is hier geen randbreedte maar de inzet van de content-box — dus voor een node met
+  // `0/0/1/0` zou hij de doos aan alle vier de kanten 1 px ruimer maken dan hij is. Gemeten op
+  // de spec van die dag: 0 van de 77 asymmetrische nodes heeft een absoluut vullingskind, dus
+  // de drie definities (boven-only, maximum, per zijde) geven alle drie 64 opgevouwen kinderen.
+  // Dat is GEEN bewijs dat ze het eens zijn — het is de mededeling dat het geval hier niet
+  // voorkomt. Daarom staat de meetkundig juiste regel er, niet de regel die vandaag toevallig
+  // hetzelfde antwoord geeft.
+  const [rBoven, rRechts, rOnder, rLinks] = n.borderZijden
+    ?? [n.border ?? 0, n.border ?? 0, n.border ?? 0, n.border ?? 0];
   return (k) => k.abs && !k.k && !k.t && (k.grad || k.bg)
-    && Math.abs(k.dx ?? 0) <= rand + 0.5 && Math.abs(k.dy ?? 0) <= rand + 0.5
-    && k.w >= n.w - 2 * rand - 0.5 && k.h >= n.h - 2 * rand - 0.5;
+    && Math.abs(k.dx ?? 0) <= rLinks + 0.5 && Math.abs(k.dy ?? 0) <= rBoven + 0.5
+    && k.w >= n.w - rLinks - rRechts - 0.5 && k.h >= n.h - rBoven - rOnder - 0.5;
 }
 
 /** De kinderen die in Figma een eigen node worden — dus zonder de opgevouwen achtergronden. */

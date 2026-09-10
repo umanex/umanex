@@ -30,7 +30,14 @@ const meta = {
   },
   args: {
     label: 'E-mailadres',
-    value: 'jeroen@umanex.be',
+    // LEEG, en dat is een ontwerpbesluit, geen detail: de variant in de library is de LEGE
+    // toestand met zijn placeholder, niet een ingevuld veld. Zonder deze regel is de
+    // placeholder-fix per constructie inert — de schermen bouwen FormField als instance
+    // (6 instances, 0 terugval) en tekst steekt die grens alleen over via een slot.
+    // `markeerSlots` maakt een slot van tekst die letterlijk gelijk is aan een string-arg:
+    // met een waarde erin wordt dat `value`, en dan staat er in Figma leesbare tekst waar de
+    // browser bolletjes toont. Met een lege waarde wordt het `placeholder`, in fg.tertiary.
+    value: '',
     placeholder: 'jij@voorbeeld.be',
     secureTextEntry: false,
     error: null,
