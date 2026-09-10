@@ -218,13 +218,22 @@ herbouwd (1,4 tot 5,5 s per scherm), schermgeometrie vers, `parity` 0, 24 beelde
       30/30 · `parity --selftest` 9/9 · `instance-tekst --selftest` 6/6, ratel 0 stil /
       37 terugval · `figma:check` 14/14 en `figma:check:selftest` 47/47, beide gemeten
       **vóór** de spec gecommit was
-- [ ] `figma:check`, `figma:check:selftest` en `parity` op de gecommitte staat — **rood, en
-      terecht.** Alle drie hangen aan één oorzaak: de spec is vooruitgelopen op Figma.
-      `parity` weigert `geometry.figma.json` op schema 2 (dat is de poort van deze ronde die
-      zijn eigen werk tegenhoudt), `[publicatie]` meldt dat de bouwspec (21:04) jonger is dan
-      de Figma-momentopname (20:02), en de guard-zelftest weigert te draaien zolang de guard
-      al rood staat — *"de zelftest kan niets onderscheiden"*. Eén Figma-ronde maakt alle drie
-      tegelijk groen; tot dan is de PR terecht niet mergebaar
+- [x] `figma:check`, `figma:check:selftest` en `parity` op de gecommitte staat — bewijs: na de
+      Figma-ronde van 2026-09-10 `figma:check` 14/14, `figma:check:selftest` 47/47,
+      `figma:poort:selftest` 30/30, `parity --selftest` 9/9, `instance-tekst --selftest` 6/6,
+      `beeld:selftest` groen. Ze stonden alle drie rood op één oorzaak — de spec was
+      vooruitgelopen op Figma — en één ronde maakte ze tegelijk groen, zoals voorspeld
+- [x] De Figma-kant is herbouwd en `parity` staat op nul — bewijs: 45 componenten in place
+      bijgewerkt (198 nodes hielden hun key, 0 geweigerd, 0 geforceerd), 24 schermframes
+      herbouwd, geometrie op schema 3 uit béíde bestanden, **0 verschillen over 3 521 nodes**
+- [x] De randen per zijde werken op de runtime — bewijs: `rand-per-zijde-geweigerd` vuurde over
+      alle 45 componenten geen enkele keer, en `parity` vergelijkt de vier zijden per node;
+      eigenaardigheid 11 stond tot die dag als *"nog niet op de runtime getoetst"*
+- [x] Het beeld daalt en geen enkel scherm blijft achter — bewijs: tegen de basislijn van vóór
+      de ronde (`3fdb78d`) **14 frames beter, 9 gelijk, 1 slechter**, som grof **74,36 →
+      56,18**. De winst zit waar de klassen beten: HistoryScreen −3,86 / −3,09 / −2,65 en
+      WorkoutDetail −3,65 / −2,78. LoginScreen staat op +0,10, het restant van twee marges die
+      Figma niet kan uitdrukken en die in `margeRest` gemeld worden
 - [ ] De Figma-kant is herbouwd en parity + beeld staan op nul — **niet uitgevoerd**: de Desktop
       Bridge stond uit. Dit is de helft van de ronde die alleen op de runtime te bewijzen is;
       zie *Wat deze ronde NIET bewijst* hierboven
@@ -303,13 +312,31 @@ niets gemeten had. Zodra dezelfde spec gecommit was, viel hij om. Hij slaat nu o
 rail *een instrument dat draait is nog geen instrument dat meet*, met het instrument dat de
 melding er gratis bij gaf.
 
-**Wat deze ronde NIET bewijst.** De Desktop Bridge stond uit, dus er is geen Figma-herbouw, geen
-vers manifest, geen verse geometrie en geen beeldronde. Alles hierboven is gemeten op de spec en
-op de DOM. Twee dingen wachten daarom expliciet op de runtime: de toewijzing van de losse
-`strokeTopWeight`-velden (de builder meldt een weigering luid in plaats van stil een volle doos
-te zetten) en of `clipsContent = true` op 393 nodes de beeld-as niet juist omhoog duwt — Figma
-meet dezelfde tekst breder dan Chromium, en waar de browser overloopt zal Figma voortaan
-afkappen. Dat is de eerlijke transcriptie, maar het is een verandering die het beeld kan raken.
+**En het beeld vond twee defecten die parity per constructie niet kón zien.** De eerste
+schermronde maakte drie auth-schermen SLECHTER (+3,48, +1,84, +1,67) terwijl parity op nul
+stond. Twee oorzaken, allebei in klassen die deze ronde zelf toevoegde:
+
+*Een spacer kost een extra gap.* Auto-layout zet een gap aan béíde zijden van een ingevoegde
+node, dus waar de browser `gap + marge` maakt, maakte Figma `gap + spacer + gap`. Gemeten op
+LoginScreen (gap 16, marge 8): browser 24 px tussen subtitle en het eerste veld, Figma 40. Twee
+zulke naden plus een weggevallen negatieve marge maakten het blok 40 px hoger, en omdat de
+container centreert schoof alles ±20 px uit elkaar. De spacer is nu `overschot − gap`; is die
+niet positief, dan is de naad met een spacer per constructie niet uit te drukken — invoegen zou
+ruimte TOEVOEGEN — en gaat hij naar `margeRest`. 18 spacers werden er 5, de verschuiving ±20
+werd ±4.
+
+*Het inline label overlapte.* Klasse E carrieerde de run wél naar de spec, maar de builder hing
+hem achteraan in een frame zónder auto-layout: run en kind landden allebei op x=0. `linkText`
+was een frame van 208×18 met twee kinderen op dezelfde plek. Het is nu een huggende
+HORIZONTAL-rij op de baseline, met de run op de plek waar de DOM hem heeft — en die plek meet
+de walker (`t.voor`) in plaats van hem aan te nemen.
+
+Waarom parity blind was: hij vergelijkt hoogtes, gaps en padding, niet de posities van
+stromende kinderen, en het `label`-kind wordt per syntheseregel weggesneden vóór de
+vergelijking. De klasse-L-tekst zei dat al over de marges; deze ronde bouwde er een tweede geval
+bovenop. **De les is niet "voeg posities toe aan parity"** — dat zou de as vastpinnen op een
+layout-engine — maar dat het beeld de enige as is die de sóm van kleine fouten ziet, en dat een
+klasse pas af is als hij dáár gemeten is.
 
 ## Waar de lessen landen
 
