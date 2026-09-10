@@ -1,5 +1,5 @@
 # Context Snapshot — rowtrack
-_Gegenereerd op 2026-09-09_
+_Gegenereerd op 2026-09-10_
 
 ## Project
 - **App:** rowtrack
@@ -73,15 +73,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+61f2488 fix(rowtrack): separate "uncommitted" from "no git history" in the publication axis
 69f56c5 docs(rowtrack): make the closed items' checks test the fix, not the class
 5766879 docs(rowtrack): put the measured numbers in the blind-spot meter
 6b0a3b1 fix(rowtrack): the publication axis counted as green while saying it measured nothing
 380cf2d fix(rowtrack): measure the background fold per side, and close the round's paperwork
-053de55 feat(rowtrack): carry per-side borders, derived slots and scroll into Figma
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/scripts/figma-sync-check.mjs
+  M  apps/rowtrack/figma/build-spec.min.json
+  M  apps/rowtrack/figma/manifest.json
+  M  apps/rowtrack/scripts/figma-build-prune.mjs
 
 ## Bestanden met TODO/FIXME
   (geen)

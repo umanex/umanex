@@ -438,12 +438,20 @@ function markeerAfgeleideSlots(uit) {
        * Gemeten vóór deze poort: 68 afgeleide slots, waarvan `Chip.value_aa` en `Button.text`
        * op nodes die de walker al had.
        */
-      let laagnaam = null;
+      let laagnaam = null, alleenIcoon = true;
       for (const v of d.varianten) {
         const n = daal(wortel(v.boom, comp), pad);
-        if (n?.t && !n.slot) { laagnaam = n.naam ?? null; break; }
+        if (!n?.t || n.slot) continue;
+        // Een ICOON-glyph draagt geen property. `builder.js` maakt van een Ionicons-tekstnode
+        // een zichtbaar placeholder-frame in plaats van een TEXT — het font bestaat niet in
+        // Figma — en `slotVangst` vult zich alleen in de tekst-tak. De naam zou dus in
+        // `d.slots` staan zonder dat de component hem heeft, en `bouw-schermen.js` zou hem per
+        // schermvoorkomen proberen te zetten en melden dat hij niet bestaat.
+        // Gemeten 2026-09-10: precies één geval, `EmptyState.icon` (U+F62F).
+        if (!(!n.k && /^ionicons$/i.test(n.t.f ?? ''))) alleenIcoon = false;
+        if (laagnaam === null) laagnaam = n.naam ?? null;
       }
-      if (laagnaam === null) continue;
+      if (laagnaam === null || alleenIcoon) continue;
       const stam = String(laagnaam).replace(/\d+$/, '').replace(/[^A-Za-z_]/g, '') || 'veld';
       const naam = bestaand.has(stam) ? stam + letters(pad) : stam;
       if (bestaand.has(naam)) continue;              // twee paden, dezelfde laagnaam én dezelfde letters kan niet
