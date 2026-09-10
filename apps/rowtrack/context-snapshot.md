@@ -73,16 +73,17 @@ _Afgeleid uit de codebase — niet manueel aanpassen. Bron: `// @figma`-headers 
 
 ## Recente commits (app + packages)
 ```
+adb0cf7 test(rowtrack): library geometry on schema 3, and parity at zero over 2022 nodes
 c1ec8e5 feat(rowtrack): rebuild the library from the new spec, and drop a slot that has no node
 61f2488 fix(rowtrack): separate "uncommitted" from "no git history" in the publication axis
 69f56c5 docs(rowtrack): make the closed items' checks test the fix, not the class
 5766879 docs(rowtrack): put the measured numbers in the blind-spot meter
-6b0a3b1 fix(rowtrack): the publication axis counted as green while saying it measured nothing
 ```
 
 ## Uncommitted wijzigingen
-  M  apps/rowtrack/figma/geometry.figma.json
-  M  apps/rowtrack/figma/library-component-keys.json
+  M  apps/rowtrack/CLAUDE.md
+  M  apps/rowtrack/figma/bouw-schermen.js
+  M  apps/rowtrack/figma/voorverwarm-imports.js
 
 ## Bestanden met TODO/FIXME
   (geen)

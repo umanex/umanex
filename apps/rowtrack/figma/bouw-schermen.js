@@ -95,6 +95,41 @@ try {
   }
 
   /**
+   * DE LIBRARY-VERSIE VAN DÍT BESTAND, VOORDAT ER IETS GEBOUWD WORDT.
+   *
+   * Een consumerend bestand houdt een eigen spiegel van de library, en die loopt achter tot
+   * Figma de update binnenhaalt. `importComponentByKeyAsync` geeft die spiegel terug, niet de
+   * laatst gepubliceerde versie — zonder fout, zonder waarschuwing. Gemeten 2026-09-10, ná een
+   * bevestigde publicatie (alle 45 op CURRENT in de library): `HeroPanel` importeerde met drie
+   * van zijn vijf properties, `ActiveHeader` en `GoalPill` met nul. De schermbouw liep gewoon
+   * door en meldde per voorkomen `slot "..." bestaat niet` — 36 meldingen over zes frames,
+   * waarna die teksten stil de library-data tonen. Dat is precies de klasse die deze ronde
+   * sloot, teruggekomen langs een andere weg.
+   *
+   * Er is geen plugin-API om de spiegel te verversen (`figma.teamLibrary` draagt er niets voor,
+   * gemeten). Dus: toetsen en weigeren, niet bouwen en melden. De gebruiker haalt de update
+   * binnen in het Assets-paneel van dit bestand.
+   */
+  const achterstallig = [];
+  for (const [naam, inst] of Object.entries(instanties)) {
+    const verwacht = new Set(Object.keys(inst.varianten
+      ? Object.values(inst.varianten).reduce((a, v) => ({ ...a, ...v.slotPaden }), {})
+      : (inst.slotPaden ?? {})));
+    if (!verwacht.size) continue;
+    let comp;
+    try { comp = inst.varianten ? await figma.importComponentSetByKeyAsync(inst.key) : await figma.importComponentByKeyAsync(inst.key); }
+    catch (e) { achterstallig.push(`${naam}: niet te importeren (${e.message})`); continue; }
+    const aanwezig = Object.keys(comp.componentPropertyDefinitions ?? {}).map(k => k.split('#')[0]);
+    const mist = [...verwacht].filter(v => !aanwezig.includes(v));
+    if (mist.length) achterstallig.push(`${naam}: mist ${mist.join(', ')} (heeft ${aanwezig.join(', ') || 'geen properties'})`);
+  }
+  if (achterstallig.length) return {
+    fout: 'de library-spiegel van dit bestand is achterstallig — haal de update binnen in het Assets-paneel '
+      + 'en draai opnieuw; bouwen zou instances opleveren die stil de library-data tonen',
+    achterstallig,
+  };
+
+  /**
    * EEN TIJDBUDGET, WANT DE WACHTLIMIET IS DODELIJK MIDDEN IN EEN IMPORT.
    *
    * Gemeten 2026-09-09, twee keer: een schermbouw die de 30 s van `figma_execute` overschreed

@@ -23,7 +23,23 @@ const WACHT_MS = 6000;
 const t0 = Date.now();
 const keys = await (await fetch(`http://localhost:${POORT}/library-component-keys.json`)).json();
 const bib = await (await fetch(`http://localhost:${POORT}/library-keys.json`)).json();
+/**
+ * DE MARKER OVERLEEFT EEN PUBLICATIE, EN DAT IS ZIJN GEVAARLIJKSTE EIGENSCHAP.
+ *
+ * `voorverwarmd` staat in pluginData en blijft dus tussen sessies staan. Publiceert iemand de
+ * library, dan moet élke import opnieuw over het netwerk — precies waar deze voorverwarming
+ * voor bestaat — maar de marker zegt nog altijd "gedaan". Gemeten 2026-09-10, direct ná een
+ * publicatie: de ronde meldde `ms: 8, dezeRonde: 0, resterend: 0` en deed niets; ná het wissen
+ * van de marker was het `ms: 3623, dezeRonde: 315`, met styles tot 381 ms. Een stap die per
+ * constructie niet kan klagen is geen handeling maar een aanname.
+ *
+ * Twee remmen. `VERS === true` gooit de marker weg — zet hem ná elke publicatie. En een ronde
+ * die niets deed terwijl er wél markeringen stonden, zegt dat nu hardop in `letOp` in plaats
+ * van als `resterend: 0` door te gaan voor succes.
+ */
+if (typeof VERS !== 'undefined' && VERS === true) figma.root.setPluginData('voorverwarmd', '');
 const klaar = new Set((figma.root.getPluginData('voorverwarmd') || '').split('\n').filter(Boolean));
+const stondAl = klaar.size;
 const race = (p) => Promise.race([p, new Promise((_, nee) => setTimeout(() => nee(new Error(`geen antwoord binnen ${WACHT_MS} ms`)), WACHT_MS))]);
 
 const taken = [];
@@ -46,4 +62,7 @@ for (const t of taken) {
   catch (e) { fouten.push(`${t.id}: ${e.message}`); if (/geen antwoord/.test(e.message)) break; }
 }
 figma.root.setPluginData('voorverwarmd', [...klaar].join('\n'));
-return { ms: Date.now() - t0, totaal: taken.length, alGedaan: klaar.size, dezeRonde: gedaan.length, resterend: taken.filter(t => !klaar.has(t.id)).length, traagste: gedaan.map(g => [g, Number(g.split(' ').at(-2))]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(g => g[0]), fouten };
+return { ms: Date.now() - t0, totaal: taken.length, alGedaan: klaar.size, dezeRonde: gedaan.length,
+  letOp: (gedaan.length === 0 && stondAl > 0)
+    ? `0 imports gedaan: alle ${stondAl} stonden al gemarkeerd. Ná een publicatie is die markering ONGELDIG — draai opnieuw met VERS=true.`
+    : null, resterend: taken.filter(t => !klaar.has(t.id)).length, traagste: gedaan.map(g => [g, Number(g.split(' ').at(-2))]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(g => g[0]), fouten };

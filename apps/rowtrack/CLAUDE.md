@@ -123,7 +123,7 @@ tegenproef van de rondgang, geen risico.
 | Componentpagina's | **21 COMPONENT_SETs met 172 variant-nodes plus 24 losse componenten = 45 pagina's** (stand 2026-09-09, geteld in `figma/manifest.json`) |
 | Schermpagina's | **geen** — de schermen staan sinds 2026-09-08 niet meer in dit bestand maar als 24 frames op *Screens v2* in `T1bGrvIzSNeLyh5CbarATZ`, opgebouwd uit instances van deze library |
 
-**Elf eigenaardigheden, elk gemeten en niet af te leiden:**
+**Twaalf eigenaardigheden, elk gemeten en niet af te leiden:**
 
 1. `Core/fontFamily/sourceSerif` staat in de bron als `"Source Serif Pro"`, maar dat is de
    *opzoeksleutel* in de FONTS-tabel; de app rendert **Source Serif 4**. De Figma-variabele
@@ -216,6 +216,31 @@ tegenproef van de rondgang, geen risico.
    verandert. **De toewijzing van de losse breedtes is nog niet op de runtime getoetst** —
    de Bridge stond uit toen dit geschreven werd; de builder meldt een weigering luid
    (`rand-per-zijde-geweigerd`) in plaats van stil een volle doos te zetten.
+
+12. **Een consumerend bestand houdt zijn eigen library-spiegel, en die loopt achter.** Publiceren
+   in `RowTrack -  Design System` is niet genoeg: `RowTrack - Design` blijft de vorige versie
+   zien tot de update daar binnengehaald is (Assets-paneel). `importComponentByKeyAsync` geeft
+   die achterstallige spiegel terug — géén fout, géén waarschuwing. Gemeten 2026-09-10, ná een
+   bevestigde publicatie (alle 45 op `CURRENT` in de library, nagelezen via de runtime):
+   `HeroPanel` importeerde met drie van zijn vijf properties, `ActiveHeader` en `GoalPill` met
+   nul. De schermbouw liep gewoon door, meldde 36× `slot "..." bestaat niet` over zes frames,
+   en die teksten tonen daarna stil de library-data — precies de klasse die
+   `figma:instance-tekst` op nul had gezet, teruggekomen langs een andere weg.
+
+   Er is **geen plugin-API** om die spiegel te verversen: `figma.teamLibrary` draagt geen
+   enkele methode in deze runtime (gemeten met `getOwnPropertyNames`), en de remote componenten
+   staan niet als node in het document, dus er valt ook niets weg te gooien. Daarom toetst
+   `figma/bouw-schermen.js` het sinds die dag vóór de eerste write: per component wordt de
+   geïmporteerde `componentPropertyDefinitions` gelegd naast de slots die de spec verwacht, en
+   bij een gat weigert hij te bouwen met de lijst erbij. De volgorde is dus: **library
+   publiceren → in het schermenbestand de update binnenhalen → dan pas schermen bouwen.**
+
+   *En de voorverwarming ziet dit niet.* `figma/voorverwarm-imports.js` markeert wat hij
+   geïmporteerd heeft in `pluginData`, en die markering overleeft een publicatie. Direct ná het
+   publiceren meldde hij `ms: 8, dezeRonde: 0, resterend: 0` — hij deed niets en dat las als
+   succes. Ná het wissen van de marker: `ms: 3623, dezeRonde: 315`, met styles tot 381 ms. Hij
+   draagt nu een `VERS`-vlag (zet hem ná elke publicatie) en zegt het hardop in `letOp` wanneer
+   een ronde nul imports deed terwijl er markeringen stonden.
 
 **Twee dingen over de Bridge die je pas merkt als het misgaat.**
 
